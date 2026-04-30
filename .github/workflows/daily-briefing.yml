@@ -4,7 +4,7 @@ on:
   # 每天早上 9:00 北京时间 (01:00 UTC)
   schedule:
     - cron: '0 1 * * *'
-  # 支持手动触发（方便调试）
+  # 支持手动触发
   workflow_dispatch:
 
 permissions:
@@ -23,6 +23,17 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
+    # 所有步骤共享的环境变量（来自 GitHub Secrets）
+    env:
+      API_BASE_URL: ${{ secrets.API_BASE_URL }}
+      API_KEY: ${{ secrets.API_KEY }}
+      MODEL_NAME: ${{ secrets.MODEL_NAME }}
+      SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+      AUTH_CODE: ${{ secrets.AUTH_CODE }}
+      RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
+      SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+      SMTP_PORT: ${{ secrets.SMTP_PORT }}
+
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
@@ -32,10 +43,16 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: 运行新闻抓取脚本
+      - name: 安装依赖
+        run: pip install python-dotenv
+
+      - name: ① 抓取新闻 + AI 分析 + 生成 HTML
         run: python generate_briefing.py
 
-      - name: 复制首页 (GitHub Pages 需要 index.html)
+      - name: ② 发送邮件推送
+        run: python send_email.py
+
+      - name: 复制首页 (Pages 需要 index.html)
         run: cp tech-briefing.html index.html
 
       - name: 提交并推送更新
@@ -43,7 +60,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          # 只有当有变更时才提交
           git diff --quiet && git diff --staged --quiet || git commit -m "🤖 每日简报自动更新 $(date +'%Y-%m-%d')"
           git push
 
