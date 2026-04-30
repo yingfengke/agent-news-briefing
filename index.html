@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI &amp; Agent 开发者晨报</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+      background-color: #f5f4f0; color: #1a1a1a;
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; padding: 60px 20px 80px;
+    }
+    .header {
+      text-align: left; width: 100%; max-width: 720px;
+      margin-bottom: 40px; padding-left: 20px; border-left: 4px solid #1a1a1a;
+    }
+    .header .subtitle { font-size: 0.75rem; color: #aaa; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 6px; }
+    .header h1 { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2; }
+    .header p { margin-top: 8px; font-size: 0.88rem; color: #888; }
+
+    .btn-generate {
+      display: inline-flex; align-items: center; gap: 10px;
+      background-color: #1a1a1a; color: #fff;
+      font-size: 0.95rem; font-weight: 600; padding: 13px 30px;
+      border: 2px solid #1a1a1a; border-radius: 50px; cursor: pointer;
+      transition: all 0.2s; letter-spacing: 0.03em;
+    }
+    .btn-generate:hover { background-color: #fff; color: #1a1a1a; transform: translateY(-2px); }
+    .btn-generate:active { transform: translateY(0); }
+    .btn-generate:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+    .loading {
+      margin-top: 32px; font-size: 0.9rem; color: #888;
+      display: none; align-items: center; gap: 10px;
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    .loading.visible { display: flex; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .loading .dots { display: flex; gap: 5px; }
+    .loading .dot { width: 6px; height: 6px; background: #aaa; border-radius: 50%; animation: bounce 1.2s ease-in-out infinite; }
+    .loading .dot:nth-child(2) { animation-delay: 0.2s; }
+    .loading .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+    .news-list {
+      margin-top: 36px; width: 100%; max-width: 720px;
+      display: none; flex-direction: column; gap: 18px;
+    }
+    .news-list.visible { display: flex; }
+
+    .news-card {
+      background: #fff; border: 1px solid #e5e5e5; border-radius: 14px;
+      padding: 22px 26px; transition: transform 0.2s, box-shadow 0.2s;
+      animation: fadeUp 0.4s ease both;
+    }
+    .news-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.07); }
+    .news-card:nth-child(1) { animation-delay: 0.05s; }
+    .news-card:nth-child(2) { animation-delay: 0.1s; }
+    .news-card:nth-child(3) { animation-delay: 0.15s; }
+    .news-card:nth-child(4) { animation-delay: 0.2s; }
+    .news-card:nth-child(5) { animation-delay: 0.25s; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .news-card .card-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .news-card .card-index { font-size: 0.72rem; font-weight: 700; color: #ccc; letter-spacing: 0.1em; }
+    .news-card .source-tag { font-size: 0.68rem; color: #888; background: #f0f0ee; padding: 2px 10px; border-radius: 20px; }
+    .news-card .card-title { font-size: 1rem; font-weight: 700; line-height: 1.5; color: #111; margin-bottom: 10px; }
+    .news-card .card-summary { font-size: 0.85rem; color: #555; line-height: 1.75; margin-bottom: 14px; }
+    .news-card .card-link { font-size: 0.8rem; font-weight: 600; color: #1a1a1a; text-decoration: none; border-bottom: 1.5px solid #1a1a1a; padding-bottom: 1px; transition: opacity 0.2s; }
+    .news-card .card-link:hover { opacity: 0.5; }
+
+    /* 深度分析卡片 */
+    .analysis-card {
+      background: #1a1a1a; color: #e8e8e8; border-radius: 14px;
+      padding: 26px 28px; margin-top: 20px; width: 100%; max-width: 720px;
+      display: none; animation: fadeUp 0.5s ease both;
+    }
+    .analysis-card.visible { display: block; }
+    .analysis-card .label { font-size: 0.72rem; color: #888; letter-spacing: 0.12em; margin-bottom: 12px; text-transform: uppercase; }
+    .analysis-card .content { font-size: 0.88rem; line-height: 1.8; color: #ccc; }
+
+    .empty-state {
+      margin-top: 40px; text-align: center; color: #bbb; display: none;
+    }
+    .empty-state.visible { display: block; }
+    .empty-state .icon-big { font-size: 2.8rem; margin-bottom: 14px; }
+    .empty-state p { font-size: 0.88rem; line-height: 1.8; }
+    .empty-state .hint { margin-top: 6px; font-size: 0.8rem; color: #ccc; }
+
+    .timestamp { margin-top: 16px; font-size: 0.75rem; color: #bbb; text-align: right; width: 100%; max-width: 720px; display: none; }
+    .timestamp.visible { display: block; }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="subtitle">☕ 每日推送 · AI 开发者专属</div>
+    <h1>AI &amp; Agent 开发者晨报</h1>
+    <p id="today-date">Loading date…</p>
+  </header>
+
+  <button class="btn-generate" onclick="generateBriefing()">
+    生成今日简报
+  </button>
+
+  <div class="loading" id="loading">
+    <div class="dots">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+    <span>正在分析今日 AI 动态……</span>
+  </div>
+
+  <div class="empty-state" id="empty-state">
+    <div class="icon-big">📭</div>
+    <p>今日晨报尚未生成</p>
+    <p class="hint">每天早上 9:00 自动抓取 AI 领域最新动态<br>届时刷新页面即可查看</p>
+  </div>
+
+  <div class="news-list" id="news-list"></div>
+
+  <div class="analysis-card" id="analysis-card">
+    <div class="label">📊 今日深度分析</div>
+    <div class="content" id="analysis-content"></div>
+  </div>
+
+  <div class="timestamp" id="timestamp"></div>
+
+  <script>
+    // 初始化日期
+    (function initDate() {
+      const now = new Date();
+      const opts = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+      document.getElementById('today-date').textContent =
+        now.toLocaleDateString('zh-CN', opts);
+    })();
+
+    // ========================================================
+    // 新闻数据 — 由 generate_briefing.py 自动替换
+    // [{title, summary, link, source}]
+    // ========================================================
+    const __NEWS_DATA__ =         [
+            {
+                "title": "Claude Code costs up to $200 a month. Goose does the same thing for free.",
+                "summary": "开源AI编码工具Goose免费提供与Claude Code（每月200美元）相似的功能，包括代码生成、调试和重构。对开发者而言，这意味着可大幅降低AI辅助开发成本，且Goose支持本地部署，避免API依赖和数据隐私风险。",
+                "link": "https://venturebeat.com/infrastructure/claude-code-costs-up-to-usd200-a-month-goose-does-the-same-thing-for-free",
+                "source": "VentureBeat AI"
+            },
+            {
+                "title": "Claude Code refuses requests or charges extra if your commits mention 'OpenClaw'",
+                "summary": "用户发现Claude Code在检测到commit消息包含'OpenClaw'时，会拒绝执行或额外收费。这暴露了AI工具对特定关键词的敏感策略，开发者需警惕AI编码工具的隐性限制和定价不透明问题，可能影响工作流稳定性。",
+                "link": "https://twitter.com/theo/status/2049645973350363168",
+                "source": "HackerNews"
+            },
+            {
+                "title": "Railway secures $100 million to challenge AWS with AI-native cloud infrastructure",
+                "summary": "Railway获1亿美元融资，打造AI原生云平台，提供一键部署、自动扩缩容和GPU优化。对开发者而言，这意味着更低的AI应用部署门槛和成本，可能替代AWS的复杂配置，尤其适合快速原型和中小型AI Agent项目。",
+                "link": "https://venturebeat.com/infrastructure/railway-secures-usd100-million-to-challenge-aws-with-ai-native-cloud",
+                "source": "VentureBeat AI"
+            },
+            {
+                "title": "Meta says its business AI now facilitates 10 million conversations a week",
+                "summary": "Meta的Business AI每周处理1000万次对话，8亿广告主使用其GenAI工具。对开发者而言，这表明大模型在商业场景的规模化落地已成熟，可参考其对话系统架构和广告优化策略，用于构建高并发AI Agent。",
+                "link": "https://techcrunch.com/2026/04/30/meta-says-its-business-ai-now-facilitates-10-million-conversations-a-week/",
+                "source": "TechCrunch AI"
+            },
+            {
+                "title": "The hidden cost of Google's AI defaults and the illusion of choice",
+                "summary": "文章揭露Google Gemini默认启用AI功能，用户数据被用于模型训练且难以完全关闭。对开发者而言，这警示在集成第三方AI API时需评估数据隐私合规风险，并考虑自托管开源模型（如Goose）作为替代方案。",
+                "link": "https://arstechnica.com/ai/2026/04/googles-privacy-maze-how-gemini-traps-you-and-your-data/",
+                "source": "ArsTechnica"
+            },
+            {
+                "title": "SoftBank is creating a robotics company that builds data centers — and already eyeing a $100B IPO",
+                "summary": "软银成立机器人公司，专注建设AI数据中心，计划IPO估值1000亿美元。对开发者而言，这意味着未来AI基础设施将更自动化、标准化，可能降低GPU集群部署成本，但需关注对云服务商格局的影响。",
+                "link": "https://techcrunch.com/2026/04/29/softbank-is-creating-a-robotics-company-that-builds-data-centers-and-already-eyeing-a-100b-ipo/",
+                "source": "TechCrunch AI"
+            }
+        ];
+
+    // ========================================================
+    // 深度分析 — 由 generate_briefing.py 自动替换
+    // ========================================================
+    const __DAILY_ANALYSIS__ = "今日新闻凸显AI开发工具的两大趋势：成本民主化与基础设施原生AI化。Goose等免费开源工具对Claude Code形成直接挑战，结合Claude Code的隐性收费争议，未来半年开发者将加速转向开源方案，推动AI编码工具进入价格战和功能竞赛。同时，Railway的AI原生云平台和软银的机器人数据中心，预示AI基础设施将从通用云服务转向专为AI工作负载优化的架构，开发者部署AI Agent的门槛将显著降低，但需警惕数据隐私风险（如Google Gemini案例）。建议开发者优先评估开源工具（如Goose）和AI原生云平台，以平衡成本、控制权和合规性。";
+
+    // 渲染简报
+    function generateBriefing() {
+      const btn     = document.querySelector('.btn-generate');
+      const loading = document.getElementById('loading');
+      const list    = document.getElementById('news-list');
+      const empty   = document.getElementById('empty-state');
+      const ts      = document.getElementById('timestamp');
+      const ac      = document.getElementById('analysis-card');
+
+      btn.disabled = true;
+      list.innerHTML = '';
+      list.classList.remove('visible');
+      ac.classList.remove('visible');
+      empty.classList.remove('visible');
+      ts.classList.remove('visible');
+      loading.classList.add('visible');
+
+      setTimeout(() => {
+        loading.classList.remove('visible');
+
+        if (!__NEWS_DATA__ || __NEWS_DATA__.length === 0) {
+          empty.classList.add('visible');
+          btn.disabled = false;
+          return;
+        }
+
+        __NEWS_DATA__.forEach((item, i) => {
+          const card = document.createElement('div');
+          card.className = 'news-card';
+          card.innerHTML = `
+            <div class="card-meta">
+              <span class="card-index">No.${String(i + 1).padStart(2, '0')}</span>
+              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}
+            </div>
+            <div class="card-title">${item.title}</div>
+            <div class="card-summary">${item.summary}</div>
+            <a class="card-link" href="${item.link}" target="_blank">阅读原文 →</a>
+          `;
+          list.appendChild(card);
+        });
+
+        list.classList.add('visible');
+
+        // 深度分析
+        if (__DAILY_ANALYSIS__) {
+          document.getElementById('analysis-content').textContent = __DAILY_ANALYSIS__;
+          ac.classList.add('visible');
+        }
+
+        const now = new Date();
+        ts.textContent = `生成于 ${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        ts.classList.add('visible');
+
+        btn.disabled = false;
+        btn.textContent = '🔄 刷新';
+      }, 800);
+    }
+
+    window.addEventListener('DOMContentLoaded', generateBriefing);
+  </script>
+
+</body>
+</html>
