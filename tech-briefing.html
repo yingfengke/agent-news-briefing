@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>我的科技早餐简报</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+      background-color: #f5f4f0; color: #1a1a1a;
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; padding: 60px 20px 80px;
+    }
+    .header {
+      text-align: left; width: 100%; max-width: 680px;
+      margin-bottom: 48px; padding-left: 20px; border-left: 4px solid #1a1a1a;
+    }
+    .header h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2; }
+    .header p { margin-top: 8px; font-size: 0.9rem; color: #888; letter-spacing: 0.02em; }
+
+    .btn-generate {
+      display: inline-flex; align-items: center; gap: 10px;
+      background-color: #1a1a1a; color: #fff;
+      font-size: 1rem; font-weight: 600; padding: 14px 32px;
+      border: 2px solid #1a1a1a; border-radius: 50px; cursor: pointer;
+      transition: background-color 0.2s, color 0.2s, transform 0.15s; letter-spacing: 0.03em;
+    }
+    .btn-generate:hover { background-color: #fff; color: #1a1a1a; transform: translateY(-2px); }
+    .btn-generate:active { transform: translateY(0); }
+    .btn-generate .icon { font-size: 1.2rem; }
+
+    .loading {
+      margin-top: 32px; font-size: 0.95rem; color: #888;
+      display: none; align-items: center; gap: 10px;
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    .loading.visible { display: flex; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .loading-dot { width: 7px; height: 7px; background: #aaa; border-radius: 50%; animation: bounce 1.2s ease-in-out infinite; }
+    .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+    .news-list {
+      margin-top: 40px; width: 100%; max-width: 680px;
+      display: none; flex-direction: column; gap: 20px;
+      animation: fadeInUp 0.5s ease both;
+    }
+    .news-list.visible { display: flex; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+    .news-card {
+      background: #fff; border: 1px solid #e5e5e5; border-radius: 16px;
+      padding: 24px 28px; transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .news-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(0,0,0,0.08); }
+    .news-card .card-index { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; color: #bbb; text-transform: uppercase; margin-bottom: 8px; }
+    .news-card .card-title { font-size: 1.05rem; font-weight: 700; line-height: 1.5; color: #111; margin-bottom: 10px; }
+    .news-card .card-summary { font-size: 0.88rem; color: #555; line-height: 1.75; margin-bottom: 16px; }
+    .news-card .card-link { display: inline-block; font-size: 0.82rem; font-weight: 600; color: #1a1a1a; text-decoration: none; border-bottom: 1.5px solid #1a1a1a; padding-bottom: 1px; transition: opacity 0.2s; }
+    .news-card .card-link:hover { opacity: 0.5; }
+
+    .timestamp { margin-top: 12px; font-size: 0.78rem; color: #bbb; text-align: right; width: 100%; max-width: 680px; display: none; }
+    .timestamp.visible { display: block; }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <h1>我的科技早餐简报</h1>
+    <p id="today-date">Loading date…</p>
+  </header>
+
+  <button class="btn-generate" onclick="generateBriefing()">
+    <span class="icon">☕</span>
+    生成今日简报
+  </button>
+
+  <div class="loading" id="loading">
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+    <span>正在呼唤我的 AI 助手……</span>
+  </div>
+
+  <div class="news-list" id="news-list"></div>
+  <div class="timestamp" id="timestamp"></div>
+
+  <script>
+    // 初始化今日日期
+    (function initDate() {
+      const now = new Date();
+      const opts = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+      document.getElementById('today-date').textContent =
+        now.toLocaleDateString('zh-CN', opts) + ' · 早间版';
+    })();
+
+    // ========================================================
+    // 【新闻数据 — Python 自动替换标记】
+    // 下面的 __NEWS_DATA__ 会被 generate_briefing.py 搜索并替换。
+    // 格式必须为合法的 JSON 数组: [{title, summary, link}, ...]
+    // 当数组为空时，使用下方的 MOCK_NEWS 作为降级数据。
+    // ========================================================
+    const __NEWS_DATA__ =                                                 [
+            {
+                "title": "More than half of all \"long shot\" bets on Polymarket pay off",
+                "summary": "Sensitive information and the prediction markets can be a winning combination.",
+                "link": "https://arstechnica.com/tech-policy/2026/04/more-than-half-of-all-long-shot-bets-on-polymarket-pay-off/"
+            },
+            {
+                "title": "Florida Republicans reject plan to weaken childhood vaccine requirements",
+                "summary": "DeSantis had called for a special session to take up the proposed changes.",
+                "link": "https://arstechnica.com/health/2026/04/gop-led-florida-house-junks-desantis-plan-to-ease-vaccine-mandates/"
+            },
+            {
+                "title": "The hidden cost of Google's AI defaults and the illusion of choice",
+                "summary": "Google says it respects user privacy in AI, but the reality is not so black and white.",
+                "link": "https://arstechnica.com/ai/2026/04/googles-privacy-maze-how-gemini-traps-you-and-your-data/"
+            },
+            {
+                "title": "Google 给你贴上的价格标签",
+                "summary": "瑞士邮件服务商 Proton 利用 2025 年广告竞价数据，分析了逾 54,000 个人口画像，估算广告商为触达不同类美国人所支付的价格。结果显示不同人之间的价格差距远超想象。",
+                "link": "https://www.solidot.org/story?sid=84196"
+            },
+            {
+                "title": "亚洲多国加大燃煤发电以应对能源危机",
+                "summary": "最新的中东能源危机促使亚洲国家加大燃煤发电，而煤炭是高污染排放来源，如果这一趋势继续，全球气候变化问题将会愈发严峻。印度宣布推迟对国内燃煤电厂的维护检查。国际能源署（IEA）的数据显示，截至 2023 年，印度发电中煤炭占 74%。",
+                "link": "https://www.solidot.org/story?sid=84195"
+            }
+        ];
+
+    // 降级数据：当 __NEWS_DATA__ 为空时的备用展示
+    const MOCK_NEWS = [
+      { title: "欢迎使用科技早餐简报", summary: "这是默认展示的欢迎卡片。每天 9:00 GitHub Actions 会自动抓取最新科技新闻并更新此页面。点击「生成今日简报」即可查看当天的内容。", link: "#" },
+      { title: "查看今日最新科技动态", summary: "如果看到这条消息，说明自动抓取尚未完成或遇到问题。此页面将在每天早上 9:00 左右自动更新，届时有当日最新科技新闻呈现给您。", link: "#" },
+      { title: "反馈与建议", summary: "如遇到任何问题或有功能建议，欢迎在 GitHub 仓库中提交 Issue。本项目每天自动运行，为您精选值得关注的科技资讯。", link: "#" }
+    ];
+
+    // 选择数据源：优先使用 __NEWS_DATA__
+    function getNewsData() {
+      if (__NEWS_DATA__ && Array.isArray(__NEWS_DATA__) && __NEWS_DATA__.length > 0) {
+        return __NEWS_DATA__;
+      }
+      return MOCK_NEWS;
+    }
+
+    // 主函数：生成简报
+    function generateBriefing() {
+      const btn      = document.querySelector('.btn-generate');
+      const loading  = document.getElementById('loading');
+      const newsList = document.getElementById('news-list');
+      const timestamp = document.getElementById('timestamp');
+
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.style.cursor  = 'not-allowed';
+
+      newsList.innerHTML = '';
+      newsList.classList.remove('visible');
+      timestamp.classList.remove('visible');
+
+      loading.classList.add('visible');
+
+      setTimeout(() => {
+        loading.classList.remove('visible');
+
+        const data = getNewsData();
+        data.forEach((item, idx) => {
+          const card = document.createElement('div');
+          card.className = 'news-card';
+          card.innerHTML = `
+            <div class="card-index">No.${String(idx + 1).padStart(2, '0')}</div>
+            <div class="card-title">${item.title}</div>
+            <div class="card-summary">${item.summary}</div>
+            <a class="card-link" href="${item.link}" target="_blank">阅读原文 →</a>
+          `;
+          newsList.appendChild(card);
+        });
+
+        newsList.classList.add('visible');
+
+        const now = new Date();
+        timestamp.textContent = `由 AI 助手生成 · ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+        timestamp.classList.add('visible');
+
+        btn.disabled = false;
+        btn.style.opacity = '';
+        btn.style.cursor  = '';
+        btn.innerHTML = '<span class="icon">🔄</span> 重新生成';
+      }, 1200);
+    }
+
+    // 页面加载后自动生成简报
+    window.addEventListener('DOMContentLoaded', generateBriefing);
+  </script>
+
+</body>
+</html>
