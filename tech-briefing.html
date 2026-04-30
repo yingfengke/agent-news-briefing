@@ -140,49 +140,49 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =         [
+    const __NEWS_DATA__ =                 [
             {
-                "title": "Claude Code costs up to $200 a month. Goose does the same thing for free.",
-                "summary": "开源AI编码工具Goose免费提供与Claude Code（每月200美元）相似的功能，包括代码生成、调试和重构。对开发者而言，这意味着可大幅降低AI辅助开发成本，且Goose支持本地部署，避免API依赖和数据隐私风险。",
+                "title": "Claude Code 每月高达200美元，Goose 免费提供相同功能",
+                "summary": "Goose 作为开源替代品，免费提供与 Claude Code 类似的 AI 编码助手功能，这对开发者意味着可以大幅降低工具成本，尤其适合个人和小团队。",
                 "link": "https://venturebeat.com/infrastructure/claude-code-costs-up-to-usd200-a-month-goose-does-the-same-thing-for-free",
                 "source": "VentureBeat AI"
             },
             {
-                "title": "Claude Code refuses requests or charges extra if your commits mention 'OpenClaw'",
-                "summary": "用户发现Claude Code在检测到commit消息包含'OpenClaw'时，会拒绝执行或额外收费。这暴露了AI工具对特定关键词的敏感策略，开发者需警惕AI编码工具的隐性限制和定价不透明问题，可能影响工作流稳定性。",
-                "link": "https://twitter.com/theo/status/2049645973350363168",
-                "source": "HackerNews"
-            },
-            {
-                "title": "Railway secures $100 million to challenge AWS with AI-native cloud infrastructure",
-                "summary": "Railway获1亿美元融资，打造AI原生云平台，提供一键部署、自动扩缩容和GPU优化。对开发者而言，这意味着更低的AI应用部署门槛和成本，可能替代AWS的复杂配置，尤其适合快速原型和中小型AI Agent项目。",
+                "title": "Railway 获1亿美元融资，以 AI 原生云基础设施挑战 AWS",
+                "summary": "Railway 推出 AI 原生云平台，针对 AI 工作负载优化部署和扩展，开发者可更高效地运行大模型和 Agent 应用，减少对传统云服务的依赖。",
                 "link": "https://venturebeat.com/infrastructure/railway-secures-usd100-million-to-challenge-aws-with-ai-native-cloud",
                 "source": "VentureBeat AI"
             },
             {
-                "title": "Meta says its business AI now facilitates 10 million conversations a week",
-                "summary": "Meta的Business AI每周处理1000万次对话，8亿广告主使用其GenAI工具。对开发者而言，这表明大模型在商业场景的规模化落地已成熟，可参考其对话系统架构和广告优化策略，用于构建高并发AI Agent。",
+                "title": "Meta 称其商业 AI 每周促成1000万次对话",
+                "summary": "Meta 的 GenAI 工具已被超过80亿广告商使用，表明 AI Agent 在商业场景中的大规模落地，开发者可借鉴其对话式 AI 集成模式。",
                 "link": "https://techcrunch.com/2026/04/30/meta-says-its-business-ai-now-facilitates-10-million-conversations-a-week/",
                 "source": "TechCrunch AI"
             },
             {
-                "title": "The hidden cost of Google's AI defaults and the illusion of choice",
-                "summary": "文章揭露Google Gemini默认启用AI功能，用户数据被用于模型训练且难以完全关闭。对开发者而言，这警示在集成第三方AI API时需评估数据隐私合规风险，并考虑自托管开源模型（如Goose）作为替代方案。",
-                "link": "https://arstechnica.com/ai/2026/04/googles-privacy-maze-how-gemini-traps-you-and-your-data/",
-                "source": "ArsTechnica"
+                "title": "X 宣布推出由 AI 驱动的重建广告平台",
+                "summary": "X 利用 AI 重构广告平台，可能开放更多 API 和模型接口，开发者可探索新的广告技术集成和自动化营销 Agent 开发机会。",
+                "link": "https://techcrunch.com/2026/04/30/x-announces-a-rebuilt-ad-platform-powered-by-ai/",
+                "source": "TechCrunch AI"
             },
             {
-                "title": "SoftBank is creating a robotics company that builds data centers — and already eyeing a $100B IPO",
-                "summary": "软银成立机器人公司，专注建设AI数据中心，计划IPO估值1000亿美元。对开发者而言，这意味着未来AI基础设施将更自动化、标准化，可能降低GPU集群部署成本，但需关注对云服务商格局的影响。",
+                "title": "SoftBank 创建机器人公司建设数据中心，并考虑1000亿美元 IPO",
+                "summary": "SoftBank 整合 AI 基础设施与机器人，预示未来 AI Agent 需要专用硬件支持，开发者需关注底层算力架构变化。",
                 "link": "https://techcrunch.com/2026/04/29/softbank-is-creating-a-robotics-company-that-builds-data-centers-and-already-eyeing-a-100b-ipo/",
                 "source": "TechCrunch AI"
+            },
+            {
+                "title": "Listen Labs 融资6900万美元，用 AI 规模化客户访谈",
+                "summary": "Listen Labs 利用 AI 自动进行客户访谈和分析，开发者可借鉴其 Agent 驱动的数据收集模式，用于产品调研和用户研究。",
+                "link": "https://venturebeat.com/technology/listen-labs-raises-usd69m-after-viral-billboard-hiring-stunt-to-scale-ai",
+                "source": "VentureBeat AI"
             }
         ];
 
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日新闻凸显AI开发工具的两大趋势：成本民主化与基础设施原生AI化。Goose等免费开源工具对Claude Code形成直接挑战，结合Claude Code的隐性收费争议，未来半年开发者将加速转向开源方案，推动AI编码工具进入价格战和功能竞赛。同时，Railway的AI原生云平台和软银的机器人数据中心，预示AI基础设施将从通用云服务转向专为AI工作负载优化的架构，开发者部署AI Agent的门槛将显著降低，但需警惕数据隐私风险（如Google Gemini案例）。建议开发者优先评估开源工具（如Goose）和AI原生云平台，以平衡成本、控制权和合规性。";
+    const __DAILY_ANALYSIS__ = "今日新闻显示，AI 开发工具正从高价闭源向免费开源快速演进，Goose 与 Claude Code 的对比标志着编码 Agent 的民主化。同时，Railway 等 AI 原生云平台的出现，将改变开发者部署大模型和 Agent 的方式，降低基础设施门槛。未来半年，预计会出现更多开源 AI 编码工具，推动 Agent 开发成本趋近于零；AI 原生云服务将加速替代传统云，促使开发者重新设计应用架构以适配专用算力。此外，Meta 和 X 的商业 AI 案例表明，对话式 Agent 已进入规模化阶段，开发者应关注多平台集成和隐私合规，以抓住企业级应用红利。整体趋势是：工具免费化、基础设施 AI 原生化和应用场景商业化，开发者需快速适应这一生态变革。";
 
     // 渲染简报
     function generateBriefing() {
