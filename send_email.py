@@ -28,7 +28,7 @@ RECEIVER_EMAIL = os.getenv("RECEIVER_EMAIL", "")
 # 配置
 # ============================================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-HTML_FILE = os.path.join(BASE_DIR, "tech-briefing.html")
+HTML_FILE = os.path.join(BASE_DIR, "email_content.html")
 
 
 def get_html_content():

@@ -11,6 +11,7 @@ import os
 import re
 import sys
 import xml.etree.ElementTree as ET
+from datetime import datetime
 from urllib.request import urlopen, Request
 from urllib.error import URLError
 
@@ -30,6 +31,8 @@ MODEL_NAME   = os.getenv("MODEL_NAME", "deepseek-ai/DeepSeek-V4-Flash")
 # ============================================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 HTML_FILE = os.path.join(BASE_DIR, "tech-briefing.html")
+EMAIL_TEMPLATE = os.path.join(BASE_DIR, "email_template.html")
+EMAIL_OUTPUT = os.path.join(BASE_DIR, "email_content.html")
 
 # RSS 源 — 严格限定 AI / 大模型 / Agent / 开发工具
 RSS_SOURCES = [
@@ -213,6 +216,68 @@ def write_html(news_items, daily_analysis=""):
 
 
 # ============================================================
+# 邮件 HTML 生成（纯静态，不含 JS，兼容邮箱客户端）
+# ============================================================
+
+def generate_email_html(news_items, daily_analysis=""):
+    """
+    读取 email_template.html，填充占位符，生成 email_content.html。
+    此操作调用第三方API（硅基流动），不消耗WorkBuddy积分。
+    """
+    if not os.path.exists(EMAIL_TEMPLATE):
+        print(f"[警告] 邮件模板不存在: {EMAIL_TEMPLATE}")
+        return False
+
+    with open(EMAIL_TEMPLATE, "r", encoding="utf-8") as f:
+        template = f.read()
+
+    # 生成新闻卡片 HTML
+    cards_html = []
+    for i, item in enumerate(news_items, 1):
+        source_tag = f'<span style="font-size:10px;color:#888;background:#f0f0ee;padding:2px 10px;border-radius:20px;">{item["source"]}</span>' if item.get("source") else ""
+        cards_html.append(f"""
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;margin-bottom:16px;">
+          <tr>
+            <td style="padding:20px 24px;">
+              <div style="margin-bottom:10px;">
+                <span style="font-size:11px;font-weight:700;color:#ccc;letter-spacing:1px;">No.{i:02d}</span>
+                {' ' + source_tag if source_tag else ''}
+              </div>
+              <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 10px 0;line-height:1.5;">{item["title"]}</h2>
+              <p style="font-size:13px;color:#555;margin:0 0 14px 0;line-height:1.7;">{item["summary"]}</p>
+              <a href="{item["link"]}" style="font-size:12px;font-weight:600;color:#1a1a1a;text-decoration:none;border-bottom:1.5px solid #1a1a1a;">阅读原文 →</a>
+            </td>
+          </tr>
+        </table>""")
+
+    # 生成深度分析 HTML
+    if daily_analysis:
+        analysis_section = f"""
+        <tr>
+          <td style="padding:24px 24px;background:#1a1a1a;border-radius:12px;">
+            <div style="font-size:11px;color:#888;letter-spacing:1.2px;margin-bottom:12px;">📊 今日深度分析</div>
+            <p style="font-size:13px;color:#ccc;line-height:1.8;margin:0;">{daily_analysis}</p>
+          </td>
+        </tr>"""
+    else:
+        analysis_section = ""
+
+    # 填充模板
+    today = datetime.now()
+    date_str = f"{today.year}年{today.month:02d}月{today.day:02d}日"
+
+    html = template.replace("{{date}}", date_str)
+    html = html.replace("{{news_items}}", "\n".join(cards_html))
+    html = html.replace("{{daily_analysis_section}}", analysis_section)
+
+    with open(EMAIL_OUTPUT, "w", encoding="utf-8") as f:
+        f.write(html)
+
+    print(f"[成功] 已生成邮件 HTML ({len(news_items)} 条)")
+    return True
+
+
+# ============================================================
 # 主流程
 # ============================================================
 
@@ -278,15 +343,20 @@ def main():
                 })
         final_items = final_items[:5]
 
-    # ---- 3. 写入 HTML ----
-    print(f"\n  ── 写入 HTML ──")
+    # ---- 3. 写入网页 HTML ----
+    print(f"\n  ── 写入网页 HTML ──")
     write_html(final_items, daily_analysis)
+
+    # ---- 4. 生成邮件 HTML（纯静态，不含 JS） ----
+    print(f"\n  ── 生成邮件 HTML ──")
+    generate_email_html(final_items, daily_analysis)
 
     if daily_analysis:
         print(f"\n  📊 今日深度分析:")
         print(f"     {daily_analysis[:200]}...")
 
     print(f"\n  ✅ 简报生成完毕 | {len(final_items)} 条新闻")
+    print(f"     邮件: {EMAIL_OUTPUT}")
     print(f"     下次自动运行: 每天 09:00")
 
 
