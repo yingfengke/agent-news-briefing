@@ -20,7 +20,7 @@ QQ邮箱的「授权码」不同于你的QQ密码，需要单独生成：
   3. 往下翻找到「POP3/IMAP/SMTP/Exchange/CardDAV/CalDAV服务」
   4. 找到「SMTP服务」行，点击右侧「开启」（如果已开启则点「生成授权码」）
   5. 按提示发送短信到指定号码
-  6. 系统会生成一串 16 位字母授权码（类似 tnvurrlyyihtdggf）
+  6. 系统会生成一串 16 位字母授权码（类似 abcdefghijklmnop）
   7. 复制并保存好，这就是 .env 里的 AUTH_CODE
 
 
