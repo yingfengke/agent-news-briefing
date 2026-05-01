@@ -42,6 +42,10 @@ RSS_SOURCES = [
     ("ArsTechnica",      "https://feeds.arstechnica.com/arstechnica/index",                           "en"),
     ("HackerNews",       "https://hnrss.org/frontpage?count=12",                                      "en"),
     ("Solidot 科技",     "https://www.solidot.org/index.rss",                                         "zh"),
+    # 开发者社区 & 中文科技
+    ("InfoQ",            "https://www.infoq.cn/feed",                                                  "zh"),
+    ("DEV Community",    "https://dev.to/feed",                                                        "en"),
+    ("36氪",             "https://36kr.com/feed",                                                      "zh"),
     # GitHub 项目 Release（Atom feed）
     ("LangChain",        "https://github.com/langchain-ai/langchain/releases.atom",                    "en"),
     ("CrewAI",           "https://github.com/crewAIInc/crewAI/releases.atom",                          "en"),
@@ -52,7 +56,9 @@ MAX_PER_SOURCE = {
     # 新闻类每源 3 条
     "TechCrunch AI": 3, "VentureBeat AI": 3, "ArsTechnica": 3,
     "HackerNews": 3, "Solidot 科技": 3,
-    # 项目发布类每源 2 条就够了
+    # 新增源每源 2 条
+    "InfoQ": 2, "DEV Community": 2, "36氪": 2,
+    # 项目发布类每源 2 条
     "LangChain": 2, "CrewAI": 2, "AutoGen": 2,
 }
 TIMEOUT = 15
