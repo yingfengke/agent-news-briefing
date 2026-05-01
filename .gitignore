@@ -2,6 +2,10 @@
 .workbuddy/
 .codebuddy/
 
+# Python 缓存
+__pycache__/
+*.pyc
+
 # 忽略环境变量文件（⚠️ 含真实 API Key 和邮箱授权码，切勿上传）
 .env
 
