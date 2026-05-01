@@ -2,14 +2,12 @@ name: 每日科技早餐简报
 
 on:
   # 每天早上 9:00 北京时间 (01:00 UTC)
-  # ⚠️ 注意：新仓库的 cron 需要 24-48h 才能稳定触发
-  # 如果长时间未触发，可用 https://cron-job.org 免费定时调用 API
+  # ⚠️ 新仓库 cron 首次注册需 24-48h，若持续未触发：
+  #   方案A: 手动点 Run workflow → 立即生效
+  #   方案B: 用 https://cron-job.org 免费定时调用 GitHub API
   schedule:
     - cron: '0 1 * * *'
-  # 每次推送到 main 也触发（调试+补发）
-  push:
-    branches: [main]
-  # 支持手动触发
+  # 支持手动触发（用于测试和补发）
   workflow_dispatch:
 
 permissions:
