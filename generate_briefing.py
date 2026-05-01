@@ -35,15 +35,26 @@ EMAIL_TEMPLATE = os.path.join(BASE_DIR, "email_template.html")
 EMAIL_OUTPUT = os.path.join(BASE_DIR, "email_content.html")
 
 # RSS 源 — 严格限定 AI / 大模型 / Agent / 开发工具
+# 前 5 个为新闻类源，后 3 个为 GitHub 项目 Release 推送
 RSS_SOURCES = [
     ("TechCrunch AI",    "https://techcrunch.com/category/artificial-intelligence/feed/",              "en"),
     ("VentureBeat AI",   "https://venturebeat.com/category/ai/feed/",                                 "en"),
     ("ArsTechnica",      "https://feeds.arstechnica.com/arstechnica/index",                           "en"),
     ("HackerNews",       "https://hnrss.org/frontpage?count=12",                                      "en"),
     ("Solidot 科技",     "https://www.solidot.org/index.rss",                                         "zh"),
+    # GitHub 项目 Release（Atom feed）
+    ("LangChain",        "https://github.com/langchain-ai/langchain/releases.atom",                    "en"),
+    ("CrewAI",           "https://github.com/crewAIInc/crewAI/releases.atom",                          "en"),
+    ("AutoGen",          "https://github.com/microsoft/autogen/releases.atom",                         "en"),
 ]
 
-MAX_PER_SOURCE = 3         # 每源取前 N 条
+MAX_PER_SOURCE = {
+    # 新闻类每源 3 条
+    "TechCrunch AI": 3, "VentureBeat AI": 3, "ArsTechnica": 3,
+    "HackerNews": 3, "Solidot 科技": 3,
+    # 项目发布类每源 2 条就够了
+    "LangChain": 2, "CrewAI": 2, "AutoGen": 2,
+}
 TIMEOUT = 15
 USER_AGENT = "Mozilla/5.0 (compatible; BriefingBot/2.0)"
 
@@ -86,10 +97,11 @@ def parse(xml_data, source_name):
     if not items:
         ns = {"a": "http://www.w3.org/2005/Atom"}
         for entry in root.iter("{http://www.w3.org/2005/Atom}entry"):
-            title = _text(entry, "title", ns)
+            # 注意：Atom 命名空间下必须用 "a:tag" 前缀，否则 find 找不到
+            title = _text(entry, "a:title", ns)
             href  = entry.find("a:link", ns)
             link  = href.get("href") if href is not None else ""
-            desc  = _text(entry, "summary", ns) or _text(entry, "content", ns) or ""
+            desc  = _text(entry, "a:summary", ns) or _text(entry, "a:content", ns) or ""
             if title and link:
                 items.append({"title": title.strip(), "desc": _clean(desc), "link": link.strip(), "source": source_name})
     return items
@@ -293,7 +305,8 @@ def main():
     for name, url, lang in RSS_SOURCES:
         try:
             print(f"\n  → {name} ({lang}) ... ", end="", flush=True)
-            items = parse(fetch(url), name)[:MAX_PER_SOURCE]
+            limit = MAX_PER_SOURCE.get(name, 3)
+            items = parse(fetch(url), name)[:limit]
             print(f"✔ {len(items)} 条")
             all_items.extend(items)
         except Exception as e:
