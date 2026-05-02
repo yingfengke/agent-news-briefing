@@ -2,11 +2,9 @@ name: 每日科技早餐简报
 
 on:
   # 每天早上 9:00 北京时间 (01:00 UTC)
-  # ⚠️ 新仓库 cron 首次注册需 24-48h，若持续未触发：
-  #   方案A: 手动点 Run workflow → 立即生效
   schedule:
     - cron: '0 1 * * *'
-  # 支持手动触发（用于测试和补发）
+  # 支持手动触发
   workflow_dispatch:
 
 permissions:
