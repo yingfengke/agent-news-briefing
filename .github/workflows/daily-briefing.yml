@@ -4,7 +4,6 @@ on:
   # 每天早上 9:00 北京时间 (01:00 UTC)
   # ⚠️ 新仓库 cron 首次注册需 24-48h，若持续未触发：
   #   方案A: 手动点 Run workflow → 立即生效
-  #   方案B: 用 https://cron-job.org 免费定时调用 GitHub API
   schedule:
     - cron: '0 1 * * *'
   # 支持手动触发（用于测试和补发）
@@ -26,7 +25,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
-    # 所有步骤共享的环境变量（来自 GitHub Secrets）
+    # 所有步骤共享的环境变量（来自 GitHub Secrets，无一硬编码）
     env:
       API_BASE_URL: ${{ secrets.API_BASE_URL }}
       API_KEY: ${{ secrets.API_KEY }}
@@ -49,16 +48,29 @@ jobs:
       - name: 安装依赖
         run: pip install python-dotenv
 
-      - name: ① 抓取新闻 + AI 分析 + 生成 HTML
-        run: python generate_briefing.py
+      # ============================================================
+      # 以下关键步骤使用 retry 机制：
+      #   失败后每隔 5 分钟自动重试，最多 3 次
+      #   覆盖网络超时、API 限流、SMTP 临时故障等场景
+      # ============================================================
 
-      - name: ② 发送邮件推送
-        run: python send_email.py
+      - name: ① 抓取新闻 + AI 分析 + 生成 HTML（失败自动重试）
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 300
+          command: python generate_briefing.py
 
-      - name: 复制首页 (Pages 需要 index.html)
-        run: cp tech-briefing.html index.html
+      - name: ② 发送邮件推送（失败自动重试）
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          retry_wait_seconds: 300
+          command: python send_email.py
 
-      - name: 提交并推送更新
+      - name: ③ 提交并推送更新
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
