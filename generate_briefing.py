@@ -34,50 +34,36 @@ HTML_FILE = os.path.join(BASE_DIR, "tech-briefing.html")
 EMAIL_TEMPLATE = os.path.join(BASE_DIR, "email_template.html")
 EMAIL_OUTPUT = os.path.join(BASE_DIR, "email_content.html")
 
-# RSS 源 — 严格限定 AI / 大模型 / Agent / 开发工具
-# 前 5 个为新闻类源，后 3 个为 GitHub 项目 Release 推送
+# RSS 源 — 只保留最核心、更新最稳定的 5 个
 RSS_SOURCES = [
     ("TechCrunch AI",    "https://techcrunch.com/category/artificial-intelligence/feed/",              "en"),
     ("VentureBeat AI",   "https://venturebeat.com/category/ai/feed/",                                 "en"),
     ("ArsTechnica",      "https://feeds.arstechnica.com/arstechnica/index",                           "en"),
     ("HackerNews",       "https://hnrss.org/frontpage?count=12",                                      "en"),
     ("Solidot 科技",     "https://www.solidot.org/index.rss",                                         "zh"),
-    # 开发者社区 & 中文科技
-    ("InfoQ",            "https://www.infoq.cn/feed",                                                  "zh"),
-    ("DEV Community",    "https://dev.to/feed",                                                        "en"),
-    ("36氪",             "https://36kr.com/feed",                                                      "zh"),
-    # GitHub 项目 Release（Atom feed）
-    ("LangChain",        "https://github.com/langchain-ai/langchain/releases.atom",                    "en"),
-    ("CrewAI",           "https://github.com/crewAIInc/crewAI/releases.atom",                          "en"),
-    ("AutoGen",          "https://github.com/microsoft/autogen/releases.atom",                         "en"),
 ]
 
 MAX_PER_SOURCE = {
-    # 新闻类每源 3 条
-    "TechCrunch AI": 3, "VentureBeat AI": 3, "ArsTechnica": 3,
-    "HackerNews": 3, "Solidot 科技": 3,
-    # 新增源每源 2 条
-    "InfoQ": 2, "DEV Community": 2, "36氪": 2,
-    # 项目发布类每源 2 条
-    "LangChain": 2, "CrewAI": 2, "AutoGen": 2,
+    "TechCrunch AI": 4, "VentureBeat AI": 4, "ArsTechnica": 4,
+    "HackerNews": 4, "Solidot 科技": 4,
 }
 TIMEOUT = 15
 USER_AGENT = "Mozilla/5.0 (compatible; BriefingBot/2.0)"
 
 # AI 分析的 system prompt（用户指定）
-SYSTEM_PROMPT = """你是一个专为AI开发者服务的资深技术分析师。请完成：
+SYSTEM_PROMPT = """你是一个专为中文AI开发者服务的资深技术分析师，请务必使用中文回复。请完成：
 
 1. 筛选出与大模型、AI Agent、开发工具直接相关的新闻
 2. 按对开发者的重要性排序，而不是商业热度
-3. 每条新闻的摘要，必须点明：为什么这个更新对开发者重要
-4. 最后的"今日深度分析"，要预判这项技术动向未来半年可能带来的影响
+3. 每条新闻的摘要（50-100字中文），必须点明：为什么这个更新对开发者重要
+4. 输出最后，必须用 '---' 分隔线隔开，生成一个【今日深度分析】模块，用200字以内中文，预判今天最重要的1-2个技术趋势及其未来半年影响
 
 请严格按照以下 JSON 格式输出（不要加 markdown 代码块标记）：
 {
   "items": [
-    {"title": "标题", "summary": "摘要（50-100字）", "link": "原文链接", "source": "来源名称"}
+    {"title": "标题（中文）", "summary": "摘要（50-100字中文）", "link": "原文链接", "source": "来源名称"}
   ],
-  "daily_analysis": "今日深度分析（200-300字）"
+  "daily_analysis": "今日深度分析（200字以内中文，预判1-2个趋势）"
 }"""
 
 
@@ -324,8 +310,8 @@ def main():
         print("  [终止] 无可用数据，跳过")
         return
 
-    # 传给 AI 的新闻量控制（减少可加速响应）
-    items_for_ai = all_items[:10]
+    # 传给 AI 的新闻量控制（增加捕获量以丰富内容）
+    items_for_ai = all_items[:15]
 
     # ---- 2. AI 分析 ----
     print("\n  ── AI 分析阶段 ──")

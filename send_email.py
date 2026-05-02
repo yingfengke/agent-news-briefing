@@ -6,6 +6,7 @@ send_email.py — 通过 QQ 邮箱 SMTP 发送每日科技简报
 """
 
 import os
+import re
 import smtplib
 from datetime import datetime
 from email.mime.text import MIMEText
@@ -49,6 +50,20 @@ def send():
     html = get_html_content()
     if not html:
         return False
+
+    # 生成纯文本备份（去除 HTML 标签）
+    plain_text = re.sub(r"<[^>]+>", "", html)
+    plain_text = re.sub(r"\n\s*\n", "\n\n", plain_text)
+    plain_text = re.sub(r"&nbsp;", " ", plain_text)
+    plain_text = re.sub(r"&amp;", "&", plain_text)
+    plain_text = re.sub(r"&lt;", "<", plain_text)
+    plain_text = re.sub(r"&gt;", ">", plain_text)
+    plain_text = re.sub(r"&quot;", '"', plain_text)
+    plain_text = plain_text.strip()
+    plain_path = os.path.join(BASE_DIR, "email_content.txt")
+    with open(plain_path, "w", encoding="utf-8") as f:
+        f.write(plain_text)
+    print(f"  ✔ 已生成纯文本备份 ({len(plain_text)} 字符)")
 
     # 主题：【科技早餐简报】2026年04月30日
     today = datetime.now()
