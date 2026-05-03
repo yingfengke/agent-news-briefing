@@ -1,8 +1,16 @@
 # AI & Agent 开发者晨报 ☕
 
-自动抓取 AI/Agent 领域最新新闻，通过大模型分析筛选，生成每日简报，并发送到指定邮箱。
+自动抓取 AI/Agent 领域最新新闻，通过大模型（硅基流动 DeepSeek-V4-Flash）分析筛选，生成每日简报，发送邮件 + 更新 GitHub Pages。每天早 9:00 由 Cloudflare Workers 准时触发，无需依赖不可靠的 GitHub Actions 定时器。还附带每日 GitHub 热门 AI/Agent/RAG 开源项目推荐。
 
-每天早 9:00 自动运行，推送内容到 GitHub Pages 网页 & QQ邮箱。
+## 触发方式
+
+本项目使用 **Cloudflare Workers Cron 触发器** 作为主要定时机制，比 GitHub Actions 自带的 `schedule` 更可靠（不会延迟/跳过）。工作流：
+
+```
+Cloudflare Workers (每天 09:00 BJT)
+  → 调用 GitHub API → 触发 workflow_dispatch
+    → GitHub Actions 执行：抓取 RSS → AI 分析 → 发邮件 → 更新 Pages
+```
 
 ## 快速部署（5 分钟）
 

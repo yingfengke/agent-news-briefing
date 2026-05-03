@@ -34,18 +34,21 @@ HTML_FILE = os.path.join(BASE_DIR, "tech-briefing.html")
 EMAIL_TEMPLATE = os.path.join(BASE_DIR, "email_template.html")
 EMAIL_OUTPUT = os.path.join(BASE_DIR, "email_content.html")
 
-# RSS 源 — 只保留最核心、更新最稳定的 5 个
+# RSS 源 — 核心5个 + 补充2个高质量源
 RSS_SOURCES = [
     ("TechCrunch AI",    "https://techcrunch.com/category/artificial-intelligence/feed/",              "en"),
     ("VentureBeat AI",   "https://venturebeat.com/category/ai/feed/",                                 "en"),
     ("ArsTechnica",      "https://feeds.arstechnica.com/arstechnica/index",                           "en"),
     ("HackerNews",       "https://hnrss.org/frontpage?count=12",                                      "en"),
     ("Solidot 科技",     "https://www.solidot.org/index.rss",                                         "zh"),
+    ("MIT Tech Review",  "https://www.technologyreview.com/topic/artificial-intelligence/feed/",      "en"),
+    ("Anthropic Blog",   "https://www.anthropic.com/feed.xml",                                        "en"),
 ]
 
 MAX_PER_SOURCE = {
     "TechCrunch AI": 4, "VentureBeat AI": 4, "ArsTechnica": 4,
     "HackerNews": 4, "Solidot 科技": 4,
+    "MIT Tech Review": 3, "Anthropic Blog": 3,
 }
 TIMEOUT = 15
 USER_AGENT = "Mozilla/5.0 (compatible; BriefingBot/2.0)"
@@ -58,12 +61,17 @@ SYSTEM_PROMPT = """你是一个专为中文AI开发者服务的资深技术分�
 3. 每条新闻的摘要（50-100字中文），必须点明：为什么这个更新对开发者重要
 4. 输出最后，必须用 '---' 分隔线隔开，生成一个【今日深度分析】模块，用200字以内中文，预判今天最重要的1-2个技术趋势及其未来半年影响
 
+5. 额外推荐 1-3 个当天 GitHub 上与 AI Agent / RAG / LangChain 相关的热门开源项目（具有学习价值），说明其 star 数和核心亮点
+
 请严格按照以下 JSON 格式输出（不要加 markdown 代码块标记）：
 {
   "items": [
     {"title": "标题（中文）", "summary": "摘要（50-100字中文）", "link": "原文链接", "source": "来源名称"}
   ],
-  "daily_analysis": "今日深度分析（200字以内中文，预判1-2个趋势）"
+  "daily_analysis": "今日深度分析（200字以内中文，预判1-2个趋势）",
+  "projects": [
+    {"name": "项目名", "desc": "一句话介绍", "stars": "⭐X万", "link": "GitHub链接", "why": "为什么值得关注"}
+  ]
 }"""
 
 
@@ -189,7 +197,7 @@ def call_ai_analysis(raw_items):
 # 写入 HTML
 # ============================================================
 
-def write_html(news_items, daily_analysis=""):
+def write_html(news_items, daily_analysis="", projects=[]):
     if not os.path.exists(HTML_FILE):
         print(f"[错误] HTML 文件不存在: {HTML_FILE}")
         return False
@@ -213,9 +221,19 @@ def write_html(news_items, daily_analysis=""):
             content, count=1,
         )
 
+    # 替换项目推荐
+    projects_json = json.dumps(projects, ensure_ascii=False, indent=4)
+    plines = projects_json.split("\n")
+    pindented = "\n".join("        " + line if line.strip() else line for line in plines)
+    content = re.sub(
+        r'(const __PROJECTS__\s*=\s*)\[[^\]]*\](\s*;)',
+        r'\1' + pindented + r'\2',
+        content, count=1, flags=re.DOTALL,
+    )
+
     with open(HTML_FILE, "w", encoding="utf-8") as f:
         f.write(content)
-    print(f"[成功] 已更新 {len(news_items)} 条新闻到 HTML")
+    print(f"[成功] 已更新 {len(news_items)} 条新闻 + {len(projects)} 个项目到 HTML")
     return True
 
 
@@ -223,7 +241,7 @@ def write_html(news_items, daily_analysis=""):
 # 邮件 HTML 生成（纯静态，不含 JS，兼容邮箱客户端）
 # ============================================================
 
-def generate_email_html(news_items, daily_analysis=""):
+def generate_email_html(news_items, daily_analysis="", projects=[]):
     """
     读取 email_template.html，填充占位符，生成 email_content.html。
     此操作调用第三方API（硅基流动），不消耗WorkBuddy积分。
@@ -266,6 +284,33 @@ def generate_email_html(news_items, daily_analysis=""):
     else:
         analysis_section = ""
 
+    # 生成项目推荐 HTML
+    projects_section = ""
+    if projects:
+        proj_cards = []
+        for p in projects:
+            stars = p.get("stars", "")
+            proj_cards.append(f"""
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;margin-bottom:12px;">
+          <tr>
+            <td style="padding:16px 20px;">
+              <div style="font-size:14px;font-weight:700;color:#111;margin-bottom:6px;">
+                <a href="{p.get("link","#")}" style="color:#1a1a1a;text-decoration:none;">{p.get("name","")}</a>
+                <span style="font-size:12px;color:#888;margin-left:8px;">{stars}</span>
+              </div>
+              <p style="font-size:13px;color:#555;margin:4px 0 0 0;line-height:1.6;">{p.get("desc","")}</p>
+              {f'<p style="font-size:12px;color:#777;margin:6px 0 0 0;line-height:1.5;">💡 {p.get("why","")}</p>' if p.get("why") else ''}
+            </td>
+          </tr>
+        </table>""")
+        projects_section = f"""
+        <tr>
+          <td style="padding-top:24px;">
+            <div style="font-size:11px;color:#888;letter-spacing:1.2px;margin-bottom:12px;">🔥 今日推荐开源项目</div>
+            {''.join(proj_cards)}
+          </td>
+        </tr>"""
+
     # 填充模板
     today = datetime.now()
     date_str = f"{today.year}年{today.month:02d}月{today.day:02d}日"
@@ -273,6 +318,7 @@ def generate_email_html(news_items, daily_analysis=""):
     html = template.replace("{{date}}", date_str)
     html = html.replace("{{news_items}}", "\n".join(cards_html))
     html = html.replace("{{daily_analysis_section}}", analysis_section)
+    html = html.replace("{{projects_section}}", projects_section)
 
     with open(EMAIL_OUTPUT, "w", encoding="utf-8") as f:
         f.write(html)
@@ -319,6 +365,7 @@ def main():
 
     final_items = []
     daily_analysis = ""
+    projects = []
 
     if ai_result and "items" in ai_result:
         # 使用 AI 返回的筛选结果
@@ -330,7 +377,8 @@ def main():
                 "source": it.get("source", "AI"),
             })
         daily_analysis = ai_result.get("daily_analysis", "")
-        print(f"\n  AI 筛选后: {len(final_items)} 条")
+        projects = ai_result.get("projects", [])
+        print(f"\n  AI 筛选后: {len(final_items)} 条新闻, {len(projects)} 个项目推荐")
     else:
         # 降级：使用原始数据
         print("\n  [降级] AI 分析不可用，使用原始 RSS 数据")
@@ -350,19 +398,21 @@ def main():
 
     # ---- 3. 写入网页 HTML ----
     print(f"\n  ── 写入网页 HTML ──")
-    write_html(final_items, daily_analysis)
+    write_html(final_items, daily_analysis, projects)
 
     # ---- 4. 生成邮件 HTML（纯静态，不含 JS） ----
     print(f"\n  ── 生成邮件 HTML ──")
-    generate_email_html(final_items, daily_analysis)
+    generate_email_html(final_items, daily_analysis, projects)
 
     if daily_analysis:
         print(f"\n  📊 今日深度分析:")
         print(f"     {daily_analysis[:200]}...")
+    if projects:
+        print(f"  🔥 项目推荐: {len(projects)} 个")
 
-    print(f"\n  ✅ 简报生成完毕 | {len(final_items)} 条新闻")
+    print(f"\n  ✅ 简报生成完毕 | {len(final_items)} 条新闻 | {len(projects)} 个项目")
     print(f"     邮件: {EMAIL_OUTPUT}")
-    print(f"     下次自动运行: 每天 09:00")
+    print(f"     下次自动运行: 每天 09:00 (Cloudflare Workers)")
 
 
 if __name__ == "__main__":
