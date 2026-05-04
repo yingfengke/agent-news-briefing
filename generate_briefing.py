@@ -34,24 +34,32 @@ HTML_FILE = os.path.join(BASE_DIR, "tech-briefing.html")
 EMAIL_TEMPLATE = os.path.join(BASE_DIR, "email_template.html")
 EMAIL_OUTPUT = os.path.join(BASE_DIR, "email_content.html")
 
-# RSS 源 — 全部经过实测可用
-# 新闻快讯: TechCrunch / VentureBeat / Wired
-# 社区动态: HackerNews
-# 官方博客: GitHub / PyTorch / MIT Tech Review
+# RSS 源 — 中文源在前（均衡国内外新闻），全部经过实测可用或GitHub Actions可访问
 RSS_SOURCES = [
-    # ---- 新闻快讯 ----
-    ("TechCrunch AI",    "https://techcrunch.com/category/artificial-intelligence/feed/",              "en"),
-    ("VentureBeat AI",   "https://venturebeat.com/category/ai/feed/",                                 "en"),
-    ("Wired AI",         "https://www.wired.com/feed/tag/ai/latest/rss",                             "en"),
-    # ---- 社区动态 ----
-    ("HackerNews",       "https://hnrss.org/frontpage?count=12",                                      "en"),
-    # ---- 深度/官方 ----
-    ("MIT Tech Review",  "https://www.technologyreview.com/topic/artificial-intelligence/feed/",      "en"),
-    ("GitHub Blog",      "https://github.blog/feed/",                                                 "en"),
-    ("PyTorch Blog",     "https://pytorch.org/blog/feed.xml",                                         "en"),
+    # ---- 中文源（优先） ----
+    ("机器之心",       "https://jiqizhixin.com/rss",                                               "zh"),
+    ("量子位",         "https://rsshub.app/quantum/tech",                                           "zh"),
+    ("ModelScope",     "https://rsshub.app/modelscope/news",                                        "zh"),
+    ("腾讯云开发者",   "https://rsshub.app/tencent/cloud/developer",                                "zh"),
+    ("通义千问",       "https://qwenlm.github.io/blog/atom.xml",                                   "zh"),
+    ("DeepSeek",       "https://rsshub.app/deepseek/news",                                          "zh"),
+    ("36氪",           "https://rsshub.app/36kr/news/latest",                                        "zh"),
+    ("IT之家",         "https://rsshub.app/ithome/news",                                            "zh"),
+    # ---- 英文源 ----
+    ("TechCrunch AI",  "https://techcrunch.com/category/artificial-intelligence/feed/",              "en"),
+    ("VentureBeat AI", "https://venturebeat.com/category/ai/feed/",                                 "en"),
+    ("Wired AI",       "https://www.wired.com/feed/tag/ai/latest/rss",                             "en"),
+    ("HackerNews",     "https://hnrss.org/frontpage?count=12",                                      "en"),
+    ("MIT Tech Review","https://www.technologyreview.com/topic/artificial-intelligence/feed/",      "en"),
+    ("GitHub Blog",    "https://github.blog/feed/",                                                 "en"),
+    ("PyTorch Blog",   "https://pytorch.org/blog/feed.xml",                                         "en"),
 ]
 
 MAX_PER_SOURCE = {
+    # 中文源
+    "机器之心": 4, "量子位": 3, "ModelScope": 3, "腾讯云开发者": 3,
+    "通义千问": 3, "DeepSeek": 3, "36氪": 4, "IT之家": 4,
+    # 英文源
     "TechCrunch AI": 4, "VentureBeat AI": 4, "Wired AI": 3,
     "HackerNews": 4,
     "MIT Tech Review": 3, "GitHub Blog": 3, "PyTorch Blog": 3,
