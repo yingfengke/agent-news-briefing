@@ -1,9 +1,6 @@
 name: 每日科技早餐简报
 
 on:
-  # 临时：推送触发（测试RSS源扩容+AI去重）
-  push:
-    branches: [main]
   # 每天早上 9:00 北京时间 (01:00 UTC)
   schedule:
     - cron: '0 1 * * *'
