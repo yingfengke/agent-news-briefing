@@ -140,48 +140,48 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                         [
+    const __NEWS_DATA__ =                                                                                                                                 [
             {
-                "title": "Claude Code月费200美元，Goose免费提供相同功能",
-                "summary": "Goose是一个开源的AI编码代理，完全免费，功能与月费200美元的Claude Code相当。这对开发者意味着可以零成本获得强大的AI辅助编程能力，降低开发门槛，尤其适合个人和小团队。",
+                "title": "Claude Code每月200美元，Goose免费提供相同功能",
+                "summary": "Goose是一款免费开源的AI编码代理，功能与收费高达200美元/月的Claude Code相当。对开发者而言，这意味着可以零成本获得强大的AI辅助编程能力，大幅降低开发工具门槛。",
                 "link": "https://venturebeat.com/infrastructure/claude-code-costs-up-to-usd200-a-month-goose-does-the-same-thing-for-free",
                 "source": "VentureBeat"
             },
             {
-                "title": "哈佛研究：AI在急诊诊断中比两位人类医生更准确",
-                "summary": "研究表明，大语言模型在急诊诊断任务中准确率超过两位人类医生。这对开发者意味着AI在医疗等垂直领域的应用潜力巨大，可推动开发更可靠的诊断辅助工具，但需注意模型在真实场景中的鲁棒性。",
-                "link": "https://techcrunch.com/2026/05/03/in-harvard-study-ai-offered-more-accurate-diagnoses-than-emergency-room-doctors/",
-                "source": "TechCrunch"
-            },
-            {
-                "title": "Railway获1亿美元融资，挑战AWS的AI原生云基础设施",
-                "summary": "Railway获得1亿美元融资，打造AI原生云平台，旨在与AWS竞争。这对开发者意味着未来可能有更便宜、更易用的AI部署基础设施，减少对传统云厂商的依赖，加速AI应用落地。",
-                "link": "https://venturebeat.com/infrastructure/railway-secures-usd100-million-to-challenge-aws-with-ai-native-cloud",
-                "source": "VentureBeat"
-            },
-            {
-                "title": "Salesforce推出新版Slackbot AI Agent，与微软和谷歌竞争",
-                "summary": "Salesforce发布了重构的Slackbot AI Agent，集成到工作流中。这对开发者意味着企业级AI Agent竞争加剧，需关注如何利用Slackbot等工具构建自动化工作流，提升团队效率。",
+                "title": "Salesforce推出全新Slackbot AI Agent，与微软和谷歌争夺企业AI市场",
+                "summary": "Salesforce发布了重构的Slackbot AI Agent，集成自然语言处理和工作流自动化。对开发者来说，这是构建企业级AI Agent的重要参考，展示了如何将AI嵌入现有协作平台。",
                 "link": "https://venturebeat.com/technology/salesforce-rolls-out-new-slackbot-ai-agent-as-it-battles-microsoft-and",
                 "source": "VentureBeat"
             },
             {
+                "title": "哈佛研究：AI在急诊诊断中比两位人类医生更准确",
+                "summary": "研究发现大语言模型在多种医疗场景中诊断准确率超过人类医生。对AI开发者而言，这验证了LLM在专业领域的潜力，但需注意数据隐私和模型可靠性问题。",
+                "link": "https://techcrunch.com/2026/05/03/in-harvard-study-ai-offered-more-accurate-diagnoses-than-emergency-room-doctors/",
+                "source": "TechCrunch"
+            },
+            {
                 "title": "研究：考虑用户情绪的AI模型更容易出错",
-                "summary": "研究发现，过度调优AI模型以迎合用户情绪会导致其优先考虑用户满意度而非真实性，从而增加错误。这对开发者意味着在构建AI Agent时需平衡用户体验与准确性，避免过度优化导致幻觉。",
+                "summary": "研究表明，过度调优模型以迎合用户情绪会导致其优先考虑满意度而非真实性。对开发者来说，这警示在构建对话AI时需平衡用户体验与事实准确性，避免“谄媚”偏差。",
                 "link": "https://arstechnica.com/ai/2026/05/study-ai-models-that-consider-users-feeling-are-more-likely-to-make-errors/",
                 "source": "ArsTechnica"
+            },
+            {
+                "title": "Railway获1亿美元融资，以AI原生云基础设施挑战AWS",
+                "summary": "Railway筹集1亿美元打造AI原生云平台，旨在简化AI应用部署。对开发者而言，这意味着更易用的AI基础设施，可能降低云服务成本并加速AI应用上线。",
+                "link": "https://venturebeat.com/infrastructure/railway-secures-usd100-million-to-challenge-aws-with-ai-native-cloud",
+                "source": "VentureBeat"
             }
         ];
 
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日两大趋势：一是开源AI编码代理（如Goose）正挑战付费工具，未来半年将推动AI开发工具民主化，降低个人开发者门槛；二是AI在垂直领域（如医疗诊断）的准确性提升，但需警惕过度优化用户情绪导致的错误。开发者应关注开源替代方案和模型鲁棒性设计。";
+    const __DAILY_ANALYSIS__ = "今日两大趋势：一是AI编码代理走向免费化（Goose vs Claude Code），将推动更多开发者采用AI辅助编程，未来半年可能改变开发工作流；二是AI Agent在企业协作中的深度集成（如Slackbot），预示AI Agent将成为SaaS标配。开发者应关注开源替代和Agent框架的标准化，以降低成本和提升可维护性。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =         [];
+    const __PROJECTS__ =                 [];
 
     // 渲染简报
     function generateBriefing() {
