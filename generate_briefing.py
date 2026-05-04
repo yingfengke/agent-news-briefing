@@ -34,21 +34,34 @@ HTML_FILE = os.path.join(BASE_DIR, "tech-briefing.html")
 EMAIL_TEMPLATE = os.path.join(BASE_DIR, "email_template.html")
 EMAIL_OUTPUT = os.path.join(BASE_DIR, "email_content.html")
 
-# RSS 源 — 核心5个 + 补充2个高质量源
+# RSS 源 — 按技术方向分层覆盖
+# 新闻快讯: TechCrunch / VentureBeat
+# 社区动态: HackerNews / Reddit ML
+# 论文前沿: ArXiv / HuggingFace
+# 官方博客: LangChain / LlamaIndex / PyTorch / MIT Tech Review
 RSS_SOURCES = [
+    # ---- 新闻快讯 ----
     ("TechCrunch AI",    "https://techcrunch.com/category/artificial-intelligence/feed/",              "en"),
     ("VentureBeat AI",   "https://venturebeat.com/category/ai/feed/",                                 "en"),
-    ("ArsTechnica",      "https://feeds.arstechnica.com/arstechnica/index",                           "en"),
+    # ---- 社区动态 ----
     ("HackerNews",       "https://hnrss.org/frontpage?count=12",                                      "en"),
-    ("Solidot 科技",     "https://www.solidot.org/index.rss",                                         "zh"),
+    ("Reddit ML",        "https://www.reddit.com/r/MachineLearning/.rss",                              "en"),
+    # ---- 论文前沿 ----
+    ("ArXiv CS.AI",      "https://arxiv.org/rss/cs.AI",                                               "en"),
+    ("HuggingFace Papers","https://huggingface.co/papers/feed",                                       "en"),
+    # ---- 深度/官方 ----
     ("MIT Tech Review",  "https://www.technologyreview.com/topic/artificial-intelligence/feed/",      "en"),
-    ("Anthropic Blog",   "https://www.anthropic.com/feed.xml",                                        "en"),
+    ("LangChain Blog",   "https://blog.langchain.dev/rss/",                                            "en"),
+    ("LlamaIndex Blog",  "https://www.llamaindex.ai/blog/rss/",                                       "en"),
+    ("PyTorch Blog",     "https://pytorch.org/blog/feed.xml",                                         "en"),
 ]
 
 MAX_PER_SOURCE = {
-    "TechCrunch AI": 4, "VentureBeat AI": 4, "ArsTechnica": 4,
-    "HackerNews": 4, "Solidot 科技": 4,
-    "MIT Tech Review": 3, "Anthropic Blog": 3,
+    "TechCrunch AI": 4, "VentureBeat AI": 4,
+    "HackerNews": 4, "Reddit ML": 3,
+    "ArXiv CS.AI": 3, "HuggingFace Papers": 3,
+    "MIT Tech Review": 3, "LangChain Blog": 3,
+    "LlamaIndex Blog": 3, "PyTorch Blog": 3,
 }
 TIMEOUT = 15
 USER_AGENT = "Mozilla/5.0 (compatible; BriefingBot/2.0)"
@@ -60,6 +73,10 @@ SYSTEM_PROMPT = """你是一个专为中文AI开发者服务的资深技术分�
 2. 按对开发者的重要性排序，而不是商业热度
 3. 每条新闻的摘要（50-100字中文），必须点明：为什么这个更新对开发者重要
 4. 输出最后，必须用 '---' 分隔线隔开，生成一个【今日深度分析】模块，用200字以内中文，预判今天最重要的1-2个技术趋势及其未来半年影响
+5. 【去重规则 — 严格遵守】：
+   a) 如果多条新闻讲的是同一件事（例如多家媒体报道同一次发布会），只保留信息最完整的那条，并在摘要末尾注明“（该消息被多家来源报道）”。
+   b) 优先分析发布时间更近的新闻。摘要中如果知道发表日期，注明“（X小时前）”。
+   c) 【历史排重】我会在用户消息末尾附上“【已报道历史】”列表，列出了过去几天已推送过的新闻标题。遇到核心主题高度相似的，自动跳过，确保每天都有新信息。
 
 请严格按照以下 JSON 格式输出（不要加 markdown 代码块标记）：
 {
@@ -78,6 +95,26 @@ def fetch(url):
     req = Request(url, headers={"User-Agent": USER_AGENT})
     with urlopen(req, timeout=TIMEOUT) as resp:
         return resp.read()
+
+
+def load_history_titles():
+    """
+    从 tech-briefing.html 中读取 __NEWS_DATA__ 数组并提取标题，
+    用于 AI 排重（避免每日重复报道相似内容）。
+    """
+    try:
+        with open(HTML_FILE, "r", encoding="utf-8") as f:
+            content = f.read()
+        # 匹配 const __NEWS_DATA__ = [ ... ];
+        m = re.search(r'const\s+__NEWS_DATA__\s*=\s*(\[[\s\S]*?\])\s*;', content)
+        if not m:
+            return []
+        data = json.loads(m.group(1))
+        titles = [item.get("title", "") for item in data if item.get("title")]
+        return titles
+    except Exception as e:
+        print(f"  [警告] 读取历史简报用于排重时出错: {e}")
+        return []
 
 
 def parse(xml_data, source_name):
@@ -135,6 +172,14 @@ def call_ai_analysis(raw_items):
         lines.append(f"{i}. [{item['source']}] {item['title']}")
         lines.append(f"   简介: {desc_short}")
         lines.append(f"   链接: {item['link']}\n")
+
+    # 读取历史简报标题，用于 AI 排重
+    history_titles = load_history_titles()
+    if history_titles:
+        lines.append("\n---\n【已报道历史】过去几天已推送过的新闻标题（遇到核心主题相似的请跳过）：\n")
+        for t in history_titles:
+            lines.append(f"- {t}")
+
     user_content = "\n".join(lines)
 
     payload = json.dumps({
