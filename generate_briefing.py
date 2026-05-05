@@ -78,11 +78,20 @@ SYSTEM_PROMPT = """你是一个专为中文AI开发者服务的资深技术分�
 
 请严格按照以下 JSON 格式输出（不要加 markdown 代码块标记）：
 {
-  "items": [
+  "international": [
+    {"title": "标题（中文）", "summary": "摘要（50-100字中文）", "link": "原文链接", "source": "来源名称"}
+  ],
+  "china": [
     {"title": "标题（中文）", "summary": "摘要（50-100字中文）", "link": "原文链接", "source": "来源名称"}
   ],
   "daily_analysis": "今日深度分析（200字以内中文，预判1-2个趋势）"
-}"""
+}
+
+注意：
+- international 是国外科技新闻，china 是中国国内科技新闻
+- 不要在一组里混杂另一组的内容
+- 如果某一组当天没有足够新闻，就只给能找出的2-3条，宁缺毋滥
+- 每组3-5条"""
 
 
 # ============================================================
@@ -451,11 +460,12 @@ def generate_email_html(news_items, daily_analysis="", projects=[]):
     with open(EMAIL_TEMPLATE, "r", encoding="utf-8") as f:
         template = f.read()
 
-    # 生成新闻卡片 HTML
-    cards_html = []
-    for i, item in enumerate(news_items, 1):
-        source_tag = f'<span style="font-size:10px;color:#888;background:#f0f0ee;padding:2px 10px;border-radius:20px;">{item["source"]}</span>' if item.get("source") else ""
-        cards_html.append(f"""
+    # 生成新闻卡片 HTML（按国内外分组）
+    def make_card_html(items, start_no=1):
+        html = []
+        for i, item in enumerate(items, start_no):
+            source_tag = f'<span style="font-size:10px;color:#888;background:#f0f0ee;padding:2px 10px;border-radius:20px;">{item["source"]}</span>' if item.get("source") else ""
+            html.append(f"""
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;margin-bottom:16px;">
           <tr>
             <td style="padding:20px 24px;">
@@ -469,6 +479,36 @@ def generate_email_html(news_items, daily_analysis="", projects=[]):
             </td>
           </tr>
         </table>""")
+        return "\n".join(html)
+
+    # 按 region 分组
+    intl_items = [it for it in news_items if it.get("region") == "international"]
+    cn_items = [it for it in news_items if it.get("region") == "china"]
+    # 如果没有 region 字段（旧格式兼容），全部放国外
+    if not intl_items and not cn_items:
+        intl_items = news_items
+
+    intl_section = ""
+    if intl_items:
+        intl_cards = make_card_html(intl_items, 1)
+        intl_section = f"""
+        <tr>
+          <td style="padding-bottom:20px;">
+            <div style="font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:12px;">🌐 国外科技</div>
+            {intl_cards}
+          </td>
+        </tr>"""
+
+    cn_section = ""
+    if cn_items:
+        cn_cards = make_card_html(cn_items, 1)
+        cn_section = f"""
+        <tr>
+          <td style="padding-bottom:20px;border-top:1px dashed #ddd;padding-top:20px;">
+            <div style="font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:12px;">🇨🇳 国内科技</div>
+            {cn_cards}
+          </td>
+        </tr>"""
 
     # 生成深度分析 HTML
     if daily_analysis:
@@ -520,7 +560,9 @@ def generate_email_html(news_items, daily_analysis="", projects=[]):
     date_str = f"{today.year}年{today.month:02d}月{today.day:02d}日"
 
     html = template.replace("{{date}}", date_str)
-    html = html.replace("{{news_items}}", "\n".join(cards_html))
+    html = html.replace("{{international_section}}", intl_section)
+    html = html.replace("{{china_section}}", cn_section)
+    html = html.replace("{{news_items}}", intl_section + cn_section)  # 向后兼容
     html = html.replace("{{daily_analysis_section}}", analysis_section)
     html = html.replace("{{projects_section}}", projects_section)
 
@@ -576,17 +618,38 @@ def main():
     final_items = []
     daily_analysis = ""
 
-    if ai_result and "items" in ai_result:
-        # 使用 AI 返回的筛选结果
-        for it in ai_result["items"]:
-            final_items.append({
-                "title": it.get("title", ""),
-                "summary": it.get("summary", ""),
-                "link": it.get("link", ""),
-                "source": it.get("source", "AI"),
-            })
+    # 兼容新旧格式：新格式 international+china，旧格式 items
+    if ai_result:
         daily_analysis = ai_result.get("daily_analysis", "")
-        print(f"\n  AI 筛选后: {len(final_items)} 条新闻")
+        if "international" in ai_result and "china" in ai_result:
+            # 新格式：分国内外两组
+            for it in ai_result.get("international", []):
+                final_items.append({
+                    "title": it.get("title", ""),
+                    "summary": it.get("summary", ""),
+                    "link": it.get("link", ""),
+                    "source": it.get("source", "AI"),
+                    "region": "international",
+                })
+            for it in ai_result.get("china", []):
+                final_items.append({
+                    "title": it.get("title", ""),
+                    "summary": it.get("summary", ""),
+                    "link": it.get("link", ""),
+                    "source": it.get("source", "AI"),
+                    "region": "china",
+                })
+            print(f"\n  AI 筛选后: 国外 {len(ai_result.get('international',[]))} 条 + 国内 {len(ai_result.get('china',[]))} 条")
+        elif "items" in ai_result:
+            # 旧格式兼容
+            for it in ai_result["items"]:
+                final_items.append({
+                    "title": it.get("title", ""),
+                    "summary": it.get("summary", ""),
+                    "link": it.get("link", ""),
+                    "source": it.get("source", "AI"),
+                })
+            print(f"\n  AI 筛选后: {len(final_items)} 条新闻")
     else:
         # 降级：使用原始数据
         print("\n  [降级] AI 分析不可用，使用原始 RSS 数据")
