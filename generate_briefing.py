@@ -323,6 +323,75 @@ def fetch_github_trending():
 
 
 # ============================================================
+# 中文网站直接抓取（不依赖 RSS，直接爬取首页）
+# ============================================================
+
+CHINESE_SITES = [
+    ("量子位", "https://www.qbitai.com/"),
+    ("IT之家AI", "https://www.ithome.com/tag/AI"),
+]
+
+
+def scrape_chinese_news():
+    """
+    直接从中文科技网站首页抓取新闻标题和链接（不依赖 RSS）。
+    用正则提取 HTML 中的文章链接。
+    """
+    all_items = []
+    for name, url in CHINESE_SITES:
+        try:
+            print(f"\n  → 抓取 {name} ({url}) ... ", end="", flush=True)
+            req = Request(url, headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            })
+            with urlopen(req, timeout=15) as resp:
+                data = resp.read().decode("utf-8", "ignore")
+
+            # 提取文章标题和链接
+            found = re.findall(
+                r'<a[^>]*href="([^"]*)"[^>]*>([^<]{10,80})</a>',
+                data, re.I
+            )
+            seen = set()
+            count = 0
+            for href, title in found:
+                title = title.strip()
+                # 过滤无意义链接
+                if (len(title) < 10
+                    or title in seen
+                    or href.startswith("#")
+                    or "javascript" in href
+                    or "login" in href
+                    or "wp-content" in href
+                    or ".css" in href
+                    or ".js" in href
+                    or "page" in href.lower() and len(href) < 15
+                ):
+                    continue
+                # 补全相对链接
+                if href.startswith("/"):
+                    from urllib.parse import urlparse
+                    parsed = urlparse(url)
+                    href = f"{parsed.scheme}://{parsed.netloc}{href}"
+                seen.add(title)
+                all_items.append({
+                    "title": title.strip(),
+                    "desc": title.strip(),
+                    "link": href,
+                    "source": name,
+                })
+                count += 1
+                if count >= 5:
+                    break
+            print(f"✔ {count} 条")
+        except Exception as e:
+            print(f"✘ {e}")
+
+    print(f"\n  中文网站共抓取 {len(all_items)} 条")
+    return all_items
+
+
+# ============================================================
 # 写入 HTML
 # ============================================================
 
@@ -486,10 +555,16 @@ def main():
             print(f"✘ {e}")
             errors.append(name)
 
-    print(f"\n  共获取 {len(all_items)} 条原始新闻")
+    print(f"\n  共获取 {len(all_items)} 条原始新闻（RSS）")
     if not all_items:
         print("  [终止] 无可用数据，跳过")
         return
+
+    # ---- 补充：抓取中文网站（不依赖 RSS） ----
+    print(f"\n  ── 抓取中文网站 ──")
+    chinese_items = scrape_chinese_news()
+    all_items.extend(chinese_items)
+    print(f"  总计 {len(all_items)} 条（RSS + 中文网站）")
 
     # 传给 AI 的新闻量控制（增加捕获量以丰富内容）
     items_for_ai = all_items[:15]

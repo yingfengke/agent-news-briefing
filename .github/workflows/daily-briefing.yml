@@ -1,6 +1,9 @@
 name: 每日科技早餐简报
 
 on:
+  # 临时：推送触发（新增中文网站爬虫）
+  push:
+    branches: [main]
   # 每天早上 6:00 北京时间 (22:00 UTC)
   schedule:
     - cron: '0 22 * * *'
