@@ -1,9 +1,12 @@
 name: 每日科技早餐简报
 
 on:
-  # 每天早上 9:00 北京时间 (01:00 UTC)
+  # 临时：推送触发（提前到6点测试）
+  push:
+    branches: [main]
+  # 每天早上 6:00 北京时间 (22:00 UTC)
   schedule:
-    - cron: '0 1 * * *'
+    - cron: '0 22 * * *'
   # 支持手动触发
   workflow_dispatch:
 
