@@ -36,15 +36,12 @@ EMAIL_OUTPUT = os.path.join(BASE_DIR, "email_content.html")
 
 # RSS 源 — 中文源在前（均衡国内外新闻），全部经过实测可用或GitHub Actions可访问
 RSS_SOURCES = [
-    # ---- 中文源（优先） ----
-    ("机器之心",       "https://jiqizhixin.com/rss",                                               "zh"),
-    ("量子位",         "https://rsshub.app/quantum/tech",                                           "zh"),
-    ("ModelScope",     "https://rsshub.app/modelscope/news",                                        "zh"),
-    ("腾讯云开发者",   "https://rsshub.app/tencent/cloud/developer",                                "zh"),
-    ("通义千问",       "https://qwenlm.github.io/blog/atom.xml",                                   "zh"),
-    ("DeepSeek",       "https://rsshub.app/deepseek/news",                                          "zh"),
-    ("36氪",           "https://rsshub.app/36kr/news/latest",                                        "zh"),
-    ("IT之家",         "https://rsshub.app/ithome/news",                                            "zh"),
+    # ---- 中文源（全部实测可用） ----
+    ("36氪",           "https://www.36kr.com/feed",                                                    "zh"),
+    ("少数派",         "https://sspai.com/feed",                                                       "zh"),
+    ("爱范儿",         "https://www.ifanr.com/feed",                                                   "zh"),
+    ("极客公园",       "https://www.geekpark.net/rss",                                                 "zh"),
+    ("Solidot 科技",   "https://www.solidot.org/index.rss",                                           "zh"),
     # ---- 英文源 ----
     ("TechCrunch AI",  "https://techcrunch.com/category/artificial-intelligence/feed/",              "en"),
     ("VentureBeat AI", "https://venturebeat.com/category/ai/feed/",                                 "en"),
@@ -57,8 +54,7 @@ RSS_SOURCES = [
 
 MAX_PER_SOURCE = {
     # 中文源
-    "机器之心": 4, "量子位": 3, "ModelScope": 3, "腾讯云开发者": 3,
-    "通义千问": 3, "DeepSeek": 3, "36氪": 4, "IT之家": 4,
+    "36氪": 4, "少数派": 3, "爱范儿": 3, "极客公园": 3, "Solidot 科技": 3,
     # 英文源
     "TechCrunch AI": 4, "VentureBeat AI": 4, "Wired AI": 3,
     "HackerNews": 4,
