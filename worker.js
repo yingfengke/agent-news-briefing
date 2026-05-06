@@ -93,7 +93,7 @@ async function checkTodayRan() {
   const nowBJT = new Date(Date.now() + 8 * 3600 * 1000);
   const todayBJT = nowBJT.toISOString().slice(0, 10); // YYYY-MM-DD in BJT
 
-  const url = `https://api.github.com/repos/songguyingfengke/agent-news-briefing/actions/runs?per_page=10&status=completed`;
+  const url = `https://api.github.com/repos/yingfengke/agent-news-briefing/actions/runs?per_page=10&status=completed`;
 
   const resp = await fetch(url, {
     headers: {
@@ -124,7 +124,7 @@ async function checkTodayRan() {
 async function triggerGitHubActions() {
   const token = GITHUB_TRIGGER_TOKEN;
   const url =
-    "https://api.github.com/repos/songguyingfengke/agent-news-briefing/actions/workflows/daily-briefing.yml/dispatches";
+    "https://api.github.com/repos/yingfengke/agent-news-briefing/actions/workflows/daily-briefing.yml/dispatches";
 
   const resp = await fetch(url, {
     method: "POST",
@@ -151,7 +151,7 @@ async function triggerViaPush() {
     const token = GITHUB_TRIGGER_TOKEN;
     // 获取最新的 commit SHA
     const headResp = await fetch(
-      "https://api.github.com/repos/songguyingfengke/agent-news-briefing/git/ref/heads/main",
+      "https://api.github.com/repos/yingfengke/agent-news-briefing/git/ref/heads/main",
       {
         headers: { Authorization: `token ${token}`, Accept: "application/vnd.github+json" },
       }
@@ -162,7 +162,7 @@ async function triggerViaPush() {
 
     // 创建一个空的 commit 来触发 push
     const createResp = await fetch(
-      "https://api.github.com/repos/songguyingfengke/agent-news-briefing/git/commits",
+      "https://api.github.com/repos/yingfengke/agent-news-briefing/git/commits",
       {
         method: "POST",
         headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
