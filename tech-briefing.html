@@ -176,12 +176,34 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日两大趋势：一是AI编码工具成本战加剧，开源方案（如Goose）挑战高价产品，未来半年将推动AI辅助编程普及，但需关注功能完整性和稳定性；二是图像AI模型成为应用增长新引擎，开发者应优先集成视觉能力以获取用户。同时，AI原生云基础设施（如Railway）的崛起可能重塑部署生态，降低AI应用开发门槛。";
+    const __DAILY_ANALYSIS__ = "今日两大趋势：一是AI编码工具走向免费化，Goose等开源方案挑战高价产品，未来半年将加速AI辅助开发的普及，降低个人和小团队开发成本。二是AI Agent向垂直行业深化，如医疗诊断智能体，预示Agent将从通用对话转向专业任务，未来半年将涌现更多行业定制化Agent，推动AI落地。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                         [];
+    const __PROJECTS__ =                                                 [
+            {
+                "name": "Hmbown/DeepSeek-TUI",
+                "desc": "Coding agent for DeepSeek models that runs in your terminal",
+                "stars": "⭐+6184 today",
+                "link": "https://github.com/Hmbown/DeepSeek-TUI",
+                "tag": "大模型底层"
+            },
+            {
+                "name": "ruvnet/ruflo",
+                "desc": "🌊 The leading agent orchestration platform for Claude. Deploy intelligent multi-agent swarms, coordi",
+                "stars": "⭐+2190 today",
+                "link": "https://github.com/ruvnet/ruflo",
+                "tag": "Agent 框架"
+            },
+            {
+                "name": "virattt/dexter",
+                "desc": "An autonomous agent for deep financial research",
+                "stars": "⭐+666 today",
+                "link": "https://github.com/virattt/dexter",
+                "tag": "Agent 框架"
+            }
+        ];
 
     // 渲染简报
     function generateBriefing() {
