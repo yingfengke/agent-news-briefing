@@ -31,7 +31,7 @@
 
 | 变量名 | 值 | 加密 |
 |--------|----|------|
-| `GITHUB_USERNAME` | `songguyingfengke` | ❌ |
+| `GITHUB_USERNAME` | `yingfengke` | ❌ |
 | `GITHUB_REPO` | `tech-breakfast` | ❌ |
 | `GITHUB_WORKFLOW_FILE` | `daily-briefing.yml` | ❌ |
 | `GITHUB_TRIGGER_TOKEN` | 你生成的 `ghp_` Token | ✅ **必选** |
@@ -50,7 +50,7 @@
 2. 点 **测试** 按钮（模拟 scheduled 事件）
 3. 期望返回：`GitHub Actions triggered. Status: 204`
 4. 若返回 204，说明配置成功
-5. 去 https://github.com/songguyingfengke/tech-breakfast/actions 查看是否有新运行
+5. 去 https://github.com/yingfengke/tech-breakfast/actions 查看是否有新运行
 
 ## 工作原理
 

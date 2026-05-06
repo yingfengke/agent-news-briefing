@@ -50,7 +50,7 @@ Cloudflare Workers (每天 09:00 BJT)
 
 等待约 2-3 分钟，查看：
 - 📧 邮箱是否收到邮件
-- 🌐 [GitHub Pages 页面](https://songguyingfengke.github.io/tech-breakfast/) 是否更新
+- 🌐 [GitHub Pages 页面](https://yingfengke.github.io/tech-breakfast/) 是否更新
 
 ### 5. 本地测试（可选）
 
