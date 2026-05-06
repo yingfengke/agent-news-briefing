@@ -89,7 +89,9 @@ async function executeBriefing() {
 // ============================================================
 async function checkTodayRan() {
   const token = GITHUB_TRIGGER_TOKEN;
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  // 用北京时间（UTC+8）判断"今天"，避免 UTC 日期与 BJT 日期不一致
+  const nowBJT = new Date(Date.now() + 8 * 3600 * 1000);
+  const todayBJT = nowBJT.toISOString().slice(0, 10); // YYYY-MM-DD in BJT
 
   const url = `https://api.github.com/repos/songguyingfengke/tech-breakfast/actions/runs?per_page=10&status=completed`;
 
@@ -104,8 +106,13 @@ async function checkTodayRan() {
 
   const data = await resp.json();
   for (const run of data.workflow_runs || []) {
-    if (run.created_at && run.created_at.startsWith(today) && run.conclusion === "success") {
-      return true; // 今天已经有成功的运行了
+    if (run.created_at) {
+      // 把 run 的时间也转换为北京时间再比较
+      const runBJT = new Date(new Date(run.created_at).getTime() + 8 * 3600 * 1000);
+      const runDateBJT = runBJT.toISOString().slice(0, 10);
+      if (runDateBJT === todayBJT && run.conclusion === "success") {
+        return true; // 今天（北京时间）已经有成功的运行了
+      }
     }
   }
   return false;
