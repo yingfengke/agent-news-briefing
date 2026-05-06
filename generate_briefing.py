@@ -243,93 +243,185 @@ def call_ai_analysis(raw_items):
 
 
 # ============================================================
-# GitHub Trending 独立抓取（不依赖 RSS / AI）
+# GitHub Trending 独立抓取（直接爬官方页面，不依赖第三方 API）
 # ============================================================
 
-# 用于筛选项目的技术方向关键词
-TRENDING_KEYWORDS = [
-    "transformer", "attention", "moe", "flashattention", "llm", "large language model",
-    "lora", "qlora", "llama-factory", "unsloth", "axolotl", "vllm", "fine-tuning",
-    "langchain", "langgraph", "autogpt", "crewai", "autogen", "metagpt", "dify", "agent",
-    "llamaindex", "ragflow", "chroma", "milvus", "haystack", "rag", "retrieval",
-    "react", "cot", "function calling", "prompt",
-    "tgi", "gptq", "awq", "streaming", "inference",
-    "vision language", "vlm", "multimodal", "cursor", "copilot", "claude code",
-    "mcp", "model context protocol", "openai agent",
-]
+
+# GitHub Trending 关键词 → 标签映射（模块级别，备用方案也能用）
+TRENDING_TAG_MAP = {
+    "transformer": "大模型底层", "attention": "大模型底层", "moe": "大模型底层",
+    "flashattention": "大模型底层", "llm": "大模型底层", "large language model": "大模型底层",
+    "deepseek": "大模型底层", "qwen": "大模型底层", "llama": "大模型底层",
+    "foundation model": "大模型底层", "tabpfn": "大模型底层",
+    "lora": "微调与训练", "qlora": "微调与训练", "llama-factory": "微调与训练",
+    "unsloth": "微调与训练", "axolotl": "微调与训练", "fine-tuning": "微调与训练",
+    "vllm": "推理与部署", "tgi": "推理与部署", "gptq": "推理与部署",
+    "awq": "推理与部署", "inference": "推理与部署", "streaming": "推理与部署",
+    "langchain": "Agent 框架", "langgraph": "Agent 框架", "autogpt": "Agent 框架",
+    "crewai": "Agent 框架", "autogen": "Agent 框架", "metagpt": "Agent 框架",
+    "dify": "Agent 框架", "agent": "Agent 框架", "swarm": "Agent 框架",
+    "autonomous": "Agent 框架", "multi-agent": "Agent 框架",
+    "mcp": "Agent 框架", "model context protocol": "Agent 框架", "openai agent": "Agent 框架",
+    "llamaindex": "RAG", "ragflow": "RAG", "chroma": "RAG", "milvus": "RAG",
+    "haystack": "RAG", "rag": "RAG", "retrieval": "RAG",
+    "react": "提示工程", "cot": "提示工程", "function calling": "提示工程", "prompt": "提示工程",
+    "vision language": "多模态与前沿", "vlm": "多模态与前沿", "multimodal": "多模态与前沿",
+    "cursor": "多模态与前沿", "copilot": "多模态与前沿", "claude code": "多模态与前沿",
+    "coding": "开发工具", "code generation": "开发工具",
+}
 
 
 def fetch_github_trending():
     """
-    从 GitHub Trending API 获取今日热门项目，按技术方向筛选。
+    直接爬取 github.com/trending 官方页面，解析热门项目。
+    不依赖任何第三方 API，稳定可靠。
     返回: [{"name":"","desc":"","stars":"","link":"","tag":""}, ...]
     """
-    trending_url = "https://github-trending-api.vercel.app/repositories?since=daily&spoken_language_code=zh"
-    fallback_url = "https://github-trending-api.vercel.app/repositories?since=weekly"
+    TAG_MAP = TRENDING_TAG_MAP
+
+    # 尝试多个 URL：日榜 → 周榜
+    urls = [
+        "https://github.com/trending?since=daily",
+        "https://github.com/trending?since=weekly",
+    ]
 
     projects = []
-    seen_names = set()
 
-    for url in [trending_url, fallback_url]:
+    for url in urls:
         try:
-            print(f"\n  → 抓取 GitHub Trending ({url.split('?')[0].rsplit('/',1)[-1]}) ... ", end="", flush=True)
-            req = Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/json"})
-            with urlopen(req, timeout=15) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
+            print(f"\n  → 抓取 GitHub Trending 官方页面 ({url.split('=')[-1]}) ... ", end="", flush=True)
+            req = Request(url, headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml",
+                "Accept-Language": "en-US,en;q=0.9",
+            })
+            with urlopen(req, timeout=20) as resp:
+                html = resp.read().decode("utf-8", "ignore")
 
-            for repo in data:
-                name = repo.get("fullname", "") or repo.get("full_name", "")
-                desc = repo.get("description", "") or ""
-                lang = repo.get("language", "") or ""
-                stars = repo.get("stars", 0) or repo.get("stargazers_count", 0)
-                stars_str = f"⭐{stars//1000}万" if stars >= 1000 else f"⭐{stars}"
+            # 用正则从 HTML 中提取项目信息
+            # GitHub Trending 页面每个项目是一个 <article class="Box-row"> 块
+            repo_blocks = re.findall(
+                r'<article[^>]*class="[^"]*Box-row[^"]*"[^>]*>([\s\S]*?)</article>',
+                html, re.I
+            )
+            print(f"找到 {len(repo_blocks)} 个项目块 ... ", end="", flush=True)
 
-                # 去重
-                if name in seen_names:
+            for block in repo_blocks:
+                # 提取仓库名（user/repo 格式）
+                name_m = re.search(
+                    r'href="/([^/]+/[^/"]+)"[^>]*>\s*(?:<[^>]+>\s*)*([^<\s][^<]*)',
+                    block
+                )
+                # 用更简单的方式：直接找 href="/user/repo"
+                href_m = re.search(r'href="/([a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+)"', block)
+                if not href_m:
+                    continue
+                full_name = href_m.group(1).strip()
+
+                # 过滤掉非项目链接（带子路径的）
+                if "/" in full_name.replace("/", "", 1):
                     continue
 
-                # 用名称+描述匹配技术方向
-                text = f"{name} {desc}".lower()
+                # 提取描述
+                desc_m = re.search(r'<p[^>]*class="[^"]*col-9[^"]*"[^>]*>\s*([\s\S]*?)\s*</p>', block)
+                if not desc_m:
+                    # 备用：找任意 <p> 内容
+                    desc_m = re.search(r'<p[^>]*>\s*([^<]{10,200})\s*</p>', block)
+                desc = re.sub(r'\s+', ' ', desc_m.group(1).strip()) if desc_m else ""
+                desc = re.sub(r'<[^>]+>', '', desc).strip()  # 去掉残留 HTML 标签
+
+                # 提取今日新增 stars
+                stars_today_m = re.search(r'([\d,]+)\s*stars?\s*today', block, re.I)
+                # 提取总 stars
+                stars_total_m = re.search(r'aria-label="([\d,]+)\s*users?\s*starred', block, re.I)
+                if not stars_total_m:
+                    stars_total_m = re.search(r'/(stargazers)[^>]*>\s*([\d,]+)', block)
+
+                if stars_today_m:
+                    stars_n = int(stars_today_m.group(1).replace(",", ""))
+                    stars_str = f"⭐+{stars_n} today"
+                else:
+                    stars_str = "⭐N/A"
+                    stars_n = 0
+
+                # 关键词匹配
+                text = f"{full_name} {desc}".lower()
                 matched_tag = ""
-                for kw in TRENDING_KEYWORDS:
-                    if kw.lower() in text:
-                        # 映射到友好标签名
-                        tag_map = {
-                            "transformer": "大模型底层", "attention": "大模型底层", "moe": "大模型底层",
-                            "lora": "微调与训练", "qlora": "微调与训练", "fine-tuning": "微调与训练", "vllm": "推理与部署",
-                            "langchain": "Agent 框架", "langgraph": "Agent 框架", "autogpt": "Agent 框架",
-                            "crewai": "Agent 框架", "autogen": "Agent 框架", "metagpt": "Agent 框架", "dify": "Agent 框架",
-                            "llamaindex": "RAG", "ragflow": "RAG", "chroma": "RAG", "milvus": "RAG", "haystack": "RAG", "rag": "RAG", "retrieval": "RAG",
-                            "react": "提示工程", "cot": "提示工程", "function calling": "提示工程", "prompt": "提示工程",
-                            "tgi": "推理与部署", "gptq": "推理与部署", "awq": "推理与部署", "inference": "推理与部署",
-                            "vision language": "多模态与前沿", "vlm": "多模态与前沿", "multimodal": "多模态与前沿",
-                            "cursor": "多模态与前沿", "copilot": "多模态与前沿", "claude code": "多模态与前沿",
-                            "mcp": "Agent 框架", "model context protocol": "Agent 框架", "openai agent": "Agent 框架",
-                            "llm": "大模型底层", "agent": "Agent 框架",
-                        }
-                        matched_tag = tag_map.get(kw, "其他")
+                for kw, tag in TAG_MAP.items():
+                    if kw in text:
+                        matched_tag = tag
                         break
 
-                if matched_tag and len(desc) > 5:
-                    seen_names.add(name)
+                if matched_tag and len(desc) > 5 and full_name not in [p["name"] for p in projects]:
                     projects.append({
-                        "name": name,
-                        "desc": desc[:80],
+                        "name": full_name,
+                        "desc": desc[:100],
                         "stars": stars_str,
-                        "link": f"https://github.com/{name}",
+                        "stars_n": stars_n,  # 用于排序
+                        "link": f"https://github.com/{full_name}",
                         "tag": matched_tag,
                     })
 
             print(f"✔ 筛出 {len(projects)} 个相关项目")
             if projects:
-                break  # 首次有结果就停
+                break  # 有结果就停，不需要周榜
 
         except Exception as e:
             print(f"✘ {e}")
             continue
 
-    # 按星数排序取前3
-    projects.sort(key=lambda x: int(x["stars"].replace("⭐", "").replace("万", "000")), reverse=True)
+    # 按今日新增 stars 排序，取前3
+    projects.sort(key=lambda x: x.get("stars_n", 0), reverse=True)
+    # 去掉内部排序字段
+    for p in projects:
+        p.pop("stars_n", None)
+
+    # ---- 备用方案：GitHub Search API（不需要 token，匿名可用） ----
+    if not projects:
+        print(f"\n  → 备用：GitHub Search API ... ", end="", flush=True)
+        try:
+            # 搜索最近7天 stars 增长快的 AI/Agent 相关仓库
+            from datetime import timedelta
+            week_ago = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+            search_url = (
+                f"https://api.github.com/search/repositories"
+                f"?q=topic:llm+topic:agent+created:>{week_ago}"
+                f"&sort=stars&order=desc&per_page=10"
+            )
+            req2 = Request(search_url, headers={
+                "User-Agent": USER_AGENT,
+                "Accept": "application/vnd.github+json",
+            })
+            with urlopen(req2, timeout=15) as r2:
+                sdata = json.loads(r2.read().decode("utf-8"))
+
+            for repo in (sdata.get("items") or []):
+                full_name = repo.get("full_name", "")
+                desc = repo.get("description", "") or ""
+                stars_n = repo.get("stargazers_count", 0)
+                stars_str = f"⭐{stars_n:,}"
+                text = f"{full_name} {desc}".lower()
+                matched_tag = ""
+                for kw, tag in TAG_MAP.items():
+                    if kw in text:
+                        matched_tag = tag
+                        break
+                if not matched_tag:
+                    matched_tag = "Agent 框架"  # 通过 topic:agent 查到的默认标签
+                if full_name and len(desc) > 5:
+                    projects.append({
+                        "name": full_name,
+                        "desc": desc[:100],
+                        "stars": stars_str,
+                        "link": f"https://github.com/{full_name}",
+                        "tag": matched_tag,
+                    })
+                if len(projects) >= 3:
+                    break
+            print(f"✔ 备用找到 {len(projects)} 个")
+        except Exception as e2:
+            print(f"✘ {e2}")
+
     return projects[:3]
 
 
