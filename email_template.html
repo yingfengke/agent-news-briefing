@@ -9,17 +9,20 @@
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f4f0;padding:30px 0;">
     <tr>
       <td align="center">
-        <!-- 主容器 -->
         <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
 
-          <!-- 顶部标题 -->
+          <!-- 头部 -->
           <tr>
-            <td style="padding:0 0 28px 20px;border-left:4px solid #1a1a1a;">
-              <div style="font-size:11px;color:#aaa;letter-spacing:1.5px;margin-bottom:6px;">☕ 每日推送 · AI 开发者专属</div>
+            <td style="padding:0 0 20px 20px;border-left:4px solid #1a1a1a;">
+              <div style="font-size:11px;color:#aaa;letter-spacing:1.5px;margin-bottom:6px;">☕ 每日推送 · AI 开发者专属{{style_tag}}</div>
               <h1 style="font-size:26px;font-weight:800;color:#1a1a1a;margin:0;letter-spacing:-0.5px;">AI &amp; Agent 开发者晨报</h1>
-              <p style="font-size:13px;color:#888;margin:8px 0 0 0;">{{date}}</p>
+              <p style="font-size:12px;color:#888;margin:8px 0 2px 0;">{{date}}</p>
+              <p style="font-size:11px;color:#aaa;margin:0;">{{filter_tagline}}</p>
             </td>
           </tr>
+
+          <!-- 今日速览 -->
+          {{top_news_section}}
 
           <!-- 国外科技 -->
           {{international_section}}
@@ -33,13 +36,19 @@
           <!-- 项目推荐 -->
           {{projects_section}}
 
+          <!-- 彩蛋角落 -->
+          {{trivia_section}}
+
           <!-- 过滤摘要 -->
           {{filter_report_section}}
 
           <!-- 底部 -->
           <tr>
-            <td style="padding:20px 0 0 0;border-top:1px solid #e0e0e0;text-align:right;">
-              <p style="font-size:11px;color:#bbb;margin:0;">本简报由 AI 自动生成 · 每天早上 9:00 推送</p>
+            <td style="padding:20px 0 0 0;border-top:1px solid #e0e0e0;">
+              <p style="font-size:11px;color:#bbb;margin:0 0 4px 0;text-align:right;">本简报由 AI 自动生成 · 内容仅供参考</p>
+              <p style="font-size:11px;color:#bbb;margin:0;text-align:right;">
+                <a href="{{repo_url}}" style="color:#888;text-decoration:none;">{{repo_url}}</a>
+              </p>
             </td>
           </tr>
 

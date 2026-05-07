@@ -24,7 +24,8 @@ from datetime import datetime
 from urllib.request import Request, urlopen
 
 import config
-from models import NewsItem
+from config import get_random_style, get_random_trivia
+from models import NewsItem, FilterReport
 from collector import collect_all
 from deduplicator import run_pipeline
 
@@ -52,27 +53,40 @@ def load_history_titles():
         return []
 
 
-def call_ai_analysis(items: list[NewsItem]):
+def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
     """
-    将过滤后的干净新闻发给大模型，让 AI 筛选、排序、生成摘要和深度分析。
-    此操作调用第三方API（硅基流动），不消耗WorkBuddy积分。
+    将过滤后的干净新闻发给大模型。
+
+    特性：
+      - 每天随机一种语气（极简/毒舌/深度）
+      - 失败自动重试，最多 3 次，间隔 5 秒
+      - 解析新 JSON 格式（含 top_news + international + china）
+
+    返回:
+      (style_name, parsed_json)  成功
+      (style_name, None)          全部失败
     """
     if not config.API_KEY:
         print("[警告] 未配置 API_KEY，跳过 AI 分析")
-        return None
+        return ("", None)
+
+    # 随机选择语气
+    style_name, system_prompt = get_random_style()
+    print(f"\n  → 今日风格: [{style_name}]")
 
     # 按语言分桶
     zh_items = [it for it in items if it.lang == "zh"]
     en_items = [it for it in items if it.lang == "en"]
-    # 中文最多10条，英文最多12条，总量控制在22条以内
     items_for_ai = en_items[:12] + zh_items[:10]
-    print(f"\n  → 喂给 AI: 英文 {len(en_items[:12])} 条 + 中文 {len(zh_items[:10])} 条 = {len(items_for_ai)} 条")
+    print(f"  → 喂给 AI: 英文 {len(en_items[:12])} 条 + 中文 {len(zh_items[:10])} 条 = {len(items_for_ai)} 条")
 
     # 构建用户消息
     lines = ["以下是今日抓取的科技新闻，请按你的系统指令处理：\n"]
     for i, item in enumerate(items_for_ai, 1):
         content_short = (item.content or "无描述")[:80]
-        lines.append(f"{i}. [{item.source}] {item.title}")
+        # 附带发布时间（如有）
+        time_info = f" ({item.published_at[:10]})" if item.published_at else ""
+        lines.append(f"{i}. [{item.source}]{time_info} {item.title}")
         lines.append(f"   简介: {content_short}")
         lines.append(f"   链接: {item.url}\n")
 
@@ -85,57 +99,66 @@ def call_ai_analysis(items: list[NewsItem]):
 
     user_content = "\n".join(lines)
 
-    payload = json.dumps({
-        "model": config.MODEL_NAME,
-        "messages": [
-            {"role": "system", "content": config.SYSTEM_PROMPT},
-            {"role": "user",   "content": user_content},
-        ],
-        "temperature": 0.3,
-        "max_tokens": 4096,
-    }).encode("utf-8")
-
     url = f"{config.API_BASE_URL.rstrip('/')}/v1/chat/completions"
-    print(f"\n  → 调用 AI 分析 ({config.MODEL_NAME}) ... ", end="", flush=True)
 
-    req = Request(url, data=payload, headers={
-        "Authorization": f"Bearer {config.API_KEY}",
-        "Content-Type": "application/json",
-        "User-Agent": "Mozilla/5.0 (compatible; BriefingBot/2.0)",
-    })
+    # 重试循环
+    for attempt in range(1, max_retries + 1):
+        print(f"\n  → 调用 AI 分析 ({config.MODEL_NAME}) ... ", end="", flush=True)
 
-    try:
-        with urlopen(req, timeout=180) as resp:
-            body = resp.read().decode("utf-8")
-            result = json.loads(body)
-        if "choices" not in result or len(result["choices"]) == 0:
-            print(f"✘ API 返回异常: {json.dumps(result, ensure_ascii=False)[:300]}")
-            return None
-        content = result["choices"][0]["message"]["content"]
-        print(f"✔ 成功 (返回 {len(content)} 字符)")
+        payload = json.dumps({
+            "model": config.MODEL_NAME,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user",   "content": user_content},
+            ],
+            "temperature": 0.3,
+            "max_tokens": 4096,
+        }).encode("utf-8")
 
-        # 解析 JSON
+        req = Request(url, data=payload, headers={
+            "Authorization": f"Bearer {config.API_KEY}",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (compatible; BriefingBot/2.0)",
+        })
+
         try:
-            parsed = json.loads(content)
-        except json.JSONDecodeError:
-            m = re.search(r"```(?:json)?\s*([\s\S]*?)```", content)
-            if m:
-                parsed = json.loads(m.group(1).strip())
-            else:
-                start = content.find("{")
-                end = content.rfind("}")
-                if start != -1 and end > start:
-                    parsed = json.loads(content[start:end+1])
-                else:
-                    raise
+            with urlopen(req, timeout=180) as resp:
+                body = resp.read().decode("utf-8")
+                result = json.loads(body)
+            if "choices" not in result or len(result["choices"]) == 0:
+                raise ValueError(f"API 返回异常: {str(result)[:200]}")
 
-        intl = len(parsed.get("international", []))
-        cn = len(parsed.get("china", []))
-        print(f"  → AI 筛选: 国外 {intl} 条 + 国内 {cn} 条")
-        return parsed
-    except Exception as e:
-        print(f"✘ 失败: {e}")
-        return None
+            content = result["choices"][0]["message"]["content"]
+            print(f"✔ 成功 ({len(content)} 字符)")
+
+            # 解析 JSON
+            try:
+                parsed = json.loads(content)
+            except json.JSONDecodeError:
+                m = re.search(r"```(?:json)?\s*([\s\S]*?)```", content)
+                if m:
+                    parsed = json.loads(m.group(1).strip())
+                else:
+                    start = content.find("{")
+                    end = content.rfind("}")
+                    if start != -1 and end > start:
+                        parsed = json.loads(content[start:end+1])
+                    else:
+                        raise
+
+            intl = len(parsed.get("international", []))
+            cn = len(parsed.get("china", []))
+            print(f"  → AI 筛选: 国外 {intl} 条 + 国内 {cn} 条")
+            return (style_name, parsed)
+
+        except Exception as e:
+            if attempt < max_retries:
+                print(f"✘ 第{attempt}次失败 ({str(e)[:60]})，5秒后重试...")
+                import time
+                time.sleep(5)
+            else:
+                print(f"✘ 全部 {max_retries} 次重试均失败: {str(e)[:80]}")
+                return (style_name, None)
 
 
 # ============================================================
@@ -305,7 +328,8 @@ def write_html(news_items, daily_analysis="", projects=None):
 # 邮件 HTML 生成
 # ============================================================
 
-def generate_email_html(news_items, daily_analysis="", projects=None, filter_report=None):
+def generate_email_html(news_items, daily_analysis="", projects=None,
+                        filter_report=None, style_name="", trivia=""):
     if not projects:
         projects = []
     if not os.path.exists(config.EMAIL_TEMPLATE):
@@ -314,6 +338,11 @@ def generate_email_html(news_items, daily_analysis="", projects=None, filter_rep
 
     with open(config.EMAIL_TEMPLATE, "r", encoding="utf-8") as f:
         template = f.read()
+
+    # 顶部过滤统计（供模板使用）
+    total_input = filter_report.total_input if filter_report else 0
+    total_output = filter_report.total_output if filter_report else len(news_items)
+    filter_tagline = f"今日从 {total_input} 条新闻中精选 {total_output} 条"
 
     def make_card_html(items_list, start_no=1):
         html = []
@@ -410,16 +439,71 @@ def generate_email_html(news_items, daily_analysis="", projects=None, filter_rep
     if filter_report:
         filter_report_section = filter_report.to_email_html()
 
+    # ---- 今日速览（全量排名，用于邮件顶部） ----
+    top_news_section = ""
+    if news_items:
+        top_cards = []
+        for i, item in enumerate(news_items[:8], 1):
+            source_tag = (f'<span style="font-size:10px;color:#888;background:#f0f0ee;'
+                          f'padding:2px 10px;border-radius:20px;">{item["source"]}</span>'
+                          ) if item.get("source") else ""
+            region_tag = ""
+            if item.get("region") == "international":
+                region_tag = '<span style="font-size:10px;color:#534AB7;background:#EEEDFE;padding:2px 10px;border-radius:20px;margin-left:4px;">🌐</span>'
+            elif item.get("region") == "china":
+                region_tag = '<span style="font-size:10px;color:#c0392b;background:#FAEEDA;padding:2px 10px;border-radius:20px;margin-left:4px;">🇨🇳</span>'
+            top_cards.append(f"""
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;margin-bottom:14px;">
+          <tr>
+            <td style="padding:16px 22px;">
+              <div style="margin-bottom:6px;">
+                <span style="font-size:11px;font-weight:700;color:#ccc;letter-spacing:1px;">No.{i:02d}</span>
+                {source_tag}{region_tag}
+              </div>
+              <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 6px 0;line-height:1.5;">{item["title"]}</h2>
+              <p style="font-size:13px;color:#555;margin:0 0 10px 0;line-height:1.6;">{item["summary"]}</p>
+              <a href="{item["link"]}" style="font-size:12px;font-weight:600;color:#1a1a1a;text-decoration:none;border-bottom:1.5px solid #1a1a1a;">阅读原文 →</a>
+            </td>
+          </tr>
+        </table>""")
+        top_news_section = f"""
+        <tr>
+          <td style="padding-bottom:24px;">
+            <div style="font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:14px;">⚡ 今日速览</div>
+            {''.join(top_cards)}
+          </td>
+        </tr>"""
+
+    # ---- 彩蛋角落 ----
+    trivia_section = ""
+    if trivia:
+        trivia_section = f"""
+        <tr>
+          <td style="padding:16px 20px;background:#f8f8f6;border:1px solid #e5e5e5;border-radius:10px;margin-bottom:0;">
+            <div style="font-size:11px;color:#888;letter-spacing:1px;margin-bottom:6px;">🎲 彩蛋角落</div>
+            <p style="font-size:12px;color:#666;line-height:1.7;margin:0;font-style:italic;">{trivia}</p>
+          </td>
+        </tr>"""
+
     today = datetime.now()
     date_str = f"{today.year}年{today.month:02d}月{today.day:02d}日"
 
     html = template.replace("{{date}}", date_str)
+    html = html.replace("{{filter_tagline}}", filter_tagline)
+    html = html.replace("{{top_news_section}}", top_news_section)
     html = html.replace("{{international_section}}", intl_section)
     html = html.replace("{{china_section}}", cn_section)
     html = html.replace("{{news_items}}", intl_section + cn_section)
     html = html.replace("{{daily_analysis_section}}", analysis_section)
     html = html.replace("{{projects_section}}", projects_section)
     html = html.replace("{{filter_report_section}}", filter_report_section)
+    html = html.replace("{{trivia_section}}", trivia_section)
+    # 底部免责声明和仓库链接
+    html = html.replace("{{repo_url}}", "https://github.com/yingfengke/agent-news-briefing")
+    if style_name:
+        html = html.replace("{{style_tag}}", f" · 今日风格：{style_name}")
+    else:
+        html = html.replace("{{style_tag}}", "")
 
     with open(config.EMAIL_OUTPUT, "w", encoding="utf-8") as f:
         f.write(html)
@@ -444,75 +528,67 @@ def main():
     print(f"{'=' * 40}")
     raw_pool = collect_all()
 
-    if not raw_pool:
-        print("  [终止] 无可用数据")
-        return
-
     # ---- 2. 过滤层 ----
     print(f"\n{'=' * 40}")
     print("  第 2 层：智能过滤与去重")
     print(f"{'=' * 40}")
-    report = run_pipeline(raw_pool)
+    if raw_pool:
+        report = run_pipeline(raw_pool)
+    else:
+        report = FilterReport(total_input=0)
     report.print_report()
-
     clean_items = report.remaining_items
-    if not clean_items:
-        print("  [终止] 过滤后无可用数据")
-        return
 
     # ---- 3. AI 分析层 ----
     print(f"\n{'=' * 40}")
     print("  第 3 层：AI 分析与简报生成")
     print(f"{'=' * 40}")
-    ai_result = call_ai_analysis(clean_items)
+
+    # 随机彩蛋
+    trivia = get_random_trivia()
+    print(f"  🎲 今日彩蛋: {trivia}")
 
     final_items = []
     daily_analysis = ""
+    ai_failed = False
 
-    if ai_result:
-        daily_analysis = ai_result.get("daily_analysis", "")
-        if "international" in ai_result and "china" in ai_result:
-            for it in ai_result.get("international", []):
-                final_items.append({
-                    "title": it.get("title", ""),
-                    "summary": it.get("summary", ""),
-                    "link": it.get("link", ""),
-                    "source": it.get("source", "AI"),
-                    "region": "international",
-                })
-            for it in ai_result.get("china", []):
-                final_items.append({
-                    "title": it.get("title", ""),
-                    "summary": it.get("summary", ""),
-                    "link": it.get("link", ""),
-                    "source": it.get("source", "AI"),
-                    "region": "china",
-                })
-            print(f"\n  AI 筛选后: 国外 {len(ai_result.get('international',[]))} 条 + "
-                  f"国内 {len(ai_result.get('china',[]))} 条")
-        elif "items" in ai_result:
-            for it in ai_result["items"]:
-                final_items.append({
-                    "title": it.get("title", ""),
-                    "summary": it.get("summary", ""),
-                    "link": it.get("link", ""),
-                    "source": it.get("source", "AI"),
-                })
-            print(f"\n  AI 筛选后: {len(final_items)} 条")
+    if not clean_items:
+        print("  [信息] 过滤后无可用数据，发送空报告邮件")
+        ai_failed = True
     else:
-        print("\n  [降级] AI 分析不可用，使用原始数据")
-        seen = set()
-        for it in clean_items:
-            key = it.title.lower().strip()[:40]
-            if key not in seen:
-                seen.add(key)
-                final_items.append({
-                    "title": it.title,
-                    "summary": (it.content or "点击「阅读原文」查看完整报道")[:150],
-                    "link": it.url,
-                    "source": it.source,
-                })
-        final_items = final_items[:5]
+        style_name, ai_result = call_ai_analysis(clean_items)
+        if ai_result:
+            daily_analysis = ai_result.get("daily_analysis", "")
+            if "international" in ai_result and "china" in ai_result:
+                for it in ai_result.get("international", []):
+                    final_items.append({
+                        "title": it.get("title", ""),
+                        "summary": it.get("summary", ""),
+                        "link": it.get("link", ""),
+                        "source": it.get("source", "AI"),
+                        "region": "international",
+                    })
+                for it in ai_result.get("china", []):
+                    final_items.append({
+                        "title": it.get("title", ""),
+                        "summary": it.get("summary", ""),
+                        "link": it.get("link", ""),
+                        "source": it.get("source", "AI"),
+                        "region": "china",
+                    })
+                print(f"\n  AI 筛选后: 国外 {len(ai_result.get('international',[]))} 条 + "
+                      f"国内 {len(ai_result.get('china',[]))} 条")
+            elif "items" in ai_result:
+                for it in ai_result["items"]:
+                    final_items.append({
+                        "title": it.get("title", ""),
+                        "summary": it.get("summary", ""),
+                        "link": it.get("link", ""),
+                        "source": it.get("source", "AI"),
+                    })
+                print(f"\n  AI 筛选后: {len(final_items)} 条")
+        else:
+            ai_failed = True
 
     # ---- 4. GitHub Trending 项目 ----
     print(f"\n  ── 抓取 GitHub Trending 项目 ──")
@@ -524,13 +600,44 @@ def main():
     else:
         print("  [信息] 今日暂无合适的 Trending 项目推荐")
 
-    # ---- 5. 写入 HTML ----
+    # ---- 5. 写入网页 HTML ----
     print(f"\n  ── 写入网页 HTML ──")
     write_html(final_items, daily_analysis, trending_projects)
 
     # ---- 6. 生成邮件 HTML ----
     print(f"\n  ── 生成邮件 HTML ──")
-    generate_email_html(final_items, daily_analysis, trending_projects, filter_report=report)
+    if ai_failed and not final_items:
+        # AI 失败且无降级数据 → 空报告
+        generate_email_html(
+            [], f"今日无可用新闻。过滤报告：采集 {report.total_input} 条 → "
+                f"过滤后 {report.total_output} 条。",
+            trending_projects, filter_report=report,
+            style_name="", trivia=trivia,
+        )
+    else:
+        generate_email_html(
+            final_items, daily_analysis, trending_projects,
+            filter_report=report,
+            style_name=style_name if not ai_failed else "降级",
+            trivia=trivia,
+        )
+
+    # ---- 7. 发送邮件 ----
+    print(f"\n  ── 发送邮件 ──")
+    try:
+        import subprocess
+        result = subprocess.run(
+            [sys.executable, os.path.join(config.BASE_DIR, "send_email.py")],
+            capture_output=True, text=True, timeout=60,
+        )
+        if result.returncode == 0:
+            print("  ✔ send_email.py 执行成功")
+        else:
+            print(f"  ⚠ send_email.py 返回 {result.returncode}")
+            if result.stderr:
+                print(f"     stderr: {result.stderr[:200]}")
+    except Exception as e:
+        print(f"  ✘ 调用 send_email.py 失败: {e}")
 
     if daily_analysis:
         print(f"\n  📊 今日深度分析:")
