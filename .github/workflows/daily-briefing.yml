@@ -45,7 +45,7 @@ jobs:
 
       - name: 安装依赖
         run: |
-          pip install python-dotenv playwright
+          pip install python-dotenv playwright datasketch jieba numpy scikit-learn
 
       - name: 安装 Chromium（Playwright 浏览器引擎）
         run: |

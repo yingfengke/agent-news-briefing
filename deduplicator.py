@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 """
-deduplicator.py — 智能过滤与去重层
+deduplicator.py — 智能过滤与去重系统 v2
 
 4 阶段串联流水线：
-  1. URL 去重（SHA256 持久化数据库）
-  2. MinHash + LSH 内容指纹去重
-  3. Embedding + 余弦相似度语义去重
-  4. 来源可信度评分
+  A. URL 去重（SHA256 持久化数据库）
+  B. MinHash + LSH 内容指纹去重（datasketch + jieba 分词）
+  C. Embedding 语义去重（BAAI/bge-large-zh-v1.5 + Union-Find 聚类）
+  D. 来源可信度过滤（白名单/黑名单 + 信号评分）
 
-数据流向：采集层（list[NewsItem]）→ 过滤层 → 干净数据 → 分析层
+数据流向：采集层 → 本模块 → AI 分析层
 
-依赖：
-  - numpy（pip install numpy）
-  - 硅基流动 Embedding API（使用 config 中的 API_KEY）
+依赖:
+  datasketch, jieba, numpy, scikit-learn, python-dotenv
 """
 
 import hashlib
@@ -20,24 +19,28 @@ import json
 import os
 import re
 import time
-from datetime import datetime, timedelta
+from collections import defaultdict
+from datetime import datetime
 from typing import Optional
+from urllib.parse import urlparse
 from urllib.request import Request, urlopen
+
+import jieba
+import numpy as np
+from datasketch import MinHash, MinHashLSH
 
 import config
 from models import NewsItem, FilterReport
 
 
 # ============================================================
-# 阶段 1: URL 去重
+# 阶段 A: URL 去重
 # ============================================================
 
 class UrlDeduper:
     """
-    URL 去重：基于 SHA256 持久化数据库。
-    同时做两件事：
-      - 当日去重（同一轮采集中出现的重复 URL）
-      - 历史去重（与历史已推送的 URL 对比）
+    URL 去重：SHA256 持久化数据库。
+    同时做当日去重和历史去重。
     """
 
     def __init__(self, db_path: str = config.URL_DB_FILE):
@@ -46,7 +49,6 @@ class UrlDeduper:
         self._load()
 
     def _load(self):
-        """加载历史 URL 数据库"""
         try:
             with open(self.db_path, "r") as f:
                 data = json.load(f)
@@ -55,19 +57,17 @@ class UrlDeduper:
             self._seen = set()
 
     def _save(self):
-        """持久化 URL 数据库（仅保留最近 7 天）"""
         try:
             with open(self.db_path, "r") as f:
                 data = json.load(f)
         except (FileNotFoundError, json.JSONDecodeError):
-            data = {"urls": list(self._seen), "updated": datetime.now().isoformat()}
+            data = {"urls": [], "updated": datetime.now().isoformat()}
         data["urls"] = list(self._seen)
         data["updated"] = datetime.now().isoformat()
         with open(self.db_path, "w") as f:
             json.dump(data, f, ensure_ascii=False)
 
     def is_duplicate(self, item: NewsItem) -> bool:
-        """检查 URL 是否已见过"""
         url_hash = hashlib.sha256(item.url.encode("utf-8")).hexdigest()
         if url_hash in self._seen:
             return True
@@ -75,249 +75,377 @@ class UrlDeduper:
         return False
 
     def flush(self):
-        """持久化到磁盘"""
         self._save()
 
 
 # ============================================================
-# 阶段 2: MinHash + LSH 内容指纹去重
+# 阶段 B: MinHash + LSH 内容指纹去重
 # ============================================================
 
-class MinHashDeduper:
+class MinhashDeduper:
     """
-    MinHash + LSH 内容指纹去重。
+    内容指纹去重：
 
-    MinHash 原理：
-      1. 将文本切分为 k-shingle（k=4 的字符 n-gram）
-      2. 用 n 个哈希函数对每个 shingle 取最小哈希值
-      3. 两个文本的 MinHash 签名相似度 ≈ Jaccard 相似度
+    1. jieba 分词 → 对词序列做 3-gram
+    2. datasketch MinHash 生成 128 维签名
+    3. datasketch MinHashLSH 索引，只比较同桶文档
+    4. Jaccard 相似度 > threshold 视为重复
 
-    LSH（Locality-Sensitive Hashing）：
-      将签名分成 b 个 band，每个 band r 行。
-      至少有一个 band 完全相同 → 视为候选相似对。
+    去重策略：同簇内保留来源可信度最高的那条（由上层评分决定）。
     """
 
     def __init__(self, threshold: float = config.DEDUP_MINHASH_THRESHOLD,
-                 num_perm: int = 128, shingle_size: int = 4):
+                 num_perm: int = 128):
         self.threshold = threshold
         self.num_perm = num_perm
-        self.shingle_size = shingle_size
-        self._signatures: list[tuple[int, ...]] = []
-        self._items: list[NewsItem] = []
+        # LSH 索引：使用 MinHashLSH（内置 band 划分）
+        self._lsh = MinHashLSH(threshold=threshold, num_perm=num_perm)
+        self._kept: list[NewsItem] = []
+        self._signature_map: dict[int, tuple] = {}  # id -> minhash bytes
 
-        # LSH 参数：自动根据 threshold 选择 band 数
-        # 经典公式: threshold ≈ (1/b)^(1/r)
-        # 固定 num_perm = b * r
-        self._b, self._r = self._auto_lsh_params(threshold)
+    def _tokenize(self, text: str) -> list[str]:
+        """jieba 分词"""
+        text = re.sub(r"<[^>]+>", " ", text)  # 去 HTML
+        text = re.sub(r"\s+", " ", text).strip().lower()
+        words = jieba.lcut(text)
+        # 过滤单字和纯标点
+        return [w for w in words if len(w) > 1 or w.isalnum()]
 
-    def _auto_lsh_params(self, threshold: float):
-        """自动选择合适的 (b, r) 参数对"""
-        candidates = [
-            (16, 8), (20, 6), (24, 5), (32, 4), (40, 3), (64, 2)
-        ]
-        best = (16, 8)
-        best_diff = float("inf")
-        for b, r in candidates:
-            if b * r != self.num_perm:
-                continue
-            actual = (1.0 / b) ** (1.0 / r)
-            diff = abs(actual - threshold)
-            if diff < best_diff:
-                best_diff = diff
-                best = (b, r)
-        return best
+    def _shingle_words(self, words: list[str], k: int = 3) -> list[str]:
+        """对词序列做 k-gram"""
+        if len(words) < k:
+            return [" ".join(words)]
+        return [" ".join(words[i:i + k]) for i in range(len(words) - k + 1)]
 
-    def _shingle(self, text: str) -> set[str]:
-        """将文本切分为 k-shingle 集合"""
-        text = re.sub(r"\s+", " ", text.lower()).strip()
-        if len(text) < self.shingle_size:
-            return {text}
-        return {text[i:i + self.shingle_size]
-                for i in range(len(text) - self.shingle_size + 1)}
+    def _build_minhash(self, item: NewsItem) -> MinHash:
+        """为单条新闻构建 MinHash 签名"""
+        text = f"{item.title} {item.content}"
+        words = self._tokenize(text)
+        shingles = self._shingle_words(words)
 
-    def _minhash_signature(self, shingles: set[str]) -> list[int]:
-        """计算 MinHash 签名向量"""
-        sig = []
-        for seed in range(1, self.num_perm + 1):
-            # 用不同的种子作为哈希函数
-            min_hash = float("inf")
-            for s in shingles:
-                h = hashlib.md5(f"{seed}:{s}".encode()).hexdigest()
-                val = int(h[:8], 16)
-                if val < min_hash:
-                    min_hash = val
-            sig.append(min_hash if min_hash != float("inf") else 0)
-        return sig
-
-    def _lsh_bands(self, signature: list[int]) -> list[tuple[int, tuple[int, ...]]]:
-        """将签名分成 b 个 band，返回 (band_idx, hash_tuple)"""
-        bands = []
-        for i in range(self._b):
-            start = i * self._r
-            end = start + self._r
-            band_hash = tuple(signature[start:end])
-            bands.append((i, band_hash))
-        return bands
+        mh = MinHash(num_perm=self.num_perm)
+        for s in shingles:
+            mh.update(s.encode("utf-8"))
+        return mh
 
     def is_duplicate(self, item: NewsItem) -> bool:
         """
-        检查 item 是否与已有内容相似。
-        返回 True 表示重复（应被过滤）。
+        查询是否重复。
+        返回 True = 重复（丢弃）。
         """
-        text = f"{item.title} {item.content}"
-        shingles = self._shingle(text)
-        if not shingles:
-            return False
+        mh = self._build_minhash(item)
+        # LSH 查询：找同桶候选
+        candidates = self._lsh.query(mh)
+        if candidates:
+            return True  # 有相似候补 → 判重
 
-        sig = self._minhash_signature(shingles)
-        bands = self._lsh_bands(sig)
-
-        # 检查是否有任何 band 与已有签名匹配
-        for band_idx, band_hash in bands:
-            for existing_sig in self._signatures:
-                e_bands = self._lsh_bands(list(existing_sig))
-                if e_bands[band_idx][1] == band_hash:
-                    # 候选匹配，计算精确 Jaccard 相似度确认
-                    return True  # LSH 碰撞即判定为重复
-
-        # 无匹配，加入数据库
-        self._signatures.append(tuple(sig))
-        self._items.append(item)
+        # 无匹配 → 加入索引
+        self._lsh.insert(len(self._kept), mh)
+        self._kept.append(item)
         return False
 
     @property
     def count(self) -> int:
-        return len(self._signatures)
+        return len(self._kept)
 
 
 # ============================================================
-# 阶段 3: 语义去重（Embedding + 余弦相似度）
+# 阶段 C: 语义去重（Embedding + Union-Find 聚类）
 # ============================================================
 
 class SemanticDeduper:
     """
-    语义去重：用 Embedding 向量 + 余弦相似度检测语义重复。
+    语义去重：
 
-    流程：
-      1. 将每条新闻的 (title + content) 发给硅基流动 Embedding API
-      2. 得到向量后，与已有向量逐一计算余弦相似度
-      3. 余弦相似度 > threshold 即判为重复
+    1. 调用硅基流动 BAAI/bge-large-zh-v1.5 Embedding API
+    2. 用 title[:50] 作为缓存键，避免重复调用
+    3. 用 Union-Find 做聚类，相似度 > 0.92 的合为一簇
+    4. 每簇保留发布时间最早的那条
+    5. 标注 "该消息被 N 家来源报道"
 
-    使用 model: Qwen/Qwen3-Embedding-4B
+    Embedding 缓存持久化到 .embedding_cache.json，每天清一次。
     """
 
     def __init__(self, threshold: float = config.DEDUP_SEMANTIC_THRESHOLD):
         self.threshold = threshold
-        self._vectors: list[list[float]] = []
-        self._items: list[NewsItem] = []
+        self._cache: dict[str, list[float]] = {}
+        self._cache_file = config.EMBEDDING_CACHE_FILE
+        self._load_cache()
+
+        # API 配置
         self._api_url = f"{config.API_BASE_URL.rstrip('/')}/v1/embeddings"
         self._headers = {
             "Authorization": f"Bearer {config.API_KEY}",
             "Content-Type": "application/json",
         }
 
-    def _get_embedding(self, text: str) -> Optional[list[float]]:
-        """调用硅基流动 Embedding API 获取向量"""
+    def _load_cache(self):
+        """加载 Embedding 缓存"""
+        try:
+            with open(self._cache_file, "r") as f:
+                self._cache = json.load(f)
+            # 检查是否是今天的缓存（按文件修改时间）
+            mtime = os.path.getmtime(self._cache_file)
+            if datetime.fromtimestamp(mtime).date() < datetime.now().date():
+                self._cache = {}  # 过期，清空
+        except (FileNotFoundError, json.JSONDecodeError):
+            self._cache = {}
+
+    def _save_cache(self):
+        """持久化缓存"""
+        with open(self._cache_file, "w") as f:
+            json.dump(self._cache, f, ensure_ascii=False)
+
+    def _cache_key(self, item: NewsItem) -> str:
+        """缓存键：标题前 50 字"""
+        return item.title.strip()[:50]
+
+    def _get_embedding(self, item: NewsItem) -> Optional[list[float]]:
+        """获取 Embedding 向量（先查缓存，再调 API）"""
+        key = self._cache_key(item)
+        if key in self._cache:
+            return self._cache[key]
+
         if not config.API_KEY:
             return None
+
+        text = f"{item.title} {item.content}"[:512]
         payload = json.dumps({
             "model": config.EMBEDDING_MODEL,
-            "input": text[:512],  # 控制 token 消耗
+            "input": text,
         }).encode("utf-8")
+
         try:
             req = Request(self._api_url, data=payload, headers=self._headers)
             with urlopen(req, timeout=30) as resp:
                 result = json.loads(resp.read().decode("utf-8"))
-            return result["data"][0]["embedding"]
+            vec = result["data"][0]["embedding"]
+            self._cache[key] = vec
+            return vec
         except Exception as e:
-            print(f"    [Embedding] {str(e)[:60]}")
+            print(f"    [Embedding] {key[:30]}... {str(e)[:50]}")
             return None
 
     def _cosine_similarity(self, a: list[float], b: list[float]) -> float:
-        """计算余弦相似度"""
-        dot = sum(x * y for x, y in zip(a, b))
-        na = sum(x * x for x in a) ** 0.5
-        nb = sum(x * x for x in b) ** 0.5
-        if na == 0 or nb == 0:
+        a_np = np.array(a, dtype=np.float32)
+        b_np = np.array(b, dtype=np.float32)
+        norm_a = np.linalg.norm(a_np)
+        norm_b = np.linalg.norm(b_np)
+        if norm_a == 0 or norm_b == 0:
             return 0.0
-        return dot / (na * nb)
+        return float(np.dot(a_np, b_np) / (norm_a * norm_b))
 
-    def is_duplicate(self, item: NewsItem) -> bool:
+    def deduplicate(self, items: list[NewsItem]) -> list[NewsItem]:
         """
-        检查 item 是否语义重复。
-        返回 True 表示应被过滤。
+        语义去重主入口。
+
+        1. 获取所有向量的 Embedding
+        2. 用 Union-Find 聚类
+        3. 每簇保留发布时间最早的
+        4. 标注多源报道计数
         """
-        text = f"{item.title} {item.content}"[:512]
-        if not text.strip():
-            return False
+        if not items:
+            return items
 
-        vec = self._get_embedding(text)
-        if vec is None:
-            # API 失败，保守返回不重复
-            return False
+        n = len(items)
+        # 获取 Embedding
+        vectors: list[Optional[list[float]]] = []
+        for i, it in enumerate(items):
+            vec = self._get_embedding(it)
+            vectors.append(vec)
+            if (i + 1) % 10 == 0:
+                print(f"    ... Embedding {i+1}/{n}")
 
-        # 与已有向量逐一比较
-        for existing_vec in self._vectors:
-            sim = self._cosine_similarity(vec, existing_vec)
-            if sim > self.threshold:
-                return True  # 语义重复
+        # 对成功获取到向量的构建聚类
+        valid_indices = [i for i, v in enumerate(vectors) if v is not None]
+        valid_vecs = [vectors[i] for i in valid_indices]
 
-        self._vectors.append(vec)
-        self._items.append(item)
-        return False
+        if len(valid_indices) < 2:
+            self._save_cache()
+            return items
 
-    @property
-    def count(self) -> int:
-        return len(self._vectors)
+        # Union-Find 聚类
+        parent = list(range(len(valid_indices)))
+        cluster_sizes = [1] * len(valid_indices)
+
+        def find(x):
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        def union(x, y):
+            rx, ry = find(x), find(y)
+            if rx == ry:
+                return
+            if cluster_sizes[rx] < cluster_sizes[ry]:
+                rx, ry = ry, rx
+            parent[ry] = rx
+            cluster_sizes[rx] += cluster_sizes[ry]
+
+        # 分批计算相似度（避免 O(n²) 全量计算）
+        batch_size = config.DEDUP_EMBEDDING_BATCH
+        comparisons = 0
+        for i in range(len(valid_indices)):
+            for j in range(i + 1, len(valid_indices)):
+                sim = self._cosine_similarity(valid_vecs[i], valid_vecs[j])
+                comparisons += 1
+                if sim > self.threshold:
+                    union(i, j)
+
+        print(f"    [语义去重] {n} 条 → 计算 {comparisons} 对相似度 → "
+              f"{len(set(find(i) for i in range(len(valid_indices))))} 簇")
+
+        # 按簇分组
+        clusters: dict[int, list[int]] = defaultdict(list)
+        for i in range(len(valid_indices)):
+            root = find(i)
+            clusters[root].append(valid_indices[i])
+
+        # 每簇保留一条，标注多源报道
+        kept_indices = set()
+        multi_source_map = {}  # kept_index -> cluster count
+
+        for root, members in clusters.items():
+            # 选发布时间最早的
+            cluster_items = [(items[valid_indices[m]], valid_indices[m]) for m in members]
+            cluster_items.sort(key=lambda x: x[0].published_at or x[0].crawled_at)
+            best_item, best_idx = cluster_items[0]
+            kept_indices.add(best_idx)
+            if len(members) > 1:
+                multi_source_map[best_idx] = len(members)
+
+        # 保留未被 API 处理到的（API 失败的保守保留）
+        for i in range(n):
+            if vectors[i] is None:
+                kept_indices.add(i)
+
+        # 构建结果
+        result = []
+        for i, it in enumerate(items):
+            if i in kept_indices:
+                if i in multi_source_map:
+                    count = multi_source_map[i]
+                    it.content = it.content + f" [该消息被 {count} 家来源报道]"
+                result.append(it)
+
+        self._save_cache()
+        return result
 
 
 # ============================================================
-# 阶段 4: 可信度评分
+# 阶段 D: 来源可信度过滤
 # ============================================================
 
-class CredibilityScorer:
+class CredibilityFilter:
     """
     可信度评分过滤。
 
-    评分公式：
-      score = base(50) + source_bonus + freshness_bonus
+    信号评分（满分 1.00）：
+      HTTPS          +0.25
+      有作者署名     +0.25
+      有发布日期     +0.20
+      无侵犯隐私     +0.20
+      正文 >200字    +0.10（门槛，不满足直接丢弃）
+      ─────────────────
+      总分           1.00
 
-    过滤条件：score < min_score（默认 0，即除非扣分否则不过滤）
+    白名单域名 → 直接 0.92 分
+    黑名单域名 → 直接丢弃
+    阈值 0.40 → 低于此丢弃
     """
 
     def __init__(self):
-        self.weights = config.CREDIBILITY_WEIGHTS
-        self.min_score = self.weights.get("min_score", 0)
+        self.threshold = config.CREDIBILITY_SCORE_THRESHOLD
+        self.whitelist = config.CREDIBILITY_WHITELIST
+        self.blacklist = config.CREDIBILITY_BLACKLIST
 
-    def score(self, item: NewsItem) -> int:
-        """
-        计算单条新闻的信任分数。
-        返回整数分数，低于 min_score 的应过滤。
-        """
-        score = 50  # 基础分
+    def _domain_from_url(self, url: str) -> str:
+        parsed = urlparse(url)
+        return parsed.netloc.lower()
 
-        # 来源加分/扣分
-        source_name = item.source.replace("爬虫", "")  # 去掉"爬虫"后缀以匹配映射
-        score += self.weights.get("source_bonus", {}).get(source_name, 0)
-        score += self.weights.get("source_malus", {}).get(source_name, 0)
+    def _is_whitelisted(self, domain: str) -> bool:
+        for wl in self.whitelist:
+            if domain == wl or domain.endswith("." + wl):
+                return True
+        return False
 
-        # 时效性加分（48小时内满分，之后线性衰减）
-        if item.published_at:
-            try:
-                pub = datetime.fromisoformat(item.published_at.replace("Z", "+00:00"))
-                age_hours = (datetime.now().astimezone() - pub).total_seconds() / 3600
-                freshness_hours = self.weights.get("freshness_hours", 48)
-                if age_hours < freshness_hours:
-                    freshness_bonus = int(20 * (1 - age_hours / freshness_hours))
-                    score += freshness_bonus
-            except (ValueError, TypeError):
-                pass
+    def _is_blacklisted(self, domain: str) -> bool:
+        for bl in self.blacklist:
+            if bl in domain:
+                return True
+        return False
 
-        return score
+    def _has_author(self, item: NewsItem) -> bool:
+        """检查是否有作者署名"""
+        text = f"{item.title} {item.content}"
+        # 匹配 "作者/文/图/摄" 等关键字
+        return bool(re.search(r"(作者|文\s*[/／]\s*|图\s*[/／]\s*|责编|编辑|撰文|记者)", text))
+
+    def _has_pubdate(self, item: NewsItem) -> bool:
+        """检查是否有发布日期"""
+        if item.published_at and len(item.published_at) > 5:
+            return True
+        text = f"{item.title} {item.content}"
+        # 匹配日期模式：2026-05-07, 2026年5月7日 等
+        return bool(re.search(r"\d{4}[-/年]\d{1,2}[-/月]\d{1,2}", text))
+
+    def _has_privacy_content(self, item: NewsItem) -> bool:
+        """检查是否包含侵犯隐私内容"""
+        text = f"{item.title} {item.content}"
+        # 手机号、身份证、邮箱
+        if re.search(r"1[3-9]\d{9}", text):
+            return True
+        if re.search(r"\d{18}[\dXx]", text):
+            return True
+        if re.search(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}", text):
+            return True
+        return False
+
+    def _content_length_ok(self, item: NewsItem) -> bool:
+        """正文长度是否 > 200 字（基本门槛）"""
+        return len(item.content) > 200
+
+    def score(self, item: NewsItem) -> float:
+        """计算信任分数，返回 0.0 ~ 1.0"""
+        domain = self._domain_from_url(item.url)
+
+        # 黑名单 → 直接 0
+        if self._is_blacklisted(domain):
+            return 0.0
+
+        # 白名单 → 直接高分
+        if self._is_whitelisted(domain):
+            return 0.92
+
+        # 正文长度门槛：不满足直接丢弃
+        if not self._content_length_ok(item):
+            return 0.0
+
+        score = 0.0
+        # HTTPS
+        if item.url.startswith("https"):
+            score += 0.25
+
+        # 作者署名
+        if self._has_author(item):
+            score += 0.25
+
+        # 发布日期
+        if self._has_pubdate(item):
+            score += 0.20
+
+        # 无侵犯隐私
+        if not self._has_privacy_content(item):
+            score += 0.20
+
+        # 正文门槛加分
+        score += 0.10
+
+        return min(score, 1.0)
 
     def should_filter(self, item: NewsItem) -> bool:
-        """是否应过滤此条"""
-        return self.score(item) < self.min_score
+        return self.score(item) < self.threshold
 
 
 # ============================================================
@@ -326,74 +454,66 @@ class CredibilityScorer:
 
 def run_pipeline(items: list[NewsItem]) -> FilterReport:
     """
-    4 阶段串联过滤流水线。
+    四层过滤管道。
 
     参数:
-      items — 原始新闻列表（来自 collector）
+      items — 原始新闻列表
 
     返回:
-      FilterReport — 各阶段去重统计 + 剩余干净数据
+      FilterReport — 各阶段统计 + 干净数据
     """
     report = FilterReport(total_input=len(items))
-
     if not items:
         return report
 
-    # ---- 阶段 1: URL 去重 ----
-    print(f"\n  ── 过滤 · URL 去重 ──")
+    # ---- A: URL 去重 ----
+    print(f"\n  ── A. URL 去重 ──")
     url_deduper = UrlDeduper()
-    after_url = []
+    after_a = []
     for it in items:
         if not url_deduper.is_duplicate(it):
-            after_url.append(it)
+            after_a.append(it)
         else:
             report.url_removed += 1
     url_deduper.flush()
-    print(f"  {len(items)} → {len(after_url)} (去重 {report.url_removed} 条)")
+    print(f"  {len(items)} → {len(after_a)} (去重 {report.url_removed} 条)")
 
-    if not after_url:
+    if not after_a:
         return report
 
-    # ---- 阶段 2: MinHash + LSH 指纹去重 ----
-    print(f"\n  ── 过滤 · MinHash 指纹去重 ──")
-    minhasher = MinHashDeduper()
-    after_minhash = []
-    for it in after_url:
-        if not minhasher.is_duplicate(it):
-            after_minhash.append(it)
+    # ---- B: MinHash + LSH 内容指纹去重 ----
+    print(f"\n  ── B. 内容指纹去重 (MinHash+LSH) ──")
+    mh_deduper = MinhashDeduper()
+    after_b = []
+    for it in after_a:
+        if not mh_deduper.is_duplicate(it):
+            after_b.append(it)
         else:
             report.minhash_removed += 1
-    print(f"  {len(after_url)} → {len(after_minhash)} (去重 {report.minhash_removed} 条)")
+    print(f"  {len(after_a)} → {len(after_b)} (去重 {report.minhash_removed} 条)")
 
-    if not after_minhash:
+    if not after_b:
         return report
 
-    # ---- 阶段 3: 语义去重（耗时操作，需要调用 Embedding API）----
-    print(f"\n  ── 过滤 · 语义去重 ──")
+    # ---- C: 语义去重 (Embedding + Union-Find) ----
+    print(f"\n  ── C. 语义去重 (Embedding+聚类) ──")
     semanticer = SemanticDeduper()
-    after_semantic = []
-    for i, it in enumerate(after_minhash):
-        if not semanticer.is_duplicate(it):
-            after_semantic.append(it)
-        else:
-            report.semantic_removed += 1
-        if (i + 1) % 5 == 0:
-            print(f"    ... 已处理 {i+1}/{len(after_minhash)} 条")
-    print(f"  {len(after_minhash)} → {len(after_semantic)} (去重 {report.semantic_removed} 条)")
+    after_c = semanticer.deduplicate(after_b)
+    report.semantic_removed = len(after_b) - len(after_c)
+    print(f"  {len(after_b)} → {len(after_c)} (去重 {report.semantic_removed} 条，含聚类标注)")
 
-    if not after_semantic:
+    if not after_c:
         return report
 
-    # ---- 阶段 4: 可信度评分 ----
-    print(f"\n  ── 过滤 · 可信度评分 ──")
-    scorer = CredibilityScorer()
-    after_cred = [it for it in after_semantic if not scorer.should_filter(it)]
-    report.credibility_removed = len(after_semantic) - len(after_cred)
-    print(f"  {len(after_semantic)} → {len(after_cred)} (过滤 {report.credibility_removed} 条)")
+    # ---- D: 可信度过滤 ----
+    print(f"\n  ── D. 来源可信度过滤 ──")
+    filter_d = CredibilityFilter()
+    after_d = [it for it in after_c if not filter_d.should_filter(it)]
+    report.credibility_removed = len(after_c) - len(after_d)
+    print(f"  {len(after_c)} → {len(after_d)} (过滤 {report.credibility_removed} 条)")
 
-    # ---- 完成 ----
-    report.total_output = len(after_cred)
-    report.remaining_items = after_cred
+    report.total_output = len(after_d)
+    report.remaining_items = after_d
     return report
 
 
@@ -408,4 +528,7 @@ if __name__ == "__main__":
     report.print_report()
     print(f"\n  前 5 条保留新闻:")
     for it in report.remaining_items[:5]:
-        print(f"  [{it.source}] {it.title[:50]}")
+        tags = f" [{', '.join(it.tags)}]" if it.tags else ""
+        print(f"  [{it.source}]{tags} {it.title[:60]}")
+        if "多家来源报道" in it.content:
+            print(f"     ⚡ {it.content[-30:]}")

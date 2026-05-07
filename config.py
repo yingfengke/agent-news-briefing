@@ -16,7 +16,7 @@ load_dotenv()
 API_BASE_URL = os.getenv("API_BASE_URL", "https://api.siliconflow.cn")
 API_KEY = os.getenv("API_KEY", "")
 MODEL_NAME = os.getenv("MODEL_NAME", "deepseek-ai/DeepSeek-V4-Flash")
-EMBEDDING_MODEL = "Qwen/Qwen3-Embedding-4B"  # 用于语义去重
+EMBEDDING_MODEL = "BAAI/bge-large-zh-v1.5"  # 语义去重，1024维，中英双语优化
 
 # ============================================================
 # 邮件配置
@@ -166,19 +166,34 @@ DEDUP_EMBEDDING_BATCH = 10          # 批量 Embedding 大小
 # URL 去重数据库路径（使用本地文件持久化历史 URL）
 URL_DB_FILE = os.path.join(BASE_DIR, ".url_dedup_db.json")
 
-# 可信度评分权重
-CREDIBILITY_WEIGHTS = {
-    "source_bonus": {       # 高质量来源加分
-        "OpenAI": 10, "Google AI": 10, "Anthropic": 10,
-        "Meta AI": 10, "ArXiv AI": 8,
-        "机器之心": 6, "InfoQ中文": 6,
-    },
-    "source_malus": {       # 低质量来源扣分
-        "Reddit ML": -2,
-    },
-    "freshness_hours": 48,  # 48小时内满分，之后衰减
-    "min_score": 0,         # 低于此分值的被过滤掉
-}
+# 语义去重缓存
+EMBEDDING_CACHE_FILE = os.path.join(BASE_DIR, ".embedding_cache.json")
+
+# 可信度评分 — 按决策调整后的新方案
+CREDIBILITY_WHITELIST = [
+    "gov.cn", "edu.cn", "edu",
+    "reuters.com", "ap.org", "bloomberg.com",
+    "arxiv.org", "huggingface.co", "paperswithcode.com",
+    "jiqizhixin.com", "qbitai.com", "infoq.cn",
+    "openai.com", "anthropic.com", "ai.meta.com",
+    "blog.google", "blog.langchain.dev", "llamaindex.ai",
+    "github.blog", "pytorch.org", "dev.to",
+    "36kr.com", "sspai.com", "ifanr.com", "geekpark.net",
+    "solidot.org", "ithome.com", "oschina.net", "modelscope.cn",
+    "cloud.tencent.com", "developer.aliyun.com",
+    "github.com", "techcrunch.com", "venturebeat.com",
+    "wired.com", "technologyreview.com",
+    "v2ex.com", "hnrss.org",
+]
+
+CREDIBILITY_BLACKLIST = [
+    "xiaohongshu.com", "weibo.com", "tieba.baidu.com",
+    "zhihu.com",  # 知乎内容质量参差，作为社交平台归类
+    "douyin.com", "kuaishou.com",
+    "bilibili.com",  # 视频平台，非文字新闻源
+]
+
+CREDIBILITY_SCORE_THRESHOLD = 0.40  # 低于此阈值直接丢弃
 
 # ============================================================
 # GitHub Trending 标签映射

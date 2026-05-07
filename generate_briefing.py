@@ -305,7 +305,7 @@ def write_html(news_items, daily_analysis="", projects=None):
 # 邮件 HTML 生成
 # ============================================================
 
-def generate_email_html(news_items, daily_analysis="", projects=None):
+def generate_email_html(news_items, daily_analysis="", projects=None, filter_report=None):
     if not projects:
         projects = []
     if not os.path.exists(config.EMAIL_TEMPLATE):
@@ -406,6 +406,10 @@ def generate_email_html(news_items, daily_analysis="", projects=None):
           </td>
         </tr>"""
 
+    filter_report_section = ""
+    if filter_report:
+        filter_report_section = filter_report.to_email_html()
+
     today = datetime.now()
     date_str = f"{today.year}年{today.month:02d}月{today.day:02d}日"
 
@@ -415,6 +419,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None):
     html = html.replace("{{news_items}}", intl_section + cn_section)
     html = html.replace("{{daily_analysis_section}}", analysis_section)
     html = html.replace("{{projects_section}}", projects_section)
+    html = html.replace("{{filter_report_section}}", filter_report_section)
 
     with open(config.EMAIL_OUTPUT, "w", encoding="utf-8") as f:
         f.write(html)
@@ -525,7 +530,7 @@ def main():
 
     # ---- 6. 生成邮件 HTML ----
     print(f"\n  ── 生成邮件 HTML ──")
-    generate_email_html(final_items, daily_analysis, trending_projects)
+    generate_email_html(final_items, daily_analysis, trending_projects, filter_report=report)
 
     if daily_analysis:
         print(f"\n  📊 今日深度分析:")
