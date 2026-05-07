@@ -17,3 +17,4 @@ email_content.txt
 .wrangler/
 .crawl_log.json
 .url_dedup_db.json
+.embedding_cache.json

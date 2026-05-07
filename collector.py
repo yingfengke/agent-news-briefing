@@ -258,8 +258,8 @@ def _crawl_site_playwright(name: str, site_url: str) -> list[NewsItem]:
             return items
 
         except Exception as e:
-            if attempt < config.CRAWLER_RETRIES:
-                wait = config.CRAWLER_RETRY_DELAY
+            if attempt <= config.CRAWLER_RETRIES:
+                wait = config.CRAWLER_RETRY_DELAYS[attempt - 1]
                 print(f"✘ 第{attempt}次 ({str(e)[:50]})，{wait}s后重试...")
                 time.sleep(wait)
             else:

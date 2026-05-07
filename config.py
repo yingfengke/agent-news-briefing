@@ -248,9 +248,9 @@ CRAWLER_USER_AGENT = (
 
 CRAWLER_TIMEOUT = 30          # 页面加载超时（秒）
 CRAWLER_RETRIES = 3           # 最大重试次数
-CRAWLER_RETRY_DELAY = 5       # 重试间隔（秒）
-CRAWLER_MIN_DELAY = 5         # 请求间隔下限（秒）
-CRAWLER_MAX_DELAY = 15        # 请求间隔上限（秒）
+CRAWLER_RETRY_DELAYS = [10, 20, 30]  # 递增重试间隔（秒）
+CRAWLER_MIN_DELAY = 10        # 请求间隔下限（秒）
+CRAWLER_MAX_DELAY = 30        # 请求间隔上限（秒）
 CRAWLER_MAX_ITEMS = 5         # 每个源最多提取条数
 CRAWLER_SUMMARY_MAX = 300     # content 字段最大长度
 
