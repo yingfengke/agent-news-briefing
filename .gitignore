@@ -18,3 +18,4 @@ email_content.txt
 .crawl_log.json
 .url_dedup_db.json
 .embedding_cache.json
+.worker_check.json
