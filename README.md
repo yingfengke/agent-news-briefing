@@ -1,152 +1,188 @@
 # AI & Agent 开发者晨报 ☕
 
-自动抓取 AI/Agent 领域最新新闻，通过大模型（硅基流动 DeepSeek-V4-Flash）分析筛选，生成每日简报，发送邮件 + 更新 GitHub Pages。每天早 9:00 由 Cloudflare Workers 准时触发，无需依赖不可靠的 GitHub Actions 定时器。还附带每日 GitHub 热门 AI/Agent/RAG 开源项目推荐。
+每天早 6:00 自动推送 AI/Agent 领域最新技术动态。由 **Cloudflare Workers + GitHub Actions** 双重定时保障。
 
-## 触发方式
+三层架构：**多模态采集 → 智能去重过滤 → AI 分析与简报生成**，全自动 serverless 运行。
 
-本项目使用 **Cloudflare Workers Cron 触发器** 作为主要定时机制，比 GitHub Actions 自带的 `schedule` 更可靠（不会延迟/跳过）。工作流：
+---
+
+## 架构一览
 
 ```
-Cloudflare Workers (每天 09:00 BJT)
-  → 调用 GitHub API → 触发 workflow_dispatch
-    → GitHub Actions 执行：抓取 RSS → AI 分析 → 发邮件 → 更新 Pages
+多模态数据采集层 (collector.py)
+  ├─ RSS 源 18 个（4 大类）
+  └─ 动态网页爬虫 4 站（Playwright）
+       ↓ 原始数据池
+智能过滤与去重层 (deduplicator.py)
+  ├─ URL 去重（SHA256 数据库）
+  ├─ 内容指纹去重（datasketch MinHash+LSH + jieba 分词，阈值 0.8）
+  ├─ 语义去重（BAAI/bge-large-zh-v1.5 + Union-Find 聚类，阈值 0.92）
+  └─ 来源可信度过滤（白名单 38 个域名 + 信号评分，阈值 0.40）
+       ↓ 干净数据
+AI 分析与简报生成层 (generate_briefing.py)
+  ├─ 随机三套语气：极简风 / 毒舌吐槽风 / 技术深度风
+  ├─ 失败自动重试 3 次
+  ├─ 生成 HTML + multipart 邮件
+  └─ GitHub Pages 同步更新
 ```
 
-## 快速部署（5 分钟）
+## 邮件内容板块
+
+```
+☕ AI & Agent 开发者晨报 · 今日风格：深度风
+   今日从 85 条新闻中精选 30 条
+
+⚡ 今日速览（Top 8）
+🌐 国外科技
+🇨🇳 国内科技
+📊 今日深度分析（AI 生成趋势预判）
+📚 本周热门学习项目（GitHub Trending）
+🎲 彩蛋角落（AI 冷知识 / 编程笑话）
+📋 今日过滤摘要（各层去重统计）
+---
+本简报由 AI 自动生成 · 内容仅供参考
+github.com/yingfengke/agent-news-briefing
+```
+
+## 快速部署
 
 ### 1. Fork 本项目
 
-点击右上角 `Fork` 按钮，将项目复制到你的 GitHub 账号下。
+点击右上角 `Fork` 按钮复制到你的 GitHub 账号下。
 
 ### 2. 配置 GitHub Secrets
 
-进入你 Fork 后的仓库 → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**，逐一添加以下 8 个 Secrets：
+进入仓库 → **Settings** → **Secrets and variables** → **Actions**，添加以下 8 个 Secrets：
 
-| Secret 名称 | 说明 | 如何获取 |
-| :--- | :--- | :--- |
+| Secret 名称 | 说明 | 获取方式 |
+|:---|:---|:---|
 | `API_BASE_URL` | 硅基流动 API 地址 | 默认 `https://api.siliconflow.cn` |
-| `API_KEY` | 硅基流动 API 密钥 | 注册 [硅基流动](https://siliconflow.cn)，在 API 管理页面创建 |
+| `API_KEY` | 硅基流动 API 密钥 | [硅基流动](https://siliconflow.cn) → API 管理 → 创建密钥 |
 | `MODEL_NAME` | AI 模型名 | 默认 `deepseek-ai/DeepSeek-V4-Flash` |
-| `SENDER_EMAIL` | 发件人 QQ 邮箱 | 你的 QQ 邮箱完整地址，如 `123456@qq.com` |
-| `AUTH_CODE` | QQ 邮箱授权码 | 登录 QQ 邮箱 → 设置 → 账户 → 开启 SMTP 服务 → 生成授权码 |
-| `RECEIVER_EMAIL` | 收件人邮箱 | 你想接收简报的邮箱 |
+| `SENDER_EMAIL` | 发件人邮箱 | 你的 QQ 邮箱地址 |
+| `AUTH_CODE` | QQ 邮箱授权码 | 邮箱设置 → 账户 → 开启 SMTP → 生成授权码 |
+| `RECEIVER_EMAIL` | 收件邮箱 | 接收简报的邮箱 |
 | `SMTP_SERVER` | SMTP 服务器 | 默认 `smtp.qq.com` |
 | `SMTP_PORT` | SMTP 端口 | 默认 `465` |
 
-> ⚠️ **安全提醒**：切勿将真实 API Key 或授权码直接写入代码并提交到公开仓库。
-> 所有敏感信息只存放在 GitHub Secrets 或本地 `.env` 文件中。
-> 
-> ⚠️**注意**:上述操作仅为本人操作方式，可以根据自己的实际情况添加对应的模型API和邮箱
+### 3. 启用 Actions
 
-### 3. 启用 GitHub Actions
+进入 **Actions** 标签页，启用工作流。工作流在每天 **北京时间 06:00** 自动运行。
 
-进入 **Actions** 标签页，点击 **"I understand my workflows, go ahead and enable them"** 启用工作流。
+### 4. 部署 Cloudflare Worker（可选，推荐）
 
-工作流默认在 **北京时间每天早 9:00** 自动运行（cron: `0 1 * * *` UTC）。
+详见 [CLOUDFLARE_DEPLOY.md](./CLOUDFLARE_DEPLOY.md)。部署后 Worker 每 30 分钟检查一次，确保不漏发。
 
-### 4. 手动测试
-
-进入 **Actions** → **每日科技早餐简报** → **Run workflow** → 点击绿色按钮，手动触发一次。
-
-等待约 2-3 分钟，查看：
-- 📧 邮箱是否收到邮件
-- 🌐 [GitHub Pages 页面](https://yingfengke.github.io/agent-news-briefing/) 是否更新
-
-### 5. 本地测试（可选）
+### 5. 本地测试
 
 ```bash
-# 安装依赖
-pip install python-dotenv
-
-# 复制配置
-cp .env.example .env
-# 编辑 .env，填入真实 API Key 和邮箱授权码
-
-# 生成简报
+pip install -r requirements.txt
+python -m playwright install chromium
+cp .env.example .env   # 填入真实 API Key 和邮箱授权码
 python generate_briefing.py
-
-# 发送邮件
 python send_email.py
-
-# 查看网页效果
-# 用浏览器打开 tech-briefing.html
 ```
 
-## 自定义配置
+## 数据源阵容
 
-| 配置项 | 位置 | 说明 |
-| :--- | :--- | :--- |
-| RSS 数据源 | `generate_briefing.py` 中的 `RSS_SOURCES` 列表 | 增删你想关注的新闻源 |
-| AI 分析指令 | `generate_briefing.py` 中的 `SYSTEM_PROMPT` | 修改 prompt 改变筛选逻辑 |
-| 推送时间 | `.github/workflows/daily-briefing.yml` 中的 `cron` | 注意使用 UTC 时间 |
-| AI 模型 | 同上 workflow 文件，或 `.env` 中的 `MODEL_NAME` | 可换成其他 SiliconFlow 支持的模型 |
-| 收件邮箱 | 本地 `.env` 或 GitHub Secrets 中的 `RECEIVER_EMAIL` | 可设置多个收件人（逗号分隔需改代码） |
+### 中文媒体（5 个）
+| 源 | 说明 |
+|:---|:---|
+| 机器之心 | 头部 AI 媒体，论文解读强 |
+| 量子位 | AI 资讯平台，更新快 |
+| InfoQ 中文 | AI 架构与工程实践 |
+| 阿里云开发者社区 | 国内云原生动向 |
+| 腾讯云开发者社区 | AI 工程实践 |
 
-## 数据源阵容（11 个）
+### 前沿论文（3 个）
+| 源 | 说明 |
+|:---|:---|
+| HuggingFace 每日论文 | HF 社区精选 |
+| ArXiv AI | AI 预印本 |
+| PapersWithCode | 论文+代码 |
 
-### 国际新闻
-| 源 | 领域 |
-| :--- | :--- |
-| TechCrunch AI | AI 创投 / 产品发布 |
-| VentureBeat AI | AI 产业动态 |
-| ArsTechnica | 技术深度 / 政策 |
-| HackerNews | 社区热帖 |
-| DEV Community | 开发者博客 |
+### 核心框架（6 个）
+| 源 | 说明 |
+|:---|:---|
+| LangChain | Agent 框架官方 |
+| OpenAI 博客 | 最新发布 |
+| Google AI | Gemini / DeepMind |
+| Anthropic | Claude 系列 |
+| Meta AI | Llama 系列 |
+| LlamaIndex | RAG 框架官方 |
 
-### 中文新闻
-| 源 | 领域 |
-| :--- | :--- |
-| Solidot | 开源 / 科技资讯 |
-| InfoQ | 开发者技术社区 |
-| 36氪 | 科技商业资讯 |
+### 全球社区（4 个）
+| 源 | 说明 |
+|:---|:---|
+| HackerNews AI | 社区热帖 |
+| Reddit ML | 社区讨论 |
+| DEV.to AI | 开发者博客 |
+| V2EX AI | 中文社区 |
 
-### GitHub 项目 Release 推送
-| 项目 | 说明 |
-| :--- | :--- |
-| LangChain | Agent 框架 |
-| CrewAI | 多 Agent 编排 |
-| AutoGen | 微软多 Agent 框架 |
-
-## 技术架构
-
-```
-RSS 源 (11个)  ──→  Python 抓取  ──→  硅基流动 API (DeepSeek-V4-Flash)
-                                           │
-                                     AI 筛选/排序/摘要
-                                           │
-                              ┌────────────┼────────────┐
-                              ▼            ▼            ▼
-                         GitHub Pages   HTML 邮件   深度分析卡片
-                              ↑
-                     每天 9:00 自动更新
-```
+### 动态爬虫（4 站）
+| 站 | 说明 |
+|:---|:---|
+| 机器之心 | 官网首页 |
+| 量子位 | 官网首页 |
+| 魔搭社区 | 阿里模型社区 |
+| OSChina | 开源技术动态 |
 
 ## 项目结构
 
 ```
-├── .env.example          # 配置模板（复制为 .env 并填入真实值）
-├── .github/
-│   └── workflows/
-│       └── daily-briefing.yml   # GitHub Actions 工作流
-├── generate_briefing.py  # RSS 抓取 + AI 分析 + HTML生成
-├── send_email.py         # QQ邮箱 SMTP 发送
-├── email_template.html   # 邮件 HTML 模板（纯静态，无JS）
-├── tech-briefing.html    # GitHub Pages 展示页面
-├── index.html            # Pages 入口（由工作流自动生成）
-└── 项目配置说明.txt       # 详细配置指南
+├── config.py             # 集中配置（RSS源 / 爬虫 / 阈值 / AI参数 / 语气 / 彩蛋）
+├── models.py             # 统一数据结构（NewsItem / FilterReport）
+├── collector.py          # 采集层（RSS + 爬虫 → 数据池）
+├── deduplicator.py       # 过滤层（4 阶段串联去重）
+├── generate_briefing.py  # 主流程编排器
+├── send_email.py         # 邮件发送（multipart/alternative）
+├── advanced_crawler.py   # 旧爬虫模块（保留引用）
+├── email_template.html   # 邮件模板
+├── worker.js             # Cloudflare Worker 触发器
+├── requirements.txt      # Python 依赖
+└── .env.example          # 环境变量模板
 ```
 
-## 常见问题
+## 技术参数
 
-**Q: 早上 9 点没有收到邮件？**
-A: 新仓库的 cron 调度可能需要 24-48 小时才能稳定生效。在此期间可手动触发 workflow 测试，或向 `main` 分支推送一次代码触发运行。
+| 参数 | 值 |
+|:---|:---|
+| AI 模型 | DeepSeek-V4-Flash（硅基流动） |
+| Embedding 模型 | BAAI/bge-large-zh-v1.5（1024 维） |
+| MinHash 阈值 | 0.8（128 perm，jieba 分词 + 词级 3-gram） |
+| 语义去重阈值 | 0.92（余弦相似度） |
+| 可信度阈值 | 0.40（信号评分制） |
+| 白名单域名 | 38 个 |
+| 黑名单域名 | 7 个 |
+| 随机语气 | 极简风 / 毒舌吐槽风 / 技术深度风 |
+| 彩蛋库 | 20 条 AI 冷知识 |
+| 爬虫间隔 | 10-30 秒 |
+| 爬虫重试 | 3 次，递增 10/20/30 秒 |
 
-**Q: RSS 源抓取失败？**
-A: 部分境外 RSS 源可能因网络问题间歇性超时（尤其在国内服务器上）。脚本会自动跳过失败源，不影响整体运行。
+## 触发机制
 
-**Q: 想换别的 AI 模型？**
-A: 硅基流动支持多种模型，修改 `.env` 中的 `MODEL_NAME` 即可，例如 `Qwen/Qwen2.5-72B-Instruct`。
+```
+Cloudflare Worker (Cron */30 * * * *, 每30分钟)
+  └─ checkTodayRan() → 未发则触发 workflow_dispatch
+     └─ GitHub Actions (同时有 schedule 06:00 BJT 双重保障)
+        ├─ 安装依赖 → Playwright + datasketch + jieba
+        ├─ generate_briefing.py → 采集 → 过滤 → AI分析 → 生成
+        ├─ send_email.py → multipart 邮件
+        └─ 提交更新 → GitHub Pages
+```
+
+## 自定义配置
+
+| 配置项 | 位置 |
+|:---|:---|
+| RSS 源列表 | `config.py` → `RSS_SOURCES` |
+| 爬虫目标站 | `config.py` → `CRAWLER_TARGETS` |
+| 去重阈值 | `config.py` → `DEDUP_*` |
+| 白/黑名单 | `config.py` → `CREDIBILITY_*` |
+| AI 语气 | `config.py` → `SYSTEM_PROMPT_*` |
+| 彩蛋内容 | `config.py` → `AI_TRIVIA` |
+| 推送时间 | `.github/workflows/daily-briefing.yml` → `cron` |
 
 ---
 
-*☕ 每天早上 9:00，为 AI 开发者精选当天最重要的技术动态*
+*☕ 每天早上 6:00，为 AI 开发者精选当天最重要的技术动态*

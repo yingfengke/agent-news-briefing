@@ -1,7 +1,10 @@
 name: AI Agent 开发者晨报
 
 on:
-  # 仅支持手动触发（Cloudflare Worker 是唯一的外部定时触发器）
+  # 每天早上 6:00 北京时间 (22:00 UTC) — 与 Cloudflare Worker 双重保障
+  schedule:
+    - cron: '0 22 * * *'
+  # 支持手动触发
   workflow_dispatch:
 
 permissions:
