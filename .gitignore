@@ -15,3 +15,4 @@ email_content.txt
 
 # Cloudflare Wrangler 缓存
 .wrangler/
+.crawl_log.json
