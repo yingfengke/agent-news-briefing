@@ -81,6 +81,14 @@ MAX_PER_SOURCE = {
     "HackerNews AI": 4, "Reddit ML": 3, "DEV.to AI": 3, "V2EX AI": 3,
 }
 
+# RSS 备用 URL（当主 RSS 源失败时自动切换，降低单点故障）
+RSS_FALLBACKS = {
+    # 机器之心主 RSS 已下线，用 RSSHub 微信公众号路由替代
+    "机器之心": "https://rsshub.rssforever.com/wechat/wasi/5b575dd058e5c4583338dbd3",
+    # 量子位、InfoQ 等主 RSS 通常可用，暂不需 fallback
+    # RSSHub 实例 rsshub.rssforever.com 社区维护，如失效可更换
+}
+
 # 中文来源名称集合（用于 AI 喂入前的分桶）
 CHINESE_SOURCE_NAMES = {
     "机器之心", "量子位", "InfoQ中文",
@@ -253,6 +261,34 @@ CRAWLER_MIN_DELAY = 10        # 请求间隔下限（秒）
 CRAWLER_MAX_DELAY = 30        # 请求间隔上限（秒）
 CRAWLER_MAX_ITEMS = 5         # 每个源最多提取条数
 CRAWLER_SUMMARY_MAX = 300     # content 字段最大长度
+
+# 站点专用 CSS 选择器配置（按站点名索引，覆盖通用选择器）
+CRAWLER_SITE_SELECTORS = {
+    "机器之心": {
+        "container": "a[href*='/article/'], h2 a, h3 a, .post-title a, .item-title a",
+        "title": "",
+        "link": "",
+        "summary": ".abstract, .desc, .summary, p",
+    },
+    "量子位": {
+        "container": "article, .post, h2 a, .entry-title a",
+        "title": "",
+        "link": "",
+        "summary": ".entry-summary, .post-excerpt, p",
+    },
+    "魔搭社区": {
+        "container": "a[href*='/models/'], [class*='card'], [class*='Card']",
+        "title": "",
+        "link": "",
+        "summary": "",
+    },
+    "OSChina": {
+        "container": "a[href*='/news/'], .blog-item a, .article-item a",
+        "title": "",
+        "link": "",
+        "summary": ".description, .summary, p",
+    },
+}
 
 # ============================================================
 # 过滤层配置

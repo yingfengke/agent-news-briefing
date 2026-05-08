@@ -16,5 +16,8 @@ jieba
 # 向量计算
 numpy>=1.24.0
 
+# RSS/Atom 解析（比 xml.etree 更鲁棒，支持松散格式 + content:encoded）
+feedparser
+
 # 语义去重聚类
 scikit-learn>=1.3.0

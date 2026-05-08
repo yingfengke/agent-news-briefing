@@ -16,11 +16,12 @@ import os
 import random
 import re
 import time
-import xml.etree.ElementTree as ET
 from datetime import datetime
 from urllib.parse import urljoin, urlparse
 from urllib.request import Request, urlopen
 from urllib.robotparser import RobotFileParser
+
+import feedparser
 
 import config
 from models import NewsItem
@@ -71,51 +72,56 @@ def _fetch(url: str) -> bytes:
         return resp.read()
 
 
-def _clean(raw: str) -> str:
-    text = re.sub(r"<[^>]+>", " ", raw)
-    text = re.sub(r"(Article|Comments)\s*URL\s*:\s*https?://\S+", "", text, flags=re.I)
-    text = re.sub(r"Points:\s*\d+\s*#\s*Comments:\s*\d+", "", text, flags=re.I)
-    text = re.sub(r"\s+", " ", text).strip()
-    return text[:200] if len(text) > 200 else text
+def _parse_rss(raw: bytes, source_name: str) -> list[NewsItem]:
+    """
+    使用 feedparser 解析 RSS / Atom，返回 NewsItem 列表。
 
-
-def _text(el, tag, ns=None):
-    child = el.find(tag, ns or {})
-    return child.text.strip() if child is not None and child.text else ""
-
-
-def _parse_rss(xml_data: bytes, source_name: str) -> list[NewsItem]:
-    """解析 RSS / Atom 格式，返回 NewsItem 列表"""
+    feedparser 优势：
+      - 自动识别 RSS 2.0 / Atom / RDF
+      - 容错处理格式松散的 XML（如机器之心）
+      - 自动处理 content:encoded 命名空间
+      - 自动提取 published 时间
+    """
     items = []
-    root = ET.fromstring(xml_data)
+    feed = feedparser.parse(raw)
 
-    # RSS 2.0
-    for item in root.iter("item"):
-        title = _text(item, "title")
-        link = _text(item, "link")
-        desc = _text(item, "description") or _text(item, "content:encoded") or ""
-        pub = _text(item, "pubDate") or _text(item, "dc:date")
-        if title and link:
-            items.append(_build_item(
-                title, _clean(desc), link, source_name,
-                _detect_lang(source_name), "rss", published_at=pub,
-            ))
+    if feed.bozo and not feed.entries:
+        # bozo=1 且无条目 → 真实解析失败（如返回的是 HTML 不是 XML）
+        print(f"  ⚠ feedparser 解析失败 (bozo): {feed.bozo_exception}")
+        return items
 
-    # Atom
-    if not items:
-        for entry in root.iter("{http://www.w3.org/2005/Atom}entry"):
-            title = _text(entry, "a:title", {"a": "http://www.w3.org/2005/Atom"})
-            href_el = entry.find("a:link", {"a": "http://www.w3.org/2005/Atom"})
-            link = href_el.get("href") if href_el is not None else ""
-            desc = _text(entry, "a:summary", {"a": "http://www.w3.org/2005/Atom"}) \
-                   or _text(entry, "a:content", {"a": "http://www.w3.org/2005/Atom"}) or ""
-            pub = _text(entry, "a:published", {"a": "http://www.w3.org/2005/Atom"}) \
-                  or _text(entry, "a:updated", {"a": "http://www.w3.org/2005/Atom"})
-            if title and link:
-                items.append(_build_item(
-                    title, _clean(desc), link, source_name,
-                    _detect_lang(source_name), "rss", published_at=pub,
-                ))
+    for entry in feed.entries:
+        title = entry.get("title", "").strip()
+        link = entry.get("link", "").strip()
+        if not title or not link:
+            continue
+
+        # 提取正文内容：优先 content，再 summary，再 description
+        content_raw = ""
+        if hasattr(entry, "content") and entry.content:
+            content_raw = entry.content[0].get("value", "")
+        elif hasattr(entry, "summary"):
+            content_raw = entry.summary or ""
+        elif hasattr(entry, "description"):
+            content_raw = entry.description or ""
+
+        # 清理 HTML 标签
+        content_clean = re.sub(r"<[^>]+>", " ", content_raw)
+        content_clean = re.sub(r"\s+", " ", content_clean).strip()[:200]
+
+        # 发布时间
+        published = ""
+        if hasattr(entry, "published_parsed") and entry.published_parsed:
+            from time import mktime
+            published = datetime.fromtimestamp(mktime(entry.published_parsed)).isoformat()
+        elif hasattr(entry, "published"):
+            published = entry.published
+
+        items.append(_build_item(
+            title, content_clean, link, source_name,
+            _detect_lang(source_name), "rss",
+            published_at=published,
+        ))
 
     return items
 
@@ -144,11 +150,31 @@ def collect_rss() -> list[NewsItem]:
             print(f"  → {name} ({lang}) ... ", end="", flush=True)
             limit = config.MAX_PER_SOURCE.get(name, 3)
             items = _parse_rss(_fetch(url), name)[:limit]
-            print(f"✔ {len(items)} 条")
-            all_items.extend(items)
+            if items:
+                print(f"✔ {len(items)} 条")
+                all_items.extend(items)
+            else:
+                # 主 URL 无结果，尝试 RSSHub fallback
+                raise ValueError(f"0 条，尝试备用 RSS")
         except Exception as e:
-            print(f"✘ {str(e)[:60]}")
-            errors.append(name)
+            # 尝试 RSSHub 备用 URL
+            fallback_url = config.RSS_FALLBACKS.get(name)
+            if fallback_url:
+                try:
+                    print(f"⚠ 主RSS失败，尝试备用 ... ", end="", flush=True)
+                    items = _parse_rss(_fetch(fallback_url), name)[:config.MAX_PER_SOURCE.get(name, 3)]
+                    if items:
+                        print(f"✔ {len(items)} 条 (备用)")
+                        all_items.extend(items)
+                    else:
+                        print(f"✘ 备用也无数据")
+                        errors.append(name)
+                except Exception as e2:
+                    print(f"✘ 备用也失败: {str(e2)[:40]}")
+                    errors.append(name)
+            else:
+                print(f"✘ {str(e)[:60]}")
+                errors.append(name)
 
     print(f"  RSS 共获取 {len(all_items)} 条")
     if errors:
@@ -203,11 +229,17 @@ def _crawl_site_playwright(name: str, site_url: str) -> list[NewsItem]:
                 delay = random.uniform(config.CRAWLER_MIN_DELAY, config.CRAWLER_MAX_DELAY)
                 time.sleep(delay)
 
-                # 通用文章提取
-                articles = page.query_selector_all(
-                    "article, .post-item, .article-item, .card, "
-                    "a[href*='/article/'], a[href*='/p/'], a[href*='/news/']"
-                )
+                # 站点专用选择器（优先）或通用选择器
+                site_selectors = config.CRAWLER_SITE_SELECTORS.get(name, {})
+                container_sel = site_selectors.get("container", "")
+                if container_sel:
+                    articles = page.query_selector_all(container_sel)
+                else:
+                    # 通用选择器
+                    articles = page.query_selector_all(
+                        "article, .post-item, .article-item, .card, "
+                        "a[href*='/article/'], a[href*='/p/'], a[href*='/news/']"
+                    )
                 if not articles:
                     articles = page.query_selector_all("h2 a, h3 a")
 
@@ -233,10 +265,15 @@ def _crawl_site_playwright(name: str, site_url: str) -> list[NewsItem]:
                             continue
                         seen_urls.add(full_url)
 
-                        # 提取摘要（优先用描述性元素）
+                        # 提取摘要（优先站点专用选择器，再通用）
+                        summary_set = site_selectors.get("summary", "")
+                        summary_selectors = summary_set.split(", ") if summary_set else []
+                        summary_selectors.extend([".summary", ".desc", ".excerpt",
+                                                   ".abstract", "p", ".description"])
                         summary = title
-                        for sel in [".summary", ".desc", ".excerpt",
-                                    ".abstract", "p", ".description"]:
+                        for sel in summary_selectors:
+                            if not sel:
+                                continue
                             el = art.query_selector(sel)
                             if el:
                                 txt = el.inner_text().strip()
