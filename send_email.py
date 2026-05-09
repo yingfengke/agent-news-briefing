@@ -46,17 +46,39 @@ def get_html_content():
 
 
 def html_to_plain(html: str) -> str:
-    """将 HTML 转为纯文本（用于 multipart 的 text/plain 部分）"""
-    text = re.sub(r"<style[^>]*>[\s\S]*?</style>", "", html)
-    text = re.sub(r"<script[^>]*>[\s\S]*?</script>", "", text)
+    """将 HTML 转为纯文本，保留链接信息"""
+    # 1. 提取 <a href> 链接并内联化
+    def _inline_link(m):
+        url = m.group(1) or ""
+        text = m.group(2) or url
+        text = re.sub(r"\s+", " ", text).strip()
+        if not text:
+            text = url
+        if url and url != text and not text.startswith("http"):
+            return f"{text} ({url})"
+        return text
+
+    # 处理 <a href="URL">text</a>
+    text = re.sub(
+        r'<a\s[^>]*href="([^"]*)"[^>]*>([\s\S]*?)</a>',
+        _inline_link, html, flags=re.IGNORECASE
+    )
+
+    # 2. 去掉 style/script 块
+    text = re.sub(r"<style[^>]*>[\s\S]*?</style>", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"<script[^>]*>[\s\S]*?</script>", "", text, flags=re.IGNORECASE)
+
+    # 3. 去掉剩余 HTML 标签
     text = re.sub(r"<[^>]+>", "\n", text)
-    text = re.sub(r"\n\s*\n", "\n\n", text)
+
+    # 4. 清理空白
     text = re.sub(r"&nbsp;", " ", text)
     text = re.sub(r"&amp;", "&", text)
     text = re.sub(r"&lt;", "<", text)
     text = re.sub(r"&gt;", ">", text)
     text = re.sub(r"&quot;", '"', text)
     text = re.sub(r"&[a-zA-Z]+;", "", text)
+    text = re.sub(r"\n\s*\n", "\n\n", text)
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()
 
