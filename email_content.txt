@@ -4,9 +4,9 @@ AI & Agent 开发者晨报
 
 AI & Agent 开发者晨报
 
-2026年05月08日
+2026年05月09日
 
-今日从 24 条新闻中精选 19 条
+今日从 20 条新闻中精选 3 条
 
 ⚡ 今日速览
 
@@ -16,95 +16,11 @@ AI
 
 🌐
 
-OpenAI发布Codex安全运行方案
+AI Agent持久内存工具Hermes Memory Installer发布
 
-OpenAI详解Codex沙箱、审批与网络策略保障安全。
+为AI Agent提供持久化记忆能力，提升上下文连续性。（来源：DEV.to AI）
 
-阅读原文 →
-
-No.02
-
-AI
-
-🌐
-
-OpenAI推出GPT-5.5及网络安全版
-
-扩展可信访问，助力网络安全任务。
-
-阅读原文 →
-
-No.03
-
-AI
-
-🌐
-
-Git for AI Agents开源项目发布
-
-Show HN：re_gent为AI代理提供版本控制工具。
-
-阅读原文 →
-
-No.04
-
-AI
-
-🌐
-
-本地Copilot方案：Gemma 4 + Open WebUI + OpenHands
-
-开发者分享无需联网的本地AI编程环境搭建。
-
-阅读原文 →
-
-No.05
-
-AI
-
-🌐
-
-ZAYA1-8B推理模型技术报告发布
-
-新推理模型ZAYA1-8B技术细节公开。
-
-阅读原文 →
-
-No.06
-
-AI
-
-🌐
-
-Agent系统授权受限基准Partial Evidence Bench
-
-新基准评估企业Agent在有限证据下的授权能力。
-
-阅读原文 →
-
-No.07
-
-AI
-
-🌐
-
-标注者安全策略可解释性研究
-
-用可解释性方法理解AI安全策略标注者行为。
-
-阅读原文 →
-
-No.08
-
-AI
-
-🇨🇳
-
-Redis之父为DeepSeek V4打造专用推理引擎
-
-可在Mac本地运行DeepSeek V4模型。
-
-阅读原文 →
+              阅读原文 →
 
 🌐 国外科技
 
@@ -112,132 +28,37 @@ No.01
 
 AI
 
-OpenAI发布Codex安全运行方案
+AI Agent持久内存工具Hermes Memory Installer发布
 
-OpenAI详解Codex沙箱、审批与网络策略保障安全。
+为AI Agent提供持久化记忆能力，提升上下文连续性。（来源：DEV.to AI）
 
-阅读原文 →
-
-No.02
-
-AI
-
-OpenAI推出GPT-5.5及网络安全版
-
-扩展可信访问，助力网络安全任务。
-
-阅读原文 →
-
-No.03
-
-AI
-
-Git for AI Agents开源项目发布
-
-Show HN：re_gent为AI代理提供版本控制工具。
-
-阅读原文 →
-
-No.04
-
-AI
-
-本地Copilot方案：Gemma 4 + Open WebUI + OpenHands
-
-开发者分享无需联网的本地AI编程环境搭建。
-
-阅读原文 →
-
-No.05
-
-AI
-
-ZAYA1-8B推理模型技术报告发布
-
-新推理模型ZAYA1-8B技术细节公开。
-
-阅读原文 →
-
-No.06
-
-AI
-
-Agent系统授权受限基准Partial Evidence Bench
-
-新基准评估企业Agent在有限证据下的授权能力。
-
-阅读原文 →
-
-No.07
-
-AI
-
-标注者安全策略可解释性研究
-
-用可解释性方法理解AI安全策略标注者行为。
-
-阅读原文 →
-
-🇨🇳 国内科技
-
-No.01
-
-AI
-
-Redis之父为DeepSeek V4打造专用推理引擎
-
-可在Mac本地运行DeepSeek V4模型。
-
-阅读原文 →
-
-No.02
-
-AI
-
-Anthropic揭示Claude内心独白机制
-
-研究展示Claude如何识别并应对人类套路。
-
-阅读原文 →
-
-No.03
-
-AI
-
-商汤大装置稳居中国MaaS市场第一梯队
-
-商汤AI大装置在MaaS市场持续领跑。
-
-阅读原文 →
+              阅读原文 →
 
 📊 今日深度分析
 
-AI Agent安全与可解释性成焦点，本地化推理工具涌现。开发者应关注Agent授权基准和轻量推理引擎，以提升应用安全与部署灵活性。
+AI Agent持久记忆成为开发热点，工具化趋势明显，建议关注内存管理与Agent长对话场景的优化方案。
 
 📚 本周热门学习项目
 
-                📌 
-Hmbown/DeepSeek-TUI
+                📌 addyosmani/agent-skills (https://github.com/addyosmani/agent-skills)
 
-⭐+3827 today
-
-Coding agent for DeepSeek models that runs in your terminal
-
-🏷️ 大模型底层
-
-                📌 
-addyosmani/agent-skills
-
-⭐+1794 today
+⭐+2801 today
 
 Production-grade engineering skills for AI coding agents.
 
 🏷️ Agent 框架
 
-                📌 
-decolua/9router
+                📌 datawhalechina/hello-agents (https://github.com/datawhalechina/hello-agents)
 
-⭐+1028 today
+⭐+1162 today
+
+📚 《从零开始构建智能体》——从零开始的智能体原理与实践教程
+
+🏷️ Agent 框架
+
+                📌 decolua/9router (https://github.com/decolua/9router)
+
+⭐+980 today
 
 Unlimited FREE AI coding. Connect Claude Code, Codex, Cursor, Cline, Copilot, Antigravity to FREE Cl
 
@@ -245,17 +66,17 @@ Unlimited FREE AI coding. Connect Claude Code, Codex, Cursor, Cline, Copilot, An
 
 🎲 彩蛋角落
 
-CUDA 的诅咒：一旦你用 GPU 加速了代码，就再也回不去 CPU 了。
+你知道吗？GPT-4 的训练成本据估计超过 1 亿美元，够买 2000 张 RTX 4090。
 
 📋 今日过滤摘要
 
 采集
 
-24 条
+20 条
 
 URL去重
 
--0 条
+-17 条
 
 内容指纹去重
 
@@ -267,12 +88,12 @@ URL去重
 
 可信度过滤
 
--5 条
+-0 条
 
-最终输出 (79%)
+最终输出 (15%)
 
-19 条
+3 条
 
 本简报由 AI 自动生成 · 内容仅供参考
 
-https://github.com/yingfengke/agent-news-briefing
+                https://github.com/yingfengke/agent-news-briefing
