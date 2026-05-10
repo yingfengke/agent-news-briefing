@@ -31,6 +31,45 @@ from deduplicator import run_pipeline
 
 
 # ============================================================
+# Markdown 链接清洗（用于邮件安全嵌入）
+# ============================================================
+
+def clean_links(text: str) -> str:
+    """
+    将 Markdown 格式的链接和裸 URL 转换为 HTML <a> 标签。
+    包含清洗自检（发现遗留的 Markdown 链接会告警）。
+
+    转换规则：
+      - [文字](url) → <a href="url" target="_blank">文字</a>
+      - 裸 URL (http/https) → <a href="url" target="_blank">url</a>
+    """
+    if not text:
+        return text
+
+    # 1. 转换 Markdown 内联链接
+    cleaned = re.sub(
+        r'\[([^\]]+)\]\(([^)]+)\)',
+        r'<a href="\2" target="_blank">\1</a>',
+        text,
+    )
+
+    # 2. 转换裸 URL（排除已包裹在 <a> 标签内的）
+    #    用 (?![^<]*</a>) 确保不会重复包装已有 <a> 的 URL
+    cleaned = re.sub(
+        r'(https?://[^\s<>)\]】、，,]+)(?![^<]*</a>)',
+        r'<a href="\1" target="_blank">\1</a>',
+        cleaned,
+    )
+
+    # 3. 自检：是否还有未转换的 Markdown 链接
+    remaining = re.findall(r'\[([^\]]+)\]\(', cleaned)
+    if remaining:
+        print(f"  [LINK-CHECK] ⚠ 发现 {len(remaining)} 个未转换的 Markdown 链接: {remaining}")
+
+    return cleaned
+
+
+# ============================================================
 # AI 分析
 # ============================================================
 
@@ -359,7 +398,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
                 {' ' + source_tag if source_tag else ''}
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 10px 0;line-height:1.5;">{item["title"]}</h2>
-              <p style="font-size:13px;color:#555;margin:0 0 14px 0;line-height:1.7;">{item["summary"]}</p>
+              <p style="font-size:13px;color:#555;margin:0 0 14px 0;line-height:1.7;">{clean_links(item["summary"])}</p>
               <a href="{item["link"]}" target="_blank" style="font-size:12px;font-weight:600;color:#1a1a1a;text-decoration:none;border-bottom:1.5px solid #1a1a1a;">阅读原文 →</a>
             </td>
           </tr>
@@ -399,7 +438,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
         <tr>
           <td style="padding:24px 24px;background:#1a1a1a;border-radius:12px;">
             <div style="font-size:11px;color:#888;letter-spacing:1.2px;margin-bottom:12px;">📊 今日深度分析</div>
-            <p style="font-size:13px;color:#ccc;line-height:1.8;margin:0;">{daily_analysis}</p>
+            <p style="font-size:13px;color:#ccc;line-height:1.8;margin:0;">{clean_links(daily_analysis)}</p>
           </td>
         </tr>"""
 
@@ -461,7 +500,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
                 {source_tag}{region_tag}
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 6px 0;line-height:1.5;">{item["title"]}</h2>
-              <p style="font-size:13px;color:#555;margin:0 0 10px 0;line-height:1.6;">{item["summary"]}</p>
+              <p style="font-size:13px;color:#555;margin:0 0 10px 0;line-height:1.6;">{clean_links(item["summary"])}</p>
               <a href="{item["link"]}" target="_blank" style="font-size:12px;font-weight:600;color:#1a1a1a;text-decoration:none;border-bottom:1.5px solid #1a1a1a;">阅读原文 →</a>
             </td>
           </tr>
@@ -481,7 +520,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
         <tr>
           <td style="padding:16px 20px;background:#f8f8f6;border:1px solid #e5e5e5;border-radius:10px;margin-bottom:0;">
             <div style="font-size:11px;color:#888;letter-spacing:1px;margin-bottom:6px;">🎲 彩蛋角落</div>
-            <p style="font-size:12px;color:#666;line-height:1.7;margin:0;font-style:italic;">{trivia}</p>
+            <p style="font-size:12px;color:#666;line-height:1.7;margin:0;font-style:italic;">{clean_links(trivia)}</p>
           </td>
         </tr>"""
 
@@ -508,6 +547,19 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
     with open(config.EMAIL_OUTPUT, "w", encoding="utf-8") as f:
         f.write(html)
     print(f"[成功] 已生成邮件 HTML ({len(news_items)} 条)")
+
+    # ---- 自检：扫描邮件 HTML 中是否还有未包裹的链接 ----
+    # 排除 <a> 标签内和 <style> 内的内容
+    body_only = re.sub(r'<a\s[^>]*>.*?</a>', '', html, flags=re.DOTALL)
+    body_only = re.sub(r'<style[^>]*>.*?</style>', '', body_only, flags=re.DOTALL)
+    loose_urls = re.findall(r'https?://[^\s<>"\'\]】、，,]+', body_only)
+    if loose_urls:
+        for url in loose_urls[:5]:
+            print(f"  [LINK-CHECK] ⚠ 发现未包裹的链接: {url[:80]}")
+        if len(loose_urls) > 5:
+            print(f"  [LINK-CHECK] ⚠ ... 还有 {len(loose_urls)-5} 个")
+    else:
+        print(f"  [LINK-CHECK] ✅ 邮件中所有链接均已正确包裹")
     return True
 
 
