@@ -4,9 +4,9 @@ AI & Agent 开发者晨报
 
 AI & Agent 开发者晨报
 
-2026年05月09日
+2026年05月10日
 
-今日从 20 条新闻中精选 3 条
+今日从 45 条新闻中精选 4 条
 
 ⚡ 今日速览
 
@@ -16,9 +16,45 @@ AI
 
 🌐
 
-AI Agent持久内存工具Hermes Memory Installer发布
+2026年AI视频生成器横向评测：Hailuo 03 vs Sora等
 
-为AI Agent提供持久化记忆能力，提升上下文连续性。（来源：DEV.to AI）
+对比Hailuo 03、Sora等五款AI视频生成器性能与效果。（来源：DEV.to AI）
+
+              阅读原文 →
+
+No.02
+
+AI
+
+🌐
+
+LotteryFL：基于彩票假说的个性化联邦学习方案
+
+提出通信高效的个性化联邦学习方法，适用于非IID数据集。（来源：DEV.to AI）
+
+              阅读原文 →
+
+No.03
+
+AI
+
+🌐
+
+Hailuo 03 AI视频生成器新手入门指南
+
+详细介绍Hailuo 03的使用步骤与基础操作。（来源：DEV.to AI）
+
+              阅读原文 →
+
+No.04
+
+AI
+
+🌐
+
+Hailuo 3.0 AI视频生成技巧与优化建议
+
+分享10条提升Hailuo 3.0视频生成质量的实用技巧。（来源：DEV.to AI）
 
               阅读原文 →
 
@@ -28,21 +64,51 @@ No.01
 
 AI
 
-AI Agent持久内存工具Hermes Memory Installer发布
+2026年AI视频生成器横向评测：Hailuo 03 vs Sora等
 
-为AI Agent提供持久化记忆能力，提升上下文连续性。（来源：DEV.to AI）
+对比Hailuo 03、Sora等五款AI视频生成器性能与效果。（来源：DEV.to AI）
+
+              阅读原文 →
+
+No.02
+
+AI
+
+LotteryFL：基于彩票假说的个性化联邦学习方案
+
+提出通信高效的个性化联邦学习方法，适用于非IID数据集。（来源：DEV.to AI）
+
+              阅读原文 →
+
+No.03
+
+AI
+
+Hailuo 03 AI视频生成器新手入门指南
+
+详细介绍Hailuo 03的使用步骤与基础操作。（来源：DEV.to AI）
+
+              阅读原文 →
+
+No.04
+
+AI
+
+Hailuo 3.0 AI视频生成技巧与优化建议
+
+分享10条提升Hailuo 3.0视频生成质量的实用技巧。（来源：DEV.to AI）
 
               阅读原文 →
 
 📊 今日深度分析
 
-AI Agent持久记忆成为开发热点，工具化趋势明显，建议关注内存管理与Agent长对话场景的优化方案。
+AI视频生成赛道竞争白热化，Hailuo 03等新品密集发布，开发者应关注模型效果与效率平衡。联邦学习领域出现个性化方案，提示隐私计算与分布式训练仍是重要方向。
 
 📚 本周热门学习项目
 
                 📌 addyosmani/agent-skills (https://github.com/addyosmani/agent-skills)
 
-⭐+2801 today
+⭐+3009 today
 
 Production-grade engineering skills for AI coding agents.
 
@@ -50,7 +116,7 @@ Production-grade engineering skills for AI coding agents.
 
                 📌 datawhalechina/hello-agents (https://github.com/datawhalechina/hello-agents)
 
-⭐+1162 today
+⭐+1197 today
 
 📚 《从零开始构建智能体》——从零开始的智能体原理与实践教程
 
@@ -58,7 +124,7 @@ Production-grade engineering skills for AI coding agents.
 
                 📌 decolua/9router (https://github.com/decolua/9router)
 
-⭐+980 today
+⭐+1031 today
 
 Unlimited FREE AI coding. Connect Claude Code, Codex, Cursor, Cline, Copilot, Antigravity to FREE Cl
 
@@ -66,17 +132,17 @@ Unlimited FREE AI coding. Connect Claude Code, Codex, Cursor, Cline, Copilot, An
 
 🎲 彩蛋角落
 
-你知道吗？GPT-4 的训练成本据估计超过 1 亿美元，够买 2000 张 RTX 4090。
+RAG 的甜点是：帮你把幻觉从 30% 降到 3%。痛点：你多了 3 个基础设施要维护。
 
 📋 今日过滤摘要
 
 采集
 
-20 条
+45 条
 
 URL去重
 
--17 条
+-36 条
 
 内容指纹去重
 
@@ -84,15 +150,15 @@ URL去重
 
 语义去重
 
--0 条
+-1 条
 
 可信度过滤
 
--0 条
+-4 条
 
-最终输出 (15%)
+最终输出 (9%)
 
-3 条
+4 条
 
 本简报由 AI 自动生成 · 内容仅供参考
 
