@@ -360,7 +360,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 10px 0;line-height:1.5;">{item["title"]}</h2>
               <p style="font-size:13px;color:#555;margin:0 0 14px 0;line-height:1.7;">{item["summary"]}</p>
-              <a href="{item["link"]}" style="font-size:12px;font-weight:600;color:#1a1a1a;text-decoration:none;border-bottom:1.5px solid #1a1a1a;">阅读原文 →</a>
+              <a href="{item["link"]}" target="_blank" style="font-size:12px;font-weight:600;color:#1a1a1a;text-decoration:none;border-bottom:1.5px solid #1a1a1a;">阅读原文 →</a>
             </td>
           </tr>
         </table>""")
@@ -412,7 +412,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
           <tr>
             <td style="padding:16px 20px;">
               <div style="font-size:14px;font-weight:700;color:#111;margin-bottom:4px;">
-                📌 <a href="{p.get("link","#")}" style="color:#1a1a1a;text-decoration:none;">{p.get("name","")}</a>
+                📌 <a href="{p.get("link","#")}" target="_blank" style="color:#1a1a1a;text-decoration:none;">{p.get("name","")}</a>
                 <span style="font-size:12px;color:#888;margin-left:8px;">{p.get("stars","")}</span>
               </div>
               <p style="font-size:13px;color:#555;margin:4px 0 0 0;line-height:1.6;">{p.get("desc","")}</p>
@@ -462,7 +462,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 6px 0;line-height:1.5;">{item["title"]}</h2>
               <p style="font-size:13px;color:#555;margin:0 0 10px 0;line-height:1.6;">{item["summary"]}</p>
-              <a href="{item["link"]}" style="font-size:12px;font-weight:600;color:#1a1a1a;text-decoration:none;border-bottom:1.5px solid #1a1a1a;">阅读原文 →</a>
+              <a href="{item["link"]}" target="_blank" style="font-size:12px;font-weight:600;color:#1a1a1a;text-decoration:none;border-bottom:1.5px solid #1a1a1a;">阅读原文 →</a>
             </td>
           </tr>
         </table>""")

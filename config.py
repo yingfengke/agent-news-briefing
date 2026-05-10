@@ -47,10 +47,13 @@ RSS_SOURCES = [
     ("InfoQ中文",    "https://www.infoq.cn/feed",                           "zh"),
     ("阿里云开发者", "https://developer.aliyun.com/feed",                   "zh"),
     ("腾讯云开发者", "https://cloud.tencent.com/developer/feed",            "zh"),
+    ("稀土掘金AI",   "https://api.juejin.cn/recommend_api/v1/article_recommend_cate_feed?category_id=6848779569724497928", "zh"),
+    ("少数派",       "https://sspai.com/feed",                              "zh"),
 
     # ==================== 前沿论文与代码 ====================
     ("HuggingFace论文",  "https://huggingface.co/papers/feed",              "en"),
     ("ArXiv AI",         "https://arxiv.org/rss/cs.AI",                    "en"),
+    ("ArXiv CL",         "https://arxiv.org/rss/cs.CL",                    "en"),
     ("PapersWithCode",   "https://paperswithcode.com/feed/latest",         "en"),
 
     # ==================== 核心框架与开发者博客 ====================
@@ -66,19 +69,24 @@ RSS_SOURCES = [
     ("Reddit ML",     "https://www.reddit.com/r/MachineLearning/.rss",     "en"),
     ("DEV.to AI",     "https://dev.to/feed/tag/ai",                        "en"),
     ("V2EX AI",       "https://www.v2ex.com/feed/ai.xml",                  "zh"),
+    ("Product Hunt",  "https://www.producthunt.com/feed",                  "en"),
+    ("TechCrunch AI", "https://techcrunch.com/category/artificial-intelligence/feed/", "en"),
 ]
 
 MAX_PER_SOURCE = {
-    # 中文媒体
-    "机器之心": 3, "量子位": 3, "InfoQ中文": 3,
-    "阿里云开发者": 3, "腾讯云开发者": 3,
+    # 中文媒体（放宽到 5 条保证素材）
+    "机器之心": 5, "量子位": 5, "InfoQ中文": 5,
+    "阿里云开发者": 5, "腾讯云开发者": 5,
+    "稀土掘金AI": 5, "少数派": 5,
     # 前沿论文
-    "HuggingFace论文": 3, "ArXiv AI": 3, "PapersWithCode": 3,
+    "HuggingFace论文": 3, "ArXiv AI": 5, "ArXiv CL": 5, "PapersWithCode": 3,
     # 核心框架
     "LangChain": 3, "OpenAI": 3, "Google AI": 3,
     "Anthropic": 3, "Meta AI": 3, "LlamaIndex": 3,
-    # 全球社区
-    "HackerNews AI": 4, "Reddit ML": 3, "DEV.to AI": 3, "V2EX AI": 3,
+    # 全球社区（高频更新源放宽到 6 条）
+    "HackerNews AI": 6, "Reddit ML": 6,
+    "DEV.to AI": 5, "V2EX AI": 3,
+    "Product Hunt": 6, "TechCrunch AI": 6,
 }
 
 # RSS 备用 URL（当主 RSS 源失败时自动切换，降低单点故障）
@@ -93,6 +101,7 @@ RSS_FALLBACKS = {
 CHINESE_SOURCE_NAMES = {
     "机器之心", "量子位", "InfoQ中文",
     "阿里云开发者", "腾讯云开发者", "V2EX AI",
+    "稀土掘金AI", "少数派",
     # 爬虫来源
     "机器之心爬虫", "量子位爬虫", "魔搭社区爬虫", "腾讯云开发者爬虫",
     # 旧版降级回退
@@ -127,8 +136,8 @@ SYSTEM_PROMPT_MINIMAL = """你是一个专为中文AI开发者服务的技术分
 5. 【强制中文】即使原文是英文，title 和 summary 必须输出中文。专有名词首次出现可括号注明英文原名。
 
 6. 【来源分组规则】：
-   - international（国外科技）：**只能**包含来源为 HuggingFace论文、ArXiv AI、PapersWithCode、LangChain、OpenAI、Google AI、Anthropic、Meta AI、LlamaIndex、HackerNews AI、Reddit ML、DEV.to AI 的新闻。
-   - china（国内科技）：**只能**包含来源为 机器之心、量子位、InfoQ中文、阿里云开发者、腾讯云开发者、V2EX AI、机器之心爬虫、量子位爬虫、魔搭社区爬虫、腾讯云开发者爬虫 的新闻。
+   - international（国外科技）：**只能**包含来源为 HuggingFace论文、ArXiv AI、ArXiv CL、PapersWithCode、LangChain、OpenAI、Google AI、Anthropic、Meta AI、LlamaIndex、HackerNews AI、Reddit ML、DEV.to AI、Product Hunt、TechCrunch AI 的新闻。
+   - china（国内科技）：**只能**包含来源为 机器之心、量子位、InfoQ中文、阿里云开发者、腾讯云开发者、稀土掘金AI、少数派、V2EX AI、机器之心爬虫、量子位爬虫、魔搭社区爬虫、腾讯云开发者爬虫 的新闻。
    - **绝对禁止**跨组混杂。宁缺毋滥。
 
 7. 【来源标注 — 重要】每条新闻摘要末尾必须注明来源：
