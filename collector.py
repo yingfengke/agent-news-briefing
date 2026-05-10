@@ -139,9 +139,10 @@ def collect_rss() -> list[NewsItem]:
     """
     抓取所有 RSS 源，返回 NewsItem 列表。
     单个源失败不影响整体。
+    使用 source_status 字典精确跟踪每个源的状态（不再依赖 except 副作用）。
     """
     all_items = []
-    errors = []
+    source_status = {}  # name -> {"status": str, "count": int, "error": str}
 
     print(f"\n  ── RSS 采集 [{len(config.RSS_SOURCES)} 个源] ──")
 
@@ -152,10 +153,10 @@ def collect_rss() -> list[NewsItem]:
             items = _parse_rss(_fetch(url), name)[:limit]
             if items:
                 print(f"✔ {len(items)} 条")
+                source_status[name] = {"status": "success", "count": len(items)}
                 all_items.extend(items)
             else:
-                # 主 URL 无结果，尝试 RSSHub fallback
-                raise ValueError(f"0 条，尝试备用 RSS")
+                raise ValueError("0 条，尝试备用 RSS")
         except Exception as e:
             # 尝试 RSSHub 备用 URL
             fallback_url = config.RSS_FALLBACKS.get(name)
@@ -165,20 +166,34 @@ def collect_rss() -> list[NewsItem]:
                     items = _parse_rss(_fetch(fallback_url), name)[:config.MAX_PER_SOURCE.get(name, 3)]
                     if items:
                         print(f"✔ {len(items)} 条 (备用)")
+                        source_status[name] = {"status": "success(fallback)", "count": len(items)}
                         all_items.extend(items)
                     else:
                         print(f"✘ 备用也无数据")
-                        errors.append(name)
+                        source_status[name] = {"status": "fail", "count": 0, "error": "备用RSS无数据"}
                 except Exception as e2:
                     print(f"✘ 备用也失败: {str(e2)[:40]}")
-                    errors.append(name)
+                    source_status[name] = {"status": "fail", "count": 0, "error": str(e2)[:50]}
             else:
                 print(f"✘ {str(e)[:60]}")
-                errors.append(name)
+                source_status[name] = {"status": "fail", "count": 0, "error": str(e)[:50]}
+
+    # 清晰汇总：成功源与失败源分开统计
+    success_items = [(k, v) for k, v in source_status.items()
+                     if v["status"].startswith("success")]
+    failed_items = [(k, v) for k, v in source_status.items()
+                    if v["status"] == "fail"]
 
     print(f"  RSS 共获取 {len(all_items)} 条")
-    if errors:
-        print(f"  [跳过] 失败源: {', '.join(errors)}")
+    if success_items:
+        print(f"  ✅ 成功源 ({len(success_items)} 个):")
+        for k, v in success_items:
+            tag = " (备用)" if v["status"] == "success(fallback)" else ""
+            print(f"     {k}: {v['count']}条{tag}")
+    if failed_items:
+        print(f"  ❌ 失败源 ({len(failed_items)} 个):")
+        for k, v in failed_items:
+            print(f"     {k}: {v['error']}")
     return all_items
 
 

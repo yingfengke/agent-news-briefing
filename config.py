@@ -42,27 +42,39 @@ CRAWL_LOG_FILE = os.path.join(BASE_DIR, ".crawl_log.json")
 # ============================================================
 RSS_SOURCES = [
     # ==================== 中文媒体与社区 ====================
+    # 机器之心 — RSS 已下线（返回 HTML，非 XML），保留以待恢复；备用 RSSHub 实例均不可达
     ("机器之心",     "https://jiqizhixin.com/rss",                          "zh"),
     ("量子位",       "https://www.qbitai.com/feed",                         "zh"),
     ("InfoQ中文",    "https://www.infoq.cn/feed",                           "zh"),
-    ("阿里云开发者", "https://developer.aliyun.com/feed",                   "zh"),
-    ("腾讯云开发者", "https://cloud.tencent.com/developer/feed",            "zh"),
-    ("稀土掘金AI",   "https://api.juejin.cn/recommend_api/v1/article_recommend_cate_feed?category_id=6848779569724497928", "zh"),
+    # 阿里云开发者 — 永久 404 已于 2026-05 确认
+    # ("阿里云开发者", "https://developer.aliyun.com/feed",                   "zh"),
+    # 腾讯云开发者 — 永久 404 已于 2026-05 确认
+    # ("腾讯云开发者", "https://cloud.tencent.com/developer/feed",            "zh"),
+    # 稀土掘金AI — 原 JSON API 非 RSS，改用 juejin.cn/rss
+    ("稀土掘金AI",   "https://juejin.cn/rss",                              "zh"),
     ("少数派",       "https://sspai.com/feed",                              "zh"),
+    # 新增中文源：极客公园、爱范儿（弥补阿里云/腾讯云删除后的空缺）
+    ("极客公园",     "https://www.geekpark.net/rss",                        "zh"),
+    ("爱范儿",       "https://www.ifanr.com/feed",                          "zh"),
 
     # ==================== 前沿论文与代码 ====================
-    ("HuggingFace论文",  "https://huggingface.co/papers/feed",              "en"),
+    # HuggingFace论文 — 需付费 API Key (401)，改用 HuggingFace Blog
+    # ("HuggingFace论文",  "https://huggingface.co/papers/feed",              "en"),
     ("ArXiv AI",         "https://arxiv.org/rss/cs.AI",                    "en"),
     ("ArXiv CL",         "https://arxiv.org/rss/cs.CL",                    "en"),
     ("PapersWithCode",   "https://paperswithcode.com/feed/latest",         "en"),
+    ("HuggingFace Blog", "https://huggingface.co/blog/feed.xml",           "en"),
 
     # ==================== 核心框架与开发者博客 ====================
     ("LangChain",  "https://blog.langchain.dev/rss/",                      "en"),
     ("OpenAI",     "https://openai.com/blog/rss.xml",                      "en"),
     ("Google AI",  "https://blog.google/technology/ai/rss/",               "en"),
-    ("Anthropic",  "https://www.anthropic.com/blog/rss.xml",               "en"),
-    ("Meta AI",    "https://ai.meta.com/blog/feed/",                       "en"),
-    ("LlamaIndex", "https://www.llamaindex.ai/blog/rss.xml",               "en"),
+    # Anthropic / Meta AI / LlamaIndex — 永久 404 已于 2026-05 确认
+    # ("Anthropic",  "https://www.anthropic.com/blog/rss.xml",               "en"),
+    # ("Meta AI",    "https://ai.meta.com/blog/feed/",                       "en"),
+    # ("LlamaIndex", "https://www.llamaindex.ai/blog/rss.xml",               "en"),
+    # 新增英文替代源
+    ("VentureBeat AI", "https://venturebeat.com/category/ai/feed/",        "en"),
 
     # ==================== 全球社区 ====================
     ("HackerNews AI", "https://hnrss.org/frontpage?q=ai+OR+agent+OR+llm", "en"),
@@ -76,13 +88,14 @@ RSS_SOURCES = [
 MAX_PER_SOURCE = {
     # 中文媒体（放宽到 5 条保证素材）
     "机器之心": 5, "量子位": 5, "InfoQ中文": 5,
-    "阿里云开发者": 5, "腾讯云开发者": 5,
     "稀土掘金AI": 5, "少数派": 5,
+    "极客公园": 5, "爱范儿": 5,
     # 前沿论文
-    "HuggingFace论文": 3, "ArXiv AI": 5, "ArXiv CL": 5, "PapersWithCode": 3,
+    "ArXiv AI": 5, "ArXiv CL": 5, "PapersWithCode": 3,
+    "HuggingFace Blog": 5,
     # 核心框架
     "LangChain": 3, "OpenAI": 3, "Google AI": 3,
-    "Anthropic": 3, "Meta AI": 3, "LlamaIndex": 3,
+    "VentureBeat AI": 5,
     # 全球社区（高频更新源放宽到 6 条）
     "HackerNews AI": 6, "Reddit ML": 6,
     "DEV.to AI": 5, "V2EX AI": 3,
@@ -90,18 +103,15 @@ MAX_PER_SOURCE = {
 }
 
 # RSS 备用 URL（当主 RSS 源失败时自动切换，降低单点故障）
+# 注意：机器之心主 RSS 已返回 HTML（非 XML），所有 RSSHub 实例于 2026-05 确认不可达，暂无可用的备用方案
 RSS_FALLBACKS = {
-    # 机器之心主 RSS 已下线，用 RSSHub 微信公众号路由替代
-    "机器之心": "https://rsshub.rssforever.com/wechat/wasi/5b575dd058e5c4583338dbd3",
-    # 量子位、InfoQ 等主 RSS 通常可用，暂不需 fallback
-    # RSSHub 实例 rsshub.rssforever.com 社区维护，如失效可更换
+    # 预留：后续如有可用的 RSSHub 实例可在此添加
 }
 
 # 中文来源名称集合（用于 AI 喂入前的分桶）
 CHINESE_SOURCE_NAMES = {
     "机器之心", "量子位", "InfoQ中文",
-    "阿里云开发者", "腾讯云开发者", "V2EX AI",
-    "稀土掘金AI", "少数派",
+    "稀土掘金AI", "少数派", "极客公园", "爱范儿",
     # 爬虫来源
     "机器之心爬虫", "量子位爬虫", "魔搭社区爬虫", "腾讯云开发者爬虫",
     # 旧版降级回退
@@ -136,8 +146,8 @@ SYSTEM_PROMPT_MINIMAL = """你是一个专为中文AI开发者服务的技术分
 5. 【强制中文】即使原文是英文，title 和 summary 必须输出中文。专有名词首次出现可括号注明英文原名。
 
 6. 【来源分组规则】：
-   - international（国外科技）：**只能**包含来源为 HuggingFace论文、ArXiv AI、ArXiv CL、PapersWithCode、LangChain、OpenAI、Google AI、Anthropic、Meta AI、LlamaIndex、HackerNews AI、Reddit ML、DEV.to AI、Product Hunt、TechCrunch AI 的新闻。
-   - china（国内科技）：**只能**包含来源为 机器之心、量子位、InfoQ中文、阿里云开发者、腾讯云开发者、稀土掘金AI、少数派、V2EX AI、机器之心爬虫、量子位爬虫、魔搭社区爬虫、腾讯云开发者爬虫 的新闻。
+   - international（国外科技）：**只能**包含来源为 ArXiv AI、ArXiv CL、PapersWithCode、HuggingFace Blog、LangChain、OpenAI、Google AI、HackerNews AI、Reddit ML、DEV.to AI、Product Hunt、TechCrunch AI、VentureBeat AI 的新闻。
+   - china（国内科技）：**只能**包含来源为 机器之心、量子位、InfoQ中文、稀土掘金AI、少数派、极客公园、爱范儿、V2EX AI、机器之心爬虫、量子位爬虫、魔搭社区爬虫、腾讯云开发者爬虫 的新闻。
    - **绝对禁止**跨组混杂。宁缺毋滥。
 
 7. 【来源标注 — 重要】每条新闻摘要末尾必须注明来源：
