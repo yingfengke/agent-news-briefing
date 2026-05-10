@@ -1,12 +1,12 @@
 AI & Agent 开发者晨报
 
-☕ 每日推送 · AI 开发者专属 · 今日风格：深度风
+☕ 每日推送 · AI 开发者专属 · 今日风格：极简风
 
 AI & Agent 开发者晨报
 
 2026年05月10日
 
-今日从 45 条新闻中精选 32 条
+今日从 73 条新闻中精选 51 条
 
 ⚡ 今日速览
 
@@ -16,9 +16,9 @@ AI
 
 🌐
 
-OpenAI 安全运行 Codex：沙箱、审批与网络策略的工程实践
+MachinaCheck：在AMD MI300X上构建多智能体CNC可制造性系统
 
-OpenAI 详细阐述了如何通过沙箱隔离（sandboxing）、审批流程（approvals）和网络策略（network policies）来安全运行 Codex。该架构将代码执行环境与主系统严格分离，防止恶意代码逃逸。对工程实践的启示：构建 AI Agent 执行环境时，需将安全作为一等公民设计，采用最小权限原则和动态策略引擎。（来源：OpenAI）
+多智能体系统用于CNC制造，基于AMD MI300X。（来源：HuggingFace Blog）
 
               阅读原文 →
 
@@ -28,9 +28,9 @@ AI
 
 🌐
 
-OpenAI 推出 GPT-5.5 与 GPT-5.5-Cyber，扩展网络安全可信访问
+EMO：混合专家预训练实现涌现模块化
 
-OpenAI 发布 GPT-5.5 及专为网络安全设计的 GPT-5.5-Cyber 模型，扩展了可信访问（Trusted Access）机制。该模型通过细粒度权限控制和领域微调，在渗透测试、漏洞分析等场景中提升准确率。启示：垂直领域专用模型结合访问控制，是 AI Agent 在企业安全落地的关键路径。（来源：OpenAI）
+预训练混合专家模型实现模块化涌现。（来源：HuggingFace Blog）
 
               阅读原文 →
 
@@ -40,9 +40,9 @@ AI
 
 🌐
 
-Parloa 基于 OpenAI 模型构建可扩展的语音驱动 AI 客服 Agent
+vLLM V0到V1：强化学习中正确性优先于修正
 
-Parloa 利用 OpenAI 模型构建了可扩展的语音驱动 AI 客服 Agent，实现自然对话与任务自动化。其架构融合了语音识别（ASR）、大语言模型（LLM）推理和语音合成（TTS），支持多轮对话与上下文保持。启示：语音 Agent 的工程挑战在于低延迟与高准确率的平衡，需优化模型推理与流式处理管线。（来源：OpenAI）
+vLLM版本演进强调RL中正确性优先。（来源：HuggingFace Blog）
 
               阅读原文 →
 
@@ -52,9 +52,9 @@ AI
 
 🌐
 
-Hermes Memory Installer：为 AI Agent 赋予永久记忆的工程方案
+向开放ASR排行榜添加Benchmaxxer驱避剂
 
-Hermes Memory Installer 解决了 AI Agent 缺乏长期记忆的根本问题，通过外部向量存储与检索增强生成（RAG）架构，实现跨会话的上下文持久化。该方案支持结构化记忆写入与语义检索。启示：永久记忆是 Agent 从工具进化为伙伴的关键，工程上需处理记忆压缩、冲突解决与隐私保护。（来源：DEV.to AI）
+开放ASR排行榜新增防作弊机制。（来源：HuggingFace Blog）
 
               阅读原文 →
 
@@ -64,9 +64,9 @@ AI
 
 🌐
 
-Python 中 LLM 结构化输出的加固实践：重试、成本上限与漂移检测
+Granite 4.1 LLM：构建方式详解
 
-文章分享了生产环境中 LLM 结构化输出的工程实践，包括：基于 schema 验证的自动重试（healing retries）、成本上限（cost caps）控制、以及输出分布漂移检测（drift detection）。通过可运行代码示例展示了如何用 Pydantic 和自定义回调实现鲁棒输出。启示：结构化输出需构建多层防御，确保输出符合预期且成本可控。（来源：DEV.to AI）
+IBM Granite 4.1大模型构建方法公开。（来源：HuggingFace Blog）
 
               阅读原文 →
 
@@ -76,9 +76,9 @@ AI
 
 🌐
 
-CDP Bridge MCP：连接 MCP 客户端与真实浏览器会话的桥梁服务
+OpenAI安全运行Codex
 
-CDP Bridge MCP 是一个桥接服务，通过 Chrome DevTools Protocol（CDP）将模型上下文协议（MCP）客户端连接到真实浏览器会话。该架构允许 AI Agent 直接操控浏览器，实现自动化测试、网页抓取等任务。启示：MCP 生态正扩展至浏览器自动化，为 Agent 提供更丰富的交互能力，但需注意安全与稳定性。（来源：DEV.to AI）
+OpenAI通过沙箱、审批、网络策略安全运行Codex。（来源：OpenAI）
 
               阅读原文 →
 
@@ -86,11 +86,11 @@ No.07
 
 AI
 
-🇨🇳
+🌐
 
-阶跃语音模型位列 Artificial Analysis 评测榜中国第一
+OpenAI扩展GPT-5.5和GPT-5.5-Cyber可信访问
 
-阶跃星辰最新语音模型在 Artificial Analysis 评测中取得中国第一的成绩，该评测涵盖语音识别准确率、合成自然度等多项指标。模型采用端到端架构，在中文多方言场景下表现优异。启示：语音模型竞争已从通用能力转向领域优化，中文场景的方言与口音处理成为差异化关键。（来源：量子位）
+OpenAI为网络安全扩展GPT-5.5可信访问。（来源：OpenAI）
 
               阅读原文 →
 
@@ -98,11 +98,11 @@ No.08
 
 AI
 
-🇨🇳
+🌐
 
-高德 ABot 体系模型夺冠 AGIBot 全球挑战赛，空间智能具身化跃迁
+Parloa构建用户愿交谈的服务智能体
 
-高德 ABot 体系模型以 0.829 总成绩在 AGIBot 全球挑战赛中夺冠，该模型融合了空间智能与具身智能，实现环境感知、路径规划与任务执行。架构上采用多模态融合与强化学习。启示：空间智能与具身化的结合是 AI Agent 从虚拟走向物理世界的关键，未来 6 个月将加速在自动驾驶、机器人领域的落地。（来源：量子位）
+Parloa用OpenAI模型构建语音驱动AI客服。（来源：OpenAI）
 
               阅读原文 →
 
@@ -112,9 +112,9 @@ No.01
 
 AI
 
-OpenAI 安全运行 Codex：沙箱、审批与网络策略的工程实践
+MachinaCheck：在AMD MI300X上构建多智能体CNC可制造性系统
 
-OpenAI 详细阐述了如何通过沙箱隔离（sandboxing）、审批流程（approvals）和网络策略（network policies）来安全运行 Codex。该架构将代码执行环境与主系统严格分离，防止恶意代码逃逸。对工程实践的启示：构建 AI Agent 执行环境时，需将安全作为一等公民设计，采用最小权限原则和动态策略引擎。（来源：OpenAI）
+多智能体系统用于CNC制造，基于AMD MI300X。（来源：HuggingFace Blog）
 
               阅读原文 →
 
@@ -122,9 +122,9 @@ No.02
 
 AI
 
-OpenAI 推出 GPT-5.5 与 GPT-5.5-Cyber，扩展网络安全可信访问
+EMO：混合专家预训练实现涌现模块化
 
-OpenAI 发布 GPT-5.5 及专为网络安全设计的 GPT-5.5-Cyber 模型，扩展了可信访问（Trusted Access）机制。该模型通过细粒度权限控制和领域微调，在渗透测试、漏洞分析等场景中提升准确率。启示：垂直领域专用模型结合访问控制，是 AI Agent 在企业安全落地的关键路径。（来源：OpenAI）
+预训练混合专家模型实现模块化涌现。（来源：HuggingFace Blog）
 
               阅读原文 →
 
@@ -132,9 +132,9 @@ No.03
 
 AI
 
-Parloa 基于 OpenAI 模型构建可扩展的语音驱动 AI 客服 Agent
+vLLM V0到V1：强化学习中正确性优先于修正
 
-Parloa 利用 OpenAI 模型构建了可扩展的语音驱动 AI 客服 Agent，实现自然对话与任务自动化。其架构融合了语音识别（ASR）、大语言模型（LLM）推理和语音合成（TTS），支持多轮对话与上下文保持。启示：语音 Agent 的工程挑战在于低延迟与高准确率的平衡，需优化模型推理与流式处理管线。（来源：OpenAI）
+vLLM版本演进强调RL中正确性优先。（来源：HuggingFace Blog）
 
               阅读原文 →
 
@@ -142,9 +142,9 @@ No.04
 
 AI
 
-Hermes Memory Installer：为 AI Agent 赋予永久记忆的工程方案
+向开放ASR排行榜添加Benchmaxxer驱避剂
 
-Hermes Memory Installer 解决了 AI Agent 缺乏长期记忆的根本问题，通过外部向量存储与检索增强生成（RAG）架构，实现跨会话的上下文持久化。该方案支持结构化记忆写入与语义检索。启示：永久记忆是 Agent 从工具进化为伙伴的关键，工程上需处理记忆压缩、冲突解决与隐私保护。（来源：DEV.to AI）
+开放ASR排行榜新增防作弊机制。（来源：HuggingFace Blog）
 
               阅读原文 →
 
@@ -152,9 +152,9 @@ No.05
 
 AI
 
-Python 中 LLM 结构化输出的加固实践：重试、成本上限与漂移检测
+Granite 4.1 LLM：构建方式详解
 
-文章分享了生产环境中 LLM 结构化输出的工程实践，包括：基于 schema 验证的自动重试（healing retries）、成本上限（cost caps）控制、以及输出分布漂移检测（drift detection）。通过可运行代码示例展示了如何用 Pydantic 和自定义回调实现鲁棒输出。启示：结构化输出需构建多层防御，确保输出符合预期且成本可控。（来源：DEV.to AI）
+IBM Granite 4.1大模型构建方法公开。（来源：HuggingFace Blog）
 
               阅读原文 →
 
@@ -162,9 +162,69 @@ No.06
 
 AI
 
-CDP Bridge MCP：连接 MCP 客户端与真实浏览器会话的桥梁服务
+OpenAI安全运行Codex
 
-CDP Bridge MCP 是一个桥接服务，通过 Chrome DevTools Protocol（CDP）将模型上下文协议（MCP）客户端连接到真实浏览器会话。该架构允许 AI Agent 直接操控浏览器，实现自动化测试、网页抓取等任务。启示：MCP 生态正扩展至浏览器自动化，为 Agent 提供更丰富的交互能力，但需注意安全与稳定性。（来源：DEV.to AI）
+OpenAI通过沙箱、审批、网络策略安全运行Codex。（来源：OpenAI）
+
+              阅读原文 →
+
+No.07
+
+AI
+
+OpenAI扩展GPT-5.5和GPT-5.5-Cyber可信访问
+
+OpenAI为网络安全扩展GPT-5.5可信访问。（来源：OpenAI）
+
+              阅读原文 →
+
+No.08
+
+AI
+
+Parloa构建用户愿交谈的服务智能体
+
+Parloa用OpenAI模型构建语音驱动AI客服。（来源：OpenAI）
+
+              阅读原文 →
+
+No.09
+
+AI
+
+创意传奇用AI为小企业制作广告
+
+Google发起The Small Brief用AI为小企业做广告。（来源：Google AI）
+
+              阅读原文 →
+
+No.10
+
+AI
+
+Google搜索中5个AI园艺技巧
+
+Google搜索AI模式提供园艺技巧。（来源：Google AI）
+
+              阅读原文 →
+
+No.11
+
+AI
+
+Google与XPRIZE合作350万美元未来视觉电影竞赛
+
+Google联合XPRIZE举办AI电影竞赛。（来源：Google AI）
+
+              阅读原文 →
+
+No.12
+
+AI
+
+Railway获1亿美元融资挑战AWS的AI原生云
+
+Railway获1亿美元打造AI原生云挑战AWS。（来源：VentureBeat AI）
 
               阅读原文 →
 
@@ -174,9 +234,9 @@ No.01
 
 AI
 
-阶跃语音模型位列 Artificial Analysis 评测榜中国第一
+浙大推出AI角色扮演框架，四通道消息沉浸式交互
 
-阶跃星辰最新语音模型在 Artificial Analysis 评测中取得中国第一的成绩，该评测涵盖语音识别准确率、合成自然度等多项指标。模型采用端到端架构，在中文多方言场景下表现优异。启示：语音模型竞争已从通用能力转向领域优化，中文场景的方言与口音处理成为差异化关键。（来源：量子位）
+浙大AI框架实现四通道沉浸式角色扮演。（来源：量子位）
 
               阅读原文 →
 
@@ -184,9 +244,9 @@ No.02
 
 AI
 
-高德 ABot 体系模型夺冠 AGIBot 全球挑战赛，空间智能具身化跃迁
+浙大校友用AI突破32年拉姆齐数下界
 
-高德 ABot 体系模型以 0.829 总成绩在 AGIBot 全球挑战赛中夺冠，该模型融合了空间智能与具身智能，实现环境感知、路径规划与任务执行。架构上采用多模态融合与强化学习。启示：空间智能与具身化的结合是 AI Agent 从虚拟走向物理世界的关键，未来 6 个月将加速在自动驾驶、机器人领域的落地。（来源：量子位）
+AI将拉姆齐数R(3,17)下界从92提升至93。（来源：量子位）
 
               阅读原文 →
 
@@ -194,9 +254,9 @@ No.03
 
 AI
 
-美图 RoboNeo 全新升级：首创影像创作 Agent Teams
+太初元碁携龙虾一体机亮相北京科博会
 
-美图 RoboNeo 升级为影像创作 Agent Teams，首创多 Agent 协作模式，每个 Agent 负责特定任务（如构图、调色、特效），通过协调器统一调度。该架构提升了创作效率与质量。启示：Agent Teams 模式将复杂任务分解为子任务，是 Agent 系统扩展性的重要方向，需解决 Agent 间通信与冲突解决。（来源：量子位）
+太初元碁展示龙虾一体机。（来源：量子位）
 
               阅读原文 →
 
@@ -204,37 +264,47 @@ No.04
 
 AI
 
-太初元碁携龙虾一体机亮相北京科博会
+阶跃最新语音模型位列中国第一
 
-太初元碁展示了龙虾一体机，该设备集成 AI 芯片与推理引擎，面向边缘计算场景。采用存算一体架构，降低数据搬运开销，提升能效比。启示：AI 硬件正从云端向边缘迁移，存算一体架构是降低延迟与功耗的关键，未来 6 个月将推动端侧 AI Agent 的普及。（来源：量子位）
+阶跃语音模型在Artificial Analysis评测中中国第一。（来源：量子位）
+
+              阅读原文 →
+
+No.05
+
+AI
+
+两项AI政策发布，范式智能战略布局契合产业方向
+
+范式智能围绕电力交易等场景探索AI应用。（来源：量子位）
 
               阅读原文 →
 
 📊 今日深度分析
 
-今日技术动态显示两大趋势：一是 AI Agent 安全与记忆机制成为工程焦点，OpenAI 的 Codex 安全实践和 Hermes 永久记忆方案均指向 Agent 从实验走向生产的关键障碍；二是多 Agent 协作与具身化加速，美图 Agent Teams 和高德 ABot 夺冠表明任务分解与空间智能是 Agent 扩展性的核心。未来 6 个月，预计将出现更多基于 MCP 协议的浏览器自动化 Agent，以及结合存算一体硬件的边缘 Agent 方案，推动 AI 从对话助手向自主执行体演进。
+多智能体系统与AI安全成为今日焦点，OpenAI和HuggingFace均强调正确性与安全运行。国内角色扮演框架和数学突破显示AI应用深化。趋势：AI从工具向安全、可解释、多智能体协作演进。
 
 📚 本周热门学习项目
 
                 📌 addyosmani/agent-skills (https://github.com/addyosmani/agent-skills)
 
-⭐+3009 today
+⭐+1092 today
 
 Production-grade engineering skills for AI coding agents.
 
 🏷️ Agent 框架
 
-                📌 datawhalechina/hello-agents (https://github.com/datawhalechina/hello-agents)
+                📌 sponsors/affaan-m (https://github.com/sponsors/affaan-m)
 
-⭐+1197 today
+⭐+1011 today
 
-📚 《从零开始构建智能体》——从零开始的智能体原理与实践教程
+The agent harness performance optimization system. Skills, instincts, memory, security, and research
 
 🏷️ Agent 框架
 
                 📌 decolua/9router (https://github.com/decolua/9router)
 
-⭐+1031 today
+⭐+806 today
 
 Unlimited FREE AI coding. Connect Claude Code, Codex, Cursor, Cline, Copilot, Antigravity to FREE Cl
 
@@ -242,13 +312,13 @@ Unlimited FREE AI coding. Connect Claude Code, Codex, Cursor, Cline, Copilot, An
 
 🎲 彩蛋角落
 
-Docker 容器的灵感来自集装箱——把应用像货物一样标准化运输。
+深度学习之父 Geoffrey Hinton 在 2023 年离开 Google 时说：'我后悔为 AI 贡献了一生。'
 
 📋 今日过滤摘要
 
 采集
 
-45 条
+73 条
 
 URL去重
 
@@ -260,15 +330,15 @@ URL去重
 
 语义去重
 
--0 条
+-1 条
 
 可信度过滤
 
--13 条
+-21 条
 
-最终输出 (71%)
+最终输出 (70%)
 
-32 条
+51 条
 
 本简报由 AI 自动生成 · 内容仅供参考
 
