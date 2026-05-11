@@ -399,7 +399,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 10px 0;line-height:1.5;">{item["title"]}</h2>
               <p style="font-size:13px;color:#555;margin:0 0 14px 0;line-height:1.7;">{clean_links(item["summary"])}</p>
-              <a href="{item["link"]}" target="_blank" style="font-size:12px;font-weight:600;color:#1a1a1a;text-decoration:none;border-bottom:1.5px solid #1a1a1a;">阅读原文 →</a>
+              <a href="{item["link"]}" target="_blank" style="font-size:12px;font-weight:600;color:#0066cc;text-decoration:underline;">阅读原文 →</a>
             </td>
           </tr>
         </table>""")
@@ -501,7 +501,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 6px 0;line-height:1.5;">{item["title"]}</h2>
               <p style="font-size:13px;color:#555;margin:0 0 10px 0;line-height:1.6;">{clean_links(item["summary"])}</p>
-              <a href="{item["link"]}" target="_blank" style="font-size:12px;font-weight:600;color:#1a1a1a;text-decoration:none;border-bottom:1.5px solid #1a1a1a;">阅读原文 →</a>
+              <a href="{item["link"]}" target="_blank" style="font-size:12px;font-weight:600;color:#0066cc;text-decoration:underline;">阅读原文 →</a>
             </td>
           </tr>
         </table>""")
@@ -611,20 +611,34 @@ def main():
         style_name, ai_result = call_ai_analysis(clean_items)
         if ai_result:
             daily_analysis = ai_result.get("daily_analysis", "")
+
+            def _extract_link(it: dict, summary: str = "") -> str:
+                """从 AI 返回的条目中提取链接，尝试多个字段名 + 摘要兜底。"""
+                link = it.get("link") or it.get("url") or ""
+                if not link and summary:
+                    # 从 summary 中提取第一个 URL 作为兜底
+                    m = re.search(r'https?://[^\s<>)\]】、，,]+', summary)
+                    if m:
+                        link = m.group(0)
+                        print(f"    [链接兜底] 从 summary 提取链接: {link[:60]}")
+                return link
+
             if "international" in ai_result and "china" in ai_result:
                 for it in ai_result.get("international", []):
+                    summary = it.get("summary", "")
                     final_items.append({
                         "title": it.get("title", ""),
-                        "summary": it.get("summary", ""),
-                        "link": it.get("link", ""),
+                        "summary": summary,
+                        "link": _extract_link(it, summary),
                         "source": it.get("source", "AI"),
                         "region": "international",
                     })
                 for it in ai_result.get("china", []):
+                    summary = it.get("summary", "")
                     final_items.append({
                         "title": it.get("title", ""),
-                        "summary": it.get("summary", ""),
-                        "link": it.get("link", ""),
+                        "summary": summary,
+                        "link": _extract_link(it, summary),
                         "source": it.get("source", "AI"),
                         "region": "china",
                     })
@@ -632,10 +646,11 @@ def main():
                       f"国内 {len(ai_result.get('china',[]))} 条")
             elif "items" in ai_result:
                 for it in ai_result["items"]:
+                    summary = it.get("summary", "")
                     final_items.append({
                         "title": it.get("title", ""),
-                        "summary": it.get("summary", ""),
-                        "link": it.get("link", ""),
+                        "summary": summary,
+                        "link": _extract_link(it, summary),
                         "source": it.get("source", "AI"),
                     })
                 print(f"\n  AI 筛选后: {len(final_items)} 条")
