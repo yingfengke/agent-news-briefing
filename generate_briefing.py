@@ -360,6 +360,13 @@ def write_html(news_items, daily_analysis="", projects=None):
     with open(config.HTML_FILE, "w", encoding="utf-8") as f:
         f.write(content)
     print(f"[成功] 已更新 {len(news_items)} 条新闻 + {len(projects)} 个项目到 HTML")
+
+    # 同步更新 index.html（GitHub Pages 默认入口）
+    index_path = os.path.join(config.BASE_DIR, "index.html")
+    with open(index_path, "w", encoding="utf-8") as f:
+        f.write(content)
+    print(f"[成功] 已同步更新 index.html")
+
     return True
 
 
@@ -399,7 +406,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 10px 0;line-height:1.5;">{item["title"]}</h2>
               <p style="font-size:13px;color:#555;margin:0 0 14px 0;line-height:1.7;">{clean_links(item["summary"])}</p>
-              <a href="{item["link"]}" target="_blank" style="font-size:12px;font-weight:600;color:#0066cc;text-decoration:underline;">阅读原文 →</a>
+              <a href="{item["link"]}" target="_blank">阅读原文 →</a>
             </td>
           </tr>
         </table>""")
@@ -451,7 +458,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
           <tr>
             <td style="padding:16px 20px;">
               <div style="font-size:14px;font-weight:700;color:#111;margin-bottom:4px;">
-                📌 <a href="{p.get("link","#")}" target="_blank" style="color:#1a1a1a;text-decoration:none;">{p.get("name","")}</a>
+                📌 <a href="{p.get("link","#")}" target="_blank">{p.get("name","")}</a>
                 <span style="font-size:12px;color:#888;margin-left:8px;">{p.get("stars","")}</span>
               </div>
               <p style="font-size:13px;color:#555;margin:4px 0 0 0;line-height:1.6;">{p.get("desc","")}</p>
@@ -501,7 +508,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 6px 0;line-height:1.5;">{item["title"]}</h2>
               <p style="font-size:13px;color:#555;margin:0 0 10px 0;line-height:1.6;">{clean_links(item["summary"])}</p>
-              <a href="{item["link"]}" target="_blank" style="font-size:12px;font-weight:600;color:#0066cc;text-decoration:underline;">阅读原文 →</a>
+              <a href="{item["link"]}" target="_blank">阅读原文 →</a>
             </td>
           </tr>
         </table>""")
@@ -524,6 +531,33 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
           </td>
         </tr>"""
 
+    # ---- 原文链接备份（绕过 QQ 邮箱过滤的问题，以纯文本形式列出所有 URL） ----
+    link_list_section = ""
+    if news_items:
+        link_rows = []
+        for i, item in enumerate(news_items, 1):
+            link_url = item.get("link", "")
+            link_title = item.get("title", "")
+            if link_url:
+                link_rows.append(f"""
+        <tr>
+          <td style="padding:8px 0;border-bottom:1px solid #eee;">
+            <span style="font-size:12px;color:#888;font-weight:500;">No.{i:02d}</span>
+            <span style="font-size:12px;color:#333;margin-left:6px;">{link_title}</span>
+            <br/><span style="font-size:11px;color:#999;word-break:break-all;">{link_url}</span>
+          </td>
+        </tr>""")
+        if link_rows:
+            link_list_section = f"""
+        <tr>
+          <td style="padding-top:24px;border-top:2px dashed #ddd;">
+            <div style="font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:14px;">📎 原文链接备份</div>
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+              {''.join(link_rows)}
+            </table>
+          </td>
+        </tr>"""
+
     today = datetime.now()
     date_str = f"{today.year}年{today.month:02d}月{today.day:02d}日"
 
@@ -537,6 +571,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
     html = html.replace("{{projects_section}}", projects_section)
     html = html.replace("{{filter_report_section}}", filter_report_section)
     html = html.replace("{{trivia_section}}", trivia_section)
+    html = html.replace("{{link_list_section}}", link_list_section)
     # 底部免责声明和仓库链接
     html = html.replace("{{repo_url}}", "https://github.com/yingfengke/agent-news-briefing")
     if style_name:
