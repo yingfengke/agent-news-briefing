@@ -113,14 +113,18 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
     style_name, system_prompt = get_random_style()
     print(f"\n  → 今日风格: [{style_name}]")
 
-    # 按语言分桶
+    # 按语言分桶（全量喂给 AI，不做截断，让模型自主判断含金量）
     zh_items = [it for it in items if it.lang == "zh"]
     en_items = [it for it in items if it.lang == "en"]
-    items_for_ai = en_items[:12] + zh_items[:10]
-    print(f"  → 喂给 AI: 英文 {len(en_items[:12])} 条 + 中文 {len(zh_items[:10])} 条 = {len(items_for_ai)} 条")
+    items_for_ai = en_items + zh_items
+    print(f"  → 喂给 AI: 英文 {len(en_items)} 条 + 中文 {len(zh_items)} 条 = {len(items_for_ai)} 条（全量）")
 
     # 构建用户消息
-    lines = ["以下是今日抓取的科技新闻，请按你的系统指令处理：\n"]
+    lines = [
+        "以下是今日抓取的科技新闻，请按你的系统指令处理：\n",
+        "【来源多样性要求】请在筛选新闻时，尽量选择来自不同来源的新闻，"
+        "避免任何单一来源出现超过 2 条，确保简报覆盖至少 5 个不同的来源。\n",
+    ]
     for i, item in enumerate(items_for_ai, 1):
         content_short = (item.content or "无描述")[:80]
         # 附带发布时间（如有）
