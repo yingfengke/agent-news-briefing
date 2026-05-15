@@ -15,6 +15,7 @@ from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.header import Header
+from email.utils import formataddr
 
 from dotenv import load_dotenv
 
@@ -106,9 +107,12 @@ def send():
 
     # multipart/alternative 邮件
     msg = MIMEMultipart("alternative")
-    msg["From"]    = SENDER_EMAIL
+    msg["From"]    = formataddr(("AI Agent 开发者晨报", SENDER_EMAIL))
     msg["To"]      = RECEIVER_EMAIL
     msg["Subject"] = Header(subject, "utf-8")
+    # 标准化的 Message-ID，提升邮件信誉
+    msg_id_suffix = SENDER_EMAIL.split("@")[1] if "@" in SENDER_EMAIL else "qq.com"
+    msg["Message-ID"] = f"<{today.strftime('%Y%m%d%H%M%S')}.agent-news@{msg_id_suffix}>"
 
     # 先加纯文本版本（邮件客户端按顺序选择渲染格式）
     part_plain = MIMEText(plain_text, "plain", "utf-8")

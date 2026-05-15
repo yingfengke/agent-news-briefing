@@ -78,15 +78,17 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           for i in 1 2 3; do
-            git add -A
+            # 只添加工作流生成的文件，避免误加 .env 等敏感文件
+            git add tech-briefing.html index.html email_content.html email_content.txt
             git diff --quiet && git diff --staged --quiet || git commit -m "🤖 每日简报自动更新 $(date +'%Y-%m-%d')"
             if git push; then
               echo "✅ 推送成功"
               break
             else
-              echo "⚠️ 第${i}次推送失败，10秒后 pull --rebase 重试..."
+              echo "⚠️ 第${i}次推送失败，10秒后拉取重试..."
               sleep 10
-              git pull --rebase
+              # 优先 rebase，失败则用 merge 兜底
+              git pull --rebase --autostash || (git rebase --abort 2>/dev/null; git pull --no-rebase)
             fi
           done
 

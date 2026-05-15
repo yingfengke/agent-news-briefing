@@ -371,6 +371,18 @@ def write_html(news_items, daily_analysis="", projects=None):
         f.write(content)
     print(f"[成功] 已同步更新 index.html")
 
+    # ---- Pages 验证日志：确认 index.html 内容已刷新 ----
+    import json as _json
+    _m = re.search(r'__NEWS_DATA__\s*=\s*(\[.*?\])\s*;', content, re.DOTALL)
+    if _m:
+        try:
+            _data = _json.loads(_m.group(1))
+            print(f"  [Pages验证] index.html 已更新，新闻条数: {len(_data)} 条")
+            if _data:
+                print(f"    第一条: {_data[0].get('title','')[:50]}")
+        except Exception:
+            pass
+
     return True
 
 
@@ -410,7 +422,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 10px 0;line-height:1.5;">{item["title"]}</h2>
               <p style="font-size:13px;color:#555;margin:0 0 14px 0;line-height:1.7;">{clean_links(item["summary"])}</p>
-              <a href="{item["link"]}" target="_blank">阅读原文 →</a>
+              <span style="font-size:12px;color:#888;">📎 原文链接：</span><span style="font-size:12px;color:#0066cc;word-break:break-all;">{item["link"]}</span>
             </td>
           </tr>
         </table>""")
@@ -462,7 +474,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
           <tr>
             <td style="padding:16px 20px;">
               <div style="font-size:14px;font-weight:700;color:#111;margin-bottom:4px;">
-                📌 <a href="{p.get("link","#")}" target="_blank">{p.get("name","")}</a>
+                📌 <span style="color:#1a1a1a;">{p.get("name","")}</span>
                 <span style="font-size:12px;color:#888;margin-left:8px;">{p.get("stars","")}</span>
               </div>
               <p style="font-size:13px;color:#555;margin:4px 0 0 0;line-height:1.6;">{p.get("desc","")}</p>
@@ -512,7 +524,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 6px 0;line-height:1.5;">{item["title"]}</h2>
               <p style="font-size:13px;color:#555;margin:0 0 10px 0;line-height:1.6;">{clean_links(item["summary"])}</p>
-              <a href="{item["link"]}" target="_blank">阅读原文 →</a>
+              <span style="font-size:12px;color:#888;">📎 原文链接：</span><span style="font-size:12px;color:#0066cc;word-break:break-all;">{item["link"]}</span>
             </td>
           </tr>
         </table>""")
