@@ -422,7 +422,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 10px 0;line-height:1.5;">{item["title"]}</h2>
               <p style="font-size:13px;color:#555;margin:0 0 14px 0;line-height:1.7;">{clean_links(item["summary"])}</p>
-              <span style="font-size:12px;color:#888;">📎 原文链接：</span><span style="font-size:12px;color:#0066cc;word-break:break-all;">{item["link"]}</span>
+              <a href="{item["link"]}" target="_blank" rel="noopener noreferrer" style="font-size:12px;color:#888;word-break:break-all;">📎 {item["link"]}</a>
             </td>
           </tr>
         </table>""")
@@ -474,7 +474,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
           <tr>
             <td style="padding:16px 20px;">
               <div style="font-size:14px;font-weight:700;color:#111;margin-bottom:4px;">
-                📌 <span style="color:#1a1a1a;">{p.get("name","")}</span>
+                📌 <a href="{p.get("link","#")}" target="_blank" style="color:#1a1a1a;text-decoration:none;">{p.get("name","")}</a>
                 <span style="font-size:12px;color:#888;margin-left:8px;">{p.get("stars","")}</span>
               </div>
               <p style="font-size:13px;color:#555;margin:4px 0 0 0;line-height:1.6;">{p.get("desc","")}</p>
@@ -524,7 +524,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 6px 0;line-height:1.5;">{item["title"]}</h2>
               <p style="font-size:13px;color:#555;margin:0 0 10px 0;line-height:1.6;">{clean_links(item["summary"])}</p>
-              <span style="font-size:12px;color:#888;">📎 原文链接：</span><span style="font-size:12px;color:#0066cc;word-break:break-all;">{item["link"]}</span>
+              <a href="{item["link"]}" target="_blank" rel="noopener noreferrer" style="font-size:12px;color:#888;word-break:break-all;">📎 {item["link"]}</a>
             </td>
           </tr>
         </table>""")
@@ -560,7 +560,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
           <td style="padding:8px 0;border-bottom:1px solid #eee;">
             <span style="font-size:12px;color:#888;font-weight:500;">No.{i:02d}</span>
             <span style="font-size:12px;color:#333;margin-left:6px;">{link_title}</span>
-            <br/><span style="font-size:11px;color:#999;word-break:break-all;">{link_url}</span>
+            <br/><a href="{link_url}" target="_blank" rel="noopener noreferrer" style="font-size:11px;color:#999;word-break:break-all;">{link_url}</a>
           </td>
         </tr>""")
         if link_rows:
@@ -663,15 +663,29 @@ def main():
         if ai_result:
             daily_analysis = ai_result.get("daily_analysis", "")
 
+            # 从原始数据构建标题→URL 映射（第4层链接兜底）
+            title_url_map = {}
+            for ci in clean_items:
+                key = ci.title.strip()[:50].lower()
+                if ci.url:
+                    title_url_map[key] = ci.url
+
             def _extract_link(it: dict, summary: str = "") -> str:
-                """从 AI 返回的条目中提取链接，尝试多个字段名 + 摘要兜底。"""
+                """从 AI 返回的条目中提取链接。
+                优先顺序：link → url → summary 正则提取 → 标题匹配原始数据。
+                """
                 link = it.get("link") or it.get("url") or ""
                 if not link and summary:
-                    # 从 summary 中提取第一个 URL 作为兜底
                     m = re.search(r'https?://[^\s<>)\]】、，,]+', summary)
                     if m:
                         link = m.group(0)
-                        print(f"    [链接兜底] 从 summary 提取链接: {link[:60]}")
+                        print(f"    [链接兜底-摘要] {link[:60]}")
+                if not link:
+                    # 第4层：按标题从原始 RSS 数据匹配
+                    title = (it.get("title", "") or "")[:50].lower()
+                    if title in title_url_map:
+                        link = title_url_map[title]
+                        print(f"    [链接兜底-原始数据] {link[:60]}")
                 return link
 
             if "international" in ai_result and "china" in ai_result:
