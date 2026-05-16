@@ -92,6 +92,36 @@ def load_history_titles():
         return []
 
 
+def _balance_sources(items: list, max_total: int = 30, min_per_source: int = 2, min_sources: int = 5) -> list:
+    """
+    来源配额制：先按来源分桶，每源保底 2 条，
+    再从剩余池中补满到 max_total 条，确保覆盖至少 min_sources 个源。
+    """
+    from collections import defaultdict
+    buckets = defaultdict(list)
+    for it in items:
+        buckets[it.source].append(it)
+
+    # 每源保底
+    selected = []
+    remaining = []
+    for source, src_items in buckets.items():
+        selected.extend(src_items[:min_per_source])
+        remaining.extend(src_items[min_per_source:])
+
+    # 按内容长度降序排列（内容越丰富优先级越高）
+    remaining.sort(key=lambda x: len(x.content or ""), reverse=True)
+
+    # 补满到 max_total
+    needed = max_total - len(selected)
+    if needed > 0 and remaining:
+        selected.extend(remaining[:needed])
+
+    source_count = len(set(it.source for it in selected))
+    print(f"  → 配额后: {len(selected)} 条（覆盖 {source_count} 个来源）")
+    return selected
+
+
 def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
     """
     将过滤后的干净新闻发给大模型。
@@ -113,17 +143,19 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
     style_name, system_prompt = get_random_style()
     print(f"\n  → 今日风格: [{style_name}]")
 
-    # 按语言分桶（全量喂给 AI，不做截断，让模型自主判断含金量）
-    zh_items = [it for it in items if it.lang == "zh"]
-    en_items = [it for it in items if it.lang == "en"]
+    # 来源配额制：每源保底 → 补满到 30 条 → 全量喂给 AI
+    balanced = _balance_sources(items)
+    zh_items = [it for it in balanced if it.lang == "zh"]
+    en_items = [it for it in balanced if it.lang == "en"]
     items_for_ai = en_items + zh_items
-    print(f"  → 喂给 AI: 英文 {len(en_items)} 条 + 中文 {len(zh_items)} 条 = {len(items_for_ai)} 条（全量）")
+    print(f"  → 喂给 AI: 英文 {len(en_items)} 条 + 中文 {len(zh_items)} 条 = {len(items_for_ai)} 条")
 
     # 构建用户消息
     lines = [
         "以下是今日抓取的科技新闻，请按你的系统指令处理：\n",
-        "【来源多样性要求】请在筛选新闻时，尽量选择来自不同来源的新闻，"
-        "避免任何单一来源出现超过 2 条，确保简报覆盖至少 5 个不同的来源。\n",
+        "【摘要要求】每条摘要字数控制在 80-150 字之间，不要过短或过长。\n",
+        "【来源多样性要求】在筛选过程中，如果某条新闻不值得单独成条，"
+        "可以合并到相关新闻的摘要中提及，确保最终简报覆盖尽可能多的来源和话题。\n",
     ]
     for i, item in enumerate(items_for_ai, 1):
         content_short = (item.content or "无描述")[:80]
