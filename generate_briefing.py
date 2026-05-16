@@ -122,6 +122,121 @@ def _balance_sources(items: list, max_total: int = 30, min_per_source: int = 2, 
     return selected
 
 
+# ============================================================
+# Token 估算 & 上下文截断
+# ============================================================
+
+def _estimate_tokens(text: str) -> int:
+    """
+    保守估算文本的 token 数，用于上下文截断判断。
+    中文字符按 2 tokens，其余按 0.3 tokens 估算。
+    优先高估，避免 API 返回 400 错误。
+    """
+    if not text:
+        return 0
+    chinese = len(re.findall(r'[\u4e00-\u9fff]', text))
+    rest = len(text) - chinese
+    return int(chinese * 2.0 + rest * 0.3)
+
+
+def _build_context(items_for_ai: list[NewsItem], system_prompt: str,
+                   content_limit: int = 80, max_items: int | None = None):
+    """
+    构建完整的 user 消息（含前文 + 新闻列表 + 历史排重），
+    同时返回各部分的 token 估算值。
+    """
+    # 固定前文
+    preamble_lines = [
+        "以下是今日抓取的科技新闻，请按你的系统指令处理：\n",
+        "【摘要要求】每条摘要字数控制在 80-150 字之间，不要过短或过长。\n",
+        "【来源多样性要求】在筛选过程中，如果某条新闻不值得单独成条，"
+        "可以合并到相关新闻的摘要中提及，确保最终简报覆盖尽可能多的来源和话题。\n",
+    ]
+    preamble_text = "".join(preamble_lines)
+    preamble_tokens = _estimate_tokens(preamble_text)
+
+    # 新闻列表
+    max_items = max_items or len(items_for_ai)
+    item_lines = []
+    for i, item in enumerate(items_for_ai[:max_items], 1):
+        content_short = (item.content or "无描述")[:content_limit]
+        time_info = f" ({item.published_at[:10]})" if item.published_at else ""
+        item_lines.append(f"{i}. [{item.source}]{time_info} {item.title}")
+        item_lines.append(f"   简介: {content_short}")
+        item_lines.append(f"   链接: {item.url}\n")
+    items_text = "\n".join(item_lines)
+    items_tokens = _estimate_tokens(items_text)
+    actual_items = min(max_items, len(items_for_ai))
+
+    # 历史排重
+    history_titles = load_history_titles()
+    history_text = ""
+    if history_titles:
+        history_text = ("\n---\n【已报道历史】过去几天已推送过的新闻标题"
+                        "（遇到核心主题相似的请跳过）：\n" +
+                        "\n".join(f"- {t}" for t in history_titles))
+    history_tokens = _estimate_tokens(history_text)
+
+    # 系统 prompt
+    system_tokens = _estimate_tokens(system_prompt)
+
+    user_content = preamble_text + items_text + history_text
+
+    total_tokens = system_tokens + preamble_tokens + items_tokens + history_tokens
+
+    return {
+        "user_content": user_content,
+        "total_tokens": total_tokens,
+        "system_tokens": system_tokens,
+        "item_count": actual_items,
+        "content_limit": content_limit,
+    }
+
+
+def _truncate_context(items_for_ai: list[NewsItem], system_prompt: str,
+                      max_context: int = 32000,
+                      max_output: int = 4096,
+                      safety_margin: int = 800):
+    """
+    渐进式截断流程：
+      1. content_short 从 80 字缩到 50 字
+      2. max_items 从当前值缩到 25 → 20
+    保留配额制核心（每源保底 2 条、至少 5 个源）不变。
+    """
+    token_budget = max_context - max_output - safety_margin
+
+    content_limit = 80
+    max_items = len(items_for_ai)
+
+    for step in range(10):  # 最多 10 轮降级
+        ctx = _build_context(items_for_ai, system_prompt,
+                             content_limit=content_limit, max_items=max_items)
+        if ctx["total_tokens"] <= token_budget:
+            return ctx
+
+        # 降级策略
+        if content_limit > 50:
+            old = content_limit
+            content_limit = 50
+            print(f"  → 上下文超限 ({ctx['total_tokens']} > {token_budget})，"
+                  f"content 缩短 {old}→{content_limit} 字")
+            continue
+        if max_items > 25:
+            max_items = 25
+            print(f"  → 上下文仍超限，总条数缩至 {max_items}")
+            continue
+        if max_items > 20:
+            max_items = 20
+            print(f"  → 上下文仍超限，总条数缩至 {max_items}")
+            continue
+
+        print(f"  ⚠ 已达最大截断仍超限 ({ctx['total_tokens']} > {token_budget})，继续发送")
+        break
+
+    return _build_context(items_for_ai, system_prompt,
+                          content_limit=content_limit, max_items=max_items)
+
+
 def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
     """
     将过滤后的干净新闻发给大模型。
@@ -150,29 +265,11 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
     items_for_ai = en_items + zh_items
     print(f"  → 喂给 AI: 英文 {len(en_items)} 条 + 中文 {len(zh_items)} 条 = {len(items_for_ai)} 条")
 
-    # 构建用户消息
-    lines = [
-        "以下是今日抓取的科技新闻，请按你的系统指令处理：\n",
-        "【摘要要求】每条摘要字数控制在 80-150 字之间，不要过短或过长。\n",
-        "【来源多样性要求】在筛选过程中，如果某条新闻不值得单独成条，"
-        "可以合并到相关新闻的摘要中提及，确保最终简报覆盖尽可能多的来源和话题。\n",
-    ]
-    for i, item in enumerate(items_for_ai, 1):
-        content_short = (item.content or "无描述")[:80]
-        # 附带发布时间（如有）
-        time_info = f" ({item.published_at[:10]})" if item.published_at else ""
-        lines.append(f"{i}. [{item.source}]{time_info} {item.title}")
-        lines.append(f"   简介: {content_short}")
-        lines.append(f"   链接: {item.url}\n")
-
-    # 历史排重
-    history_titles = load_history_titles()
-    if history_titles:
-        lines.append("\n---\n【已报道历史】过去几天已推送过的新闻标题（遇到核心主题相似的请跳过）：\n")
-        for t in history_titles:
-            lines.append(f"- {t}")
-
-    user_content = "\n".join(lines)
+    # 渐进截断：先缩 content（80→50），再缩总量（→25→20）
+    ctx = _truncate_context(items_for_ai, system_prompt)
+    user_content = ctx["user_content"]
+    print(f"  → 最终输入: {ctx['content_limit']}字摘要 × {ctx['item_count']}条 "
+          f"(预估 {ctx['total_tokens']} tokens, 系统 {ctx['system_tokens']} tokens)")
 
     url = f"{config.API_BASE_URL.rstrip('/')}/v1/chat/completions"
 
