@@ -148,7 +148,8 @@ def _build_context(items_for_ai: list[NewsItem], system_prompt: str,
     # 固定前文
     preamble_lines = [
         "以下是今日抓取的科技新闻，请按你的系统指令处理：\n",
-        "【摘要要求】每条摘要字数控制在 80-150 字之间，不要过短或过长。\n",
+        "【摘要要求】每条摘要字数控制在 80-150 字之间，不要过短或过长。"
+        "摘要中只写新闻内容本身，不要包含任何链接或URL。\n",
         "【来源多样性要求】在筛选过程中，如果某条新闻不值得单独成条，"
         "可以合并到相关新闻的摘要中提及，确保最终简报覆盖尽可能多的来源和话题。\n",
     ]
@@ -551,7 +552,6 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 10px 0;line-height:1.5;">{item["title"]}</h2>
               <p style="font-size:13px;color:#555;margin:0 0 14px 0;line-height:1.7;">{clean_links(item["summary"])}</p>
-              <a href="{item["link"]}" target="_blank" rel="noopener noreferrer" style="font-size:12px;color:#888;word-break:break-all;">📎 {item["link"]}</a>
             </td>
           </tr>
         </table>""")
@@ -603,7 +603,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
           <tr>
             <td style="padding:16px 20px;">
               <div style="font-size:14px;font-weight:700;color:#111;margin-bottom:4px;">
-                📌 <a href="{p.get("link","#")}" target="_blank" style="color:#1a1a1a;text-decoration:none;">{p.get("name","")}</a>
+                📌 {p.get("name","")}
                 <span style="font-size:12px;color:#888;margin-left:8px;">{p.get("stars","")}</span>
               </div>
               <p style="font-size:13px;color:#555;margin:4px 0 0 0;line-height:1.6;">{p.get("desc","")}</p>
@@ -653,7 +653,6 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 6px 0;line-height:1.5;">{item["title"]}</h2>
               <p style="font-size:13px;color:#555;margin:0 0 10px 0;line-height:1.6;">{clean_links(item["summary"])}</p>
-              <a href="{item["link"]}" target="_blank" rel="noopener noreferrer" style="font-size:12px;color:#888;word-break:break-all;">📎 {item["link"]}</a>
             </td>
           </tr>
         </table>""")
@@ -676,30 +675,16 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
           </td>
         </tr>"""
 
-    # ---- 原文链接备份（绕过 QQ 邮箱过滤的问题，以纯文本形式列出所有 URL） ----
-    link_list_section = ""
-    if news_items:
-        link_rows = []
-        for i, item in enumerate(news_items, 1):
-            link_url = item.get("link", "")
-            link_title = item.get("title", "")
-            if link_url:
-                link_rows.append(f"""
+    # ---- 网页版入口（正文不含任何链接，引导访问网页版） ----
+    web_link_section = ""
+    web_link_section = f"""
         <tr>
-          <td style="padding:8px 0;border-bottom:1px solid #eee;">
-            <span style="font-size:12px;color:#888;font-weight:500;">No.{i:02d}</span>
-            <span style="font-size:12px;color:#333;margin-left:6px;">{link_title}</span>
-            <br/><a href="{link_url}" target="_blank" rel="noopener noreferrer" style="font-size:11px;color:#999;word-break:break-all;">{link_url}</a>
-          </td>
-        </tr>""")
-        if link_rows:
-            link_list_section = f"""
-        <tr>
-          <td style="padding-top:24px;border-top:2px dashed #ddd;">
-            <div style="font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:14px;">📎 原文链接备份</div>
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-              {''.join(link_rows)}
-            </table>
+          <td style="padding:24px 20px;border-top:2px dashed #ddd;border-bottom:2px dashed #ddd;">
+            <div style="font-size:12px;color:#888;line-height:1.8;text-align:center;">
+              <span style="font-size:14px;font-weight:700;color:#555;">📖 查看原文链接</span><br/>
+              请在浏览器中打开网页版查看所有新闻原文链接及项目详情<br/>
+              <span style="color:#999;font-size:11px;">yingfengke.github.io/agent-news-briefing</span>
+            </div>
           </td>
         </tr>"""
 
@@ -716,9 +701,10 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
     html = html.replace("{{projects_section}}", projects_section)
     html = html.replace("{{filter_report_section}}", filter_report_section)
     html = html.replace("{{trivia_section}}", trivia_section)
-    html = html.replace("{{link_list_section}}", link_list_section)
-    # 底部免责声明和仓库链接
-    html = html.replace("{{repo_url}}", "https://github.com/yingfengke/agent-news-briefing")
+    html = html.replace("{{link_list_section}}", web_link_section)
+    # 底部免责声明 — 纯文字，不含任何可点击链接
+    html = html.replace('href="{{repo_url}}"', 'style="color:#888;text-decoration:none;"')
+    html = html.replace("{{repo_url}}", "GitHub: yingfengke/agent-news-briefing")
     if style_name:
         html = html.replace("{{style_tag}}", f" · 今日风格：{style_name}")
     else:
@@ -729,17 +715,16 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
     print(f"[成功] 已生成邮件 HTML ({len(news_items)} 条)")
 
     # ---- 自检：扫描邮件 HTML 中是否还有未包裹的链接 ----
-    # 排除 <a> 标签内和 <style> 内的内容
-    body_only = re.sub(r'<a\s[^>]*>.*?</a>', '', html, flags=re.DOTALL)
-    body_only = re.sub(r'<style[^>]*>.*?</style>', '', body_only, flags=re.DOTALL)
+    # 排除 <style> 内的内容（纯文本网站域名不算）
+    body_only = re.sub(r'<style[^>]*>.*?</style>', '', html, flags=re.DOTALL)
     loose_urls = re.findall(r'https?://[^\s<>"\'\]】、，,]+', body_only)
     if loose_urls:
         for url in loose_urls[:5]:
-            print(f"  [LINK-CHECK] ⚠ 发现未包裹的链接: {url[:80]}")
+            print(f"  [LINK-CHECK] ⚠ 发现未清理的链接: {url[:80]}")
         if len(loose_urls) > 5:
             print(f"  [LINK-CHECK] ⚠ ... 还有 {len(loose_urls)-5} 个")
     else:
-        print(f"  [LINK-CHECK] ✅ 邮件中所有链接均已正确包裹")
+        print(f"  [LINK-CHECK] ✅ 邮件中无任何链接，通过")
     return True
 
 
@@ -883,22 +868,8 @@ def main():
             trivia=trivia,
         )
 
-    # ---- 7. 发送邮件 ----
-    print(f"\n  ── 发送邮件 ──")
-    try:
-        import subprocess
-        result = subprocess.run(
-            [sys.executable, os.path.join(config.BASE_DIR, "send_email.py")],
-            capture_output=True, text=True, timeout=60,
-        )
-        if result.returncode == 0:
-            print("  ✔ send_email.py 执行成功")
-        else:
-            print(f"  ⚠ send_email.py 返回 {result.returncode}")
-            if result.stderr:
-                print(f"     stderr: {result.stderr[:200]}")
-    except Exception as e:
-        print(f"  ✘ 调用 send_email.py 失败: {e}")
+    # ---- 7. 发送邮件（由 workflow 的 Step ② 独立执行，此处不再重复调用） ----
+    print(f"\n  ── 邮件已生成，由 workflow 步骤发送 ──")
 
     if daily_analysis:
         print(f"\n  📊 今日深度分析:")

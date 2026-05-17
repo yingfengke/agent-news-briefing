@@ -73,24 +73,11 @@ jobs:
           retry_wait_seconds: 300
           command: python send_email.py
 
-      - name: ③ 提交并推送更新（失败自动重试）
+      - name: ③ 通过 GitHub API 更新网页文件（绕过 git 冲突）
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for i in 1 2 3; do
-            # 只添加工作流生成的文件，避免误加 .env 等敏感文件
-            git add tech-briefing.html index.html email_content.html email_content.txt
-            git diff --quiet && git diff --staged --quiet || git commit -m "🤖 每日简报自动更新 $(date +'%Y-%m-%d')"
-            if git push; then
-              echo "✅ 推送成功"
-              break
-            else
-              echo "⚠️ 第${i}次推送失败，10秒后拉取重试..."
-              sleep 10
-              # 优先 rebase，失败则用 merge 兜底
-              git pull --rebase --autostash || (git rebase --abort 2>/dev/null; git pull --no-rebase)
-            fi
-          done
+          python .github/workflows/github_api_push.py
 
       - name: 配置 GitHub Pages
         uses: actions/configure-pages@v5
