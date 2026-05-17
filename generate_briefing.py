@@ -603,7 +603,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
           <tr>
             <td style="padding:16px 20px;">
               <div style="font-size:14px;font-weight:700;color:#111;margin-bottom:4px;">
-                📌 {p.get("name","")}
+                📌 <a href="{p.get("link","#")}" target="_blank" style="color:#1a1a1a;text-decoration:none;">{p.get("name","")}</a>
                 <span style="font-size:12px;color:#888;margin-left:8px;">{p.get("stars","")}</span>
               </div>
               <p style="font-size:13px;color:#555;margin:4px 0 0 0;line-height:1.6;">{p.get("desc","")}</p>
