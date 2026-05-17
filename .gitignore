@@ -9,9 +9,14 @@ __pycache__/
 # 忽略环境变量文件（⚠️ 含真实 API Key 和邮箱授权码，切勿上传）
 .env
 
+# IDE 配置
+.idea/
+agent_news_briefing/.idea/
+
 # 忽略运行时生成的中间文件
 email_content.html
 email_content.txt
+.rag_store.json
 
 # Cloudflare Wrangler 缓存
 .wrangler/
