@@ -1,7 +1,7 @@
 name: AI Agent 开发者晨报
 
 on:
-  # 每天早上 6:00 北京时间 (22:00 UTC) — 与 Cloudflare Worker 双重保障
+  # 每天早上 6:00 北京时间 (22:00 UTC)
   schedule:
     - cron: '0 22 * * *'
   # 支持手动触发
@@ -9,19 +9,10 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     # 所有步骤共享的环境变量（来自 GitHub Secrets，无一硬编码）
     env:
@@ -73,20 +64,8 @@ jobs:
           retry_wait_seconds: 300
           command: python send_email.py
 
-      - name: ③ 通过 GitHub API 更新网页文件（绕过 git 冲突）
+      - name: ③ 通过 GitHub API 更新网页文件（Pages 自动从 main branch 部署）
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python .github/workflows/github_api_push.py
-
-      - name: 配置 GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: 上传 Pages 产物
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
-
-      - name: 部署到 GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
