@@ -139,6 +139,48 @@ def _estimate_tokens(text: str) -> int:
     return int(chinese * 2.0 + rest * 0.3)
 
 
+def _filter_history_duplicates(items: list[NewsItem]) -> list[NewsItem]:
+    """
+    基于历史简报标题，过滤掉内容高度重复的新闻。
+    可跨天，解决同源"顽固新闻"反复出现的问题。
+    使用标题关键词重叠率判断，无需外部依赖。
+    """
+    history_titles = load_history_titles()
+    if not history_titles:
+        return items
+
+    # 对历史标题做分词（按常见分隔符切分）
+    def _token_set(title: str) -> set:
+        """提取标题关键词集合"""
+        title = re.sub(r'[^\u4e00-\u9fff\w]', ' ', title.lower())
+        words = [w for w in title.split() if len(w) > 1]
+        return set(words)
+
+    history_tokens = [_token_set(t) for t in history_titles]
+    kept = []
+    removed = 0
+    for it in items:
+        current_tokens = _token_set(it.title)
+        # 检查是否与任一历史标题高度相似（Jaccard 系数 > 0.6）
+        is_dup = False
+        for ht in history_tokens:
+            if not current_tokens or not ht:
+                continue
+            overlap = len(current_tokens & ht)
+            union = len(current_tokens | ht)
+            if union > 0 and overlap / union > 0.6:
+                is_dup = True
+                break
+        if is_dup:
+            removed += 1
+        else:
+            kept.append(it)
+
+    if removed:
+        print(f"  → 历史排重: 过滤 {removed} 条已报道过的新闻")
+    return kept
+
+
 def _build_context(items_for_ai: list[NewsItem], system_prompt: str,
                    content_limit: int = 80, max_items: int | None = None):
     """
@@ -265,6 +307,11 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
     en_items = [it for it in balanced if it.lang == "en"]
     items_for_ai = en_items + zh_items
     print(f"  → 喂给 AI: 英文 {len(en_items)} 条 + 中文 {len(zh_items)} 条 = {len(items_for_ai)} 条")
+
+    # 跨天历史排重：过滤已报道过的同源新闻
+    items_for_ai = _filter_history_duplicates(items_for_ai)
+    if not items_for_ai:
+        print("  [警告] 所有新闻均已被历史报道过滤，将继续使用 AI 判断")
 
     # 渐进截断：先缩 content（80→50），再缩总量（→25→20）
     ctx = _truncate_context(items_for_ai, system_prompt)
