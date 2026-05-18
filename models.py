@@ -55,8 +55,6 @@ class FilterReport:
     credibility_removed: int = 0
     total_output: int = 0
     remaining_items: list[NewsItem] = field(default_factory=list)
-    remaining_sources: list[str] = field(default_factory=list)
-    source_count: int = 0
 
     @property
     def total_removed(self) -> int:
@@ -64,44 +62,43 @@ class FilterReport:
 
     def print_report(self) -> None:
         print(f"\n  ── 过滤报告 ──")
-        print(f"  输入:                 {self.total_input} 条 ({self.source_count} 个来源)")
-        print(f"  ├─ URL去重:           -{self.url_removed} 条")
-        print(f"  ├─ MinHash指纹去重:   -{self.minhash_removed} 条")
-        print(f"  ├─ 语义去重:          -{self.semantic_removed} 条")
-        print(f"  ├─ 可信度过滤:        -{self.credibility_removed} 条")
-        print(f"  └─ 输出:              {self.total_output} 条 ({self.total_output/self.total_input*100:.0f}%)")
+        print(f"  输入: {self.total_input} 条")
+        print(f"  ├─ URL去重:    -{self.url_removed} 条")
+        print(f"  ├─ MinHash去重: -{self.minhash_removed} 条")
+        print(f"  ├─ 语义去重:   -{self.semantic_removed} 条")
+        print(f"  ├─ 可信度过滤: -{self.credibility_removed} 条")
+        print(f"  └─ 输出:       {self.total_output} 条")
 
     def to_email_html(self) -> str:
-        """生成用于邮件末尾的过滤摘要 HTML，包含每层详细统计"""
+        """生成用于邮件末尾的过滤摘要 HTML"""
         pct = f"({self.total_output/self.total_input*100:.0f}%)" if self.total_input else ""
-        source_info = f"来自 {self.source_count} 个来源" if self.source_count else ""
         return f"""
         <tr>
           <td style="padding:16px 20px;background:#f8f8f6;border-radius:10px;margin-top:16px;">
-            <div style="font-size:11px;color:#888;letter-spacing:1.2px;margin-bottom:10px;">📊 今日过滤摘要</div>
+            <div style="font-size:11px;color:#888;letter-spacing:1px;margin-bottom:8px;">📋 今日过滤摘要</div>
             <table width="100%" cellpadding="0" cellspacing="0" style="font-size:12px;color:#666;">
               <tr>
-                <td style="padding:3px 0;">📥 原始采集</td>
-                <td style="text-align:right;font-weight:600;color:#333;">{self.total_input} 条 {source_info}</td>
+                <td style="padding:2px 0;">采集</td>
+                <td style="text-align:right;font-weight:600;color:#333;">{self.total_input} 条</td>
               </tr>
               <tr>
-                <td style="padding:3px 0;padding-left:12px;">├ URL去重（SHA256指纹）</td>
+                <td style="padding:2px 0;">URL去重</td>
                 <td style="text-align:right;color:#c0392b;">-{self.url_removed} 条</td>
               </tr>
               <tr>
-                <td style="padding:3px 0;padding-left:12px;">├ MinHash内容指纹（Jaccard≥0.8）</td>
+                <td style="padding:2px 0;">内容指纹去重</td>
                 <td style="text-align:right;color:#c0392b;">-{self.minhash_removed} 条</td>
               </tr>
               <tr>
-                <td style="padding:3px 0;padding-left:12px;">├ 语义聚类（Embedding余弦≥0.92）</td>
+                <td style="padding:2px 0;">语义去重</td>
                 <td style="text-align:right;color:#c0392b;">-{self.semantic_removed} 条</td>
               </tr>
               <tr>
-                <td style="padding:3px 0;padding-left:12px;">└ 可信度过滤（信号评分≥{0.40:.2f}）</td>
+                <td style="padding:2px 0;">可信度过滤</td>
                 <td style="text-align:right;color:#c0392b;">-{self.credibility_removed} 条</td>
               </tr>
               <tr style="border-top:1px solid #ddd;">
-                <td style="padding:4px 0;font-weight:700;color:#333;">📋 最终精选 {pct}</td>
+                <td style="padding:4px 0;font-weight:700;color:#333;">最终输出 {pct}</td>
                 <td style="text-align:right;font-weight:700;color:#27ae60;">{self.total_output} 条</td>
               </tr>
             </table>

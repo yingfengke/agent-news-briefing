@@ -476,7 +476,7 @@ def run_pipeline(items: list[NewsItem]) -> FilterReport:
         else:
             report.url_removed += 1
     url_deduper.flush()
-    print(f"  [✅ 去重报告] URL去重: 检查 {len(items)} 条 → 重复 {report.url_removed} 条 → 保留 {len(after_a)} 条")
+    print(f"  {len(items)} → {len(after_a)} (去重 {report.url_removed} 条)")
 
     if not after_a:
         return report
@@ -490,9 +490,7 @@ def run_pipeline(items: list[NewsItem]) -> FilterReport:
             after_b.append(it)
         else:
             report.minhash_removed += 1
-    print(f"  [✅ 去重报告] MinHash去重: 比较 {len(after_a)} 条 → "
-          f"Jaccard相似度阈值 {config.DEDUP_MINHASH_THRESHOLD} → "
-          f"移除重复 {report.minhash_removed} 条 → 保留 {len(after_b)} 条")
+    print(f"  {len(after_a)} → {len(after_b)} (去重 {report.minhash_removed} 条)")
 
     if not after_b:
         return report
@@ -502,9 +500,7 @@ def run_pipeline(items: list[NewsItem]) -> FilterReport:
     semanticer = SemanticDeduper()
     after_c = semanticer.deduplicate(after_b)
     report.semantic_removed = len(after_b) - len(after_c)
-    print(f"  [✅ 去重报告] 语义去重: 聚类 {len(after_b)} 条 → "
-          f"Embedding余弦阈值 {config.DEDUP_SEMANTIC_THRESHOLD} → "
-          f"发现重复 {report.semantic_removed} 条 → 保留 {len(after_c)} 条")
+    print(f"  {len(after_b)} → {len(after_c)} (去重 {report.semantic_removed} 条，含聚类标注)")
 
     if not after_c:
         return report
@@ -514,18 +510,10 @@ def run_pipeline(items: list[NewsItem]) -> FilterReport:
     filter_d = CredibilityFilter()
     after_d = [it for it in after_c if not filter_d.should_filter(it)]
     report.credibility_removed = len(after_c) - len(after_d)
-    print(f"  [✅ 去重报告] 可信度过滤: 评估 {len(after_c)} 条 → "
-          f"阈值 {config.CREDIBILITY_SCORE_THRESHOLD} → "
-          f"过滤低质量 {report.credibility_removed} 条 → 保留 {len(after_d)} 条")
+    print(f"  {len(after_c)} → {len(after_d)} (过滤 {report.credibility_removed} 条)")
 
     report.total_output = len(after_d)
     report.remaining_items = after_d
-    # 收集保留的来源
-    report.remaining_sources = list(set(it.source for it in after_d))
-    report.source_count = len(report.remaining_sources)
-    print(f"  [✅ 去重报告] 最终结果: 采集 {report.total_input} 条 → "
-          f"去重过滤共移除 {report.total_removed} 条 → "
-          f"最终 {report.total_output} 条（覆盖 {report.source_count} 个来源）")
     return report
 
 
