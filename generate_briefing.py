@@ -460,6 +460,37 @@ def fetch_github_trending():
 # 写入 HTML
 # ============================================================
 
+def _replace_array_var(content: str, var_name: str, new_json_str: str) -> str:
+    """
+    替换 HTML 中 JavaScript 数组变量的内容。
+    使用位置定位替代 regex，避免数据中含 `]` 导致匹配失败。
+    支持变量名与 `[` 之间任意长度空格。
+    """
+    key = f"const {var_name} ="
+    start = content.find(key)
+    if start < 0:
+        print(f"  [警告] 未找到 {key}")
+        return content
+
+    # 从 key 末尾向后找第一个 `[`
+    search_from = start + len(key)
+    bracket_pos = content.find("[", search_from)
+    if bracket_pos < 0:
+        print(f"  [警告] 未找到 [")
+        return content
+
+    # 找到第一个 `];`（数组结束标志）
+    array_end = content.find("];", bracket_pos)
+    if array_end < 0:
+        print(f"  [警告] 未找到数组结束 ];")
+        return content
+
+    # 替换数组内容（保留 [ 和 ];）
+    # new_json_str 已包含完整的 JSON 数组字符串（以 [ 开头，以 ] 结尾）
+    # 需要补上 ; 以闭合 JS 语句
+    return content[:bracket_pos] + new_json_str + ";" + content[array_end + 2:]
+
+
 def write_html(news_items, daily_analysis="", projects=None):
     if not projects:
         projects = []
@@ -473,23 +504,22 @@ def write_html(news_items, daily_analysis="", projects=None):
     json_str = json.dumps(news_items, ensure_ascii=False, indent=4)
     lines = json_str.split("\n")
     indented = "\n".join("        " + line if line.strip() else line for line in lines)
-    pattern = r'(const __NEWS_DATA__\s*=\s*)\[[^\]]*\](\s*;)'
-    content = re.sub(pattern, r'\1' + indented + r'\2', content, count=1, flags=re.DOTALL)
+    content = _replace_array_var(content, "__NEWS_DATA__", indented)
 
     if daily_analysis:
         escaped = json.dumps(daily_analysis, ensure_ascii=False)
-        content = re.sub(
-            r'(const __DAILY_ANALYSIS__\s*=\s*)"[^"]*"(\s*;)',
-            r'\1' + escaped + r'\2', content, count=1,
-        )
+        key = 'const __DAILY_ANALYSIS__ = "'
+        da_start = content.find(key)
+        if da_start >= 0:
+            val_start = da_start + len(key)
+            val_end = content.find('"', val_start)
+            if val_end > val_start:
+                content = content[:val_start] + escaped.strip('"') + content[val_end:]
 
     projects_json = json.dumps(projects, ensure_ascii=False, indent=4)
     plines = projects_json.split("\n")
     pindented = "\n".join("        " + line if line.strip() else line for line in plines)
-    content = re.sub(
-        r'(const __PROJECTS__\s*=\s*)\[[^\]]*\](\s*;)',
-        r'\1' + pindented + r'\2', content, count=1, flags=re.DOTALL,
-    )
+    content = _replace_array_var(content, "__PROJECTS__", pindented)
 
     with open(config.HTML_FILE, "w", encoding="utf-8") as f:
         f.write(content)
@@ -503,15 +533,18 @@ def write_html(news_items, daily_analysis="", projects=None):
 
     # ---- Pages 验证日志：确认 index.html 内容已刷新 ----
     import json as _json
-    _m = re.search(r'__NEWS_DATA__\s*=\s*(\[.*?\])\s*;', content, re.DOTALL)
-    if _m:
-        try:
-            _data = _json.loads(_m.group(1))
-            print(f"  [Pages验证] index.html 已更新，新闻条数: {len(_data)} 条")
-            if _data:
-                print(f"    第一条: {_data[0].get('title','')[:50]}")
-        except Exception:
-            pass
+    _find = content.find("__NEWS_DATA__")
+    if _find >= 0:
+        _b = content.find("[", _find)
+        _e = content.find("];", _b)
+        if _e > _b:
+            try:
+                _data = _json.loads(content[_b:_e + 1])
+                print(f"  [Pages验证] index.html 已更新，新闻条数: {len(_data)} 条")
+                if _data:
+                    print(f"    第一条: {_data[0].get('title','')[:50]}")
+            except Exception as e:
+                print(f"  [Pages验证] JSON 解析失败: {e}")
 
     return True
 
