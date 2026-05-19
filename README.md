@@ -14,16 +14,19 @@
   └─ 动态网页爬虫 4 站（Playwright）
        ↓ 原始数据池
 智能过滤与去重层 (deduplicator.py)
-  ├─ URL 去重（SHA256 数据库）
+  ├─ URL 去重（SHA256 数据库，当日）
   ├─ 内容指纹去重（datasketch MinHash+LSH + jieba 分词，阈值 0.8）
   ├─ 语义去重（BAAI/bge-large-zh-v1.5 + Union-Find 聚类，阈值 0.92）
   └─ 来源可信度过滤（白名单 38 个域名 + 信号评分，阈值 0.40）
-       ↓ 干净数据
-AI 分析与简报生成层 (generate_briefing.py)
+       ↓ 干净数据（来源配额制：每源保底 2 条，覆盖 ≥5 个源）
+AI 分析层 (generate_briefing.py)
+  ├─ 跨天历史排重（SequenceMatcher + 关键词模糊匹配，基于已发布简报）
+  ├─ Token 感知上下文截断（防 400 错误）
   ├─ 随机三套语气：极简风 / 毒舌吐槽风 / 技术深度风
-  ├─ 失败自动重试 3 次
-  ├─ 生成 HTML + multipart 邮件
-  └─ GitHub Pages 同步更新
+  ├─ 失败自动重试 3 次（step ① + ② 各自独立重试）
+  └─ 生成 HTML + 邮件 + GitHub API 推送网页
+       ↓ 写入 tech-briefing.html → 历史闭环，供次日排重使用
+GitHub Pages 自动部署（从 main branch 构建）
 ```
 
 ## 邮件内容板块
