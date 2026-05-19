@@ -143,34 +143,61 @@ def _filter_history_duplicates(items: list[NewsItem]) -> list[NewsItem]:
     """
     基于历史简报标题，过滤掉内容高度重复的新闻。
     可跨天，解决同源"顽固新闻"反复出现的问题。
-    使用标题关键词重叠率判断，无需外部依赖。
+
+    使用双重检测：
+      A) SequenceMatcher（字符级，能抵抗 AI 改写标点和虚词）
+      B) 关键词重叠率（覆盖完全重写但核心词不变的情况）
     """
+    from difflib import SequenceMatcher
+
     history_titles = load_history_titles()
     if not history_titles:
         return items
 
-    # 对历史标题做分词（按常见分隔符切分）
-    def _token_set(title: str) -> set:
-        """提取标题关键词集合"""
-        title = re.sub(r'[^\u4e00-\u9fff\w]', ' ', title.lower())
-        words = [w for w in title.split() if len(w) > 1]
-        return set(words)
+    def _normalize(title: str) -> str:
+        """去标点 + 小写，用于字符级比较"""
+        return re.sub(r'[\s：:，,、()（）\[\]【】|/／\-—\'\"「」『』]', '', title).lower()
 
-    history_tokens = [_token_set(t) for t in history_titles]
+    def _keywords(title: str) -> set:
+        """按分隔符提取关键词"""
+        parts = re.split(r'[\s：:，,、()（）\[\]【】|/／\-—\'\"「」『』]', title.lower())
+        return set(w.strip() for w in parts if len(w.strip()) > 2)
+
+    norm_history = [_normalize(t) for t in history_titles[:30]]
+    kw_history = [_keywords(t) for t in history_titles[:30]]
+
     kept = []
     removed = 0
     for it in items:
-        current_tokens = _token_set(it.title)
-        # 检查是否与任一历史标题高度相似（Jaccard 系数 > 0.6）
+        norm_current = _normalize(it.title)
+        kw_current = _keywords(it.title)
+
         is_dup = False
-        for ht in history_tokens:
-            if not current_tokens or not ht:
-                continue
-            overlap = len(current_tokens & ht)
-            union = len(current_tokens | ht)
-            if union > 0 and overlap / union > 0.6:
-                is_dup = True
-                break
+        for i in range(len(norm_history)):
+            # A) 字符级相似度（抗标点/虚词差异）
+            if len(norm_history[i]) > 5 and len(norm_current) > 5:
+                ratio = SequenceMatcher(None, norm_history[i], norm_current).ratio()
+                if ratio > 0.50:
+                    is_dup = True
+                    break
+
+            # B) 关键词重叠率（抗完全重写）
+            if kw_history[i] and kw_current:
+                overlap = len(kw_current & kw_history[i])
+                min_size = min(len(kw_current), len(kw_history[i]))
+                # 精确重叠
+                if min_size > 0 and overlap / min_size > 0.5:
+                    is_dup = True
+                    break
+                # 子串重叠：当前关键词作为历史关键词的子串（例如 "goose" in "goose免费提供"）
+                for ck in kw_current:
+                    for hk in kw_history[i]:
+                        if len(ck) > 3 and len(hk) > 3 and (ck in hk or hk in ck):
+                            is_dup = True
+                            break
+                    if is_dup:
+                        break
+
         if is_dup:
             removed += 1
         else:
@@ -857,16 +884,25 @@ def main():
         if ai_result:
             daily_analysis = ai_result.get("daily_analysis", "")
 
-            # 从原始数据构建标题→URL 映射（第4层链接兜底）
-            title_url_map = {}
+            # 从原始数据构建多级链接索引（用于 AI 输出的链接兜底）
+            # level 1: 精确标题匹配
+            title_exact_map = {}
+            # level 2: 来源+标题关键词匹配
+            source_title_map: dict[str, list[tuple[str, str]]] = {}
             for ci in clean_items:
                 key = ci.title.strip()[:50].lower()
                 if ci.url:
-                    title_url_map[key] = ci.url
+                    title_exact_map[key] = ci.url
+                    src = (ci.source or "").lower()
+                    source_title_map.setdefault(src, []).append((key, ci.url))
+                    # 也索引原文前60字（AI 可能截断）
+                    key_short = key[:30]
+                    if key_short not in title_exact_map:
+                        title_exact_map[key_short] = ci.url
 
             def _extract_link(it: dict, summary: str = "") -> str:
                 """从 AI 返回的条目中提取链接。
-                优先顺序：link → url → summary 正则提取 → 标题匹配原始数据。
+                优先顺序：link → url → summary 正则提取 → 标题匹配原始数据（精确→模糊）。
                 """
                 link = it.get("link") or it.get("url") or ""
                 if not link and summary:
@@ -874,12 +910,48 @@ def main():
                     if m:
                         link = m.group(0)
                         print(f"    [链接兜底-摘要] {link[:60]}")
+
                 if not link:
-                    # 第4层：按标题从原始 RSS 数据匹配
-                    title = (it.get("title", "") or "")[:50].lower()
-                    if title in title_url_map:
-                        link = title_url_map[title]
-                        print(f"    [链接兜底-原始数据] {link[:60]}")
+                    title = (it.get("title", "") or "").lower().strip()
+                    ai_source = (it.get("source", "") or "").lower().strip()
+
+                    # ① 精确匹配（保留原有逻辑）
+                    if title[:50] in title_exact_map:
+                        link = title_exact_map[title[:50]]
+                        print(f"    [链接兜底-精确匹配] {link[:60]}")
+
+                if not link:
+                    # ② 模糊匹配：按来源缩小范围后，检查子串包含关系
+                    title = (it.get("title", "") or "").lower().strip()
+                    ai_source = (it.get("source", "") or "").lower().strip()
+                    candidates = []
+                    # 先按来源找候选
+                    for src_key, entries in source_title_map.items():
+                        if ai_source and (ai_source in src_key or src_key in ai_source):
+                            candidates.extend(entries)
+                    # 没匹配到来源就用全部
+                    if not candidates:
+                        for entries in source_title_map.values():
+                            candidates.extend(entries)
+
+                    # 子串匹配：AI 标题包含原始标题 或 原始标题包含 AI 标题
+                    title_words = set(w for w in re.split(r'[\s：:，,、()（）\[\]【】]', title) if len(w) > 1)
+                    best_match = ""
+                    best_score = 0
+                    for orig_title, orig_url in candidates:
+                        orig_words = set(w for w in re.split(r'[\s：:，,、()（）\[\]【】]', orig_title) if len(w) > 1)
+                        if not title_words or not orig_words:
+                            continue
+                        overlap = len(title_words & orig_words)
+                        score = overlap / min(len(title_words), len(orig_words))
+                        if score > best_score:
+                            best_score = score
+                            best_match = orig_url
+
+                    if best_score >= 0.4 and best_match:
+                        link = best_match
+                        print(f"    [链接兜底-模糊匹配] {link[:60]} (相似度{best_score:.2f})")
+
                 return link
 
             if "international" in ai_result and "china" in ai_result:
