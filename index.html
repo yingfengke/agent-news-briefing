@@ -140,122 +140,52 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                 [
+    const __NEWS_DATA__ =                                                                                                                                                                         [
             {
-                "title": "SDOF：状态约束调度驯服多智能体编排中的对齐税",
-                "summary": "提出状态约束调度（SDOF）框架，通过显式状态机约束多智能体（Agent）间通信与任务切换，减少因自由编排导致的性能损失（对齐税）。该方法在复杂编排任务中提升吞吐量20%以上，启示开发者需在Agent协作中引入确定性调度策略以平衡灵活性与效率。（来源：ArXiv AI）",
-                "link": "",
+                "title": "Braintrust vs LangSmith：2026年5月成本效益分析揭示AI开发工具定价分化",
+                "summary": "对比Braintrust与LangSmith的定价模型，Braintrust以$249/月提供无限制评估和数据集管理，而LangSmith按Token计费。分析指出，对于高频评估团队，Braintrust性价比更高，但LangSmith在追踪和调试深度上更优。启示：AI Agent开发工具正从按量计费转向订阅制，工程团队需根据评估频率选择成本模型。（来源：DEV.to AI）（原文作者：bean_bean）",
+                "link": "https://dev.to/bean_bean/braintrust-vs-langsmith-is-249mo-worth-it-the-may-2026-math-2i2a",
                 "source": "AI",
                 "region": "international"
             },
             {
-                "title": "Anthropic收购Stainless：统一API工具链，加速开发者生态",
-                "summary": "Anthropic收购了为OpenAI、Google等提供API SDK生成工具的Stainless。此举旨在将Stainless的自动化API客户端生成能力整合至Claude平台，降低开发者集成门槛。对工程实践启示：API标准化工具将成为AI平台竞争的关键基础设施。（来源：TechCrunch AI）（原文作者：未注明）",
-                "link": "",
+                "title": "Google AI Studio重新定义开发者工作流：从提示工程到端到端编排",
+                "summary": "Google AI Studio通过集成模型微调、上下文缓存和函数调用，将开发者从单一提示优化转向多步骤Agent编排。其无服务器架构支持自动扩缩，降低基础设施管理成本。启示：AI开发正从“提示工程”向“工作流工程”演进，平台需提供原生编排能力而非仅API接口。（来源：DEV.to AI）（原文作者：dan52242644dan）",
+                "link": "https://dev.to/dan52242644dan/how-google-ai-studio-is-quietly-redefining-developer-workflows-o50",
                 "source": "AI",
                 "region": "international"
-            },
-            {
-                "title": "SandboxAQ将药物发现模型集成至Claude：降低计算门槛",
-                "summary": "SandboxAQ将其AI药物发现模型（基于量子化学模拟）部署到Anthropic的Claude平台，用户无需深厚计算背景即可通过自然语言调用。技术核心是模型蒸馏与接口抽象，使专业领域模型通过通用对话界面可访问。启示：垂直领域AI模型与通用LLM的融合将加速科学计算民主化。（来源：TechCrunch AI）",
-                "link": "",
-                "source": "AI",
-                "region": "international"
-            },
-            {
-                "title": "OpenAI与Dell合作：Codex进入混合云与本地部署",
-                "summary": "OpenAI与Dell合作，将Codex AI编程助手部署至Dell的混合云及本地环境，支持企业数据不出域。技术架构上采用联邦学习与边缘推理，确保代码生成在本地完成。对工程实践启示：企业级AI部署需平衡模型性能与数据主权，混合云方案将成为主流。（来源：OpenAI）",
-                "link": "",
-                "source": "AI",
-                "region": "international"
-            },
-            {
-                "title": "Fine-Tuning NVIDIA Cosmos Predict 2.5 with LoRA/DoRA for Robot Video Generation",
-                "summary": "NVIDIA发布Cosmos Predict 2.5模型，支持通过LoRA/DoRA微调生成机器人操作视频。技术核心是参数高效微调（PEFT），仅更新少量参数即可适配特定机器人形态与任务。启示：低秩适配方法可大幅降低机器人领域视频生成模型的训练成本，推动仿真到现实迁移。（来源：HuggingFace Blog）",
-                "link": "https://huggingface.co/blog/nvidia/cosmos-fine-tuning-for-robot-video-generation",
-                "source": "AI",
-                "region": "international"
-            },
-            {
-                "title": "PaddleOCR 3.5：基于Transformers后端的OCR与文档解析",
-                "summary": "PaddleOCR 3.5版本将OCR引擎迁移至Transformers架构，统一文本检测与识别为端到端序列模型。技术改进包括引入视觉Transformer（ViT）编码器与自回归解码器，提升复杂版面解析精度。启示：传统OCR任务正被Transformer统一，开发者应关注多模态预训练模型在文档AI中的应用。（来源：HuggingFace Blog）",
-                "link": "",
-                "source": "AI",
-                "region": "international"
-            },
-            {
-                "title": "Railway获1亿美元融资：AI原生云基础设施挑战AWS",
-                "summary": "云平台Railway获1亿美元融资，其核心是AI原生架构：自动优化容器编排、GPU调度与成本。技术亮点包括基于强化学习的资源分配策略，可动态调整计算资源。启示：AI原生云将重塑基础设施层，开发者需适应自动化的运维范式。（来源：VentureBeat AI）",
-                "link": "",
-                "source": "AI",
-                "region": "international"
-            },
-            {
-                "title": "Goose：免费开源替代Claude Code的AI编码代理",
-                "summary": "开源项目Goose提供与Claude Code类似的AI编码代理功能，但完全免费。技术架构基于本地LLM（如CodeLlama）与沙箱执行环境，支持代码生成、调试与重构。启示：开源编码代理的兴起将降低AI辅助开发的门槛，但需关注模型质量与安全隔离。（来源：VentureBeat AI）",
-                "link": "",
-                "source": "AI",
-                "region": "international"
-            },
-            {
-                "title": "arXiv最严新规：AI生成论文署名连坐，陶哲轩附议",
-                "summary": "arXiv发布新规：使用AI生成论文内容需明确声明，且作者需对AI生成内容负全责，违规者将面临一年封禁及署名连坐。技术背景是AI生成论文泛滥，新规强调学术诚信与可追溯性。启示：开发者需建立AI辅助写作的合规流程，避免学术风险。（来源：量子位）",
-                "link": "",
-                "source": "AI",
-                "region": "china"
-            },
-            {
-                "title": "第三代英特尔酷睿：芯片与系统级创新开启AI轻薄本时代",
-                "summary": "英特尔第三代酷睿处理器集成NPU（神经网络处理单元），支持本地运行大模型（如Stable Diffusion、LLaMA）。系统级优化包括内存带宽提升与功耗管理，使AI推理在轻薄本上实时运行。启示：端侧AI推理将成为PC标配，开发者需优化模型以适应异构计算架构。（来源：量子位）",
-                "link": "",
-                "source": "AI",
-                "region": "china"
-            },
-            {
-                "title": "马斯克斥资100亿：不做coding agent就是等死",
-                "summary": "马斯克旗下xAI与Anthropic结盟，投入百亿美元研发AI编码代理（coding agent）。技术方向是构建能自主完成复杂软件工程的Agent，包括代码生成、测试与部署。启示：编码代理正从辅助工具演变为核心生产力，企业需提前布局Agent编排与安全策略。（来源：爱范儿）",
-                "link": "",
-                "source": "AI",
-                "region": "china"
-            },
-            {
-                "title": "一个月烧掉930万元Token：AI应用成本困境",
-                "summary": "报道分析某AI应用月消耗6030亿Token，成本高达930万元，揭示大模型推理成本仍是规模化瓶颈。技术讨论聚焦于模型量化、缓存策略与稀疏计算等降本手段。启示：开发者需在模型精度与推理成本间权衡，探索混合推理架构。（来源：爱范儿）",
-                "link": "",
-                "source": "AI",
-                "region": "china"
             }
         ];
 
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日技术趋势聚焦两大方向：一是多智能体编排从自由协作转向约束调度（如SDOF），预示Agent系统将引入更多确定性控制以提升可靠性；二是AI编码代理从闭源走向开源（Goose）并获巨头重金投入（马斯克），未来6个月将出现更多企业级Agent框架，开发者需关注安全隔离与成本优化。同时，端侧AI推理（英特尔酷睿）与垂直领域模型集成（SandboxAQ+Claude）加速AI民主化，但Token成本问题仍是规模化瓶颈。";
+    const __DAILY_ANALYSIS__ = "今日国际新闻聚焦AI开发工具成本模型和工作流平台化。Braintrust与LangSmith的对比揭示，随着Agent评估频率激增，按Token计费模式面临挑战，订阅制可能成为主流。Google AI Studio的演进表明，平台正从API提供商转向全栈工作流引擎，未来6个月，开发者将更关注工具链的端到端集成能力，而非单一模型性能。预计将出现更多针对Agent编排的专用基础设施，降低多步骤任务的调试和部署门槛。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                         [
+    const __PROJECTS__ =                                                                                                                                                                 [
             {
                 "name": "Imbad0202/academic-research-skills",
                 "desc": "Academic Research Skills for Claude Code: research → write → review → revise → finalize",
-                "stars": "⭐+1302 today",
+                "stars": "⭐+3184 today",
                 "link": "https://github.com/Imbad0202/academic-research-skills",
                 "tag": "多模态与前沿"
             },
             {
-                "name": "tech-leads-club/agent-skills",
-                "desc": "The secure, validated skill registry for professional AI coding agents. Extend Antigravity, Claude C",
-                "stars": "⭐+1244 today",
-                "link": "https://github.com/tech-leads-club/agent-skills",
-                "tag": "Agent 框架"
+                "name": "multica-ai/andrej-karpathy-skills",
+                "desc": "A single CLAUDE.md file to improve Claude Code behavior, derived from Andrej Karpathy's observations",
+                "stars": "⭐+1935 today",
+                "link": "https://github.com/multica-ai/andrej-karpathy-skills",
+                "tag": "大模型底层"
             },
             {
-                "name": "HKUDS/CLI-Anything",
-                "desc": "\"CLI-Anything: Making ALL Software Agent-Native\" -- CLI-Hub: https://clianything.cc/",
-                "stars": "⭐+1047 today",
-                "link": "https://github.com/HKUDS/CLI-Anything",
-                "tag": "Agent 框架"
+                "name": "colbymchenry/codegraph",
+                "desc": "Pre-indexed code knowledge graph for Claude Code, Codex, Cursor, and OpenCode — fewer tokens, fewer ",
+                "stars": "⭐+1869 today",
+                "link": "https://github.com/colbymchenry/codegraph",
+                "tag": "多模态与前沿"
             }
         ];
 
