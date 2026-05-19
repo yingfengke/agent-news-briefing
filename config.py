@@ -17,7 +17,7 @@ load_dotenv()
 API_BASE_URL = os.getenv("API_BASE_URL", "https://api.siliconflow.cn")
 API_KEY = os.getenv("API_KEY", "")
 MODEL_NAME = os.getenv("MODEL_NAME", "deepseek-ai/DeepSeek-V4-Flash")
-EMBEDDING_MODEL = "BAAI/bge-large-zh-v1.5"  # 语义去重，1024维，中英双语优化
+EMBEDDING_MODEL = "Qwen/Qwen3-Embedding-4B"  # 语义去重，1024维，中英双语优化
 
 # ============================================================
 # 邮件配置
