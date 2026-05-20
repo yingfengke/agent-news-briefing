@@ -954,56 +954,91 @@ def main():
 
                 return link
 
-            def _safe_get(it, key: str, default: str = "") -> str:
-                """安全从 AI 返回的条目中取值，兼容 dict 和 str 类型"""
+            def _try_parse_item(it, region: str = ""):
+                """
+                尝试将 AI 返回的条目解析为 dict。
+                支持 dict 直接使用、字符串 JSON 反序列化。
+                返回 (parsed_dict, success_bool)。
+                """
+                import json as _json
                 if isinstance(it, dict):
-                    return it.get(key, default)
-                if key == "title":
-                    return str(it)[:80] if isinstance(it, str) else default
-                if key == "summary":
-                    return ""  # 纯字符串条目没有摘要
-                return default
+                    return it, True
+                if isinstance(it, str):
+                    stripped = it.strip()
+                    # 尝试去掉可能的 markdown 代码块标记
+                    if stripped.startswith("```"):
+                        stripped = stripped.strip("`").strip()
+                        if stripped.startswith("json"):
+                            stripped = stripped[4:].strip()
+                    try:
+                        parsed = _json.loads(stripped)
+                        if isinstance(parsed, dict):
+                            return parsed, True
+                        # 如果是 JSON 数组，取第一个元素
+                        if isinstance(parsed, list) and len(parsed) > 0 and isinstance(parsed[0], dict):
+                            print(f"    [抢救] 字符串 JSON 数组 → 取首元素")
+                            return parsed[0], True
+                    except _json.JSONDecodeError:
+                        pass
+                print(f"    [警告] 无法解析的条目 ({region}): {str(it)[:80]}")
+                return None, False
+
+            intl_ok = intl_skip = cn_ok = cn_skip = 0
 
             if "international" in ai_result and "china" in ai_result:
                 for it in ai_result.get("international", []):
-                    if not isinstance(it, dict):
-                        print(f"    [警告] AI 返回了非 dict 条目 (international): {str(it)[:60]}")
+                    parsed, ok = _try_parse_item(it, "international")
+                    if not ok:
+                        intl_skip += 1
                         continue
-                    summary = it.get("summary", "")
+                    intl_ok += 1
+                    summary = parsed.get("summary", "")
                     final_items.append({
-                        "title": it.get("title", ""),
+                        "title": parsed.get("title", ""),
                         "summary": summary,
-                        "link": _extract_link(it, summary),
-                        "source": it.get("source", "AI"),
+                        "link": _extract_link(parsed, summary),
+                        "source": parsed.get("source", "AI"),
                         "region": "international",
                     })
                 for it in ai_result.get("china", []):
-                    if not isinstance(it, dict):
-                        print(f"    [警告] AI 返回了非 dict 条目 (china): {str(it)[:60]}")
+                    parsed, ok = _try_parse_item(it, "china")
+                    if not ok:
+                        cn_skip += 1
                         continue
-                    summary = it.get("summary", "")
+                    cn_ok += 1
+                    summary = parsed.get("summary", "")
                     final_items.append({
-                        "title": it.get("title", ""),
+                        "title": parsed.get("title", ""),
                         "summary": summary,
-                        "link": _extract_link(it, summary),
-                        "source": it.get("source", "AI"),
+                        "link": _extract_link(parsed, summary),
+                        "source": parsed.get("source", "AI"),
                         "region": "china",
                     })
-                print(f"\n  AI 筛选后: 国外 {len(ai_result.get('international',[]))} 条 + "
-                      f"国内 {len(ai_result.get('china',[]))} 条")
+                total_ok = intl_ok + cn_ok
+                total_skip = intl_skip + cn_skip
+                detail = ""
+                if total_skip:
+                    detail = f" (跳过 {total_skip} 条无法解析)"
+                print(f"\n  AI 筛选后: 国外 {intl_ok} 条 + 国内 {cn_ok} 条 = {total_ok} 条{detail}")
             elif "items" in ai_result:
+                items_ok = items_skip = 0
                 for it in ai_result["items"]:
-                    if not isinstance(it, dict):
-                        print(f"    [警告] AI 返回了非 dict 条目 (items): {str(it)[:60]}")
+                    parsed, ok = _try_parse_item(it, "items")
+                    if not ok:
+                        items_skip += 1
                         continue
-                    summary = it.get("summary", "")
+                    items_ok += 1
+                    summary = parsed.get("summary", "")
                     final_items.append({
-                        "title": it.get("title", ""),
+                        "title": parsed.get("title", ""),
                         "summary": summary,
-                        "link": _extract_link(it, summary),
-                        "source": it.get("source", "AI"),
+                        "link": _extract_link(parsed, summary),
+                        "source": parsed.get("source", "AI"),
                     })
-                print(f"\n  AI 筛选后: {len(final_items)} 条")
+                detail = ""
+                if items_skip:
+                    detail = f" (跳过 {items_skip} 条无法解析)"
+                print(f"\n  AI 筛选后: {items_ok} 条{detail}")
         else:
             ai_failed = True
 
