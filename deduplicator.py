@@ -466,6 +466,15 @@ def run_pipeline(items: list[NewsItem]) -> FilterReport:
     if not items:
         return report
 
+    # 清理上一轮遗留的 URL 去重记录（避免重试时被自己的"记忆"误伤）
+    # .url_dedup_db.json 在 .gitignore 中，不跨天持久化，只在本次运行内有用
+    try:
+        if os.path.exists(config.URL_DB_FILE):
+            os.remove(config.URL_DB_FILE)
+            print(f"  → 已清理残留 URL 去重数据库")
+    except Exception as e:
+        print(f"  [警告] 清理 URL 去重数据库失败: {e}")
+
     # ---- A: URL 去重 ----
     print(f"\n  ── A. URL 去重 ──")
     url_deduper = UrlDeduper()

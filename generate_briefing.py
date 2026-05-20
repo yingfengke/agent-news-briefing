@@ -954,8 +954,21 @@ def main():
 
                 return link
 
+            def _safe_get(it, key: str, default: str = "") -> str:
+                """安全从 AI 返回的条目中取值，兼容 dict 和 str 类型"""
+                if isinstance(it, dict):
+                    return it.get(key, default)
+                if key == "title":
+                    return str(it)[:80] if isinstance(it, str) else default
+                if key == "summary":
+                    return ""  # 纯字符串条目没有摘要
+                return default
+
             if "international" in ai_result and "china" in ai_result:
                 for it in ai_result.get("international", []):
+                    if not isinstance(it, dict):
+                        print(f"    [警告] AI 返回了非 dict 条目 (international): {str(it)[:60]}")
+                        continue
                     summary = it.get("summary", "")
                     final_items.append({
                         "title": it.get("title", ""),
@@ -965,6 +978,9 @@ def main():
                         "region": "international",
                     })
                 for it in ai_result.get("china", []):
+                    if not isinstance(it, dict):
+                        print(f"    [警告] AI 返回了非 dict 条目 (china): {str(it)[:60]}")
+                        continue
                     summary = it.get("summary", "")
                     final_items.append({
                         "title": it.get("title", ""),
@@ -977,6 +993,9 @@ def main():
                       f"国内 {len(ai_result.get('china',[]))} 条")
             elif "items" in ai_result:
                 for it in ai_result["items"]:
+                    if not isinstance(it, dict):
+                        print(f"    [警告] AI 返回了非 dict 条目 (items): {str(it)[:60]}")
+                        continue
                     summary = it.get("summary", "")
                     final_items.append({
                         "title": it.get("title", ""),
