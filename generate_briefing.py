@@ -643,19 +643,24 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
     total_output = filter_report.total_output if filter_report else len(news_items)
     filter_tagline = f"今日从 {total_input} 条新闻中精选 {total_output} 条"
 
-    def make_card_html(items_list, start_no=1):
+    def make_card_html(items_list, region: str = "", start_no=1):
         html = []
         for i, item in enumerate(items_list, start_no):
             source_tag = (f'<span style="font-size:10px;color:#888;background:#f0f0ee;'
                           f'padding:2px 10px;border-radius:20px;">{item["source"]}</span>'
                           ) if item.get("source") else ""
+            region_tag = ""
+            if region == "international":
+                region_tag = '<span style="font-size:10px;color:#534AB7;background:#EEEDFE;padding:2px 10px;border-radius:20px;margin-left:4px;">🌐</span>'
+            elif region == "china":
+                region_tag = '<span style="font-size:10px;color:#c0392b;background:#FAEEDA;padding:2px 10px;border-radius:20px;margin-left:4px;">🇨🇳</span>'
             html.append(f"""
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;margin-bottom:16px;">
           <tr>
             <td style="padding:20px 24px;">
               <div style="margin-bottom:10px;">
                 <span style="font-size:11px;font-weight:700;color:#ccc;letter-spacing:1px;">No.{i:02d}</span>
-                {' ' + source_tag if source_tag else ''}
+                {' ' + source_tag if source_tag else ''}{region_tag}
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 10px 0;line-height:1.5;">{item["title"]}</h2>
               <p style="font-size:13px;color:#555;margin:0 0 14px 0;line-height:1.7;">{clean_links(item["summary"])}</p>
@@ -671,7 +676,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
 
     intl_section = ""
     if intl_items:
-        intl_cards = make_card_html(intl_items)
+        intl_cards = make_card_html(intl_items, region="international")
         intl_section = f"""
         <tr>
           <td style="padding-bottom:20px;">
@@ -682,7 +687,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
 
     cn_section = ""
     if cn_items:
-        cn_cards = make_card_html(cn_items)
+        cn_cards = make_card_html(cn_items, region="china")
         cn_section = f"""
         <tr>
           <td style="padding-bottom:20px;border-top:1px dashed #ddd;padding-top:20px;">
@@ -737,40 +742,6 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
     if filter_report:
         filter_report_section = filter_report.to_email_html()
 
-    # ---- 今日速览（全量排名，用于邮件顶部） ----
-    top_news_section = ""
-    if news_items:
-        top_cards = []
-        for i, item in enumerate(news_items[:8], 1):
-            source_tag = (f'<span style="font-size:10px;color:#888;background:#f0f0ee;'
-                          f'padding:2px 10px;border-radius:20px;">{item["source"]}</span>'
-                          ) if item.get("source") else ""
-            region_tag = ""
-            if item.get("region") == "international":
-                region_tag = '<span style="font-size:10px;color:#534AB7;background:#EEEDFE;padding:2px 10px;border-radius:20px;margin-left:4px;">🌐</span>'
-            elif item.get("region") == "china":
-                region_tag = '<span style="font-size:10px;color:#c0392b;background:#FAEEDA;padding:2px 10px;border-radius:20px;margin-left:4px;">🇨🇳</span>'
-            top_cards.append(f"""
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;margin-bottom:14px;">
-          <tr>
-            <td style="padding:16px 22px;">
-              <div style="margin-bottom:6px;">
-                <span style="font-size:11px;font-weight:700;color:#ccc;letter-spacing:1px;">No.{i:02d}</span>
-                {source_tag}{region_tag}
-              </div>
-              <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 6px 0;line-height:1.5;">{item["title"]}</h2>
-              <p style="font-size:13px;color:#555;margin:0 0 10px 0;line-height:1.6;">{clean_links(item["summary"])}</p>
-            </td>
-          </tr>
-        </table>""")
-        top_news_section = f"""
-        <tr>
-          <td style="padding-bottom:24px;">
-            <div style="font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:14px;">⚡ 今日速览</div>
-            {''.join(top_cards)}
-          </td>
-        </tr>"""
-
     # ---- 彩蛋角落 ----
     trivia_section = ""
     if trivia:
@@ -800,7 +771,6 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
 
     html = template.replace("{{date}}", date_str)
     html = html.replace("{{filter_tagline}}", filter_tagline)
-    html = html.replace("{{top_news_section}}", top_news_section)
     html = html.replace("{{international_section}}", intl_section)
     html = html.replace("{{china_section}}", cn_section)
     html = html.replace("{{news_items}}", intl_section + cn_section)
