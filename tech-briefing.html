@@ -140,130 +140,95 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                 [
-            {
-                "title": "OpenAI模型推翻离散几何80年未解猜想：单位距离问题获证伪",
-                "summary": "OpenAI的GPT-5.5模型成功解决了单位距离问题（Unit Distance Problem），推翻了该领域长达80年的核心猜想。该模型通过大规模强化学习与符号推理结合，在组合几何中发现了反例，证明了原猜想不成立。这一成果展示了LLM在数学发现中的潜力，启示开发者可探索将形式化验证与LLM推理结合，用于定理证明与反例搜索。（来源：OpenAI）",
-                "link": "",
-                "source": "AI",
-                "region": "international"
-            },
-            {
-                "title": "Ramp工程师利用Codex加速代码审查：GPT-5.5驱动的自动化实践",
-                "summary": "Ramp公司分享了使用OpenAI Codex（基于GPT-5.5）进行代码审查的经验。其架构将Codex嵌入CI/CD流水线，自动分析PR差异、生成审查意见并标记潜在缺陷。工程实践表明，该方法将代码审查时间缩短40%，同时保持了高准确率。启示：将LLM集成到开发工具链中，需设计上下文窗口管理策略以处理大型代码库。（来源：OpenAI）",
-                "link": "",
-                "source": "AI",
-                "region": "international"
-            },
-            {
-                "title": "OlmoEarth v1.1发布：更高效的地球观测模型系列",
-                "summary": "Allen AI发布了OlmoEarth v1.1，这是一系列针对遥感图像分析优化的视觉语言模型。新版本通过稀疏注意力机制（Sparse Attention）和混合专家架构（MoE）降低了计算成本，在土地分类、变化检测等任务上精度提升5-8%。对工程实践的启示：针对特定领域（如遥感）微调预训练模型时，采用稀疏计算可显著降低推理延迟。（来源：HuggingFace Blog）",
-                "link": "",
-                "source": "AI",
-                "region": "international"
-            },
-            {
-                "title": "Ettin Reranker系列发布：新一代检索排序模型",
-                "summary": "HuggingFace博客介绍了Ettin Reranker系列，一种基于交叉编码器（Cross-Encoder）的排序模型。该模型采用多任务学习框架，同时优化相关性排序与答案生成质量，在BEIR基准上达到SOTA。其架构设计强调对长文档的上下文压缩，减少LLM检索增强生成（RAG）中的噪声。启示：RAG系统中，排序阶段的质量直接影响最终生成效果，需关注模型对长文本的建模能力。（来源：HuggingFace Blog）",
-                "link": "",
-                "source": "AI",
-                "region": "international"
-            },
+    const __NEWS_DATA__ =                                                                                                                                                                                         [
             {
                 "title": "数据探针方法：从根本上理解数据如何影响LLM性能",
-                "summary": "arXiv新论文提出开发“数据探针”（Data Probes）以系统研究数据对LLM性能的影响机制。该方法通过设计可解释的探测任务，分析训练数据分布、噪声比例与模型泛化能力之间的因果关系。初步实验表明，数据质量比数据量对下游任务影响更大。启示：开发者应建立数据质量监控体系，而非盲目扩大数据集。（来源：arXiv）",
-                "link": "",
+                "summary": "新研究提出开发数据探针以理解数据对LLM性能的影响，旨在揭示数据与模型表现之间的深层关系。（来源：ArXiv AI）",
+                "link": "https://arxiv.org/abs/2605.18801",
                 "source": "AI",
                 "region": "international"
             },
             {
                 "title": "生产级文档AI：基于微服务架构的OCR与LLM流水线",
-                "summary": "arXiv论文提出一种微服务架构，将OCR引擎与LLM解耦，通过消息队列实现异步处理，支持水平扩展。该架构在文档解析任务中，将端到端延迟降低60%，同时支持多语言混合文档。启示：生产环境中，将OCR与LLM分离可提升系统鲁棒性，并允许独立优化各组件。（来源：arXiv）",
-                "link": "",
+                "summary": "论文提出微服务架构用于生产环境中的OCR和LLM文档处理流水线，弥合学术研究与工业部署的差距。（来源：ArXiv AI）",
+                "link": "https://arxiv.org/abs/2605.18818",
                 "source": "AI",
                 "region": "international"
             },
             {
-                "title": "低资源NLP评估中的标注稀缺悖论：十年加速与新兴约束",
-                "summary": "arXiv论文回顾了低资源NLP领域十年发展，发现标注数据稀缺问题并未因预训练模型而缓解，反而因评估基准复杂度提升而加剧。作者提出“标注稀缺悖论”：模型能力越强，对高质量标注的需求越高。启示：开发者需关注少样本学习与主动学习策略，以降低标注成本。（来源：arXiv）",
-                "link": "",
+                "title": "AgentNLQ：通用自然语言转SQL智能体",
+                "summary": "新研究发布AgentNLQ，一个通用智能体框架，用于将自然语言查询转换为SQL，提升数据库交互效率。（来源：ArXiv AI）",
+                "link": "https://arxiv.org/abs/2605.19010",
                 "source": "AI",
                 "region": "international"
             },
             {
-                "title": "商业ASR系统在代码切换语音上的基准测试：阿拉伯语、波斯语与德语",
-                "summary": "arXiv论文对主流商业ASR系统（如Google、Amazon）在代码切换语音（混合使用多种语言）上的表现进行了基准测试。结果显示，在阿拉伯语-英语混合场景中，词错误率（WER）高达35%，远高于单语言场景。启示：多语言AI应用需专门处理代码切换问题，可考虑使用多语言预训练模型并引入语言标识符。（来源：arXiv）",
-                "link": "",
+                "title": "Google I/O 2026宣布100项更新，包括Gemini Omni和搜索框25年来首次改版",
+                "summary": "Google I/O 2026发布Gemini Omni、Antigravity等100项更新，并首次在25年后重新设计搜索框，意义重大。（多家来源报道）",
+                "link": "https://blog.google/innovation-and-ai/technology/ai/google-io-2026-all-our-announcements/",
                 "source": "AI",
                 "region": "international"
             },
             {
-                "title": "个人健康记录在个性化健康AI中的效用评估",
-                "summary": "arXiv论文评估了将个人健康记录（PHR）集成到LLM驱动的健康助手中的效果。研究发现，PHR数据能提升疾病预测准确率15%，但存在隐私与数据标准化挑战。启示：在医疗AI开发中，需设计差分隐私机制与数据对齐管道，以安全利用非结构化健康数据。（来源：arXiv）",
-                "link": "",
+                "title": "Spotify与环球音乐达成协议，允许粉丝制作AI翻唱和混音",
+                "summary": "Spotify与环球音乐合作，允许Premium用户使用AI生成翻唱和混音，开启音乐创作新纪元。（来源：TechCrunch AI）",
+                "link": "https://techcrunch.com/2026/05/21/spotify-and-universal-music-strike-deal-allowing-fan-made-ai-covers-and-remixes/",
                 "source": "AI",
                 "region": "international"
             },
             {
-                "title": "Railway获1亿美元融资：挑战AWS的AI原生云基础设施",
-                "summary": "云平台Railway获得1亿美元融资，其核心卖点是AI原生架构：自动优化GPU/CPU资源分配，支持一键部署LLM推理服务。该平台已积累200万开发者，强调零配置体验。启示：AI原生云服务正从IaaS向PaaS演进，开发者应关注自动扩缩容与模型服务化工具。（来源：VentureBeat AI）",
-                "link": "",
+                "title": "Scale to Zero：重构开发者思维模式",
+                "summary": "文章探讨开发者如何从“始终在线”转向“按需伸缩”的思维模式，以优化云成本和资源利用率。（来源：DEV.to AI）",
+                "link": "https://dev.to/kowshik_jallipalli_a7e0a5/scale-to-zero-refactoring-the-developer-mindset-3hfj",
                 "source": "AI",
                 "region": "international"
             },
             {
-                "title": "上下文税：为何每次Cursor会话浪费15分钟",
-                "summary": "DEV.to文章指出，使用AI编程助手（如Cursor）时，开发者因上下文丢失而频繁重新解释需求，导致效率损失。作者提出“上下文税”概念，建议通过持久化对话历史与结构化提示模板来缓解。启示：AI辅助编程工具需改进上下文管理，如引入会话记忆与项目级知识库。（来源：DEV.to AI）",
-                "link": "",
+                "title": "多链支付集成：数字产品商店最平淡的架构决策",
+                "summary": "分享在数字产品商店中集成多链支付（如Stripe）的架构经验，强调简单方案往往最有效。（来源：DEV.to AI）",
+                "link": "https://dev.to/on-chain-commerce/multi-chain-payment-integration-for-a-digital-product-store-the-most-underwhelming-architectural-3288",
                 "source": "AI",
                 "region": "international"
             },
             {
-                "title": "Clouted获700万美元种子轮：AI驱动的短视频病毒式传播预测",
-                "summary": "视频剪辑初创公司Clouted获得700万美元融资，其AI模型分析短视频内容、节奏与标签，预测传播潜力并自动优化剪辑。技术核心是时序注意力网络（Temporal Attention Network），可识别关键帧。启示：AI在内容创作领域的应用正从生成转向优化与预测，开发者可探索类似模型用于推荐系统。（来源：TechCrunch AI）",
-                "link": "",
+                "title": "六款值得尝试的搜索引擎：当Google不再是Google",
+                "summary": "随着Google转向AI驱动搜索，文章推荐六款替代搜索引擎，帮助用户摆脱对传统搜索的依赖。（来源：TechCrunch AI）",
+                "link": "https://techcrunch.com/2026/05/21/six-search-engines-worth-trying-now-that-google-isnt-really-google-anymore/",
                 "source": "AI",
                 "region": "international"
             },
             {
-                "title": "xAI去年亏损64亿美元：SpaceX IPO文件揭示AI军备竞赛成本",
-                "summary": "SpaceX IPO文件显示，xAI在2025年亏损64亿美元，主要支出用于GPU集群采购与数据中心建设。文件指出，xAI计划继续大规模投资以追赶OpenAI。启示：AI基础设施成本高企，开发者应关注模型蒸馏与量化技术以降低部署成本。（来源：TechCrunch AI）",
-                "link": "",
-                "source": "AI",
-                "region": "international"
-            },
-            {
-                "title": "智象未来发布超两千亿参数图像大模型HiDream-O1-Image-Pro",
-                "summary": "智象未来发布了HiDream-O1-Image-Pro，参数规模超过2000亿，采用扩散模型（Diffusion Model）与自回归（Autoregressive）混合架构，支持高分辨率图像生成与多轮编辑。该模型在COCO等基准上达到SOTA，同时融资持续加速。启示：超大参数图像模型正从文生图向世界模型演进，开发者需关注混合架构的推理效率优化。（来源：量子位）",
-                "link": "",
+                "title": "腾讯混元开源全新翻译模型Hy-MT2，上线小程序「腾讯Hy翻译」",
+                "summary": "腾讯混元开源Hy-MT2翻译模型，指令遵循能力大幅提升，并推出同名小程序方便使用。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/05/422068.html",
                 "source": "AI",
                 "region": "china"
             },
             {
-                "title": "太初元碁洪源：异构计算能力将成为AI算力基础设施重要方向",
-                "summary": "在AIGC2026大会上，太初元碁CEO洪源指出，随着模型规模增长，单一GPU架构已无法满足需求，异构计算（CPU+GPU+NPU）将成为主流。公司展示了其自研AI芯片在混合精度训练中的能效优势。启示：开发者应关注异构编程框架（如OpenCL、SYCL）以适配多样化硬件。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/05/420743.html",
+                "title": "菲尔兹奖得主震惊：OpenAI非数学模型首次自主突破80年未解数学难题",
+                "summary": "OpenAI非数学专用模型自主推导125页证明，解决单位距离猜想，令菲尔兹奖得主惊叹。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/05/422032.html",
                 "source": "AI",
                 "region": "china"
             },
             {
-                "title": "SillyTavern使用经验漫谈：AI角色扮演工作流深度解析",
-                "summary": "少数派文章详细介绍了SillyTavern（ST）工具，用于构建AI角色扮演对话系统。其核心是结合LLM与角色卡（Character Card）系统，通过提示工程控制角色一致性。作者分享了多模型切换、上下文窗口管理等实践。启示：AI角色扮演应用需设计结构化角色描述与记忆机制，以维持长期对话连贯性。（来源：少数派）",
-                "link": "",
+                "title": "国产GPU厂商要把算力放在客厅：大模型狂飙的尽头是边缘计算",
+                "summary": "国产GPU厂商提出将AI算力从云端下沉至家庭客厅，推动边缘计算与大模型结合的新方向。（来源：爱范儿）",
+                "link": "https://www.ifanr.com/1666549?utm_source=rss&utm_medium=rss&utm_campaign=",
                 "source": "AI",
                 "region": "china"
             },
             {
-                "title": "华为发布全球最薄大平板MatePad Pro Max：内置鸿蒙电脑模式",
-                "summary": "华为发布MatePad Pro Max，厚度仅4.7毫米，搭载鸿蒙操作系统，支持桌面级多任务处理。其AI功能包括实时语音转写与智能分屏。启示：端侧AI正从手机向平板扩展，开发者需适配不同屏幕尺寸与输入方式，优化模型推理延迟。（来源：爱范儿）",
-                "link": "",
+                "title": "AI分身24小时冲浪：它交朋友怎么比我还好？",
+                "summary": "探讨AI分身技术如何利用社交媒体数据模拟用户行为，实现24小时在线社交互动。（来源：爱范儿）",
+                "link": "https://www.ifanr.com/1666415?utm_source=rss&utm_medium=rss&utm_campaign=",
                 "source": "AI",
                 "region": "china"
             },
             {
-                "title": "iQOO 15T与iQOO Pad6 Pro体验：手游电竞与沉浸大屏",
-                "summary": "iQOO发布15T手机与Pad6 Pro平板，均搭载自研电竞芯片与AI帧率优化算法。其AI引擎可实时预测游戏场景并调整性能调度。启示：端侧AI在游戏领域的应用需低延迟推理，开发者可考虑使用模型量化与硬件加速库。（来源：爱范儿）",
-                "link": "https://www.ifanr.com/1666474?utm_source=rss&utm_medium=rss&utm_campaign=",
+                "title": "早报：448元iPhone绝版配件回归，Meta用员工键鼠数据训练AI",
+                "summary": "Meta被曝使用员工键盘鼠标操作数据训练AI，扎克伯格称外包不够聪明；GoPro考虑出售。（来源：爱范儿）",
+                "link": "https://www.ifanr.com/1666545?utm_source=rss&utm_medium=rss&utm_campaign=",
                 "source": "AI",
                 "region": "china"
             }
@@ -272,32 +237,32 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日技术动态显示两大趋势：一是LLM在数学发现与代码审查等专业领域取得突破，OpenAI模型推翻几何猜想标志着AI从工具向科学发现者演进；二是AI基础设施正从通用云向AI原生与异构计算转型，Railway融资与太初元碁观点均指向此方向。未来6个月，预计将出现更多针对特定领域（如遥感、医疗）的轻量化模型，以及支持多硬件混合调度的开发框架。开发者应提前布局模型可解释性与异构编程能力，以应对下一波AI工程化挑战。";
+    const __DAILY_ANALYSIS__ = "今日AI领域聚焦三大趋势：一是数据与模型可解释性研究深化，如数据探针和AgentNLQ；二是大模型应用加速落地，如腾讯开源翻译模型和Spotify AI音乐；三是边缘计算与AI结合成为新热点，国产GPU厂商推动算力下沉。开发者应关注数据质量对模型性能的影响，以及多模态AI在垂直场景的实践。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                         [
-            {
-                "name": "multica-ai/andrej-karpathy-skills",
-                "desc": "A single CLAUDE.md file to improve Claude Code behavior, derived from Andrej Karpathy's observations",
-                "stars": "⭐+2620 today",
-                "link": "https://github.com/multica-ai/andrej-karpathy-skills",
-                "tag": "大模型底层"
-            },
+    const __PROJECTS__ =                                                                                                                                                                                 [
             {
                 "name": "colbymchenry/codegraph",
                 "desc": "Pre-indexed code knowledge graph for Claude Code, Codex, Cursor, and OpenCode — fewer tokens, fewer ",
-                "stars": "⭐+1910 today",
+                "stars": "⭐+4222 today",
                 "link": "https://github.com/colbymchenry/codegraph",
                 "tag": "多模态与前沿"
             },
             {
-                "name": "sponsors/obra",
-                "desc": "An agentic skills framework &amp; software development methodology that works.",
-                "stars": "⭐+1776 today",
-                "link": "https://github.com/sponsors/obra",
-                "tag": "Agent 框架"
+                "name": "multica-ai/andrej-karpathy-skills",
+                "desc": "A single CLAUDE.md file to improve Claude Code behavior, derived from Andrej Karpathy's observations",
+                "stars": "⭐+2590 today",
+                "link": "https://github.com/multica-ai/andrej-karpathy-skills",
+                "tag": "大模型底层"
+            },
+            {
+                "name": "Imbad0202/academic-research-skills",
+                "desc": "Academic Research Skills for Claude Code: research → write → review → revise → finalize",
+                "stars": "⭐+2502 today",
+                "link": "https://github.com/Imbad0202/academic-research-skills",
+                "tag": "多模态与前沿"
             }
         ];
 
