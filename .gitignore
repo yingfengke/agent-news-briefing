@@ -21,6 +21,5 @@ email_content.txt
 # Cloudflare Wrangler 缓存
 .wrangler/
 .crawl_log.json
-.url_dedup_db.json
 .embedding_cache.json
 .worker_check.json
