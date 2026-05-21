@@ -43,10 +43,12 @@ class UrlDeduper:
     同时做当日去重和历史去重。
     """
 
-    def __init__(self, db_path: str = config.URL_DB_FILE):
+    def __init__(self, db_path: str = config.URL_DB_FILE, initial_set: set[str] | None = None):
         self.db_path = db_path
-        self._seen: set[str] = set()
-        self._load()
+        self._seen: set[str] = set(initial_set) if initial_set else set()
+        # 仅在 initial_set 为空时从文件加载
+        if initial_set is None:
+            self._load()
 
     def _load(self):
         try:
@@ -466,18 +468,31 @@ def run_pipeline(items: list[NewsItem]) -> FilterReport:
     if not items:
         return report
 
-    # 清理上一轮遗留的 URL 去重记录（避免重试时被自己的"记忆"误伤）
-    # .url_dedup_db.json 在 .gitignore 中，不跨天持久化，只在本次运行内有用
+    # ---- A: URL 去重 ----
+    # 跨天持久化策略：
+    #   1. 从已有 DB 加载历史 URL 哈希（跨天去重）
+    #   2. 清空当前 DB 文件（避免重试时被第一轮的哈希污染）
+    #   3. 创建 UrlDeduper 时带上跨天哈希
+    #   4. 运行结束后，flush() 写入新 DB，由 github_api_push.py 提交到 repo
+    cross_day_hashes: set[str] = set()
+    try:
+        if os.path.exists(config.URL_DB_FILE):
+            with open(config.URL_DB_FILE, "r") as f:
+                data = json.load(f)
+            cross_day_hashes = set(data.get("urls", []))
+            print(f"  → 加载跨天 URL 去重库: {len(cross_day_hashes)} 条历史哈希")
+    except Exception as e:
+        print(f"  [警告] 加载跨天 URL 去重库失败: {e}")
+
+    # 清空 session DB（避免重试污染）
     try:
         if os.path.exists(config.URL_DB_FILE):
             os.remove(config.URL_DB_FILE)
-            print(f"  → 已清理残留 URL 去重数据库")
-    except Exception as e:
-        print(f"  [警告] 清理 URL 去重数据库失败: {e}")
+    except Exception:
+        pass
 
-    # ---- A: URL 去重 ----
     print(f"\n  ── A. URL 去重 ──")
-    url_deduper = UrlDeduper()
+    url_deduper = UrlDeduper(initial_set=cross_day_hashes)
     after_a = []
     for it in items:
         if not url_deduper.is_duplicate(it):
