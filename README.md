@@ -1,6 +1,6 @@
 # AI & Agent 开发者晨报 ☕
 
-每天早 6:00 自动推送 AI/Agent 领域最新技术动态。由 **Cloudflare Workers + GitHub Actions** 双重定时保障。
+每天早 6:00 自动推送 AI/Agent 领域最新技术动态。由 **GitHub Actions** 定时触发。
 
 三层架构：**多模态采集 → 智能去重过滤 → AI 分析与简报生成**，全自动 serverless 运行。
 
@@ -10,8 +10,7 @@
 
 ```
 多模态数据采集层 (collector.py)
-  ├─ RSS 源 18 个（4 大类）
-  └─ 动态网页爬虫 4 站（Playwright）
+  └─ RSS 源 21 个（4 大类）
        ↓ 原始数据池
 智能过滤与去重层 (deduplicator.py)
   ├─ URL 去重（SHA256 数据库，当日）
@@ -71,74 +70,64 @@ github.com/yingfengke/agent-news-briefing
 
 进入 **Actions** 标签页，启用工作流。工作流在每天 **北京时间 06:00** 自动运行。
 
-### 4. 部署 Cloudflare Worker（可选，推荐）
-
-详见 [CLOUDFLARE_DEPLOY.md](./CLOUDFLARE_DEPLOY.md)。部署后 Worker 每 30 分钟检查一次，确保不漏发。
-
-### 5. 本地测试
+### 4. 本地测试
 
 ```bash
 pip install -r requirements.txt
-python -m playwright install chromium
-cp .env.example .env   # 填入真实 API Key 和邮箱授权码
 python generate_briefing.py
 python send_email.py
 ```
 
 ## 数据源阵容
 
-### 中文媒体（5 个）
-| 源 | 说明 |
+### 中文媒体（6 个）
+| 源 | RSS |
 |:---|:---|
-| 机器之心 | 头部 AI 媒体，论文解读强 |
-| 量子位 | AI 资讯平台，更新快 |
-| InfoQ 中文 | AI 架构与工程实践 |
-| 阿里云开发者社区 | 国内云原生动向 |
-| 腾讯云开发者社区 | AI 工程实践 |
+| 量子位 | qbitai.com/feed |
+| InfoQ 中文 | infoq.cn/feed |
+| 稀土掘金 AI | juejin.cn/rss |
+| 少数派 | sspai.com/feed |
+| 极客公园 / 爱范儿 | geekpark.net / ifanr.com |
+| **36氪** | 36kr.com/feed |
 
-### 前沿论文（3 个）
-| 源 | 说明 |
+### 前沿论文（4 个）
+| 源 | RSS |
 |:---|:---|
-| HuggingFace 每日论文 | HF 社区精选 |
-| ArXiv AI | AI 预印本 |
-| PapersWithCode | 论文+代码 |
+| ArXiv AI / CL | arxiv.org/rss/cs.AI / cs.CL |
+| PapersWithCode | paperswithcode.com/feed/latest |
+| HuggingFace Blog | huggingface.co/blog/feed.xml |
 
-### 核心框架（6 个）
-| 源 | 说明 |
+### 核心框架 & 官方博客（5 个）
+| 源 | RSS |
 |:---|:---|
-| LangChain | Agent 框架官方 |
-| OpenAI 博客 | 最新发布 |
-| Google AI | Gemini / DeepMind |
-| Anthropic | Claude 系列 |
-| Meta AI | Llama 系列 |
-| LlamaIndex | RAG 框架官方 |
+| LangChain | blog.langchain.dev/rss |
+| OpenAI | openai.com/blog/rss.xml |
+| Google AI | blog.google/technology/ai/rss |
+| VentureBeat AI | venturebeat.com/category/ai/feed |
+| **MIT Tech Review / The Verge AI** | technologyreview.com / theverge.com |
 
-### 全球社区（4 个）
-| 源 | 说明 |
+### 全球社区 & 资讯（6 个）
+| 源 | RSS |
 |:---|:---|
-| HackerNews AI | 社区热帖 |
-| Reddit ML | 社区讨论 |
-| DEV.to AI | 开发者博客 |
-| V2EX AI | 中文社区 |
-
-### 动态爬虫（4 站）
-| 站 | 说明 |
-|:---|:---|
-| 机器之心 | 官网首页 |
-| 量子位 | 官网首页 |
-| 魔搭社区 | 阿里模型社区 |
-| OSChina | 开源技术动态 |
+| HackerNews AI | hnrss.org/frontpage?q=ai+OR+agent |
+| Reddit ML | reddit.com/r/MachineLearning/.rss |
+| DEV.to AI | dev.to/feed/tag/ai |
+| V2EX AI | v2ex.com/feed/ai.xml |
+| Product Hunt | producthunt.com/feed |
+| TechCrunch AI | techcrunch.com/category/artificial-intelligence/feed |
 
 ## 项目结构
 
 ```
 ├── config.py             # 集中配置（RSS源 / 爬虫 / 阈值 / AI参数 / 语气 / 彩蛋）
 ├── models.py             # 统一数据结构（NewsItem / FilterReport）
-├── collector.py          # 采集层（RSS + 爬虫 → 数据池）
+├── collector.py          # 采集层（RSS → 数据池）
 ├── deduplicator.py       # 过滤层（4 阶段串联去重）
 ├── generate_briefing.py  # 主流程编排器
 ├── send_email.py         # 邮件发送（multipart/alternative）
-├── advanced_crawler.py   # 旧爬虫模块（保留引用）
+├── .github/workflows/
+│   ├── daily-briefing.yml   # GitHub Actions 工作流
+│   └── github_api_push.py   # GitHub API 文件推送
 ├── email_template.html   # 邮件模板
 ├── worker.js             # Cloudflare Worker 触发器
 ├── requirements.txt      # Python 依赖
@@ -150,27 +139,24 @@ python send_email.py
 | 参数 | 值 |
 |:---|:---|
 | AI 模型 | DeepSeek-V4-Flash（硅基流动） |
-| Embedding 模型 | BAAI/bge-large-zh-v1.5（1024 维） |
+| Embedding 模型 | Qwen/Qwen3-Embedding-4B |
 | MinHash 阈值 | 0.8（128 perm，jieba 分词 + 词级 3-gram） |
 | 语义去重阈值 | 0.92（余弦相似度） |
 | 可信度阈值 | 0.40（信号评分制） |
-| 白名单域名 | 38 个 |
+| 白名单域名 | 40+ 个 |
 | 黑名单域名 | 7 个 |
 | 随机语气 | 极简风 / 毒舌吐槽风 / 技术深度风 |
 | 彩蛋库 | 20 条 AI 冷知识 |
-| 爬虫间隔 | 10-30 秒 |
-| 爬虫重试 | 3 次，递增 10/20/30 秒 |
 
 ## 触发机制
 
 ```
-Cloudflare Worker (Cron */30 * * * *, 每30分钟)
-  └─ checkTodayRan() → 未发则触发 workflow_dispatch
-     └─ GitHub Actions (同时有 schedule 06:00 BJT 双重保障)
-        ├─ 安装依赖 → Playwright + datasketch + jieba
-        ├─ generate_briefing.py → 采集 → 过滤 → AI分析 → 生成
-        ├─ send_email.py → multipart 邮件
-        └─ 提交更新 → GitHub Pages
+GitHub Actions (schedule 06:00 BJT + 手动触发)
+  ├─ 安装依赖
+  ├─ generate_briefing.py → 采集 → 过滤 → AI分析 → 生成 HTML
+  ├─ send_email.py → multipart 邮件
+  └─ github_api_push.py → API 更新网页文件
+       └─ GitHub Pages 自动从 main branch 部署
 ```
 
 ## 自定义配置
