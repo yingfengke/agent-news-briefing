@@ -120,7 +120,7 @@ python send_email.py
 ## 项目结构
 
 ```
-├── config.py             # 集中配置（RSS源 / 爬虫 / 阈值 / AI参数 / 语气 / 彩蛋）
+├── config.py             # 集中配置（RSS源 / 阈值 / AI参数 / 语气 / 彩蛋）
 ├── models.py             # 统一数据结构（NewsItem / FilterReport）
 ├── collector.py          # 采集层（RSS → 数据池）
 ├── deduplicator.py       # 过滤层（4 阶段串联去重）
@@ -165,7 +165,6 @@ GitHub Actions (schedule 06:00 BJT + 手动触发)
 | 配置项 | 位置 |
 |:---|:---|
 | RSS 源列表 | `config.py` → `RSS_SOURCES` |
-| 爬虫目标站 | `config.py` → `CRAWLER_TARGETS` |
 | 去重阈值 | `config.py` → `DEDUP_*` |
 | 白/黑名单 | `config.py` → `CREDIBILITY_*` |
 | AI 语气 | `config.py` → `SYSTEM_PROMPT_*` |
