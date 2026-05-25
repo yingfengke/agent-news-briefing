@@ -23,6 +23,7 @@ AI 分析层 (generate_briefing.py)
   ├─ Token 感知上下文截断（防 400 错误）
   ├─ 随机三套语气：极简风 / 毒舌吐槽风 / 技术深度风
   ├─ 失败自动重试 3 次（step ① + ② 各自独立重试）
+  ├─ 新闻评分系统（独立 API 调用：1-5 星 + 5 类标签）
   └─ 生成 HTML + 邮件 + GitHub API 推送网页
        ↓ 写入 tech-briefing.html → 历史闭环，供次日排重使用
 GitHub Pages 自动部署（从 main branch 构建）

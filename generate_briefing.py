@@ -411,6 +411,105 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
 
 
 # ============================================================
+# 新闻评分系统（独立 API 调用，不占用主分析上下文）
+# ============================================================
+
+def _rate_news_items(items: list[dict]) -> list[dict]:
+    """
+    对 AI 已生成的新闻条目进行评分（1-5星）和标签分类。
+    在 main() 中调用，结果合并回 items。
+    """
+    if not items:
+        return items
+
+    import json as _json
+
+    # 构造评分输入
+    lines = []
+    for i, it in enumerate(items, 1):
+        t = (it.get("title") or "")[:80]
+        s = (it.get("summary") or "")[:120]
+        lines.append(f'{i}. 标题: {t} | 摘要: {s}')
+    input_text = "\n".join(lines)
+
+    prompt = f"""请对以下 {len(items)} 条 AI/Agent 开发者新闻逐一评分和分类。
+
+评分标准（1-5星）：
+  5 - 对开发者非常有价值（核心技术突破、新框架发布）
+  4 - 比较有用（新工具、重要更新、好文章）
+  3 - 一般（普通行业新闻、常规发布）
+  2 - 参考价值低（营销稿、八卦）
+  1 - 无关内容
+
+标签分类（每篇选一个最合适的）：
+  【前沿研究】论文、技术突破、新架构、理论分析
+  【开发工具】新框架、新模型、新 API、新平台
+  【行业动态】融资、收购、公司战略、市场变化、政策
+  【工程实践】性能优化、踩坑经验、部署方案、代码技巧
+  【开源推荐】值得关注的开源项目、工具库
+
+请严格按照以下 JSON 格式输出，不要 markdown 代码块标记：
+[
+  {{"score": 4, "tag": "开发工具"}},
+  {{"score": 3, "tag": "行业动态"}}
+]
+
+新闻列表：
+{input_text}"""
+
+    url = f"{config.API_BASE_URL.rstrip('/')}/v1/chat/completions"
+    payload = _json.dumps({
+        "model": config.MODEL_NAME,
+        "messages": [
+            {"role": "system", "content": "你是一个专业的 AI 开发者新闻评分助手。"},
+            {"role": "user", "content": prompt},
+        ],
+        "temperature": 0.2,
+        "max_tokens": 2048,
+    }).encode("utf-8")
+
+    req = Request(url, data=payload, headers={
+        "Authorization": f"Bearer {config.API_KEY}",
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (compatible; BriefingBot/2.0)",
+    })
+
+    try:
+        with urlopen(req, timeout=60) as resp:
+            result = _json.loads(resp.read().decode("utf-8"))
+        raw = result["choices"][0]["message"]["content"].strip()
+        # 清理可能的 markdown 代码块
+        if raw.startswith("```"):
+            raw = raw.strip("`").strip()
+            if raw.startswith("json"):
+                raw = raw[4:].strip()
+        ratings = _json.loads(raw)
+        print(f"\n  ── 新闻评分 ──")
+        for i, it in enumerate(items):
+            if i < len(ratings) and isinstance(ratings[i], dict):
+                score = ratings[i].get("score", 3)
+                tag = ratings[i].get("tag", "")
+                it["score"] = max(1, min(5, score))  # 钳制到 1-5
+                it["tag"] = tag
+                tag_display = f' [{tag}]' if tag else ''
+                stars = "⭐" * it["score"]
+                print(f"    No.{i+1:02d} {stars}{tag_display}")
+            else:
+                it["score"] = 3
+                it["tag"] = ""
+        scored = sum(1 for it in items if it.get("score"))
+        print(f"  → 已评分 {scored}/{len(items)} 条")
+    except Exception as e:
+        print(f"  [评分] API 调用失败: {str(e)[:80]}")
+        # 降级：全部给默认分
+        for it in items:
+            it["score"] = 3
+            it["tag"] = ""
+
+    return items
+
+
+# ============================================================
 # GitHub Trending（独立数据源，不经过过滤层和 AI）
 # ============================================================
 
@@ -656,13 +755,18 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
                 region_tag = '<span style="font-size:10px;color:#534AB7;background:#EEEDFE;padding:2px 10px;border-radius:20px;margin-left:4px;">🌐</span>'
             elif region == "china":
                 region_tag = '<span style="font-size:10px;color:#c0392b;background:#FAEEDA;padding:2px 10px;border-radius:20px;margin-left:4px;">🇨🇳</span>'
+            score = item.get("score", 0)
+            tag = item.get("tag", "")
+            stars = "⭐" * score if score else ""
+            tag_html = f'<span style="font-size:10px;color:#555;background:#f0f0ee;padding:2px 10px;border-radius:20px;margin-left:4px;">{tag}</span>' if tag else ''
+            score_html = f'<span style="font-size:10px;color:#e67e22;margin-left:4px;">{stars}</span>' if stars else ''
             html.append(f"""
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;margin-bottom:16px;">
           <tr>
             <td style="padding:20px 24px;">
               <div style="margin-bottom:10px;">
                 <span style="font-size:11px;font-weight:700;color:#ccc;letter-spacing:1px;">No.{i:02d}</span>
-                {' ' + source_tag if source_tag else ''}{region_tag}
+                {' ' + source_tag if source_tag else ''}{region_tag}{tag_html}{score_html}
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 10px 0;line-height:1.5;">{item["title"]}</h2>
               <p style="font-size:13px;color:#555;margin:0 0 14px 0;line-height:1.7;">{clean_links(item["summary"])}</p>
@@ -1013,6 +1117,13 @@ def main():
                 print(f"\n  AI 筛选后: {items_ok} 条{detail}")
         else:
             ai_failed = True
+
+    # ---- 新闻评分（独立 API 调用，不影响主体分析） ----
+    if final_items and not ai_failed:
+        print(f"\n{'=' * 40}")
+        print("  新闻评分与标签标注")
+        print(f"{'=' * 40}")
+        final_items = _rate_news_items(final_items)
 
     # ---- 4. GitHub Trending 项目 ----
     print(f"\n  ── 抓取 GitHub Trending 项目 ──")
