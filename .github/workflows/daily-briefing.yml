@@ -38,10 +38,6 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: 安装 Playwright + Chromium（含系统库）
-        run: |
-          python -m playwright install --with-deps chromium
-
       # ============================================================
       # 以下关键步骤使用 retry 机制：
       #   失败后每隔 5 分钟自动重试，最多 3 次
