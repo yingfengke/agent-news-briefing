@@ -1,11 +1,8 @@
-# AI & Agent 开发者晨报 — Python 依赖
+# Python 依赖
 # 安装: pip install -r requirements.txt
 
 # API 密钥管理
 python-dotenv
-
-# 动态网页爬虫（Playwright）
-playwright
 
 # 内容指纹去重（MinHash + LSH）
 datasketch

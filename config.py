@@ -307,56 +307,9 @@ AI_TRIVIA = [
 ]
 
 # ============================================================
-# 爬虫配置
+# 内容截断配置
 # ============================================================
-CRAWLER_TARGETS = [
-    ("机器之心", "https://www.jiqizhixin.com"),
-    ("量子位",   "https://www.qbitai.com"),
-    ("魔搭社区", "https://www.modelscope.cn"),
-    ("OSChina",  "https://www.oschina.net"),
-]
-
-CRAWLER_USER_AGENT = (
-    "Mozilla/5.0 (compatible; AgentNewsBriefing/1.0; "
-    "+https://github.com/yingfengke/agent-news-briefing; "
-    "Personal Learning Project)"
-)
-
-CRAWLER_TIMEOUT = 30          # 页面加载超时（秒）
-CRAWLER_RETRIES = 3           # 最大重试次数
-CRAWLER_RETRY_DELAYS = [10, 20, 30]  # 递增重试间隔（秒）
-CRAWLER_MIN_DELAY = 10        # 请求间隔下限（秒）
-CRAWLER_MAX_DELAY = 30        # 请求间隔上限（秒）
-CRAWLER_MAX_ITEMS = 5         # 每个源最多提取条数
-CRAWLER_SUMMARY_MAX = 300     # content 字段最大长度
-
-# 站点专用 CSS 选择器配置（按站点名索引，覆盖通用选择器）
-CRAWLER_SITE_SELECTORS = {
-    "机器之心": {
-        "container": "a[href*='/article/'], h2 a, h3 a, .post-title a, .item-title a",
-        "title": "",
-        "link": "",
-        "summary": ".abstract, .desc, .summary, p",
-    },
-    "量子位": {
-        "container": "article, .post, h2 a, .entry-title a",
-        "title": "",
-        "link": "",
-        "summary": ".entry-summary, .post-excerpt, p",
-    },
-    "魔搭社区": {
-        "container": "a[href*='/models/'], [class*='card'], [class*='Card']",
-        "title": "",
-        "link": "",
-        "summary": "",
-    },
-    "OSChina": {
-        "container": "a[href*='/news/'], .blog-item a, .article-item a",
-        "title": "",
-        "link": "",
-        "summary": ".description, .summary, p",
-    },
-}
+SUMMARY_MAX_LENGTH = 300  # content 字段最大长度（字符）
 
 # ============================================================
 # 过滤层配置
