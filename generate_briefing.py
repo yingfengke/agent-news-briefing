@@ -918,7 +918,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
 def main():
     print("=" * 60)
     print("  AI & Agent 开发者晨报 — 三层架构 v2.0")
-    print(f"  采集: {len(config.RSS_SOURCES)} 个RSS + {len(config.CRAWLER_TARGETS)} 个爬虫")
+    print(f"  采集: {len(config.RSS_SOURCES)} 个 RSS 源")
     print(f"  模型: {config.MODEL_NAME}")
     print("=" * 60)
 
