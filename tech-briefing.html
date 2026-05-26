@@ -142,106 +142,171 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                 [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                         [
             {
-                "title": "Hackers are learning to exploit chatbot ‘personalities’",
-                "summary": "[又画饼] 黑客开始利用聊天机器人的“人格”漏洞进行攻击，但实际攻击面有限，更像是安全研究者的自嗨。真正的大规模利用还早，别被吓到。（来源：The Verge）",
-                "link": "https://www.theverge.com/column/935545/hackers-ai-chatbots",
+                "title": "NeuroNL2LTL：面向线性时序逻辑的神经符号翻译框架",
+                "summary": "该研究提出NeuroNL2LTL框架，结合神经网络与符号推理，将自然语言翻译为线性时序逻辑（LTL）。其核心在于利用神经符号方法（Neurosymbolic）弥合非结构化语言与形式化逻辑的鸿沟，为AI Agent的规划验证与可解释性提供新路径。工程启示：可提升Agent行为的形式化验证效率，降低逻辑编程门槛。（来源：ArXiv AI）",
+                "link": "https://arxiv.org/abs/2605.22874",
                 "source": "AI",
-                "region": "international"
+                "region": "international",
+                "score": 5,
+                "tag": "前沿研究"
             },
             {
-                "title": "Everyone is navigating AI security in real time — even Google",
-                "summary": "[真·有用] 谷歌也承认AI安全是摸着石头过河，但至少人家敢公开说。比起那些吹得天花乱坠的，这种坦诚反而更值得开发者关注。（来源：TechCrunch）",
-                "link": "https://techcrunch.com/2026/05/24/everyone-is-navigating-ai-security-in-real-time-even-google/",
+                "title": "RMA：面向研究级数学问题的智能体系统",
+                "summary": "论文提出Research Math Agent（RMA），一个专为复杂数学问题设计的智能体系统。它通过多步推理、工具调用与自我纠错机制，在基准测试中超越现有方法。技术核心在于将大语言模型（LLM）与符号计算引擎深度集成，实现从问题理解到证明生成的闭环。工程启示：为科学计算Agent的架构设计提供了可复用的模块化范式。（来源：ArXiv AI）",
+                "link": "https://arxiv.org/abs/2605.22875",
                 "source": "AI",
-                "region": "international"
+                "region": "international",
+                "score": 5,
+                "tag": "前沿研究"
             },
             {
-                "title": "I tried Amazon’s Bee wearable and am both intrigued and slightly creeped out",
-                "summary": "[又画饼] 亚马逊Bee可穿戴设备，又一款让你既好奇又毛骨悚然的AI玩具。功能鸡肋，隐私堪忧，除了给科技博主提供素材外，看不出有啥实际价值。（来源：TechCrunch）",
-                "link": "https://techcrunch.com/2026/05/24/i-tried-amazons-bee-wearable-and-am-both-intrigued-and-slightly-creeped-out/",
+                "title": "SciAtlas：面向自动化科学研究的超大规模知识图谱",
+                "summary": "该研究构建了SciAtlas，一个包含数亿实体与关系的科学知识图谱，旨在支撑自动化科研Agent。其架构采用异构图神经网络与动态实体对齐技术，支持跨学科知识检索与假设生成。工程启示：为AI驱动的科学发现提供了结构化知识底座，可显著提升文献挖掘与实验设计的自动化水平。（来源：ArXiv AI）",
+                "link": "https://arxiv.org/abs/2605.22878",
                 "source": "AI",
-                "region": "international"
+                "region": "international",
+                "score": 4,
+                "tag": "前沿研究"
             },
             {
-                "title": "AiFinPay: Autonomous Payments for ruvnet/ruflo",
-                "summary": "[抄作业] 又一家给AI Agent做支付基础设施的，这次是跟ruvnet/ruflo合作。概念听起来很美，但Agent自主支付的安全和监管问题一个都没解决，纯属蹭热度。（来源：DEV.to）",
-                "link": "https://dev.to/aa_aa_f7d9c2454af1f05d828/aifinpay-autonomous-payments-for-ruvnetruflo-5c3g",
+                "title": "Energy per Successful Goal：智能体AI系统的目标级能耗核算",
+                "summary": "论文提出“每成功目标能耗”（Energy per Successful Goal, EPSG）指标，用于评估AI Agent在完成任务过程中的实际能效。该方法将能耗追踪粒度从模型级细化到目标级，结合任务完成率与功耗数据，揭示不同Agent架构的能耗效率差异。工程启示：为绿色AI Agent开发提供了可量化的优化目标，推动低功耗推理与任务调度策略设计。（来源：ArXiv AI）",
+                "link": "https://arxiv.org/abs/2605.22883",
                 "source": "AI",
-                "region": "international"
+                "region": "international",
+                "score": 4,
+                "tag": "前沿研究"
             },
             {
-                "title": "Building EcoTraceML: A Zero-Dependency GreenAI Tool to Track and Export Model Training Carbon Footprints",
-                "summary": "[真·有用] 一个零依赖的绿色AI工具，能追踪模型训练的碳排放。虽然概念不新，但零依赖这点对开发者友好，值得一试。（来源：DEV.to）",
-                "link": "https://dev.to/batuhan_ylmaz_7a367c6f70/building-ecotraceml-a-zero-dependency-greenai-tool-to-track-and-export-model-training-carbon-3ac6",
+                "title": "查询自适应语义分块：面向检索增强生成（RAG）的动态上下文窗口扩展策略",
+                "summary": "该研究提出查询自适应语义分块（Query-Adaptive Semantic Chunking），根据输入查询动态调整文档分块粒度与上下文窗口大小，显著提升RAG系统的检索精度与生成质量。技术核心在于结合语义相似度与注意力机制实现自适应分割。工程启示：为构建高精度RAG管道提供了即插即用的分块优化方案，尤其适用于长文档问答场景。（来源：ArXiv CL）",
+                "link": "https://arxiv.org/abs/2605.22834",
                 "source": "AI",
-                "region": "international"
+                "region": "international",
+                "score": 4,
+                "tag": "前沿研究"
             },
             {
-                "title": "卷到今天，Agent的含金量还在提升丨AIGC2026圆桌论坛",
-                "summary": "[卷王] 大厂集体下场搞Agent，创业公司还在找机会。说白了就是卷不动了，但还得硬着头皮上。圆桌论坛上除了焦虑，没看到啥新东西。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/05/423421.html",
+                "title": "Macchiato Day 2：为Claude Code和OpenCode提供实时Token指标与并行终端",
+                "summary": "Macchiato发布Day 2更新，为Claude Code和OpenCode等AI编程助手引入实时Token消耗监控与并行终端功能。开发者可直观追踪每次调用的Token使用量，并在多个终端会话中并行执行AI生成的命令。工程启示：提升了AI编程工具的可观测性与并发控制能力，有助于优化开发工作流中的成本与效率。（来源：DEV.to AI）",
+                "link": "https://dev.to/pickuma/macchiato-day-2-live-token-metrics-and-parallel-terminals-for-claude-code-and-opencode-2bp5",
                 "source": "AI",
-                "region": "china"
+                "region": "international",
+                "score": 4,
+                "tag": "开发工具"
             },
             {
-                "title": "谷歌CEO承认Coding落后了",
-                "summary": "[真·有用] 谷歌CEO终于承认在AI编程上落后了，搜索25年最大改版却不敢全切AI。这波自黑比那些吹牛的有诚意，至少让开发者知道巨头也在挣扎。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/05/423390.html",
+                "title": "ClickUp大规模裁员：AI Agent正在重塑企业用工结构",
+                "summary": "SaaS公司ClickUp裁减数百名员工，同时引入数千个AI Agent替代其工作。此举揭示了AI Agent在项目管理、客服等岗位的规模化落地趋势。技术层面，Agent通过自然语言接口与现有系统集成，实现任务自动化与决策辅助。工程启示：企业级AI Agent部署需关注人机协作边界与业务流程重构，而非简单替代。（来源：TechCrunch AI）",
+                "link": "https://techcrunch.com/2026/05/25/what-clickups-mass-layoff-tells-us-about-the-future-of-work/",
                 "source": "AI",
-                "region": "china"
+                "region": "international",
+                "score": 3,
+                "tag": "行业动态"
             },
             {
-                "title": "capcap：一键搞定截图、标注与图床，免费、开源的 macOS 截图工具",
-                "summary": "[真·有用] 免费开源macOS截图工具，支持标注、长截、图床，纯AppKit零依赖。比那些收费的截图软件良心多了，开发者福音。（来源：少数派）",
-                "link": "https://sspai.com/post/109741",
+                "title": "OpenAI与巴西Grupo Folha、Grupo UOL达成战略内容合作",
+                "summary": "OpenAI宣布与巴西两大媒体集团Grupo Folha和Grupo UOL合作，将其新闻内容引入ChatGPT等产品。合作涉及内容授权与AI摘要生成，旨在提升模型对巴西本地新闻的时效性与准确性。工程启示：高质量、本地化训练数据是提升大模型（LLM）区域表现的关键，内容合作模式将成为AI公司获取语料的重要途径。（来源：OpenAI）",
+                "link": "https://openai.com/index/grupo-folha-grupo-uol-partnership",
                 "source": "AI",
-                "region": "china"
+                "region": "international",
+                "score": 3,
+                "tag": "行业动态"
             },
             {
-                "title": "未来推理将吃掉70%算力，30%留给训练丨硅谷投资人张璐@AIGC2026",
-                "summary": "[又画饼] 硅谷投资人预测未来推理算力占比70%，训练只占30%。听着挺唬人，但算力分配取决于模型架构和应用场景，这种一刀切的预测纯属博眼球。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/05/423382.html",
+                "title": "DeepSeek将推出类Claude Code编程助手，主打高性价比",
+                "summary": "DeepSeek官方宣布将发布类似Claude Code的AI编程助手，延续其高性价比路线。该工具将集成代码生成、调试与解释功能，并针对中文开发者优化。技术核心在于利用DeepSeek系列大模型（LLM）的推理能力与低延迟推理引擎。工程启示：AI编程工具市场将进入性价比竞争阶段，轻量化部署与本地化体验成为差异化关键。（来源：爱范儿）",
+                "link": "https://www.ifanr.com/1666548?utm_source=rss&utm_medium=rss&utm_campaign=",
                 "source": "AI",
-                "region": "china"
+                "region": "china",
+                "score": 4,
+                "tag": "开发工具"
             },
             {
-                "title": "什么！你说胡彦斌也在苦修Vibe Coding",
-                "summary": "[又画饼] 连胡彦斌都在学Vibe Coding？这波跨界营销玩得溜，但Vibe Coding本身就是个玄学概念，明星带货也改变不了它不靠谱的本质。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/05/423213.html",
+                "title": "中国AI公司突破600亿参数大模型手机端部署瓶颈",
+                "summary": "某中国AI公司提出新型模型压缩与内存管理技术，将600亿参数大模型成功部署至手机端，显存占用降低6倍。技术核心在于混合精度量化与动态稀疏计算，结合端侧推理引擎优化。工程启示：端侧大模型（On-Device LLM）的实用化进程加速，为离线AI Agent与隐私敏感应用开辟新可能。（来源：爱范儿）",
+                "link": "https://www.ifanr.com/1666847?utm_source=rss&utm_medium=rss&utm_campaign=",
                 "source": "AI",
-                "region": "china"
+                "region": "china",
+                "score": 5,
+                "tag": "工程实践"
+            },
+            {
+                "title": "京东JoyInside：AI终极形态是融入每一件物品",
+                "summary": "京东JoyInside负责人戴文军在AIGC2026大会上提出，AI的终极形态不是聊天界面，而是嵌入家电、家具等物理物品。技术路径包括端侧推理芯片、多模态感知与自适应交互协议。工程启示：AI Agent将从虚拟助手向物理世界渗透，开发者需关注边缘计算与物联网（IoT）的深度融合。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/05/424794.html",
+                "source": "AI",
+                "region": "china",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "Waymo因涉水故障大规模召回，暂停多城Robotaxi服务",
+                "summary": "Waymo因自动驾驶车辆在积水路面出现感知失效，宣布大规模召回并暂停多个城市的Robotaxi服务。技术根源在于激光雷达与视觉融合算法对极端天气的鲁棒性不足。工程启示：自动驾驶AI Agent的可靠性验证需覆盖更多边缘场景，多模态传感器融合与仿真测试需进一步强化。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/05/424610.html",
+                "source": "AI",
+                "region": "china",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "华为公布芯片设计新定律，Mate 90或首发麒麟2026",
+                "summary": "华为公布半导体领域新定律，涉及芯片架构与AI加速器设计优化。据称Mate 90将首发麒麟2026芯片，集成更强AI算力单元。技术核心在于存算一体架构与稀疏计算支持。工程启示：端侧AI推理性能将迎来代际提升，为手机端运行大模型（LLM）与Agent提供硬件基础。（来源：爱范儿）",
+                "link": "https://www.ifanr.com/1666931?utm_source=rss&utm_medium=rss&utm_campaign=",
+                "source": "AI",
+                "region": "china",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "水母智能AI剧集闯入戛纳，探索AI内容工业化",
+                "summary": "水母智能旗下水母映画出品的AI竖屏剧集《摸金之...》入选戛纳电影节展映单元。技术层面采用多模态大模型（MLLM）进行剧本生成、分镜设计与视频合成，实现全流程AI辅助。工程启示：AI内容生产正从单点工具向工业化管线演进，多模态Agent的协同工作流是核心挑战。（来源：36氪）",
+                "link": "https://36kr.com/p/3823033729061253?f=rss",
+                "source": "AI",
+                "region": "china",
+                "score": 2,
+                "tag": "行业动态"
+            },
+            {
+                "title": "新通教育用AI重构增长：从数字化到全员AI Must",
+                "summary": "新通教育集团分享五年AI转型实践，从数字化基建到全员AI Must，再到AI Native新业务。技术路径包括构建教育领域知识图谱、部署AI Agent进行个性化学习规划。工程启示：传统行业AI转型需分阶段推进，先建立数据基础，再逐步引入Agent自动化，最终实现业务原生AI化。（来源：36氪）",
+                "link": "https://36kr.com/p/3824164325412992?f=rss",
+                "source": "AI",
+                "region": "china",
+                "score": 3,
+                "tag": "工程实践"
             }
         ];
 
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今天最虚的当属‘未来推理吃掉70%算力’的预测，纯属拍脑袋博流量；最值得关注的是谷歌CEO承认Coding落后，这比任何画饼都有信息量，说明巨头在AI编程上确实焦虑了。另外capcap截图工具对开发者实用，值得一试。";
+    const __DAILY_ANALYSIS__ = "今日技术趋势聚焦两大方向：一是AI Agent的能效与可靠性评估，EPSG指标与Waymo召回事件共同指向Agent系统需建立更精细的能耗与安全基准；二是端侧大模型部署加速，600亿参数模型手机端落地与华为新芯片定律表明，未来6个月将出现更多离线Agent应用。建议开发者优先关注模型压缩与边缘推理优化技术，同时建立Agent的鲁棒性测试框架，以应对物理世界部署的挑战。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                         [
+    const __PROJECTS__ =                                                                                                                                                                                                                 [
             {
                 "name": "Lum1104/Understand-Anything",
                 "desc": "Graphs that teach &gt; graphs that impress. Turn any code into an interactive knowledge graph you ca",
-                "stars": "⭐+3987 today",
+                "stars": "⭐+5604 today",
                 "link": "https://github.com/Lum1104/Understand-Anything",
                 "tag": "多模态与前沿"
             },
             {
                 "name": "colbymchenry/codegraph",
                 "desc": "Pre-indexed code knowledge graph for Claude Code, Codex, Cursor, OpenCode, and Hermes Agent — fewer ",
-                "stars": "⭐+2993 today",
+                "stars": "⭐+3161 today",
                 "link": "https://github.com/colbymchenry/codegraph",
                 "tag": "Agent 框架"
             },
             {
                 "name": "multica-ai/andrej-karpathy-skills",
                 "desc": "A single CLAUDE.md file to improve Claude Code behavior, derived from Andrej Karpathy's observations",
-                "stars": "⭐+2555 today",
+                "stars": "⭐+2749 today",
                 "link": "https://github.com/multica-ai/andrej-karpathy-skills",
                 "tag": "大模型底层"
             }
