@@ -142,173 +142,110 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                         [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                 [
             {
-                "title": "NeuroNL2LTL：面向线性时序逻辑的神经符号翻译框架",
-                "summary": "该研究提出NeuroNL2LTL框架，结合神经网络与符号推理，将自然语言翻译为线性时序逻辑（LTL）。其核心在于利用神经符号方法（Neurosymbolic）弥合非结构化语言与形式化逻辑的鸿沟，为AI Agent的规划验证与可解释性提供新路径。工程启示：可提升Agent行为的形式化验证效率，降低逻辑编程门槛。（来源：ArXiv AI）",
-                "link": "https://arxiv.org/abs/2605.22874",
+                "title": "大语言模型置信度校准研究",
+                "summary": "arXiv论文系统研究了大语言模型（LLM）的置信度校准问题，提出新的校准方法以提升模型输出概率与真实正确率的一致性。该工作对构建可靠AI Agent至关重要，启示开发者在部署LLM时需集成校准模块，避免过度自信导致的错误决策。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2605.23909",
                 "source": "AI",
                 "region": "international",
+                "score": 4,
+                "tag": "前沿研究"
+            },
+            {
+                "title": "LLM Agent工作流的延迟-可靠性-成本权衡优化",
+                "summary": "arXiv论文提出面向LLM驱动Agent工作流的可靠设计框架，系统建模延迟、可靠性与成本之间的权衡关系，并给出优化策略。该研究为工程实践提供了量化评估工具，帮助开发者在多步推理场景中动态调整Agent行为，平衡性能与资源消耗。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2605.23929",
+                "source": "AI",
+                "region": "international",
+                "score": 4,
+                "tag": "前沿研究"
+            },
+            {
+                "title": "EchoDistill：面向鲁棒音频大语言模型的噪声-干净自蒸馏对齐",
+                "summary": "arXiv论文提出EchoDistill方法，通过噪声到干净的自蒸馏对齐策略，提升音频大语言模型（ALLM）在嘈杂环境下的鲁棒性。该方法无需额外标注数据，可显著改善语音交互Agent的实用性能，为多模态Agent的音频输入处理提供了轻量化增强方案。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2605.23954",
+                "source": "AI",
+                "region": "international",
+                "score": 4,
+                "tag": "前沿研究"
+            },
+            {
+                "title": "Agentic AI时代的企业组织设计再思考",
+                "summary": "MIT Tech Review文章指出，企业级AI Agent的快速普及要求组织架构从“人+工具”转向“人+Agent+工具”的协同模式。文章分析了Agent引入后决策流程、角色定义和信任机制的变化，为技术团队设计Agent部署策略提供了组织层面的工程启示。（来源：MIT Technology Review）",
+                "link": "https://www.technologyreview.com/2026/05/26/1137584/rethinking-organizational-design-in-the-age-of-agentic-ai/",
+                "source": "AI",
+                "region": "international",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "DuckDuckGo安装量增长30%，用户拒绝被“强制喂食”谷歌AI搜索",
+                "summary": "谷歌在I/O 2026将搜索改为AI Agent主导后，DuckDuckGo安装量激增30%。该现象反映了用户对AI搜索过度介入的抵触情绪，提示开发者需在AI Agent产品中保留用户控制权与透明度，避免因过度自动化导致用户流失。（来源：TechCrunch）",
+                "link": "https://techcrunch.com/2026/05/26/duckduckgo-installs-are-up-30-as-users-reject-being-force-fed-googles-ai-search/",
+                "source": "AI",
+                "region": "international",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "OpenRouter估值翻倍至13亿美元，API路由平台崛起",
+                "summary": "OpenRouter完成1.13亿美元B轮融资，估值达13亿美元，年增长5倍。该平台聚合多模型API并提供智能路由，成为AI Agent开发的关键基础设施。其增长表明开发者对多模型编排和成本优化的需求激增，将推动Agent开发工具链向统一网关演进。（来源：TechCrunch）",
+                "link": "https://techcrunch.com/2026/05/26/openrouter-more-than-doubles-valuation-to-1-3b-in-a-year/",
+                "source": "AI",
+                "region": "international",
+                "score": 4,
+                "tag": "行业动态"
+            },
+            {
+                "title": "国产AI自主训练框架突破：训练速度比英伟达Megatron快10%",
+                "summary": "国内团队发布全球首例完全自主构建的AI训练框架，在同等硬件条件下训练速度超越英伟达Megatron约10%。该框架通过优化通信拓扑与内存管理实现架构级创新，为国产大模型摆脱对国外训练工具的依赖提供了工程基础，将加速自主AI生态建设。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/05/425511.html",
+                "source": "AI",
+                "region": "china",
                 "score": 5,
-                "tag": "前沿研究"
-            },
-            {
-                "title": "RMA：面向研究级数学问题的智能体系统",
-                "summary": "论文提出Research Math Agent（RMA），一个专为复杂数学问题设计的智能体系统。它通过多步推理、工具调用与自我纠错机制，在基准测试中超越现有方法。技术核心在于将大语言模型（LLM）与符号计算引擎深度集成，实现从问题理解到证明生成的闭环。工程启示：为科学计算Agent的架构设计提供了可复用的模块化范式。（来源：ArXiv AI）",
-                "link": "https://arxiv.org/abs/2605.22875",
-                "source": "AI",
-                "region": "international",
-                "score": 5,
-                "tag": "前沿研究"
-            },
-            {
-                "title": "SciAtlas：面向自动化科学研究的超大规模知识图谱",
-                "summary": "该研究构建了SciAtlas，一个包含数亿实体与关系的科学知识图谱，旨在支撑自动化科研Agent。其架构采用异构图神经网络与动态实体对齐技术，支持跨学科知识检索与假设生成。工程启示：为AI驱动的科学发现提供了结构化知识底座，可显著提升文献挖掘与实验设计的自动化水平。（来源：ArXiv AI）",
-                "link": "https://arxiv.org/abs/2605.22878",
-                "source": "AI",
-                "region": "international",
-                "score": 4,
-                "tag": "前沿研究"
-            },
-            {
-                "title": "Energy per Successful Goal：智能体AI系统的目标级能耗核算",
-                "summary": "论文提出“每成功目标能耗”（Energy per Successful Goal, EPSG）指标，用于评估AI Agent在完成任务过程中的实际能效。该方法将能耗追踪粒度从模型级细化到目标级，结合任务完成率与功耗数据，揭示不同Agent架构的能耗效率差异。工程启示：为绿色AI Agent开发提供了可量化的优化目标，推动低功耗推理与任务调度策略设计。（来源：ArXiv AI）",
-                "link": "https://arxiv.org/abs/2605.22883",
-                "source": "AI",
-                "region": "international",
-                "score": 4,
-                "tag": "前沿研究"
-            },
-            {
-                "title": "查询自适应语义分块：面向检索增强生成（RAG）的动态上下文窗口扩展策略",
-                "summary": "该研究提出查询自适应语义分块（Query-Adaptive Semantic Chunking），根据输入查询动态调整文档分块粒度与上下文窗口大小，显著提升RAG系统的检索精度与生成质量。技术核心在于结合语义相似度与注意力机制实现自适应分割。工程启示：为构建高精度RAG管道提供了即插即用的分块优化方案，尤其适用于长文档问答场景。（来源：ArXiv CL）",
-                "link": "https://arxiv.org/abs/2605.22834",
-                "source": "AI",
-                "region": "international",
-                "score": 4,
-                "tag": "前沿研究"
-            },
-            {
-                "title": "Macchiato Day 2：为Claude Code和OpenCode提供实时Token指标与并行终端",
-                "summary": "Macchiato发布Day 2更新，为Claude Code和OpenCode等AI编程助手引入实时Token消耗监控与并行终端功能。开发者可直观追踪每次调用的Token使用量，并在多个终端会话中并行执行AI生成的命令。工程启示：提升了AI编程工具的可观测性与并发控制能力，有助于优化开发工作流中的成本与效率。（来源：DEV.to AI）",
-                "link": "https://dev.to/pickuma/macchiato-day-2-live-token-metrics-and-parallel-terminals-for-claude-code-and-opencode-2bp5",
-                "source": "AI",
-                "region": "international",
-                "score": 4,
                 "tag": "开发工具"
             },
             {
-                "title": "ClickUp大规模裁员：AI Agent正在重塑企业用工结构",
-                "summary": "SaaS公司ClickUp裁减数百名员工，同时引入数千个AI Agent替代其工作。此举揭示了AI Agent在项目管理、客服等岗位的规模化落地趋势。技术层面，Agent通过自然语言接口与现有系统集成，实现任务自动化与决策辅助。工程启示：企业级AI Agent部署需关注人机协作边界与业务流程重构，而非简单替代。（来源：TechCrunch AI）",
-                "link": "https://techcrunch.com/2026/05/25/what-clickups-mass-layoff-tells-us-about-the-future-of-work/",
-                "source": "AI",
-                "region": "international",
-                "score": 3,
-                "tag": "行业动态"
-            },
-            {
-                "title": "OpenAI与巴西Grupo Folha、Grupo UOL达成战略内容合作",
-                "summary": "OpenAI宣布与巴西两大媒体集团Grupo Folha和Grupo UOL合作，将其新闻内容引入ChatGPT等产品。合作涉及内容授权与AI摘要生成，旨在提升模型对巴西本地新闻的时效性与准确性。工程启示：高质量、本地化训练数据是提升大模型（LLM）区域表现的关键，内容合作模式将成为AI公司获取语料的重要途径。（来源：OpenAI）",
-                "link": "https://openai.com/index/grupo-folha-grupo-uol-partnership",
-                "source": "AI",
-                "region": "international",
-                "score": 3,
-                "tag": "行业动态"
-            },
-            {
-                "title": "DeepSeek将推出类Claude Code编程助手，主打高性价比",
-                "summary": "DeepSeek官方宣布将发布类似Claude Code的AI编程助手，延续其高性价比路线。该工具将集成代码生成、调试与解释功能，并针对中文开发者优化。技术核心在于利用DeepSeek系列大模型（LLM）的推理能力与低延迟推理引擎。工程启示：AI编程工具市场将进入性价比竞争阶段，轻量化部署与本地化体验成为差异化关键。（来源：爱范儿）",
-                "link": "https://www.ifanr.com/1666548?utm_source=rss&utm_medium=rss&utm_campaign=",
+                "title": "谷歌DeepMind用AI Agent一次性解决9道埃尔德什数学难题",
+                "summary": "DeepMind的AI Agent系统成功攻克9道埃尔德什猜想问题，其中一道困扰人类数学家56年。该系统结合符号推理与大规模搜索，展示了Agent在复杂数学证明中的潜力。该成果启示开发者可将形式化验证与LLM结合，构建面向科研的专用Agent工作流。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/05/425455.html",
                 "source": "AI",
                 "region": "china",
                 "score": 4,
-                "tag": "开发工具"
-            },
-            {
-                "title": "中国AI公司突破600亿参数大模型手机端部署瓶颈",
-                "summary": "某中国AI公司提出新型模型压缩与内存管理技术，将600亿参数大模型成功部署至手机端，显存占用降低6倍。技术核心在于混合精度量化与动态稀疏计算，结合端侧推理引擎优化。工程启示：端侧大模型（On-Device LLM）的实用化进程加速，为离线AI Agent与隐私敏感应用开辟新可能。（来源：爱范儿）",
-                "link": "https://www.ifanr.com/1666847?utm_source=rss&utm_medium=rss&utm_campaign=",
-                "source": "AI",
-                "region": "china",
-                "score": 5,
-                "tag": "工程实践"
-            },
-            {
-                "title": "京东JoyInside：AI终极形态是融入每一件物品",
-                "summary": "京东JoyInside负责人戴文军在AIGC2026大会上提出，AI的终极形态不是聊天界面，而是嵌入家电、家具等物理物品。技术路径包括端侧推理芯片、多模态感知与自适应交互协议。工程启示：AI Agent将从虚拟助手向物理世界渗透，开发者需关注边缘计算与物联网（IoT）的深度融合。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/05/424794.html",
-                "source": "AI",
-                "region": "china",
-                "score": 3,
-                "tag": "行业动态"
-            },
-            {
-                "title": "Waymo因涉水故障大规模召回，暂停多城Robotaxi服务",
-                "summary": "Waymo因自动驾驶车辆在积水路面出现感知失效，宣布大规模召回并暂停多个城市的Robotaxi服务。技术根源在于激光雷达与视觉融合算法对极端天气的鲁棒性不足。工程启示：自动驾驶AI Agent的可靠性验证需覆盖更多边缘场景，多模态传感器融合与仿真测试需进一步强化。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/05/424610.html",
-                "source": "AI",
-                "region": "china",
-                "score": 3,
-                "tag": "行业动态"
-            },
-            {
-                "title": "华为公布芯片设计新定律，Mate 90或首发麒麟2026",
-                "summary": "华为公布半导体领域新定律，涉及芯片架构与AI加速器设计优化。据称Mate 90将首发麒麟2026芯片，集成更强AI算力单元。技术核心在于存算一体架构与稀疏计算支持。工程启示：端侧AI推理性能将迎来代际提升，为手机端运行大模型（LLM）与Agent提供硬件基础。（来源：爱范儿）",
-                "link": "https://www.ifanr.com/1666931?utm_source=rss&utm_medium=rss&utm_campaign=",
-                "source": "AI",
-                "region": "china",
-                "score": 3,
-                "tag": "行业动态"
-            },
-            {
-                "title": "水母智能AI剧集闯入戛纳，探索AI内容工业化",
-                "summary": "水母智能旗下水母映画出品的AI竖屏剧集《摸金之...》入选戛纳电影节展映单元。技术层面采用多模态大模型（MLLM）进行剧本生成、分镜设计与视频合成，实现全流程AI辅助。工程启示：AI内容生产正从单点工具向工业化管线演进，多模态Agent的协同工作流是核心挑战。（来源：36氪）",
-                "link": "https://36kr.com/p/3823033729061253?f=rss",
-                "source": "AI",
-                "region": "china",
-                "score": 2,
-                "tag": "行业动态"
-            },
-            {
-                "title": "新通教育用AI重构增长：从数字化到全员AI Must",
-                "summary": "新通教育集团分享五年AI转型实践，从数字化基建到全员AI Must，再到AI Native新业务。技术路径包括构建教育领域知识图谱、部署AI Agent进行个性化学习规划。工程启示：传统行业AI转型需分阶段推进，先建立数据基础，再逐步引入Agent自动化，最终实现业务原生AI化。（来源：36氪）",
-                "link": "https://36kr.com/p/3824164325412992?f=rss",
-                "source": "AI",
-                "region": "china",
-                "score": 3,
-                "tag": "工程实践"
+                "tag": "前沿研究"
             }
         ];
 
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日技术趋势聚焦两大方向：一是AI Agent的能效与可靠性评估，EPSG指标与Waymo召回事件共同指向Agent系统需建立更精细的能耗与安全基准；二是端侧大模型部署加速，600亿参数模型手机端落地与华为新芯片定律表明，未来6个月将出现更多离线Agent应用。建议开发者优先关注模型压缩与边缘推理优化技术，同时建立Agent的鲁棒性测试框架，以应对物理世界部署的挑战。";
+    const __DAILY_ANALYSIS__ = "今日技术焦点集中在LLM可靠性校准与Agent工作流优化上，置信度校准和延迟-可靠性-成本权衡框架将成为未来半年Agent工程的标准组件。同时，国产AI训练框架的突破表明自主训练工具正从追赶转向局部领先，预计6个月内将出现更多基于国产框架的千亿级模型训练案例。此外，DeepMind在数学推理上的成功预示着Agent在科学发现领域的应用将加速，但需解决可解释性与验证问题。整体趋势：Agent系统正从“能用”向“可靠、可控、可优化”演进，开发工具链将围绕校准、路由和成本控制重构。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                 [
+    const __PROJECTS__ =                                                                                                                                                                                                                         [
             {
                 "name": "Lum1104/Understand-Anything",
                 "desc": "Graphs that teach &gt; graphs that impress. Turn any code into an interactive knowledge graph you ca",
-                "stars": "⭐+5604 today",
+                "stars": "⭐+4721 today",
                 "link": "https://github.com/Lum1104/Understand-Anything",
                 "tag": "多模态与前沿"
             },
             {
-                "name": "colbymchenry/codegraph",
-                "desc": "Pre-indexed code knowledge graph for Claude Code, Codex, Cursor, OpenCode, and Hermes Agent — fewer ",
-                "stars": "⭐+3161 today",
-                "link": "https://github.com/colbymchenry/codegraph",
+                "name": "sponsors/affaan-m",
+                "desc": "The agent harness performance optimization system. Skills, instincts, memory, security, and research",
+                "stars": "⭐+1912 today",
+                "link": "https://github.com/sponsors/affaan-m",
                 "tag": "Agent 框架"
             },
             {
-                "name": "multica-ai/andrej-karpathy-skills",
-                "desc": "A single CLAUDE.md file to improve Claude Code behavior, derived from Andrej Karpathy's observations",
-                "stars": "⭐+2749 today",
-                "link": "https://github.com/multica-ai/andrej-karpathy-skills",
-                "tag": "大模型底层"
+                "name": "sponsors/mukul975",
+                "desc": "754 structured cybersecurity skills for AI agents · Mapped to 5 frameworks: MITRE ATT&amp;CK, NIST C",
+                "stars": "⭐+871 today",
+                "link": "https://github.com/sponsors/mukul975",
+                "tag": "Agent 框架"
             }
         ];
 
