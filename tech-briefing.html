@@ -142,74 +142,110 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                 [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                         [
             {
-                "title": "大语言模型置信度校准研究",
-                "summary": "arXiv论文系统研究了大语言模型（LLM）的置信度校准问题，提出新的校准方法以提升模型输出概率与真实正确率的一致性。该工作对构建可靠AI Agent至关重要，启示开发者在部署LLM时需集成校准模块，避免过度自信导致的错误决策。（来源：arXiv）",
-                "link": "https://arxiv.org/abs/2605.23909",
+                "title": "自验证蒸馏：语言模型自身作为合成数据管道",
+                "summary": "论文提出Self-Verified Distillation方法，让大语言模型（LLM）在训练过程中自行生成并验证合成数据，形成闭环数据管道。该技术通过模型自我评估过滤低质量样本，显著降低对人工标注的依赖，同时提升下游任务性能。对工程实践的启示：可构建自动化数据飞轮，减少标注成本，但需防范模型自我强化偏差。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2605.26132",
                 "source": "AI",
                 "region": "international",
                 "score": 4,
                 "tag": "前沿研究"
             },
             {
-                "title": "LLM Agent工作流的延迟-可靠性-成本权衡优化",
-                "summary": "arXiv论文提出面向LLM驱动Agent工作流的可靠设计框架，系统建模延迟、可靠性与成本之间的权衡关系，并给出优化策略。该研究为工程实践提供了量化评估工具，帮助开发者在多步推理场景中动态调整Agent行为，平衡性能与资源消耗。（来源：arXiv）",
-                "link": "https://arxiv.org/abs/2605.23929",
+                "title": "R-Zero：从零数据自进化的推理大语言模型",
+                "summary": "R-Zero提出一种无需初始训练数据的自进化推理框架，模型通过自我博弈和奖励信号迭代提升推理能力。其核心是动态生成推理路径并筛选最优解，类似AlphaZero的强化学习范式。对工程实践的启示：为缺乏高质量推理数据的场景提供新路径，但需设计稳定的奖励模型和探索策略。（来源：DEV.to）",
+                "link": "https://dev.to/paperium/r-zero-self-evolving-reasoning-llm-from-zero-data-259p",
                 "source": "AI",
                 "region": "international",
                 "score": 4,
                 "tag": "前沿研究"
             },
             {
-                "title": "EchoDistill：面向鲁棒音频大语言模型的噪声-干净自蒸馏对齐",
-                "summary": "arXiv论文提出EchoDistill方法，通过噪声到干净的自蒸馏对齐策略，提升音频大语言模型（ALLM）在嘈杂环境下的鲁棒性。该方法无需额外标注数据，可显著改善语音交互Agent的实用性能，为多模态Agent的音频输入处理提供了轻量化增强方案。（来源：arXiv）",
-                "link": "https://arxiv.org/abs/2605.23954",
-                "source": "AI",
-                "region": "international",
-                "score": 4,
-                "tag": "前沿研究"
-            },
-            {
-                "title": "Agentic AI时代的企业组织设计再思考",
-                "summary": "MIT Tech Review文章指出，企业级AI Agent的快速普及要求组织架构从“人+工具”转向“人+Agent+工具”的协同模式。文章分析了Agent引入后决策流程、角色定义和信任机制的变化，为技术团队设计Agent部署策略提供了组织层面的工程启示。（来源：MIT Technology Review）",
-                "link": "https://www.technologyreview.com/2026/05/26/1137584/rethinking-organizational-design-in-the-age-of-agentic-ai/",
+                "title": "前沿AI Agent遭遇60%能力天花板：2026年5月基准测试对比",
+                "summary": "最新基准测试显示，主流AI Agent在复杂任务上的平均成功率仅约60%，远低于预期。分析指出，当前Agent在长程规划、工具调用纠错和跨域泛化方面存在系统性瓶颈。对工程实践的启示：需突破单一模型架构，探索多Agent协作、记忆增强和分层规划等方向。（来源：DEV.to）",
+                "link": "https://dev.to/bean_bean/frontier-ai-agents-hit-a-60-ceiling-10-may-2026-benchmarks-compared-2n3p",
                 "source": "AI",
                 "region": "international",
                 "score": 3,
                 "tag": "行业动态"
             },
             {
-                "title": "DuckDuckGo安装量增长30%，用户拒绝被“强制喂食”谷歌AI搜索",
-                "summary": "谷歌在I/O 2026将搜索改为AI Agent主导后，DuckDuckGo安装量激增30%。该现象反映了用户对AI搜索过度介入的抵触情绪，提示开发者需在AI Agent产品中保留用户控制权与透明度，避免因过度自动化导致用户流失。（来源：TechCrunch）",
-                "link": "https://techcrunch.com/2026/05/26/duckduckgo-installs-are-up-30-as-users-reject-being-force-fed-googles-ai-search/",
+                "title": "大语言模型能否内省？一项现实检验",
+                "summary": "研究系统评估LLM的自我认知能力，发现模型在检测自身错误、评估置信度方面存在显著缺陷，尤其在高难度推理任务中。论文提出内省一致性指标，揭示模型“伪内省”现象——表面承认错误但实际未修正。对工程实践的启示：部署时需结合外部验证机制，不可轻信模型自我报告。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2605.26242",
+                "source": "AI",
+                "region": "international",
+                "score": 3,
+                "tag": "前沿研究"
+            },
+            {
+                "title": "预训练数据暴露调查：成员推断、数据污染与安全影响",
+                "summary": "综述论文系统梳理LLM预训练数据泄露风险，包括成员推断攻击、数据污染检测及隐私合规挑战。指出当前模型对训练数据记忆程度远超预期，且现有去重方法难以完全消除风险。对工程实践的启示：需建立数据审计流程，采用差分隐私训练或数据净化策略。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2605.26133",
+                "source": "AI",
+                "region": "international",
+                "score": 3,
+                "tag": "前沿研究"
+            },
+            {
+                "title": "思科与OpenAI用Codex重新定义企业工程",
+                "summary": "思科与OpenAI合作，将Codex集成到企业工程流程中，实现自动化代码生成、测试和部署。Codex通过理解企业级代码库和业务逻辑，辅助工程师完成复杂系统开发。对工程实践的启示：AI Agent可深度嵌入DevOps管道，但需解决代码安全审查和合规性问题。（来源：OpenAI）",
+                "link": "https://openai.com/index/cisco",
                 "source": "AI",
                 "region": "international",
                 "score": 3,
                 "tag": "行业动态"
             },
             {
-                "title": "OpenRouter估值翻倍至13亿美元，API路由平台崛起",
-                "summary": "OpenRouter完成1.13亿美元B轮融资，估值达13亿美元，年增长5倍。该平台聚合多模型API并提供智能路由，成为AI Agent开发的关键基础设施。其增长表明开发者对多模型编排和成本优化的需求激增，将推动Agent开发工具链向统一网关演进。（来源：TechCrunch）",
-                "link": "https://techcrunch.com/2026/05/26/openrouter-more-than-doubles-valuation-to-1-3b-in-a-year/",
+                "title": "用Codex构建自改进税务Agent",
+                "summary": "OpenAI联合Thrive和Crete开发自改进税务Agent，基于Codex自动解析税法、生成申报逻辑，并通过用户反馈循环持续优化。系统采用检索增强生成（RAG）结合规则引擎，确保合规性。对工程实践的启示：领域专用Agent需融合知识库与自我修正机制，降低人工审核成本。（来源：OpenAI）",
+                "link": "https://openai.com/index/building-self-improving-tax-agents-with-codex",
                 "source": "AI",
                 "region": "international",
                 "score": 4,
-                "tag": "行业动态"
+                "tag": "工程实践"
             },
             {
-                "title": "国产AI自主训练框架突破：训练速度比英伟达Megatron快10%",
-                "summary": "国内团队发布全球首例完全自主构建的AI训练框架，在同等硬件条件下训练速度超越英伟达Megatron约10%。该框架通过优化通信拓扑与内存管理实现架构级创新，为国产大模型摆脱对国外训练工具的依赖提供了工程基础，将加速自主AI生态建设。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/05/425511.html",
+                "title": "BrickAnything：几何条件可构建砖块生成与结构感知分词",
+                "summary": "论文提出BrickAnything框架，通过结构感知分词器将3D形状编码为可构建砖块序列，实现几何条件约束下的物理可行生成。该方法结合图神经网络与自回归模型，确保输出可直接用于实体搭建。对工程实践的启示：为3D内容生成引入物理约束，可应用于机器人建造和数字孪生。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2605.26182",
+                "source": "AI",
+                "region": "international",
+                "score": 3,
+                "tag": "前沿研究"
+            },
+            {
+                "title": "1400亿Agent入场，“流量”护城河面临崩塌",
+                "summary": "分析指出，大厂正大规模押注Agent生态，投入超1400亿资金构建智能体平台。Agent不再依赖传统流量入口，而是通过任务驱动直接触达用户，颠覆现有互联网商业模式。对工程实践的启示：开发者应关注Agent编排框架和跨平台互操作标准，提前布局能力组件化。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/05/425881.html",
                 "source": "AI",
                 "region": "china",
-                "score": 5,
-                "tag": "开发工具"
+                "score": 3,
+                "tag": "行业动态"
             },
             {
-                "title": "谷歌DeepMind用AI Agent一次性解决9道埃尔德什数学难题",
-                "summary": "DeepMind的AI Agent系统成功攻克9道埃尔德什猜想问题，其中一道困扰人类数学家56年。该系统结合符号推理与大规模搜索，展示了Agent在复杂数学证明中的潜力。该成果启示开发者可将形式化验证与LLM结合，构建面向科研的专用Agent工作流。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/05/425455.html",
+                "title": "腾讯游戏发布会：AI成为“One More Thing”",
+                "summary": "腾讯在2026年游戏发布会上公布42款游戏动态，重点展示AI在游戏制作、发行和投资中的应用。包括AI驱动的NPC行为生成、动态关卡设计以及智能运营系统。对工程实践的启示：游戏行业正从AI辅助工具转向AI原生内容生产，需构建实时推理和低成本部署方案。（来源：36氪）",
+                "link": "https://36kr.com/p/3827658881323649?f=rss",
+                "source": "AI",
+                "region": "china",
+                "score": 2,
+                "tag": "行业动态"
+            },
+            {
+                "title": "小米打响Token价格战：大模型API成本再降",
+                "summary": "小米宣布大幅下调大模型API调用价格，百万Token成本降至几分钱，继DeepSeek降价后进一步压缩行业利润空间。此举旨在抢占开发者生态，推动AI应用规模化。对工程实践的启示：API成本骤降将催生更多Token密集型应用，但需关注模型质量与成本平衡。（来源：爱范儿）",
+                "link": "https://www.ifanr.com/1666975?utm_source=rss&utm_medium=rss&utm_campaign=",
+                "source": "AI",
+                "region": "china",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "5秒完成3D场景编辑：VGGT-Edit实现120倍加速",
+                "summary": "北大、港中文与上海AI Lab联合提出VGGT-Edit，基于3D高斯泼溅和轻量级Transformer，实现5秒内完成复杂3D场景编辑，相比传统方法加速120倍。无需回退到2D渲染，直接操作3D表示。对工程实践的启示：实时3D编辑能力将赋能AR/VR和数字人领域，降低内容创作门槛。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/05/425870.html",
                 "source": "AI",
                 "region": "china",
                 "score": 4,
@@ -220,32 +256,32 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日技术焦点集中在LLM可靠性校准与Agent工作流优化上，置信度校准和延迟-可靠性-成本权衡框架将成为未来半年Agent工程的标准组件。同时，国产AI训练框架的突破表明自主训练工具正从追赶转向局部领先，预计6个月内将出现更多基于国产框架的千亿级模型训练案例。此外，DeepMind在数学推理上的成功预示着Agent在科学发现领域的应用将加速，但需解决可解释性与验证问题。整体趋势：Agent系统正从“能用”向“可靠、可控、可优化”演进，开发工具链将围绕校准、路由和成本控制重构。";
+    const __DAILY_ANALYSIS__ = "今日技术趋势聚焦两大方向：一是大模型训练范式的自我进化，Self-Verified Distillation和R-Zero均表明模型可脱离人工标注实现持续提升，未来6个月将催生更多“自训练”框架，但需解决自我强化偏差和评估可信度问题。二是AI Agent能力天花板凸显，基准测试显示60%瓶颈，促使业界转向多Agent协作和分层架构，同时API价格战加速Agent应用落地，但安全性和可靠性将成为工程化关键。预计下半年将出现Agent专用硬件和轻量化推理方案。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                         [
+    const __PROJECTS__ =                                                                                                                                                                                                                                 [
             {
                 "name": "Lum1104/Understand-Anything",
                 "desc": "Graphs that teach &gt; graphs that impress. Turn any code into an interactive knowledge graph you ca",
-                "stars": "⭐+4721 today",
+                "stars": "⭐+4466 today",
                 "link": "https://github.com/Lum1104/Understand-Anything",
                 "tag": "多模态与前沿"
             },
             {
                 "name": "sponsors/affaan-m",
                 "desc": "The agent harness performance optimization system. Skills, instincts, memory, security, and research",
-                "stars": "⭐+1912 today",
+                "stars": "⭐+2062 today",
                 "link": "https://github.com/sponsors/affaan-m",
                 "tag": "Agent 框架"
             },
             {
-                "name": "sponsors/mukul975",
-                "desc": "754 structured cybersecurity skills for AI agents · Mapped to 5 frameworks: MITRE ATT&amp;CK, NIST C",
-                "stars": "⭐+871 today",
-                "link": "https://github.com/sponsors/mukul975",
-                "tag": "Agent 框架"
+                "name": "harry0703/MoneyPrinterTurbo",
+                "desc": "利用AI大模型，一键生成高清短视频 Generate short videos with one click using AI LLM.",
+                "stars": "⭐+1737 today",
+                "link": "https://github.com/harry0703/MoneyPrinterTurbo",
+                "tag": "大模型底层"
             }
         ];
 
