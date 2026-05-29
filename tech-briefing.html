@@ -142,104 +142,113 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                 [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                         [
             {
-                "title": "LCO：基于LLM的约束优化框架，提升现实任务中AI Agent的安全性",
-                "summary": "论文提出LCO（LLM-based Constraint Optimization）框架，将约束优化嵌入LLM推理过程，使Agent在复杂环境中自动生成并遵守安全约束。架构上采用可微分约束层与反馈循环，避免越界行为。启示：Agent安全可从后处理转向原生约束集成，降低部署风险。（来源：arXiv:2605.27375）",
-                "link": "https://arxiv.org/abs/2605.27375",
+                "title": "PyTorch性能分析入门指南",
+                "summary": "HuggingFace发布torch.profiler初学者指南，助力开发者优化模型。",
+                "link": "https://huggingface.co/blog/torch-profiler",
                 "source": "AI",
                 "region": "international",
                 "score": 4,
-                "tag": "前沿研究"
+                "tag": "工程实践"
             },
             {
-                "title": "DynaSchedBench：校准的动态调度基准揭示LLM调度Agent的可观测性悖论",
-                "summary": "新基准DynaSchedBench通过动态任务注入和校准指标，系统评估LLM调度Agent的鲁棒性。发现“可观测性悖论”：更多环境信息反而降低决策质量，源于LLM对冗余信息的过度拟合。启示：Agent设计需平衡信息量与推理聚焦，避免信息过载。（来源：arXiv:2605.27566）",
-                "link": "https://arxiv.org/abs/2605.27566",
-                "source": "AI",
-                "region": "international",
-                "score": 4,
-                "tag": "前沿研究"
-            },
-            {
-                "title": "为什么LLM在因果发现中失败，以及干预Agent如何突破",
-                "summary": "论文分析LLM在因果发现任务中的根本缺陷：缺乏干预能力导致混淆变量误判。提出Interventional Agent架构，通过主动环境干预生成反事实数据，再结合因果图学习。启示：未来Agent需集成主动实验能力，而非仅被动观察，这对科学发现和决策系统至关重要。（来源：arXiv:2605.27567）",
-                "link": "https://arxiv.org/abs/2605.27567",
-                "source": "AI",
-                "region": "international",
-                "score": 4,
-                "tag": "前沿研究"
-            },
-            {
-                "title": "互联网正为机器重建：AWS、Cloudflare等为AI Agent优化基础设施",
-                "summary": "随着AI Agent从实验走向生产，AWS、Cloudflare等厂商开始重构网络架构，包括专用API网关、低延迟推理缓存和Agent间通信协议。技术原理：将HTTP语义转向事件驱动、状态持久化。启示：开发者需关注Agent原生基础设施，传统RESTful设计可能成为瓶颈。（来源：TechCrunch）",
-                "link": "https://techcrunch.com/2026/05/28/the-internet-is-being-rebuilt-for-machines/",
+                "title": "Braintrust用Codex和GPT-5.5将客户需求转为代码",
+                "summary": "OpenAI展示Braintrust如何利用Codex加速实验与编码。",
+                "link": "https://openai.com/index/braintrust",
                 "source": "AI",
                 "region": "international",
                 "score": 3,
                 "tag": "行业动态"
             },
             {
-                "title": "Microsoft 365 Copilot获速度提升与界面精简，推理效率优化",
-                "summary": "微软发布重新设计的Microsoft 365 Copilot，核心改进包括端侧模型缓存、流式响应预加载和意图识别剪枝，使响应速度提升40%。架构变化：从全云端推理转向混合边缘-云推理。启示：Copilot类工具需平衡延迟与质量，边缘推理成为关键优化方向。（来源：The Verge）",
-                "link": "https://www.theverge.com/tech/939273/microsoft-365-copilot-redesign",
+                "title": "9个视频展示Gemini Omni和Gemini 3.5能力",
+                "summary": "Google发布9个演示视频，展示新模型的多模态与推理能力。",
+                "link": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-omni-3-5-videos/",
                 "source": "AI",
                 "region": "international",
                 "score": 3,
                 "tag": "开发工具"
             },
             {
-                "title": "OpenAI发布前沿治理框架，定义AI安全与部署边界",
-                "summary": "OpenAI公布Frontier Governance Framework，系统化定义模型能力分级、部署审查流程和持续监控机制。技术原理：基于能力阈值触发不同治理层级，引入可审计的决策日志。启示：大型模型开发需内建治理架构，影响企业AI工程化合规设计。（来源：OpenAI）",
-                "link": "https://openai.com/index/openai-frontier-governance-framework",
+                "title": "程序员拒绝无AI工作，可能带来长期问题",
+                "summary": "TechCrunch分析开发者依赖AI编程的潜在风险。",
+                "link": "https://techcrunch.com/2026/05/29/coders-are-refusing-to-work-without-ai-and-that-could-come-back-to-bite-them/",
                 "source": "AI",
                 "region": "international",
+                "score": 2,
+                "tag": "行业动态"
+            },
+            {
+                "title": "AI术语大全，帮助理解常见概念",
+                "summary": "TechCrunch发布AI术语解释，涵盖幻觉等关键概念。",
+                "link": "https://techcrunch.com/2026/05/29/artificial-intelligence-definition-glossary-hallucinations-guide-to-common-ai-terms/",
+                "source": "AI",
+                "region": "international",
+                "score": 2,
+                "tag": "行业动态"
+            },
+            {
+                "title": "探究LLM内部概念表征与追踪方法",
+                "summary": "新研究提出概念界定、探测与追踪方法，揭示LLM思维过程。",
+                "link": "https://arxiv.org/abs/2605.28823",
+                "source": "AI",
+                "region": "international",
+                "score": 5,
+                "tag": "前沿研究"
+            },
+            {
+                "title": "轻量多模态LLM用于电力设备缺陷分级",
+                "summary": "低成本多模态LLM实现输电设备缺陷自动分级。",
+                "link": "https://arxiv.org/abs/2605.28822",
+                "source": "AI",
+                "region": "international",
+                "score": 4,
+                "tag": "前沿研究"
+            },
+            {
+                "title": "AI公司付费拍摄家务视频以收集机器人训练数据",
+                "summary": "Shift公司为纽约人免费清洁，换取家务视频用于AI训练。",
+                "link": "https://www.theverge.com/ai-artificial-intelligence/940007/ai-companies-will-pay-for-robot-training-data",
+                "source": "AI",
+                "region": "international",
+                "score": 2,
+                "tag": "行业动态"
+            },
+            {
+                "title": "比亚迪发布4nm自研智驾芯片，算力对标英伟达",
+                "summary": "比亚迪推出4nm智驾芯片，制程对齐英伟达，算力超越特斯拉。",
+                "link": "https://www.qbitai.com/2026/05/426557.html",
+                "source": "AI",
+                "region": "china",
                 "score": 3,
                 "tag": "行业动态"
             },
             {
-                "title": "DeepSeek V4芯模协同背后，国产算力生态加速飞轮",
-                "summary": "DeepSeek V4通过模型-芯片协同设计，将MoE（混合专家模型）稀疏计算与国产芯片内存架构深度适配，实现推理效率提升3倍。技术原理：动态专家路由与芯片近存计算融合。启示：模型架构需与硬件协同优化，国产算力生态正从“可用”走向“好用”。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/05/426293.html",
+                "title": "千里科技整合吉利辅助驾驶团队，对标华为",
+                "summary": "吉利将辅助驾驶团队整合入千里科技，助力其成为第二个华为。",
+                "link": "https://36kr.com/p/3830580716365449?f=rss",
                 "source": "AI",
                 "region": "china",
-                "score": 4,
-                "tag": "开发工具"
+                "score": 2,
+                "tag": "行业动态"
             },
             {
-                "title": "国产AI编程模型Qwen3.7 Max登顶全球第二，实测五大模型对比",
-                "summary": "阿里Qwen3.7 Max在编程竞技榜超越GPT-5.5、Gemini 3.5 Flash等，仅次于Claude 4。技术原理：采用长上下文注意力稀疏化和代码专用预训练策略，提升复杂代码生成准确率。启示：国产模型在编程领域已具竞争力，开发者可考虑多模型混合使用。（来源：爱范儿）",
-                "link": "https://www.ifanr.com/1667180?utm_source=rss&utm_medium=rss&utm_campaign=",
+                "title": "苹果据悉将在WWDC重点展示端侧AI能力",
+                "summary": "苹果计划在WWDC上突出端侧AI，强化设备本地智能。",
+                "link": "https://36kr.com/p/3830194503526277?f=rss",
                 "source": "AI",
                 "region": "china",
-                "score": 4,
-                "tag": "开发工具"
+                "score": 2,
+                "tag": "行业动态"
             },
             {
-                "title": "世界模型接棒语言模型：物理AGI“双金字塔”体系发布，通用机器人进入家庭时代",
-                "summary": "某公司提出物理AGI“双金字塔”架构：底层世界模型（World Model）模拟物理规律，上层策略模型（Policy Model）生成动作序列。技术原理：将语言模型的世界知识蒸馏到物理仿真器中，实现零样本泛化。启示：世界模型+语言模型融合是机器人通用化的关键路径。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/05/426237.html",
+                "title": "启境GT7预售21.99万起，搭载华为智能汽车方案",
+                "summary": "启境GT7猎装车预售，含华量高，华为高管主讲发布会。",
+                "link": "https://www.ifanr.com/1667482?utm_source=rss&utm_medium=rss&utm_campaign=",
                 "source": "AI",
                 "region": "china",
-                "score": 3,
-                "tag": "前沿研究"
-            },
-            {
-                "title": "讯飞首款AI眼镜：40克机身集成AI工作流，端侧模型实时交互",
-                "summary": "科大讯飞发布AI眼镜，重量仅40克，搭载端侧大模型（约1.5B参数），支持语音唤醒、实时翻译、物体识别等。技术原理：模型量化+NPU加速，实现毫秒级响应。启示：AI眼镜成为Agent新载体，端侧模型需在功耗与能力间取得平衡。（来源：爱范儿）",
-                "link": "https://www.ifanr.com/1667281?utm_source=rss&utm_medium=rss&utm_campaign=",
-                "source": "AI",
-                "region": "china",
-                "score": 3,
-                "tag": "开发工具"
-            },
-            {
-                "title": "雷神联合AMD发布全形态AI工作站，覆盖塔式、迷你PC和移动三类",
-                "summary": "雷神发布首批AI工作站产品矩阵，搭载AMD Ryzen AI处理器，集成NPU单元，支持本地运行70B级模型。技术原理：CPU+GPU+NPU异构计算，统一内存架构减少数据搬运。启示：本地AI推理硬件成熟，开发者可部署私有化Agent服务，降低云端依赖。（来源：36氪）",
-                "link": "https://36kr.com/p/3828898785858185?f=rss",
-                "source": "AI",
-                "region": "china",
-                "score": 3,
+                "score": 1,
                 "tag": "行业动态"
             }
         ];
@@ -247,32 +256,32 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日技术趋势聚焦于AI Agent的安全与评估体系化。LCO、DynaSchedBench和因果发现研究分别从约束、基准和推理能力三个维度推动Agent工程化。同时，互联网基础设施向Agent原生重构，预示未来6个月将出现专用Agent通信协议和边缘推理标准。国内方面，DeepSeek V4的芯模协同和Qwen3.7 Max的编程突破表明国产模型在效率与能力上加速追赶，世界模型与AI眼镜的落地则指向物理世界交互的新范式。预计未来半年，Agent安全框架和端侧推理硬件将成为开发者核心关注点，模型-芯片协同设计将主导下一代AI系统架构。";
+    const __DAILY_ANALYSIS__ = "国产AI芯片加速自主（比亚迪4nm），端侧AI成WWDC焦点，自动驾驶团队整合预示行业洗牌。开发者对AI编程依赖加深，但需警惕质量风险。多模态LLM应用落地电力等传统行业，AI训练数据采集模式创新。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                         [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                 [
             {
                 "name": "harry0703/MoneyPrinterTurbo",
                 "desc": "利用AI大模型，一键生成高清短视频 Generate short videos with one click using AI LLM.",
-                "stars": "⭐+4685 today",
+                "stars": "⭐+3563 today",
                 "link": "https://github.com/harry0703/MoneyPrinterTurbo",
                 "tag": "大模型底层"
             },
             {
-                "name": "Lum1104/Understand-Anything",
-                "desc": "Graphs that teach &gt; graphs that impress. Turn any code into an interactive knowledge graph you ca",
-                "stars": "⭐+3766 today",
-                "link": "https://github.com/Lum1104/Understand-Anything",
-                "tag": "多模态与前沿"
+                "name": "sponsors/affaan-m",
+                "desc": "The agent harness performance optimization system. Skills, instincts, memory, security, and research",
+                "stars": "⭐+1413 today",
+                "link": "https://github.com/sponsors/affaan-m",
+                "tag": "Agent 框架"
             },
             {
-                "name": "sponsors/obra",
-                "desc": "An agentic skills framework &amp; software development methodology that works.",
-                "stars": "⭐+1726 today",
-                "link": "https://github.com/sponsors/obra",
-                "tag": "Agent 框架"
+                "name": "run-llama/liteparse",
+                "desc": "A fast, helpful, and open-source document parser",
+                "stars": "⭐+680 today",
+                "link": "https://github.com/run-llama/liteparse",
+                "tag": "大模型底层"
             }
         ];
 
