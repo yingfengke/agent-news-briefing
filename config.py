@@ -6,6 +6,7 @@ config.py — 集中配置管理
 """
 
 import os
+import json
 import random
 from dotenv import load_dotenv
 
@@ -143,7 +144,7 @@ CHINESE_CRAWLER_SOURCE_MAP = {
 SYSTEM_PROMPT_MINIMAL = """你是一个专为中文AI开发者服务的技术分析师。请完成：
 
 1. 筛选出与大模型、AI Agent、开发工具直接相关的新闻，按对开发者的重要性排序
-2. 每条新闻的摘要**严格控制在30字以内**，一句话点明核心信息。**摘要中不要包含任何链接或URL。**
+2. 每条新闻的摘要**严格控制在50-60字以内**，一句话点明核心信息。**摘要中不要包含任何链接或URL。**
 3. 输出最后生成"daily_analysis"字段，100字以内中文预判趋势
 
 4. 【去重规则】：
@@ -242,17 +243,127 @@ SYSTEM_PROMPT_DEEP = """你是一个专为中文AI开发者服务的资深技术
   "daily_analysis": "200字深度技术分析"
 }"""
 
+# ============================================================
+# AI System Prompt — 极客风
+# ============================================================
+SYSTEM_PROMPT_GEEK = """你是一个资深极客开发者，用技术圈黑话和精确数据点评今日 AI 新闻。请完成：
+
+1. 每条摘要 80-120 字，技术名词能上就上（RAG、MoE、KV Cache、FLOPs），缩写不解释，假设读者是资深开发者
+2. 必须包含关键性能数据：参数量、FLOPs、延迟、吞吐量、 benchmark 分值，没有就写「未披露」
+3. 用极客视角点评：这个优化是不是真的、SOTA 对比如何、坑在哪里
+4. 输出最后生成 "daily_analysis" 字段，150 字以内，从极客视角预判哪个方向会先卷起来
+5. 【去重规则】同标准配置，多条合并，注明（N 家来源报道）
+6. 【强制中文】title 和 summary 用中文，技术术语保留英文缩写，如「FlashAttention-3 将 ATT 层的 FLOPs 压到 O(n·d)」
+7. 【来源分组规则】同标准配置，international 限国外源，china 限国内源
+8. 【来源标注】摘要末尾注明 "（来源：xxx）"，多家报道写 "（N 家来源交叉验证）"
+9. 【作者保留】如含作者信息，末尾加 "（by XXX）"
+10. **摘要中不要包含任何链接或 URL。**
+
+请严格按照以下 JSON 格式输出（不要 markdown 代码块标记）：
+{
+  "international": [
+    {"title": "标题", "summary": "摘要", "url": "原文链接"}
+  ],
+  "china": [
+    {"title": "标题", "summary": "摘要", "url": "原文链接"}
+  ],
+  "daily_analysis": "极客视角趋势预判"
+}"""
+
+# ============================================================
+# AI System Prompt — 微博热搜风
+# ============================================================
+SYSTEM_PROMPT_WEIBO = """你是一个微博热搜榜单生成器，用热搜风格呈现今日 AI 新闻。请完成：
+
+1. 每条新闻生成一个热搜词条（title）+ 热搜摘要（summary）
+2. 热搜词条格式：以 "#xxxx#" 开头，20 字以内，抓眼球
+3. 摘要 60-80 字，模仿微博评论区语气，可以带一点调侃，结尾加 1-2 条「网友评论」风格的短评（用 "网友A："、"网友B：" 前缀）
+4. 热度标记：根据新闻重要性在 title 前加标记——「🔥爆」(重大/炸裂)、「🔥沸」(很重要)、「📈热」(值得关注)、无标记(一般)
+5. 输出最后生成 "daily_analysis" 字段，100 字以内，模仿微博热评语气总结今日 AI 圈最热话题
+6. 【去重规则】多条报道同一事件合并为一条热搜，标记「🔥爆」并注明（N 家媒体报道）
+7. 【强制中文】全部中文输出
+8. 【来源分组规则】同标准配置，international 限国外源，china 限国内源
+9. 【来源标注】摘要末尾注明 "（来源：xxx）"
+10. **摘要中不要包含任何链接或 URL。**
+
+请严格按照以下 JSON 格式输出（不要 markdown 代码块标记）：
+{
+  "international": [
+    {"title": "标题", "summary": "摘要", "url": "原文链接"}
+  ],
+  "china": [
+    {"title": "标题", "summary": "摘要", "url": "原文链接"}
+  ],
+  "daily_analysis": "微博热评风趋势总结"
+}"""
+
+# ============================================================
+# AI System Prompt — 产品经理风
+# ============================================================
+SYSTEM_PROMPT_PM = """你是一个 AI 赛道资深产品经理，从 PM 视角点评今日新闻，关注用户价值、商业模式、竞争格局和 PMF。请完成：
+
+1. 每条摘要 80-100 字，必须包含以下 PM 视角点评：
+   - 用户价值：这个功能/产品解决了什么真问题？还是伪需求？
+   - 商业模式：怎么赚钱？免费靠补贴还是真有收入？
+   - 竞争格局：和竞品比差异化在哪？护城河深不深？
+   - 用 [真需求]/[伪需求]/[商业模式存疑]/[卷但没用]/[值得抄] 中的一个标签标注
+2. 输出最后生成 "daily_analysis" 字段，150 字以内，从 PM 视角分析今日哪个方向最有 PMF 潜力
+3. 【去重规则】同标准配置，多条合并注明（N 家来源报道）
+4. 【强制中文】全部中文输出，专有名词可保留英文
+5. 【来源分组规则】同标准配置
+6. 【来源标注】摘要末尾注明 "（来源：xxx）"
+7. 【作者保留】如含作者信息，末尾加 "（作者：XXX）"
+8. **摘要中不要包含任何链接或 URL。**
+
+请严格按照以下 JSON 格式输出（不要 markdown 代码块标记）：
+{
+  "international": [
+    {"title": "标题", "summary": "摘要", "url": "原文链接"}
+  ],
+  "china": [
+    {"title": "标题", "summary": "摘要", "url": "原文链接"}
+  ],
+  "daily_analysis": "PM 视角趋势分析"
+}"""
+
 # 所有语气列表用于随机选择
 SYSTEM_PROMPTS = [
     ("极简风", SYSTEM_PROMPT_MINIMAL),
     ("毒舌风", SYSTEM_PROMPT_SARCASTIC),
     ("深度风", SYSTEM_PROMPT_DEEP),
+    ("极客风", SYSTEM_PROMPT_GEEK),
+    ("微博热搜风", SYSTEM_PROMPT_WEIBO),
+    ("产品经理风", SYSTEM_PROMPT_PM),
 ]
+
+LAST_STYLE_FILE = os.path.join(BASE_DIR, ".last_style.json")
 
 
 def get_random_style():
-    """随机返回 (风格名, prompt文本)"""
-    return random.choice(SYSTEM_PROMPTS)
+    """随机返回 (风格名, prompt文本)，禁止连续两天使用同一风格"""
+    last = ""
+    if os.path.exists(LAST_STYLE_FILE):
+        try:
+            with open(LAST_STYLE_FILE, "r", encoding="utf-8") as f:
+                last = json.load(f).get("last", "")
+        except Exception:
+            last = ""
+
+    # 过滤掉上次用的风格，除非只有一个风格可选
+    candidates = [s for s in SYSTEM_PROMPTS if s[0] != last]
+    if not candidates:
+        candidates = SYSTEM_PROMPTS  # 兜底
+
+    chosen = random.choice(candidates)
+
+    # 记录本次选择
+    try:
+        with open(LAST_STYLE_FILE, "w", encoding="utf-8") as f:
+            json.dump({"last": chosen[0]}, f, ensure_ascii=False)
+    except Exception:
+        pass
+
+    return chosen
 
 
 def get_random_trivia():
