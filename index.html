@@ -142,146 +142,164 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                         [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                 [
             {
-                "title": "PyTorch性能分析入门指南",
-                "summary": "HuggingFace发布torch.profiler初学者指南，助力开发者优化模型。",
-                "link": "https://huggingface.co/blog/torch-profiler",
-                "source": "AI",
-                "region": "international",
-                "score": 4,
-                "tag": "工程实践"
-            },
-            {
-                "title": "Braintrust用Codex和GPT-5.5将客户需求转为代码",
-                "summary": "OpenAI展示Braintrust如何利用Codex加速实验与编码。",
-                "link": "https://openai.com/index/braintrust",
+                "title": "How one founder’s bet on ‘the old school web’ is paying off",
+                "summary": "Past Maps创始人放弃AI，回归传统网页地图，提供无AI干扰的复古体验。用户价值：解决用户对AI过度干预的反感，满足怀旧与简洁需求。商业模式：可能靠订阅或广告，但规模有限。竞争格局：与Google Maps等差异化明显，但护城河浅，易被复制。[真需求]（来源：The Verge）",
+                "link": "https://www.theverge.com/tech/938245/past-maps-website-google-zero-ai",
                 "source": "AI",
                 "region": "international",
                 "score": 3,
                 "tag": "行业动态"
             },
             {
-                "title": "9个视频展示Gemini Omni和Gemini 3.5能力",
-                "summary": "Google发布9个演示视频，展示新模型的多模态与推理能力。",
-                "link": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-omni-3-5-videos/",
-                "source": "AI",
-                "region": "international",
-                "score": 3,
-                "tag": "开发工具"
-            },
-            {
-                "title": "程序员拒绝无AI工作，可能带来长期问题",
-                "summary": "TechCrunch分析开发者依赖AI编程的潜在风险。",
-                "link": "https://techcrunch.com/2026/05/29/coders-are-refusing-to-work-without-ai-and-that-could-come-back-to-bite-them/",
+                "title": "AI grifters are creating fake Black people to sell Shein junk",
+                "summary": "TikTok上出现AI生成的虚假黑人形象推销Shein廉价商品，利用种族身份骗取信任。用户价值：无，纯欺诈，损害平台生态。商业模式：靠虚假流量和销售分成，不可持续。竞争格局：平台监管漏洞，需技术手段识别，但AI造假成本低。[伪需求]（来源：The Verge）",
+                "link": "https://www.theverge.com/ai-artificial-intelligence/938844/ai-tiktok-shop-blackface-shein-dropshipping",
                 "source": "AI",
                 "region": "international",
                 "score": 2,
                 "tag": "行业动态"
             },
             {
-                "title": "AI术语大全，帮助理解常见概念",
-                "summary": "TechCrunch发布AI术语解释，涵盖幻觉等关键概念。",
-                "link": "https://techcrunch.com/2026/05/29/artificial-intelligence-definition-glossary-hallucinations-guide-to-common-ai-terms/",
-                "source": "AI",
-                "region": "international",
-                "score": 2,
-                "tag": "行业动态"
-            },
-            {
-                "title": "探究LLM内部概念表征与追踪方法",
-                "summary": "新研究提出概念界定、探测与追踪方法，揭示LLM思维过程。",
-                "link": "https://arxiv.org/abs/2605.28823",
+                "title": "AGTP: A Transport Protocol Built for Agents",
+                "summary": "为AI代理设计的专用传输协议，解决代理间通信效率与可靠性问题。用户价值：降低代理网络延迟，提升多代理协作性能。商业模式：开源或商业化授权，潜在收入来自企业部署。竞争格局：与HTTP/2等通用协议相比，更适配代理场景，但需生态支持。[真需求]（来源：DEV.to）",
+                "link": "https://dev.to/chrishood/agtp-a-transport-protocol-built-for-agents-2j7p",
                 "source": "AI",
                 "region": "international",
                 "score": 5,
                 "tag": "前沿研究"
             },
             {
-                "title": "轻量多模态LLM用于电力设备缺陷分级",
-                "summary": "低成本多模态LLM实现输电设备缺陷自动分级。",
-                "link": "https://arxiv.org/abs/2605.28822",
+                "title": "SoftBank says it will invest up to €75 billion to build French data centers",
+                "summary": "软银计划投资750亿欧元在法国建设数据中心，目标5GW算力。用户价值：缓解欧洲AI算力短缺，降低延迟。商业模式：通过出租算力或自营AI服务盈利，重资产模式。竞争格局：与AWS、Azure等竞争，但软银有资本优势，护城河在规模与政府关系。[真需求]（来源：TechCrunch）",
+                "link": "https://techcrunch.com/2026/05/30/softbank-says-it-will-invest-up-to-e75-billion-to-build-french-data-centers/",
+                "source": "AI",
+                "region": "international",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "GitHub Copilot’s new token-based billing spurs consternation among devs",
+                "summary": "GitHub Copilot从固定座位费改为按token计费，引发开发者强烈不满。用户价值：对高频用户更贵，增加成本不确定性。商业模式：微软试图提高ARPU，但可能驱使用户转向Cursor等竞品。竞争格局：差异化在于生态集成，但定价策略失误可能削弱护城河。[商业模式存疑]（来源：TechCrunch）",
+                "link": "https://techcrunch.com/2026/05/30/what-a-joke-github-copilots-new-token-based-billing-spurs-consternation-among-devs/",
                 "source": "AI",
                 "region": "international",
                 "score": 4,
+                "tag": "行业动态"
+            },
+            {
+                "title": "The open agent network: weather, crypto, gaming, legal, medical",
+                "summary": "提出开放代理网络概念，覆盖天气、加密、游戏、法律、医疗等多领域，实现代理间互操作。用户价值：打破数据孤岛，让AI代理跨域协作。商业模式：尚不清晰，可能靠平台抽成或数据交易。竞争格局：早期概念，需标准化，护城河在于网络效应。[值得抄]（来源：DEV.to）",
+                "link": "https://dev.to/rileycraig14/the-open-agent-network-weather-crypto-gaming-legal-medical-26746-2hh0",
+                "source": "AI",
+                "region": "international",
+                "score": 3,
                 "tag": "前沿研究"
             },
             {
-                "title": "AI公司付费拍摄家务视频以收集机器人训练数据",
-                "summary": "Shift公司为纽约人免费清洁，换取家务视频用于AI训练。",
-                "link": "https://www.theverge.com/ai-artificial-intelligence/940007/ai-companies-will-pay-for-robot-training-data",
+                "title": "AI Automation for Small Scale Hydroponic Farm Operators",
+                "summary": "AI自动化方案帮助小规模水培农场监控营养液和系统异常。用户价值：降低人工成本，提高产量，解决农业劳动力短缺。商业模式：SaaS订阅或硬件捆绑，收入来自农场客户。竞争格局：垂直领域，与大型农业AI平台相比更轻量，护城河在细分场景数据。[真需求]（来源：DEV.to）",
+                "link": "https://dev.to/ken_deng_ai/ai-automation-for-ai-for-small-scale-hydroponic-farm-operators-how-to-automate-nutrient-solution-p2b",
                 "source": "AI",
                 "region": "international",
+                "score": 3,
+                "tag": "工程实践"
+            },
+            {
+                "title": "As the browser wars heat up, here are the hottest alternatives to Chrome and Safari in 2026",
+                "summary": "盘点2026年Chrome和Safari的替代浏览器，主打隐私、性能或AI集成。用户价值：满足用户对数据控制和个性化需求。商业模式：免费+增值服务，如Arc的订阅。竞争格局：差异化在功能，但浏览器市场已饱和，用户迁移成本高，护城河弱。[卷但没用]（来源：TechCrunch）",
+                "link": "https://techcrunch.com/2026/05/30/as-the-browser-wars-heat-up-here-are-the-hottest-alternatives-to-chrome-and-safari-in-2026/",
+                "source": "AI",
+                "region": "international",
+                "score": 3,
+                "tag": "开发工具"
+            },
+            {
+                "title": "Meta is reportedly developing an AI pendant",
+                "summary": "Meta正在开发AI吊坠，作为随身AI助手，可能集成摄像头和语音。用户价值：解放双手，随时获取AI服务，类似Rabbit R1。商业模式：硬件销售+订阅服务，但需证明用户愿意佩戴。竞争格局：与Humane、Rabbit等竞争，Meta有社交生态优势，但隐私风险大。[值得抄]（来源：TechCrunch）",
+                "link": "https://techcrunch.com/2026/05/30/meta-is-reportedly-developing-an-ai-pendant/",
+                "source": "AI",
+                "region": "international",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "帮Gemini拿下IMO金牌的关键先生，差点成了职业钢琴家",
+                "summary": "报道Gemini在IMO夺金背后的核心研究员，其跨学科背景（钢琴）凸显AI人才多样性。用户价值：人才故事激励行业，但非产品。商业模式：不直接。竞争格局：Google通过吸引顶尖人才构建护城河。[真需求]（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/05/426706.html",
+                "source": "AI",
+                "region": "china",
                 "score": 2,
                 "tag": "行业动态"
             },
             {
-                "title": "比亚迪发布4nm自研智驾芯片，算力对标英伟达",
-                "summary": "比亚迪推出4nm智驾芯片，制程对齐英伟达，算力超越特斯拉。",
-                "link": "https://www.qbitai.com/2026/05/426557.html",
+                "title": "英伟达清华团队提出Gamma-World：世界模型从「一个人玩」到「多人共处」",
+                "summary": "Gamma-World支持多智能体交互仿真，扩展世界模型能力。用户价值：为自动驾驶、机器人训练提供更真实的多Agent环境。商业模式：开源吸引生态，后续可能通过云服务或芯片绑定变现。竞争格局：与Sora等单Agent模型差异化，护城河在技术领先。[真需求]（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/05/426662.html",
+                "source": "AI",
+                "region": "china",
+                "score": 5,
+                "tag": "前沿研究"
+            },
+            {
+                "title": "曝苹果用谷歌AI训练自己模型/黄仁勋：工程师不烧Token我会气炸",
+                "summary": "苹果被曝使用Gemini训练端侧模型，部分Siri请求转向谷歌云；黄仁勋鼓励工程师多用Token。用户价值：苹果加速AI能力，但依赖谷歌引发隐私担忧。商业模式：苹果通过云服务付费，降低自研成本。竞争格局：苹果与谷歌合作，但长期需自研，护城河在生态。[真需求]（来源：爱范儿）",
+                "link": "https://www.ifanr.com/1667559?utm_source=rss&utm_medium=rss&utm_campaign=",
                 "source": "AI",
                 "region": "china",
                 "score": 3,
                 "tag": "行业动态"
             },
             {
-                "title": "千里科技整合吉利辅助驾驶团队，对标华为",
-                "summary": "吉利将辅助驾驶团队整合入千里科技，助力其成为第二个华为。",
-                "link": "https://36kr.com/p/3830580716365449?f=rss",
+                "title": "服务富士康，半年营收超两千万的机器人解决方案商完成天使轮融资",
+                "summary": "乘物机器人获天使轮融资，为富士康提供工业机器人方案，半年营收超2000万。用户价值：解决工厂自动化痛点，提升效率。商业模式：项目制+后续运维，收入已验证。竞争格局：与发那科、ABB等竞争，但聚焦3C制造场景，护城河在客户关系。[真需求]（来源：36氪）",
+                "link": "https://36kr.com/p/3831135917107075?f=rss",
                 "source": "AI",
                 "region": "china",
-                "score": 2,
+                "score": 3,
                 "tag": "行业动态"
             },
             {
-                "title": "苹果据悉将在WWDC重点展示端侧AI能力",
-                "summary": "苹果计划在WWDC上突出端侧AI，强化设备本地智能。",
-                "link": "https://36kr.com/p/3830194503526277?f=rss",
+                "title": "中科创星“好望角科学沙龙”聚焦“太空智驾”，卫星将从被动响应走向自主决策",
+                "summary": "太空智驾概念兴起，卫星将具备自主感知、规划与决策能力，类似L4自动驾驶。用户价值：降低卫星运营成本，提升星座效率。商业模式：技术授权或提供智驾芯片/软件。竞争格局：早期，与航天科技集团等合作，护城河在算法与工程经验。[真需求]（来源：36氪）",
+                "link": "https://36kr.com/p/3831071878358659?f=rss",
                 "source": "AI",
                 "region": "china",
-                "score": 2,
-                "tag": "行业动态"
-            },
-            {
-                "title": "启境GT7预售21.99万起，搭载华为智能汽车方案",
-                "summary": "启境GT7猎装车预售，含华量高，华为高管主讲发布会。",
-                "link": "https://www.ifanr.com/1667482?utm_source=rss&utm_medium=rss&utm_campaign=",
-                "source": "AI",
-                "region": "china",
-                "score": 1,
-                "tag": "行业动态"
+                "score": 4,
+                "tag": "前沿研究"
             }
         ];
 
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "国产AI芯片加速自主（比亚迪4nm），端侧AI成WWDC焦点，自动驾驶团队整合预示行业洗牌。开发者对AI编程依赖加深，但需警惕质量风险。多模态LLM应用落地电力等传统行业，AI训练数据采集模式创新。";
+    const __DAILY_ANALYSIS__ = "今日最具PMF潜力的方向是工业机器人（乘物机器人）和太空智驾，两者均解决明确痛点且有收入验证。农业AI自动化也值得关注，但市场较小。GitHub Copilot的定价争议表明开发者工具需谨慎平衡收入与用户价值。Meta AI吊坠和开放代理网络概念虽热，但PMF尚需验证。建议关注垂直场景的AI自动化解决方案。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                 [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                         [
             {
                 "name": "harry0703/MoneyPrinterTurbo",
                 "desc": "利用AI大模型，一键生成高清短视频 Generate short videos with one click using AI LLM.",
-                "stars": "⭐+3563 today",
+                "stars": "⭐+2775 today",
                 "link": "https://github.com/harry0703/MoneyPrinterTurbo",
+                "tag": "大模型底层"
+            },
+            {
+                "name": "run-llama/liteparse",
+                "desc": "A fast, helpful, and open-source document parser",
+                "stars": "⭐+929 today",
+                "link": "https://github.com/run-llama/liteparse",
                 "tag": "大模型底层"
             },
             {
                 "name": "sponsors/affaan-m",
                 "desc": "The agent harness performance optimization system. Skills, instincts, memory, security, and research",
-                "stars": "⭐+1413 today",
+                "stars": "⭐+918 today",
                 "link": "https://github.com/sponsors/affaan-m",
                 "tag": "Agent 框架"
-            },
-            {
-                "name": "run-llama/liteparse",
-                "desc": "A fast, helpful, and open-source document parser",
-                "stars": "⭐+680 today",
-                "link": "https://github.com/run-llama/liteparse",
-                "tag": "大模型底层"
             }
         ];
 
