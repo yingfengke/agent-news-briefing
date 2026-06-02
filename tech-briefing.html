@@ -142,203 +142,104 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                 [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                         [
             {
-                "title": "OpenAI前沿模型与Codex在AWS上正式可用",
-                "summary": "OpenAI宣布其前沿模型和Codex已在AWS上全面可用，企业客户可通过AWS直接调用GPT-4o、o1等模型及代码生成工具，简化部署流程并提升开发效率。（来源：OpenAI）",
-                "link": "https://openai.com/index/openai-frontier-models-and-codex-are-now-available-on-aws",
+                "title": "微软推出基于OpenClaw的AI个人助手Scout",
+                "summary": "微软发布AI个人助手Scout，基于OpenClaw构建，提供个性化服务，类似Google的AI助手。",
+                "link": "https://www.theverge.com/news/939713/microsoft-scout-assistant-openclaw",
                 "source": "AI",
                 "region": "international",
                 "score": 4,
                 "tag": "开发工具"
             },
             {
-                "title": "JetBrains发布Mellum2：12B参数混合专家模型",
-                "summary": "JetBrains在HuggingFace发布Mellum2，一款12B参数的混合专家（MoE）模型，专注于代码生成与软件开发辅助，为开发者提供高效本地化推理能力。（来源：HuggingFace Blog）",
-                "link": "https://huggingface.co/blog/JetBrains/mellum2-launch",
+                "title": "多模型AI系统协作协议Consilium提出",
+                "summary": "研究提出基于BFT的Consilium协议，实现多模型AI系统的认知综合与协同决策。",
+                "link": "https://arxiv.org/abs/2606.00005",
                 "source": "AI",
                 "region": "international",
-                "score": 4,
-                "tag": "开发工具"
-            },
-            {
-                "title": "IBM研究：企业AI规模化采用取决于Agent逻辑",
-                "summary": "IBM研究团队在HuggingFace博客发文，指出超越LLM本身，构建可扩展的企业AI系统关键在于Agent逻辑——即任务分解、工具调用与状态管理的能力。（来源：HuggingFace Blog）",
-                "link": "https://huggingface.co/blog/ibm-research/agent-logic-and-scalable-ai-adoption",
-                "source": "AI",
-                "region": "international",
-                "score": 3,
+                "score": 5,
                 "tag": "前沿研究"
             },
             {
-                "title": "斯坦福CS336课程发布AI Agent开发指南",
-                "summary": "斯坦福大学CS336课程在GitHub发布AI Agent开发指南，涵盖任务规划、工具集成、安全约束等核心实践，为开发者提供系统化的Agent构建参考。（来源：HackerNews AI）",
-                "link": "https://github.com/stanford-cs336/assignment1-basics/blob/main/CLAUDE.md",
-                "source": "AI",
-                "region": "international",
-                "score": 4,
-                "tag": "开发工具"
-            },
-            {
-                "title": "Google Gemini Spark AI Agent实测：接近演示效果",
-                "summary": "The Verge实测Google新推出的24/7 AI Agent“Gemini Spark”，其自主完成复杂任务的能力令人惊讶，实际表现与官方演示高度一致，标志着Agent产品化迈出关键一步。（来源：The Verge AI）",
-                "link": "https://www.theverge.com/tech/941138/google-gemini-spark-ai-agent-hands-on",
+                "title": "特朗普签署行政令要求AI模型发布前审查",
+                "summary": "特朗普签署行政令，建立AI模型发布前的自愿联邦审查机制，加强安全监管。",
+                "link": "https://www.theverge.com/policy/941775/trump-ai-executive-order",
                 "source": "AI",
                 "region": "international",
                 "score": 3,
                 "tag": "行业动态"
             },
             {
-                "title": "英伟达联手微软、戴尔、惠普推出AI Agent PC，挑战2000亿美元CPU市场",
-                "summary": "英伟达宣布与微软、戴尔、惠普合作，推出搭载自研CPU的AI Agent PC，旨在将AI Agent安全、高效地引入个人计算，有望成为Windows平台的“M1时刻”。（来源：TechCrunch AI）",
-                "link": "https://techcrunch.com/2026/06/01/nvidia-chases-200b-cpu-market-with-ai-agent-pcs-from-microsoft-dell-and-hp/",
-                "source": "AI",
-                "region": "international",
-                "score": 4,
-                "tag": "行业动态"
-            },
-            {
-                "title": "自主Agent数据工程：利用LLM实现模型专业化",
-                "summary": "arXiv新论文提出自主Agent数据工程框架，让LLM驱动的Agent自动收集、清洗和标注数据，以高效实现模型专业化，降低人工数据工程成本。（来源：ArXiv CL）",
-                "link": "https://arxiv.org/abs/2605.30407",
+                "title": "利用分布外代理提升上下文学习鲁棒性",
+                "summary": "研究提出利用分布外代理进行示例检索，解决目标不可访问时的上下文学习鲁棒性问题。",
+                "link": "https://arxiv.org/abs/2606.00014",
                 "source": "AI",
                 "region": "international",
                 "score": 4,
                 "tag": "前沿研究"
             },
             {
-                "title": "基于RAG与跨模型多数投票的ChatGPT生物医学评估协议",
-                "summary": "arXiv发布协议，利用RAG增强和跨模型多数投票工作流，系统评估ChatGPT在生物医学关联生成与验证中的表现，为科研应用提供标准化方法。（来源：ArXiv CL）",
-                "link": "https://arxiv.org/abs/2605.30400",
-                "source": "AI",
-                "region": "international",
-                "score": 3,
-                "tag": "前沿研究"
-            },
-            {
-                "title": "物理可行的世界模型：面向查询条件的具身AI",
-                "summary": "arXiv新研究提出查询条件世界模型，使具身AI在物理约束下生成可行预测，为机器人导航和操作提供更可靠的底层模型。（来源：ArXiv AI）",
-                "link": "https://arxiv.org/abs/2605.30542",
-                "source": "AI",
-                "region": "international",
-                "score": 4,
-                "tag": "前沿研究"
-            },
-            {
-                "title": "Google用Gemini构建I/O 2026大会：AI赋能活动生产",
-                "summary": "Google博客揭秘如何利用Gemini模型辅助策划、内容生成和现场互动，完成I/O 2026大会的全流程AI生产，展示LLM在大型活动中的应用潜力。（来源：Google AI）",
-                "link": "https://blog.google/innovation-and-ai/technology/ai/io-2026-google-ai/",
-                "source": "AI",
-                "region": "international",
-                "score": 3,
-                "tag": "行业动态"
-            },
-            {
-                "title": "Alphabet计划筹集800亿美元用于AI基础设施建设",
-                "summary": "Google母公司Alphabet宣布通过股票发行筹集800亿美元，用于扩建AI数据中心和算力基础设施，以支撑下一代大模型训练与推理需求。（来源：TechCrunch AI）",
-                "link": "https://techcrunch.com/2026/06/01/alphabet-plans-to-raise-80-billion-to-pay-for-ai-buildout/",
-                "source": "AI",
-                "region": "international",
-                "score": 3,
-                "tag": "行业动态"
-            },
-            {
-                "title": "OpenAI在密歇根破土动工1GW数据中心，属于Stargate项目",
-                "summary": "OpenAI在密歇根启动1GW数据中心建设，作为Stargate项目的一部分，旨在为智能时代提供大规模算力基础设施，支持前沿模型训练。（来源：OpenAI）",
-                "link": "https://openai.com/index/stargate-michigan-data-center",
-                "source": "AI",
-                "region": "international",
-                "score": 3,
-                "tag": "行业动态"
-            },
-            {
-                "title": "知识蒸馏深度解析：从理论到罗马数字转换问题",
-                "summary": "DEV.to技术文章深入讲解知识蒸馏的原理与实现，并通过“罗马数字转整数”编程问题演示如何将大模型知识压缩到小模型，适合开发者学习。（来源：DEV.to AI）",
-                "link": "https://dev.to/pixelbank_dev_a810d06e3e1/knowledge-distillation-deep-dive-problem-roman-to-integer-2hph",
-                "source": "AI",
-                "region": "international",
-                "score": 4,
-                "tag": "工程实践"
-            },
-            {
-                "title": "AI自动化：小型制造车间如何自动生成RFQ响应",
-                "summary": "DEV.to文章介绍AI Agent在小型制造车间的应用，自动处理询价请求（RFQ）并匹配技术能力，为传统行业提供低成本的AI自动化方案。（来源：DEV.to AI）",
-                "link": "https://dev.to/ken_deng_ai/ai-automation-for-ai-for-small-manufacturing-job-shops-how-to-automate-rfq-response-generation-and-49h8",
-                "source": "AI",
-                "region": "international",
-                "score": 3,
-                "tag": "工程实践"
-            },
-            {
-                "title": "PhyDrawGen：从自然语言生成物理示意图",
-                "summary": "arXiv新系统PhyDrawGen可根据自然语言描述自动生成物理示意图，结合物理知识图谱与布局生成，为教育和技术文档创作提供新工具。（来源：ArXiv AI）",
-                "link": "https://arxiv.org/abs/2605.30512",
+                "title": "多模态多方对话语篇解析数据集DraDDP发布",
+                "summary": "发布DraDDP数据集，首个多模态多方对话语篇解析数据集，支持对话分析研究。",
+                "link": "https://arxiv.org/abs/2606.00012",
                 "source": "AI",
                 "region": "international",
                 "score": 4,
                 "tag": "开发工具"
             },
             {
-                "title": "阶跃Flash模型效率刷新：任务成本仅为Claude Opus 4.6的1/9",
-                "summary": "阶跃星辰发布Flash模型效率评测，在多项任务中成本仅为Claude Opus 4.6的九分之一，同时保持接近的性能，为开发者提供高性价比选择。（来源：爱范儿）",
-                "link": "https://www.ifanr.com/1667680?utm_source=rss&utm_medium=rss&utm_campaign=",
+                "title": "AI已能运行企业行政部门",
+                "summary": "MIT Tech Review报道AI可自动化企业行政工作，为小企业提供管理解决方案。",
+                "link": "https://www.technologyreview.com/2026/06/02/1138277/the-download-ai-tips-small-businesses-admin/",
                 "source": "AI",
-                "region": "china",
-                "score": 4,
-                "tag": "开发工具"
+                "region": "international",
+                "score": 3,
+                "tag": "行业动态"
             },
             {
-                "title": "豆包6月下旬正式付费，并加速打通抖音电商",
-                "summary": "36氪独家获悉，字节跳动旗下大模型产品豆包将于6月下旬推出付费订阅，四档收费标准，同时加速与抖音电商的整合，探索AI商业化路径。（来源：36氪）",
-                "link": "https://36kr.com/p/3834544830721671?f=rss",
+                "title": "Uber因AI支出超预算限制员工使用",
+                "summary": "Uber员工AI支出在4个月内耗尽年度预算，公司被迫限制AI工具使用。",
+                "link": "https://techcrunch.com/2026/06/02/uber-caps-employee-ai-spending-after-blowing-through-budget-in-four-months/",
                 "source": "AI",
-                "region": "china",
+                "region": "international",
                 "score": 2,
                 "tag": "行业动态"
             },
             {
-                "title": "VAST完成近2亿美元融资，正式披露世界模型路线",
-                "summary": "VAST宣布完成近2亿美元新一轮融资，并公开世界模型技术路线，聚焦多人同屏交互与场景持久化，旨在构建可交互的虚拟世界基础设施。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/427516.html",
+                "title": "OpenAI正式宣布进军机器人领域",
+                "summary": "OpenAI官宣进军机器人领域，扩大Robotics部门招聘，加速布局具身智能。",
+                "link": "https://www.ifanr.com/1667792?utm_source=rss&utm_medium=rss&utm_campaign=",
                 "source": "AI",
                 "region": "china",
                 "score": 3,
                 "tag": "行业动态"
             },
             {
-                "title": "世界模型赛道：VAST选择了一条尚未有人走过的路",
-                "summary": "爱范儿深度分析VAST的世界模型策略，强调其不同于李飞飞和杨立昆的路线，专注于可交互、多人同屏的物理世界模拟，为Agent训练提供新环境。（来源：爱范儿）",
-                "link": "https://www.ifanr.com/1667604?utm_source=rss&utm_medium=rss&utm_campaign=",
+                "title": "MiniMax M3大模型实测表现亮眼",
+                "summary": "实测MiniMax M3大模型，能识别英伟达PPT上74个Logo，展现复杂场景理解能力。",
+                "link": "https://www.qbitai.com/2026/06/428092.html",
+                "source": "AI",
+                "region": "china",
+                "score": 3,
+                "tag": "开发工具"
+            },
+            {
+                "title": "Anthropic抢跑IPO，秘密提交上市文件",
+                "summary": "Anthropic保密提交IPO文件，抢先OpenAI上市，引发AI巨头上市浪潮。",
+                "link": "https://www.ifanr.com/1667829?utm_source=rss&utm_medium=rss&utm_campaign=",
                 "source": "AI",
                 "region": "china",
                 "score": 3,
                 "tag": "行业动态"
             },
             {
-                "title": "英伟达掀桌，Windows终于迎来真AI PC",
-                "summary": "英伟达联合微软、戴尔、惠普推出AI Agent PC，搭载自研CPU，将AI Agent原生集成到Windows系统，有望改变PC生态格局。（该消息被多家来源报道）",
-                "link": "https://www.ifanr.com/1667641?utm_source=rss&utm_medium=rss&utm_campaign=",
-                "source": "AI",
-                "region": "china",
-                "score": 4,
-                "tag": "行业动态"
-            },
-            {
-                "title": "清智系企业亮相BEYOND Expo 2026并斩获多项大奖",
-                "summary": "清华大学智能产业研究院（AIR）孵化的多家AI企业在BEYOND Expo 2026上展示成果，并获得技术创新等奖项，涵盖机器人、大模型应用等领域。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/427530.html",
+                "title": "OpenAI挖走中科大少年班校友苏炜杰",
+                "summary": "OpenAI挖走中科大少年班校友、哈佛最年轻正教授苏炜杰，加强AI研究团队。",
+                "link": "https://www.qbitai.com/2026/06/428003.html",
                 "source": "AI",
                 "region": "china",
                 "score": 2,
-                "tag": "行业动态"
-            },
-            {
-                "title": "量坤科技获数亿元天使轮融资，AI4S急需量子级精度数据",
-                "summary": "量子计算公司量坤科技完成数亿元天使轮融资，由英诺天使基金领投，将用于开发量子级精度数据，以支撑AI for Science（AI4S）的突破。（来源：36氪）",
-                "link": "https://36kr.com/p/3826034537223043?f=rss",
-                "source": "AI",
-                "region": "china",
-                "score": 3,
                 "tag": "行业动态"
             }
         ];
@@ -346,31 +247,31 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日焦点：Agent产品化加速（Gemini Spark、Nvidia AI PC）与模型效率竞赛（阶跃Flash、Mellum2）。开发者应关注AWS上OpenAI模型的可用性、Agent开发指南，以及世界模型为具身AI带来的新训练范式。国内豆包付费和VAST融资预示商业化与基础设施投入并行。";
+    const __DAILY_ANALYSIS__ = "AI Agent产品化加速，微软Scout和OpenAI机器人标志应用落地；政策监管趋严，特朗普行政令影响模型发布；多模型协作研究突破，国内大模型竞争白热化，开发者需关注合规与协作架构。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                         [
-            {
-                "name": "harry0703/MoneyPrinterTurbo",
-                "desc": "利用AI大模型，一键生成高清短视频 Generate short videos with one click using AI LLM.",
-                "stars": "⭐+3325 today",
-                "link": "https://github.com/harry0703/MoneyPrinterTurbo",
-                "tag": "大模型底层"
-            },
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                 [
             {
                 "name": "sponsors/nesquena",
                 "desc": "Hermes WebUI: The best way to use Hermes Agent from the web or from your phone!",
-                "stars": "⭐+984 today",
+                "stars": "⭐+1725 today",
                 "link": "https://github.com/sponsors/nesquena",
                 "tag": "Agent 框架"
             },
             {
-                "name": "FareedKhan-dev/train-llm-from-scratch",
-                "desc": "A straightforward method for training your LLM, from downloading data to generating text.",
-                "stars": "⭐+860 today",
-                "link": "https://github.com/FareedKhan-dev/train-llm-from-scratch",
+                "name": "sponsors/affaan-m",
+                "desc": "The agent harness performance optimization system. Skills, instincts, memory, security, and research",
+                "stars": "⭐+1597 today",
+                "link": "https://github.com/sponsors/affaan-m",
+                "tag": "Agent 框架"
+            },
+            {
+                "name": "sponsors/chopratejas",
+                "desc": "Compress tool outputs, logs, files, and RAG chunks before they reach the LLM. 60-95% fewer tokens, s",
+                "stars": "⭐+1266 today",
+                "link": "https://github.com/sponsors/chopratejas",
                 "tag": "大模型底层"
             }
         ];
