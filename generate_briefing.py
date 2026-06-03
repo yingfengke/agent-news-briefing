@@ -316,7 +316,7 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
     特性：
       - 每天随机一种语气（极简/毒舌/深度）
       - 失败自动重试，最多 3 次，间隔 5 秒
-      - 解析新 JSON 格式（含 top_news + international + china）
+      - 解析新 JSON 格式（含 news 字段）
 
     返回:
       (style_name, parsed_json)  成功
@@ -395,8 +395,6 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
                     else:
                         raise
 
-            intl = len(parsed.get("international", []))
-            cn = len(parsed.get("china", []))
             print(f"  → AI 筛选: 国外 {intl} 条 + 国内 {cn} 条")
             return (style_name, parsed)
 
@@ -744,17 +742,12 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
     total_output = filter_report.total_output if filter_report else len(news_items)
     filter_tagline = f"今日从 {total_input} 条新闻中精选 {total_output} 条"
 
-    def make_card_html(items_list, region: str = "", start_no=1):
+    def make_card_html(items_list, start_no=1):
         html = []
         for i, item in enumerate(items_list, start_no):
             source_tag = (f'<span style="font-size:10px;color:#888;background:#f0f0ee;'
                           f'padding:2px 10px;border-radius:20px;">{item["source"]}</span>'
                           ) if item.get("source") else ""
-            region_tag = ""
-            if region == "international":
-                region_tag = '<span style="font-size:10px;color:#534AB7;background:#EEEDFE;padding:2px 10px;border-radius:20px;margin-left:4px;">🌐</span>'
-            elif region == "china":
-                region_tag = '<span style="font-size:10px;color:#c0392b;background:#FAEEDA;padding:2px 10px;border-radius:20px;margin-left:4px;">🇨🇳</span>'
             score = item.get("score", 0)
             tag = item.get("tag", "")
             stars = "⭐" * score if score else ""
@@ -766,7 +759,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
             <td style="padding:20px 24px;">
               <div style="margin-bottom:10px;">
                 <span style="font-size:11px;font-weight:700;color:#ccc;letter-spacing:1px;">No.{i:02d}</span>
-                {' ' + source_tag if source_tag else ''}{region_tag}{tag_html}{score_html}
+                {' ' + source_tag if source_tag else ''}{tag_html}{score_html}
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 10px 0;line-height:1.5;">{item["title"]}</h2>
               <p style="font-size:13px;color:#555;margin:0 0 14px 0;line-height:1.7;">{clean_links(item["summary"])}</p>
@@ -775,32 +768,9 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
         </table>""")
         return "\n".join(html)
 
-    intl_items = [it for it in news_items if it.get("region") == "international"]
-    cn_items = [it for it in news_items if it.get("region") == "china"]
-    if not intl_items and not cn_items:
-        intl_items = news_items
-
-    intl_section = ""
-    if intl_items:
-        intl_cards = make_card_html(intl_items, region="international")
-        intl_section = f"""
-        <tr>
-          <td style="padding-bottom:20px;">
-            <div style="font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:12px;">🌐 国外科技</div>
-            {intl_cards}
-          </td>
-        </tr>"""
-
-    cn_section = ""
-    if cn_items:
-        cn_cards = make_card_html(cn_items, region="china")
-        cn_section = f"""
-        <tr>
-          <td style="padding-bottom:20px;border-top:1px dashed #ddd;padding-top:20px;">
-            <div style="font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:12px;">🇨🇳 国内科技</div>
-            {cn_cards}
-          </td>
-        </tr>"""
+    # 统一渲染所有新闻（不区分国内外）
+    news_items_html = make_card_html(news_items)
+    news_sections = news_items_html
 
     analysis_section = ""
     if daily_analysis:
@@ -877,9 +847,7 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
 
     html = template.replace("{{date}}", date_str)
     html = html.replace("{{filter_tagline}}", filter_tagline)
-    html = html.replace("{{international_section}}", intl_section)
-    html = html.replace("{{china_section}}", cn_section)
-    html = html.replace("{{news_items}}", intl_section + cn_section)
+    html = html.replace("{{news_items}}", news_sections)
     html = html.replace("{{daily_analysis_section}}", analysis_section)
     html = html.replace("{{projects_section}}", projects_section)
     html = html.replace("{{filter_report_section}}", filter_report_section)
@@ -1030,7 +998,7 @@ def main():
 
                 return link
 
-            def _try_parse_item(it, region: str = ""):
+            def _try_parse_item(it):
                 """
                 尝试将 AI 返回的条目解析为 dict。
                 支持 dict 直接使用、字符串 JSON 反序列化。
@@ -1056,14 +1024,14 @@ def main():
                             return parsed[0], True
                     except _json.JSONDecodeError:
                         pass
-                print(f"    [警告] 无法解析的条目 ({region}): {str(it)[:80]}")
+                print(f"    [警告] 无法解析的条目: {str(it)[:80]}")
                 return None, False
 
             intl_ok = intl_skip = cn_ok = cn_skip = 0
 
-            if "international" in ai_result and "china" in ai_result:
-                for it in ai_result.get("international", []):
-                    parsed, ok = _try_parse_item(it, "international")
+            if "news" in ai_result:
+                for it in ai_result.get("news", []):
+                    parsed, ok = _try_parse_item(it)
                     if not ok:
                         intl_skip += 1
                         continue
@@ -1074,10 +1042,9 @@ def main():
                         "summary": summary,
                         "link": _extract_link(parsed, summary),
                         "source": parsed.get("source", "AI"),
-                        "region": "international",
                     })
-                for it in ai_result.get("china", []):
-                    parsed, ok = _try_parse_item(it, "china")
+
+
                     if not ok:
                         cn_skip += 1
                         continue
@@ -1088,7 +1055,6 @@ def main():
                         "summary": summary,
                         "link": _extract_link(parsed, summary),
                         "source": parsed.get("source", "AI"),
-                        "region": "china",
                     })
                 total_ok = intl_ok + cn_ok
                 total_skip = intl_skip + cn_skip
@@ -1124,6 +1090,12 @@ def main():
         print("  新闻评分与标签标注")
         print(f"{'=' * 40}")
         final_items = _rate_news_items(final_items)
+    # ---- 5. 按评分排序（高→低） ----
+    print(f"
+  ── 按评分排序（高→低） ──")
+    final_items.sort(key=lambda x: x.get("score", 0) or 0, reverse=True)
+    scored = sum(1 for it in final_items if it.get("score", 0) > 0)
+    print(f"  评分分布: {scored}/{len(final_items)} 条有评分")
 
     # ---- 4. GitHub Trending 项目 ----
     print(f"\n  ── 抓取 GitHub Trending 项目 ──")
