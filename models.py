@@ -26,7 +26,6 @@ class NewsItem:
       crawled_at  — 采集时间 ISO 格式
       published_at— 发布时间 ISO 格式（可选）
       tags        — 技术方向标签，如 ["Agent", "LangChain"]（可选）
-      region      — 分组信息，由 AI 分析阶段填充："international" | "china"
       summary     — AI 生成的摘要，由 AI 分析阶段填充
     """
     id: str
@@ -39,7 +38,6 @@ class NewsItem:
     crawled_at: str
     published_at: str = ""
     tags: list[str] = field(default_factory=list)
-    region: str = ""
     summary: str = ""
 
 
