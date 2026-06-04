@@ -1067,7 +1067,28 @@ def main():
                     detail = f" (跳过 {items_skip} 条无法解析)"
                 print(f"\n  AI 筛选后: {items_ok} 条{detail}")
         else:
-            ai_failed = True
+            # 降级：兼容旧格式 international/china
+            if "international" in ai_result or "china" in ai_result:
+                fallback_items = []
+                for key in ("international", "china"):
+                    for it in ai_result.get(key, []):
+                        parsed, ok = _try_parse_item(it)
+                        if not ok:
+                            continue
+                        summary = parsed.get("summary", "")
+                        fallback_items.append({
+                            "title": parsed.get("title", ""),
+                            "summary": summary,
+                            "link": _extract_link(parsed, summary),
+                            "source": parsed.get("source", "AI"),
+                        })
+                if fallback_items:
+                    print(f"  [降级] 使用旧格式 international/china，解析 {len(fallback_items)} 条")
+                    final_items = fallback_items
+                else:
+                    ai_failed = True
+            else:
+                ai_failed = True
 
     # ---- 新闻评分（独立 API 调用，不影响主体分析） ----
     if final_items and not ai_failed:
