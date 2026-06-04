@@ -1027,15 +1027,15 @@ def main():
                 print(f"    [警告] 无法解析的条目: {str(it)[:80]}")
                 return None, False
 
-            intl_ok = intl_skip = cn_ok = cn_skip = 0
+            ok_count = skip_count = 0
 
             if "news" in ai_result:
                 for it in ai_result.get("news", []):
                     parsed, ok = _try_parse_item(it)
                     if not ok:
-                        intl_skip += 1
+                        skip_count += 1
                         continue
-                    intl_ok += 1
+                    ok_count += 1
                     summary = parsed.get("summary", "")
                     final_items.append({
                         "title": parsed.get("title", ""),
@@ -1043,29 +1043,14 @@ def main():
                         "link": _extract_link(parsed, summary),
                         "source": parsed.get("source", "AI"),
                     })
-
-
-                    if not ok:
-                        cn_skip += 1
-                        continue
-                    cn_ok += 1
-                    summary = parsed.get("summary", "")
-                    final_items.append({
-                        "title": parsed.get("title", ""),
-                        "summary": summary,
-                        "link": _extract_link(parsed, summary),
-                        "source": parsed.get("source", "AI"),
-                    })
-                total_ok = intl_ok + cn_ok
-                total_skip = intl_skip + cn_skip
                 detail = ""
-                if total_skip:
-                    detail = f" (跳过 {total_skip} 条无法解析)"
-                print(f"\n  AI 筛选后: 国外 {intl_ok} 条 + 国内 {cn_ok} 条 = {total_ok} 条{detail}")
+                if skip_count:
+                    detail = f" (跳过 {skip_count} 条无法解析)"
+                print(f"\n  AI 筛选后: {ok_count} 条{detail}")
             elif "items" in ai_result:
                 items_ok = items_skip = 0
                 for it in ai_result["items"]:
-                    parsed, ok = _try_parse_item(it, "items")
+                    parsed, ok = _try_parse_item(it)
                     if not ok:
                         items_skip += 1
                         continue
@@ -1091,8 +1076,7 @@ def main():
         print(f"{'=' * 40}")
         final_items = _rate_news_items(final_items)
     # ---- 5. 按评分排序（高→低） ----
-    print(f"
-  ── 按评分排序（高→低） ──")
+    print(f"\n  ── 按评分排序（高→低） ──")
     final_items.sort(key=lambda x: x.get("score", 0) or 0, reverse=True)
     scored = sum(1 for it in final_items if it.get("score", 0) > 0)
     print(f"  评分分布: {scored}/{len(final_items)} 条有评分")
