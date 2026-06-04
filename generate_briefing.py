@@ -395,7 +395,10 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
                     else:
                         raise
 
-            print(f"  → AI 筛选: 国外 {intl} 条 + 国内 {cn} 条")
+            news_count = len(parsed.get("news", [])) if "news" in parsed else 0
+            if not news_count:
+                news_count = len(parsed.get("international", [])) + len(parsed.get("china", []))
+            print(f"  → AI 筛选: {news_count} 条新闻")
             return (style_name, parsed)
 
         except Exception as e:
