@@ -142,17 +142,202 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                 [];
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                         [
+            {
+                "title": "李飞飞亲自下场定义世界模型：渲染、模拟、规划边界消融",
+                "summary": "李飞飞团队提出世界模型新定义，融合渲染、模拟、规划三大功能。用户价值：为具身智能和自动驾驶提供统一框架，解决多模型碎片化问题。商业模式：学术开源，商业化路径不明。竞争格局：与英伟达 Cosmos、Google DeepMind 等竞争，学术影响力是护城河。标签：值得抄（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/428752.html",
+                "source": "AI",
+                "score": 5,
+                "tag": "前沿研究"
+            },
+            {
+                "title": "OpenAI 将 Codex 与 ChatGPT 连接，从编程工具转向通用工作层",
+                "summary": "OpenAI 将 Codex 从专业编程工具扩展为持续工作层，与 ChatGPT 打通，支持企业工作流自动化。用户价值：解决开发者与业务人员协作效率问题，但可能只是现有 Agent 的换皮。商业模式：按 API 调用或订阅收费，已有收入。竞争格局：与 GitHub Copilot、Claude 等竞争，护城河在 OpenAI 模型生态。标签：真需求（来源：DEV.to、爱范儿、少数派，3 家来源报道）",
+                "link": "https://dev.to/jacob_is_surfing/why-openai-is-connecting-codex-and-chatgpt-hn8",
+                "source": "AI",
+                "score": 4,
+                "tag": "开发工具"
+            },
+            {
+                "title": "扣子 3.0 实测：手机远程遥控电脑里的 Agent，三端打通",
+                "summary": "扣子 3.0 实现桌面、电脑、手机三端打通，用户可通过手机远程操控电脑上的 Agent。用户价值：解决跨设备 Agent 控制痛点，场景真实（如远程办公）。商业模式：免费吸引用户，后续可能通过企业版或增值服务收费。竞争格局：与微软 Copilot、AutoGPT 等竞争，差异化在移动端控制。标签：真需求（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/428648.html",
+                "source": "AI",
+                "score": 4,
+                "tag": "开发工具"
+            },
+            {
+                "title": "GPT-Rosalind 新增生物推理能力，推进生命科学研究",
+                "summary": "OpenAI 为 GPT-Rosalind 增强生物学推理能力，支持蛋白质结构预测、基因分析等。用户价值：解决科研人员专业分析需求，是真问题。商业模式：按 API 调用收费，面向药企和科研机构。竞争格局：与 AlphaFold、BioBERT 等竞争，差异化在通用推理+生物专长。标签：真需求（来源：OpenAI）",
+                "link": "https://openai.com/index/introducing-new-capabilities-to-gpt-rosalind",
+                "source": "AI",
+                "score": 4,
+                "tag": "开发工具"
+            },
+            {
+                "title": "微软发布 Windows Agent 工位，将 PC 变成 Agent 控制中心",
+                "summary": "微软推出新功能，将 Windows PC 转变为 Agent 工位，支持多 Agent 协作。用户价值：解决企业用户管理多个 Agent 的痛点，场景真实。商业模式：捆绑 Windows 订阅或企业版。竞争格局：与扣子、Copilot 等竞争，护城河在操作系统生态。标签：真需求（来源：爱范儿）",
+                "link": "https://www.ifanr.com/1667971?utm_source=rss&utm_medium=rss&utm_campaign=",
+                "source": "AI",
+                "score": 4,
+                "tag": "开发工具"
+            },
+            {
+                "title": "Google 搜索新增 AI 工具，助力二手和复古购物",
+                "summary": "Google 搜索和购物推出 AI 工具，帮助用户发现二手和复古商品。用户价值：解决二手购物信息分散问题，是真需求。商业模式：通过广告和交易佣金。竞争格局：与 eBay、Poshmark 等竞争，差异化在搜索能力。标签：真需求（来源：Google AI）",
+                "link": "https://blog.google/products-and-platforms/products/search/thrifting-tips/",
+                "source": "AI",
+                "score": 4,
+                "tag": "开发工具"
+            },
+            {
+                "title": "直接偏好优化（DPO）超越聊天机器人：新应用探索",
+                "summary": "HuggingFace 博客探讨 DPO 在聊天机器人之外的用途，如推荐系统、机器人控制。用户价值：扩展对齐技术应用场景。商业模式：开源，商业化靠咨询或服务。竞争格局：与 RLHF 竞争，护城河在学术影响力。标签：值得抄（来源：HuggingFace）",
+                "link": "https://huggingface.co/blog/Dharma-AI/direct-preference-optimization-beyond-chatbots",
+                "source": "AI",
+                "score": 4,
+                "tag": "前沿研究"
+            },
+            {
+                "title": "为 Reachy Mini 机器人添加 MCP 工具支持",
+                "summary": "HuggingFace 博客展示如何为 Reachy Mini 机器人集成 MCP（模型上下文协议）工具。用户价值：降低机器人开发门槛。商业模式：开源，硬件销售。竞争格局：与 ROS 等框架竞争，差异化在 AI 原生。标签：值得抄（来源：HuggingFace）",
+                "link": "https://huggingface.co/blog/adding-mcp-tools-to-reachy-mini",
+                "source": "AI",
+                "score": 4,
+                "tag": "开源推荐"
+            },
+            {
+                "title": "视觉图脚手架：增强大语言模型的结构推理能力",
+                "summary": "arXiv 论文提出视觉图脚手架方法，提升 LLM 在结构化推理任务上的表现。用户价值：解决 LLM 在图表、关系推理上的弱点。商业模式：学术开源。竞争格局：与思维链、图神经网络竞争。标签：值得抄（来源：ArXiv）",
+                "link": "https://arxiv.org/abs/2606.02673",
+                "source": "AI",
+                "score": 4,
+                "tag": "前沿研究"
+            },
+            {
+                "title": "AURA：恒定 VRAM 下的动作门控机器人策略记忆",
+                "summary": "arXiv 论文提出 AURA 方法，通过动作门控 KV 缓存实现恒定显存下的机器人策略。用户价值：解决机器人部署中的显存瓶颈。商业模式：学术开源。竞争格局：与模型压缩、蒸馏技术竞争。标签：值得抄（来源：ArXiv）",
+                "link": "https://arxiv.org/abs/2606.02775",
+                "source": "AI",
+                "score": 4,
+                "tag": "前沿研究"
+            },
+            {
+                "title": "习语多语言基准 IdiomX：评估 LLM 的习语理解能力",
+                "summary": "arXiv 论文发布 IdiomX 多语言习语理解基准，覆盖多种语言。用户价值：推动 LLM 对文化特定表达的理解。商业模式：学术开源。竞争格局：与 GLUE、SuperGLUE 等基准竞争。标签：真需求（来源：ArXiv）",
+                "link": "https://arxiv.org/abs/2606.02584",
+                "source": "AI",
+                "score": 4,
+                "tag": "前沿研究"
+            },
+            {
+                "title": "Lovable 与 Google Cloud 签署多年期合作，使用量扩大 5 倍",
+                "summary": "瑞典 AI 初创公司 Lovable 与 Google Cloud 扩大合作，使用量提升 5 倍。用户价值：Lovable 提供 AI 驱动的应用开发平台，解决低代码开发效率问题。商业模式：按使用量付费，与云绑定。竞争格局：与 Retool、Bubble 等竞争，差异化在 AI 原生。标签：真需求（来源：TechCrunch、36氪，2 家来源报道）",
+                "link": "https://techcrunch.com/2026/06/03/lovable-signs-multi-year-deal-with-google-cloud-to-up-usage-5x-source-says/",
+                "source": "AI",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "Alphabet 创纪录 850 亿美元融资，押注 Google AI 业务",
+                "summary": "Alphabet 通过股票出售筹集 850 亿美元，创纪录，用于 AI 基础设施投资。用户价值：间接加速 AI 服务能力。商业模式：资本运作，长期看 AI 收入。竞争格局：与微软、亚马逊竞争，资金规模是护城河。标签：真需求（来源：TechCrunch）",
+                "link": "https://techcrunch.com/2026/06/03/alphabets-record-breaking-85b-raise-for-googles-ai-business-is-a-helluva-good-signal/",
+                "source": "AI",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "DeepSeek 首轮融资约 500 亿元，腾讯、宁德时代领投",
+                "summary": "DeepSeek 完成约 500 亿元首轮融资，腾讯和宁德时代成为最大外部投资者。用户价值：加速大模型研发，但产品尚未大规模落地。商业模式：融资支撑研发，未来靠 API 或行业解决方案。竞争格局：与 OpenAI、百度等竞争，差异化在开源和低成本。标签：商业模式存疑（来源：爱范儿）",
+                "link": "https://www.ifanr.com/1668044?utm_source=rss&utm_medium=rss&utm_campaign=",
+                "source": "AI",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "豆包确认将推出付费版服务",
+                "summary": "字节跳动旗下豆包 AI 助手确认将推出付费版，提供更多高级功能。用户价值：免费版已满足基础需求，付费版需提供差异化价值。商业模式：订阅制，考验用户付费意愿。竞争格局：与 ChatGPT、文心一言等竞争，差异化在字节生态。标签：商业模式存疑（来源：少数派）",
+                "link": "https://sspai.com/post/110698",
+                "source": "AI",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "戴盟机器人完成亿元 A 轮融资，视触觉传感器出货量行业第一",
+                "summary": "戴盟机器人获汇川技术、中国电信亿元融资，用于扩大视触觉传感器产能。用户价值：解决机器人触觉感知难题，是真需求。商业模式：硬件销售+解决方案。竞争格局：与灵巧手、触觉传感器公司竞争，出货量是护城河。标签：真需求（来源：36氪）",
+                "link": "https://36kr.com/p/3837269482091656?f=rss",
+                "source": "AI",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "指尖智擎完成数千万元 Pre-A 融资，专注微型关节模组",
+                "summary": "微型高性能电机企业指尖智擎获深创投领投，用于微型轴关节模组研发。用户价值：解决机器人微型关节精度和成本问题。商业模式：硬件销售。竞争格局：与日本 Harmonic Drive 等竞争，国产替代是机会。标签：真需求（来源：36氪）",
+                "link": "https://36kr.com/p/3837650456430851?f=rss",
+                "source": "AI",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "虚拟电厂可为数据中心提供能源，用户可获补偿",
+                "summary": "虚拟电厂通过协调用户用电行为，为数据中心提供备用能源。用户价值：解决数据中心能耗压力，用户可获补偿。商业模式：能源交易+服务费。竞争格局：与储能、传统电网竞争，护城河在聚合技术。标签：真需求（来源：MIT Tech Review）",
+                "link": "https://www.technologyreview.com/2026/06/03/1138350/virtual-power-plants-data-centers/",
+                "source": "AI",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "AI 越强越暴露空承诺：Google Spark 与 Gemini 实测",
+                "summary": "The Verge 实测 Google 新 AI 代理 Spark，发现能力提升但承诺落空，用户期待与实际差距大。用户价值：提醒行业避免过度营销。商业模式：无直接商业价值。竞争格局：所有 AI 公司面临信任危机。标签：卷但没用（来源：The Verge）",
+                "link": "https://www.theverge.com/ai-artificial-intelligence/942629/as-ai-gets-better-it-reveals-an-empty-promise",
+                "source": "AI",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "LLM 比人类更环保？研究揭示大模型的环境态度",
+                "summary": "arXiv 论文研究 LLM 对环境问题的态度，发现模型倾向于更“绿色”立场。用户价值：揭示 AI 偏见，对产品设计有参考。商业模式：无。竞争格局：无。标签：卷但没用（来源：ArXiv）",
+                "link": "https://arxiv.org/abs/2606.02741",
+                "source": "AI",
+                "score": 3,
+                "tag": "前沿研究"
+            },
+            {
+                "title": "LLM 定价变化：DigitalOcean 和 Parasail 调整价格",
+                "summary": "DigitalOcean 和 Parasail 调整 LLM 模型价格，具体细节未披露。用户价值：价格变动影响开发者成本。商业模式：按量计费。竞争格局：与 AWS、Azure 等竞争，价格战持续。标签：卷但没用（来源：DEV.to）",
+                "link": "https://dev.to/narevbot/changes-to-llm-pricing-digitalocean-and-parasail-1hni",
+                "source": "AI",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "苹果 Vision Pro 系列被砍，仅保留两款智能眼镜",
+                "summary": "曝苹果砍掉 Vision Pro 系列，仅保留两款智能眼镜产品。用户价值：Vision Pro 价格过高、场景有限，砍掉是务实选择。商业模式：转向更轻量、便宜的眼镜，可能走消费级路线。竞争格局：与 Meta Ray-Ban 等竞争，护城河在苹果生态。标签：伪需求（来源：爱范儿）",
+                "link": "https://www.ifanr.com/1668044?utm_source=rss&utm_medium=rss&utm_campaign=",
+                "source": "AI",
+                "score": 2,
+                "tag": "行业动态"
+            },
+            {
+                "title": "亚马逊搜索栏将展示 AI 生成但无法购买的产品图片",
+                "summary": "亚马逊更新搜索栏，展示 AI 生成的商品图片，但用户无法购买这些虚构产品。用户价值：误导用户，解决的是“展示可能性”而非真实购物需求。商业模式：可能用于广告或数据收集。竞争格局：与 Google Shopping 等竞争，差异化在 AI 创意。标签：伪需求（来源：The Verge）",
+                "link": "https://www.theverge.com/tech/942547/amazon-search-bar-ai-images",
+                "source": "AI",
+                "score": 2,
+                "tag": "行业动态"
+            }
+        ];
 
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "AI Agent产品化加速，微软Scout和OpenAI机器人标志应用落地；政策监管趋严，特朗普行政令影响模型发布；多模型协作研究突破，国内大模型竞争白热化，开发者需关注合规与协作架构。";
+    const __DAILY_ANALYSIS__ = "今日 PMF 潜力最高的方向是 Agent 跨端控制和具身智能硬件。扣子 3.0 和微软 Windows Agent 工位都瞄准了用户真实的多设备协作痛点，且已有明确使用场景。具身智能领域，戴盟机器人和指尖智擎的融资表明资本看好传感器和关节模组等核心硬件，出货量数据验证了 PMF。相比之下，大模型融资（如 DeepSeek）和付费版（豆包）仍处于商业模式验证期，而亚马逊 AI 生成图片等属于伪需求。建议产品经理重点关注 Agent 跨端体验和机器人硬件供应链机会。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                         [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                 [
             {
                 "name": "sponsors/chopratejas",
                 "desc": "Compress tool outputs, logs, files, and RAG chunks before they reach the LLM. 60-95% fewer tokens, s",
