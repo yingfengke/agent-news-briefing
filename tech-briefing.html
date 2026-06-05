@@ -142,67 +142,107 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                 [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                         [
             {
-                "title": "Anthropic 发布递归自我改进研究：AI 开始自己写代码优化自己",
-                "summary": "Anthropic 公布递归自我改进（Recursive Self-Improvement）进展，模型可自主编写并执行代码来改进自身推理能力。实验显示，在特定数学推理任务上，经过自我改进的模型准确率提升约 30%，但泛化性仍受限。极客点评：这波操作很硬核，但离“自我进化”还差几个数量级，坑在于 reward hacking 和分布外退化。参数量未披露，FLOPs 未披露。（来源：HackerNews AI，by Anthropic）",
-                "link": "https://www.anthropic.com/institute/recursive-self-improvement",
-                "source": "AI",
-                "score": 5,
-                "tag": "前沿研究"
-            },
-            {
-                "title": "POLARIS：用小模型写出长故事，引导策略突破上下文限制",
-                "summary": "ArXiv 新论文提出 POLARIS 框架，让 7B 级小模型通过分步引导生成超长故事（>10K tokens），在 StoryBench 上连贯性评分提升 22%，接近 70B 模型水平。核心是动态规划叙事结构 + 关键点回溯。极客点评：小模型长文本生成终于有实用方案，但 KV Cache 开销随长度线性增长，实际推理延迟未披露。参数量 7B，FLOPs 未披露。（来源：ArXiv）",
-                "link": "https://arxiv.org/abs/2606.04095",
+                "title": "通过方差感知评分奖励与GRPO改进LLM心脏医学问答",
+                "summary": "arXiv新研究用GRPO和方差感知奖励提升LLM在心脏医学问答中的准确性。PM视角：用户价值在于医疗领域高精度需求，但临床落地需验证。商业模式：可授权给医疗AI公司。竞争格局：与Med-PaLM等竞争，差异化在于奖励机制。标签：[值得抄]（来源：ArXiv CL）",
+                "link": "https://arxiv.org/abs/2606.05174",
                 "source": "AI",
                 "score": 4,
                 "tag": "前沿研究"
             },
             {
-                "title": "Nemotron 3.5 内容安全发布：可定制多模态安全护栏，支持全球企业部署",
-                "summary": "NVIDIA 发布 Nemotron 3.5 Content Safety，提供可定制的多模态安全分类器，覆盖文本、图像、音频，支持 100+ 语言，在 HARM 基准上 F1 达 0.94，误报率低于 2%。极客点评：企业级安全终于有开箱即用的方案，但多模态对齐的鲁棒性仍是痛点，对抗样本攻击下性能下降明显。参数量未披露，FLOPs 未披露。（来源：HuggingFace Blog，by NVIDIA）",
-                "link": "https://huggingface.co/blog/nvidia/nemotron-3-5-content-safety",
+                "title": "有人靠CPU把AI算力密度卷到了新高度",
+                "summary": "英特尔推出CPU优化方案，提升AI算力密度，缓解Agentic AI的算力焦虑。PM视角：用户价值在于降低对GPU依赖，适合边缘部署。商业模式：硬件销售+软件优化服务。竞争格局：与NVIDIA GPU方案竞争，差异化在于成本优势。标签：[真需求]（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/431045.html",
                 "source": "AI",
                 "score": 4,
                 "tag": "开发工具"
             },
             {
-                "title": "EVA-Bench 2.0 发布：3 个领域、121 个工具、213 个场景的 Agent 评估基准",
-                "summary": "ServiceNow 发布 EVA-Bench 2.0，覆盖企业 IT、客服、数据分析三大领域，包含 121 个 API 工具和 213 个任务场景，用于评估 Agent 的工具调用和任务完成能力。初步测试中，GPT-4o 成功率 68%，Claude 3.5 为 71%。极客点评：Agent 评估终于有标准化 benchmark，但场景仍偏静态，缺乏动态环境交互。参数量未披露，FLOPs 未披露。（来源：HuggingFace Blog，by ServiceNow）",
-                "link": "https://huggingface.co/blog/ServiceNow-AI/eva-bench-data",
+                "title": "智源与清华合作成果登上Science：脑科学多模态基础模型Brainμ揭示记忆-睡眠调控机制",
+                "summary": "智源与清华联合发布脑科学多模态基础模型Brainμ，登上Science，揭示记忆与睡眠的神经机制。PM视角：用户价值在于推动脑科学研究和潜在医疗应用。商业模式：学术合作，长期可转化。竞争格局：与谷歌DeepMind等竞争，护城河在于数据和方法独特性。标签：[值得抄]（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/431033.html",
                 "source": "AI",
                 "score": 4,
-                "tag": "开发工具"
+                "tag": "前沿研究"
             },
             {
-                "title": "Gemma 4 12B 单机运行生成完整 DApp：合约+前端一气呵成",
-                "summary": "开发者用 Gemma 4 12B 模型在笔记本上生成完整去中心化应用，包括 Solidity 智能合约和 React 前端，代码可直接部署。模型参数量 12B，推理延迟约 2s/token（本地 RTX 4090）。极客点评：小模型写代码能力已逼近实用，但生成的合约安全性未经审计，生产环境仍需人工 review。参数量 12B，FLOPs 未披露。（来源：DEV.to）",
-                "link": "https://dev.to/port/i-asked-gemma-4-12b-to-create-a-dapp-make-no-mistakes-56c5",
+                "title": "模型崩溃流行病学：通过双层SIR动力学建模合成数据污染",
+                "summary": "arXiv新研究用流行病学模型分析AI模型在合成数据上训练的退化现象，提出双层SIR动力学框架。PM视角：用户价值在于量化数据污染风险，但学术性强，短期难落地。商业模式存疑，主要服务研究社区。竞争格局：与数据治理工具互补，护城河在于理论深度。标签：[伪需求]（来源：ArXiv CL）",
+                "link": "https://arxiv.org/abs/2606.05168",
                 "source": "AI",
-                "score": 4,
-                "tag": "工程实践"
+                "score": 3,
+                "tag": "前沿研究"
             },
             {
-                "title": "字节 AI 2026 四大命题：世界模型年底性能对标 SOTA，豆包付费版确认",
-                "summary": "36氪独家获悉字节 AI 2026 年关键方向：加大对世界模型训练投入，年底前性能达到 SOTA；豆包付费版即将上线；Agent 平台扣子 3.0 打通手机远程控制 PC；内部推理成本优化目标为降低 50%。极客点评：字节这波押注世界模型和 Agent 生态，但世界模型训练 FLOPs 需求巨大，能否追上 Sora 级别存疑。参数量未披露，FLOPs 未披露。（来源：36氪）",
-                "link": "https://36kr.com/p/3838454229027072?f=rss",
+                "title": "纽约州议会通过新数据中心一年禁令",
+                "summary": "纽约州议会通过一年暂停令，禁止新建大型数据中心，以评估能源和环境影响。PM视角：用户价值在于缓解能源压力，但可能抑制AI基础设施发展。商业模式：政策影响，无直接收入。竞争格局：其他州可能跟进或反对，护城河在于法规执行力。标签：[真需求]（来源：The Verge）",
+                "link": "https://www.theverge.com/policy/944041/new-york-data-center-moratorium",
                 "source": "AI",
                 "score": 3,
                 "tag": "行业动态"
             },
             {
-                "title": "TSMC 产能告急：AI 芯片需求远超供给，只能支持这么多",
-                "summary": "台积电高管表示 AI 芯片需求激增，产能已接近极限，CoWoS 先进封装产能尤其紧张，2026 年产能扩张速度仍无法满足所有客户订单。极客点评：这是整个 AI 行业的硬瓶颈，HBM 和 CoWoS 的产能决定了下一代大模型的训练规模。TSMC 未披露具体产能数字，但暗示 3nm 和 2nm 节点利用率超 100%。（来源：The Verge）",
-                "link": "https://www.theverge.com/tech/943066/tsmc-ai-demand-struggles",
+                "title": "谷歌将每月向SpaceX支付9.2亿美元用于计算资源",
+                "summary": "TechCrunch报道谷歌与SpaceX达成巨额计算资源协议，月费9.2亿美元，应对算力短缺。PM视角：用户价值在于解决谷歌AI算力瓶颈，但成本极高。商业模式：云服务转售，利润空间存疑。竞争格局：与AWS、Azure争夺算力，护城河在于独家合作。标签：[商业模式存疑]（来源：TechCrunch）",
+                "link": "https://techcrunch.com/2026/06/05/google-will-pay-spacex-920m-per-month-for-compute/",
                 "source": "AI",
                 "score": 3,
                 "tag": "行业动态"
             },
             {
-                "title": "AI 生成诉讼泛滥：法院面临海量虚假法律文件，法官呼吁技术应对",
-                "summary": "MIT Tech Review 报道，美国联邦法院每月收到数千份由 AI 生成的虚假诉讼，内容看似合法但事实虚构。法官正在探索用 AI 检测 AI 生成内容，初步检测准确率约 85%，但误判率仍高。极客点评：这是 LLM 滥用的典型场景，RAG 和事实核查技术亟需嵌入司法流程，但对抗性生成更难检测。参数量未披露，FLOPs 未披露。（2 家来源交叉验证）",
-                "link": "https://www.technologyreview.com/2026/06/04/1138391/courts-coping-ai-lawsuits/",
+                "title": "微信AI对手机厂商打开一道窄门",
+                "summary": "腾讯客服确认微信与华为、小米等厂商合作推出A2A助手能力，多家厂商已接入。PM视角：用户价值在于跨设备AI助手体验，但功能有限。商业模式：生态绑定，提升微信粘性。竞争格局：与苹果Siri、华为小艺竞争，差异化在于微信生态。标签：[真需求]（来源：36氪）",
+                "link": "https://36kr.com/p/3839575253993985?f=rss",
+                "source": "AI",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "Token大战中，华为云选择了第三条路",
+                "summary": "华为云在国产化算力受限下，不追求Token总量和收入，专注国产算力系统优化。PM视角：用户价值在于国产替代方案，但性能待验证。商业模式：云服务收入，依赖政企客户。竞争格局：与阿里云、腾讯云差异化在于国产化。标签：[真需求]（来源：36氪）",
+                "link": "https://36kr.com/p/3840016255126016?f=rss",
+                "source": "AI",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "垃圾桶里捡零件，弹幕里接需求，B站有群人在用AI野生造产品",
+                "summary": "爱范儿报道B站用户利用AI工具（如Vibe Coding）快速造产品，从弹幕收集需求。PM视角：用户价值在于降低开发门槛，但产品质量参差。商业模式：社区生态，靠流量变现。竞争格局：与专业开发平台竞争，差异化在于草根创新。标签：[值得抄]（来源：爱范儿）",
+                "link": "https://www.ifanr.com/1668088?utm_source=rss&utm_medium=rss&utm_campaign=",
+                "source": "AI",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "是时候造一台AI时代的手机了",
+                "summary": "爱范儿AIDONE第五期讨论AI Agent在手机上的应用，认为手机比电脑更适合AI交互。PM视角：用户价值在于移动AI体验，但硬件和生态挑战大。商业模式：硬件销售+AI服务订阅。竞争格局：与现有手机厂商竞争，差异化在于AI原生设计。标签：[真需求]（来源：爱范儿）",
+                "link": "https://www.ifanr.com/1668163?utm_source=rss&utm_medium=rss&utm_campaign=",
+                "source": "AI",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "苹果App Store四成头部应用已支持AI",
+                "summary": "爱范儿早报报道苹果App Store头部应用中40%已集成AI功能，千问上线肯德基skill。PM视角：用户价值在于AI功能普及，但质量不一。商业模式：应用内购买和订阅。竞争格局：与安卓生态竞争，差异化在于苹果生态整合。标签：[真需求]（来源：爱范儿）",
+                "link": "https://www.ifanr.com/1668169?utm_source=rss&utm_medium=rss&utm_campaign=",
+                "source": "AI",
+                "score": 3,
+                "tag": "行业动态"
+            },
+            {
+                "title": "预测与重建：自监督语言表示学习的联合目标",
+                "summary": "arXiv新论文提出结合预测和重建目标的联合训练方法，改进自监督语言模型。PM视角：用户价值在于提升表征质量，但增量改进，对下游应用影响有限。商业模式：开源研究，无直接变现。竞争格局：与MLM等基线对比，差异化不明显。标签：[卷但没用]（来源：ArXiv CL）",
+                "link": "https://arxiv.org/abs/2606.05173",
+                "source": "AI",
+                "score": 2,
+                "tag": "前沿研究"
+            },
+            {
+                "title": "AI聊天机器人是否让我们失去对大脑的控制？",
+                "summary": "MIT Tech Review报道SXSW伦敦会议讨论AI聊天机器人对用户认知的影响，引发对注意力分散和依赖性的担忧。PM视角：用户价值在于提醒风险，但缺乏解决方案。商业模式：媒体内容，靠广告和订阅。竞争格局：与同类科技评论差异化在于深度分析。标签：[伪需求]（来源：MIT Tech Review）",
+                "link": "https://www.technologyreview.com/2026/06/05/1138427/are-ai-chatbots-making-us-lose-control-of-our-brains/",
                 "source": "AI",
                 "score": 2,
                 "tag": "行业动态"
@@ -212,30 +252,30 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日最值得关注的趋势是递归自我改进和世界模型两条线。Anthropic 的递归自我改进实验虽然初步，但暗示了未来模型自主迭代的方向，预计下半年会有更多团队跟进。字节押注世界模型则说明多模态和物理世界理解成为下一波竞争焦点。硬件端 TSMC 产能瓶颈持续，CoWoS 封装将成为稀缺资源，倒逼推理优化和模型压缩加速。Agent 评估标准化（EVA-Bench 2.0）也预示 Agent 落地进入精细化阶段。";
+    const __DAILY_ANALYSIS__ = "今日最有PMF潜力的方向是AI算力优化和国产替代，如英特尔CPU方案和华为云国产化路径，解决真实算力瓶颈。微信A2A助手和AI原生手机也显示用户需求，但生态成熟度待观察。医疗AI和脑科学模型有长期价值，但短期变现难。整体看，基础设施层机会大于应用层。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                         [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                 [
             {
                 "name": "sponsors/chopratejas",
                 "desc": "Compress tool outputs, logs, files, and RAG chunks before they reach the LLM. 60-95% fewer tokens, s",
-                "stars": "⭐+3139 today",
+                "stars": "⭐+2503 today",
                 "link": "https://github.com/sponsors/chopratejas",
                 "tag": "大模型底层"
             },
             {
                 "name": "NousResearch/hermes-agent",
                 "desc": "The agent that grows with you",
-                "stars": "⭐+1951 today",
+                "stars": "⭐+1821 today",
                 "link": "https://github.com/NousResearch/hermes-agent",
                 "tag": "Agent 框架"
             },
             {
                 "name": "sponsors/affaan-m",
                 "desc": "The agent harness performance optimization system. Skills, instincts, memory, security, and research",
-                "stars": "⭐+1736 today",
+                "stars": "⭐+1368 today",
                 "link": "https://github.com/sponsors/affaan-m",
                 "tag": "Agent 框架"
             }
