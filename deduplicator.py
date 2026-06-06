@@ -5,7 +5,7 @@ deduplicator.py — 智能过滤与去重系统 v2
 4 阶段串联流水线：
   A. URL 去重（SHA256 持久化数据库）
   B. MinHash + LSH 内容指纹去重（datasketch + jieba 分词）
-  C. Embedding 语义去重（BAAI/bge-large-zh-v1.5 + Union-Find 聚类）
+  C. Embedding 语义去重（Qwen/Qwen3-Embedding-4B + Union-Find 聚类）
   D. 来源可信度过滤（白名单/黑名单 + 信号评分）
 
 数据流向：采集层 → 本模块 → AI 分析层
@@ -159,7 +159,7 @@ class SemanticDeduper:
     """
     语义去重：
 
-    1. 调用硅基流动 BAAI/bge-large-zh-v1.5 Embedding API
+    1. 调用硅基流动 Qwen/Qwen3-Embedding-4B Embedding API
     2. 用 title[:50] 作为缓存键，避免重复调用
     3. 用 Union-Find 做聚类，相似度 > 0.92 的合为一簇
     4. 每簇保留发布时间最早的那条
