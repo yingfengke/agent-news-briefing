@@ -39,12 +39,10 @@ EMAIL_OUTPUT = os.path.join(BASE_DIR, "email_content.html")
 CRAWL_LOG_FILE = os.path.join(BASE_DIR, ".crawl_log.json")
 
 # ============================================================
-# RSS 源 — 4 大类 18 个
+# RSS 源 — 4 大类 21 个
 # ============================================================
 RSS_SOURCES = [
     # ==================== 中文媒体与社区 ====================
-    # 机器之心 — RSS 已下线（返回 HTML，非 XML），保留以待恢复；备用 RSSHub 实例均不可达
-    ("机器之心",     "https://jiqizhixin.com/rss",                          "zh"),
     ("量子位",       "https://www.qbitai.com/feed",                         "zh"),
     ("InfoQ中文",    "https://www.infoq.cn/feed",                           "zh"),
     # 阿里云开发者 — 永久 404 已于 2026-05 确认
@@ -65,11 +63,10 @@ RSS_SOURCES = [
     # ("HuggingFace论文",  "https://huggingface.co/papers/feed",              "en"),
     ("ArXiv AI",         "https://arxiv.org/rss/cs.AI",                    "en"),
     ("ArXiv CL",         "https://arxiv.org/rss/cs.CL",                    "en"),
-    ("PapersWithCode",   "https://paperswithcode.com/feed/latest",         "en"),
     ("HuggingFace Blog", "https://huggingface.co/blog/feed.xml",           "en"),
 
     # ==================== 核心框架与开发者博客 ====================
-    ("LangChain",  "https://blog.langchain.dev/rss/",                      "en"),
+    ("LangChain",  "https://langchain-blog.ghost.io/rss/",                 "en"),
     ("OpenAI",     "https://openai.com/blog/rss.xml",                      "en"),
     ("Google AI",  "https://blog.google/technology/ai/rss/",               "en"),
     # Anthropic / Meta AI / LlamaIndex — 永久 404 已于 2026-05 确认
@@ -86,49 +83,47 @@ RSS_SOURCES = [
     ("HackerNews AI", "https://hnrss.org/frontpage?q=ai+OR+agent+OR+llm", "en"),
     ("Reddit ML",     "https://www.reddit.com/r/MachineLearning/.rss",     "en"),
     ("DEV.to AI",     "https://dev.to/feed/tag/ai",                        "en"),
-    ("V2EX AI",       "https://www.v2ex.com/feed/ai.xml",                  "zh"),
     ("Product Hunt",  "https://www.producthunt.com/feed",                  "en"),
     ("TechCrunch AI", "https://techcrunch.com/category/artificial-intelligence/feed/", "en"),
 ]
 
 MAX_PER_SOURCE = {
     # 中文媒体（放宽到 5 条保证素材）
-    "机器之心": 5, "量子位": 5, "InfoQ中文": 5,
+    "量子位": 5, "InfoQ中文": 5,
     "稀土掘金AI": 5, "少数派": 5,
     "极客公园": 5, "爱范儿": 5,
     # 前沿论文
-    "ArXiv AI": 5, "ArXiv CL": 5, "PapersWithCode": 3,
+    "ArXiv AI": 5, "ArXiv CL": 5,
     "HuggingFace Blog": 5,
     # 核心框架
     "LangChain": 3, "OpenAI": 3, "Google AI": 3,
     "VentureBeat AI": 5,
     # 全球社区（高频更新源放宽到 6 条）
     "HackerNews AI": 6, "Reddit ML": 6,
-    "DEV.to AI": 5, "V2EX AI": 3,
+    "DEV.to AI": 5,
     "Product Hunt": 6, "TechCrunch AI": 6,
     # 新增源
     "36氪": 5, "MIT Tech Review": 5, "The Verge AI": 5,
 }
 
 # RSS 备用 URL（当主 RSS 源失败时自动切换，降低单点故障）
-# 注意：机器之心主 RSS 已返回 HTML（非 XML），所有 RSSHub 实例于 2026-05 确认不可达，暂无可用的备用方案
 RSS_FALLBACKS = {
     # 预留：后续如有可用的 RSSHub 实例可在此添加
 }
 
 # 中文来源名称集合（用于 AI 喂入前的分桶）
 CHINESE_SOURCE_NAMES = {
-    "机器之心", "量子位", "InfoQ中文",
+    "量子位", "InfoQ中文",
     "稀土掘金AI", "少数派", "极客公园", "爱范儿", "36氪",
     # 爬虫来源
-    "机器之心爬虫", "量子位爬虫", "魔搭社区爬虫", "腾讯云开发者爬虫",
+    "量子位爬虫", "魔搭社区爬虫", "腾讯云开发者爬虫",
     # 旧版降级回退
     "IT之家AI",
+    # V2EX AI 已于 2026-06 确认不可用，已移除
 }
 
 # 中文来源 -> 爬虫来源名映射（用于 System Prompt 分组规则）
 CHINESE_CRAWLER_SOURCE_MAP = {
-    "机器之心": "机器之心爬虫",
     "量子位": "量子位爬虫",
     "魔搭社区": "魔搭社区爬虫",
     "腾讯云开发者": "腾讯云开发者爬虫",
