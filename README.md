@@ -90,29 +90,27 @@ python send_email.py
 | 极客公园 / 爱范儿 | geekpark.net / ifanr.com |
 | **36氪** | 36kr.com/feed |
 
-### 前沿论文（4 个）
+### 前沿论文（3 个）
 | 源 | RSS |
 |:---|:---|
 | ArXiv AI / CL | arxiv.org/rss/cs.AI / cs.CL |
-| PapersWithCode | paperswithcode.com/feed/latest |
 | HuggingFace Blog | huggingface.co/blog/feed.xml |
 
-### 核心框架 & 官方博客（5 个）
+### 核心框架 & 官方博客（6 个）
 | 源 | RSS |
 |:---|:---|
-| LangChain | blog.langchain.dev/rss |
+| LangChain | langchain-blog.ghost.io/rss |
 | OpenAI | openai.com/blog/rss.xml |
 | Google AI | blog.google/technology/ai/rss |
 | VentureBeat AI | venturebeat.com/category/ai/feed |
 | **MIT Tech Review / The Verge AI** | technologyreview.com / theverge.com |
 
-### 全球社区 & 资讯（6 个）
+### 全球社区 & 资讯（5 个）
 | 源 | RSS |
 |:---|:---|
 | HackerNews AI | hnrss.org/frontpage?q=ai+OR+agent |
 | Reddit ML | reddit.com/r/MachineLearning/.rss |
 | DEV.to AI | dev.to/feed/tag/ai |
-| V2EX AI | v2ex.com/feed/ai.xml |
 | Product Hunt | producthunt.com/feed |
 | TechCrunch AI | techcrunch.com/category/artificial-intelligence/feed |
 
