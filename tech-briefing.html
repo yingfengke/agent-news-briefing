@@ -142,134 +142,126 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                 [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                         [
             {
-                "title": "OpenAI 推出锁定模式防提示注入攻击",
-                "summary": "OpenAI 推出 Lockdown Mode，防止提示注入攻击，保护企业敏感数据。用户价值：解决企业数据泄露真痛点。商业模式：作为企业版增值功能，提升付费意愿。竞争格局：其他 AI 厂商也有类似方案，但 OpenAI 品牌信任度更高。标签：[真需求]（来源：TechCrunch）",
-                "link": "https://techcrunch.com/2026/06/06/openai-unveils-lockdown-mode-to-protect-sensitive-data-from-prompt-injection-attacks/",
+                "title": "5分钟AI长视频不翻车！国产开源框架杀到全球第一梯队",
+                "summary": "国产开源AI框架实现5分钟长视频生成，高一致性、低延迟、实时超分。这解决了视频内容创作效率问题，是真需求。商业模式可通过开源社区版+企业版收费。竞争格局中，与Runway、Pika等竞品比，差异化在于开源和长视频能力，护城河中等。标签：[值得抄]（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/431401.html",
+                "source": "AI",
+                "score": 5,
+                "tag": "开发工具"
+            },
+            {
+                "title": "如何让内容在AI搜索中显示：实用清单",
+                "summary": "用户不再仅用Google搜索，而是通过ChatGPT和AI摘要获取信息。文章提供了一份优化内容以适配AI搜索的清单。这解决了内容创作者在AI时代的可见性问题，是真需求。商业模式可通过SEO工具订阅或咨询服务变现。竞争格局中，已有类似工具但差异化在于聚焦AI搜索算法，护城河中等。标签：[真需求]（来源：DEV.to AI）",
+                "link": "https://dev.to/tanguy_dekeyzer/how-to-make-your-content-show-up-in-ai-search-a-practical-checklist-8fd",
                 "source": "AI",
                 "score": 4,
                 "tag": "开发工具"
             },
             {
-                "title": "为本地企业构建并变现 AI 文档聊天机器人教程",
-                "summary": "教程：为本地企业构建并变现 AI 文档聊天机器人。用户价值：帮助中小企业低成本实现客服自动化，解决人力不足。商业模式：按项目收费或 SaaS 订阅，有真实收入。竞争格局：门槛低，但可结合垂直行业数据形成壁垒，值得复制。标签：[值得抄]（来源：DEV.to）",
-                "link": "https://dev.to/s_gr_a8fd54dcadbb3aaa65b0/how-to-build-and-monetize-a-custom-ai-documentation-chatbot-for-local-businesses-in-2026-2d89",
+                "title": "用Claude API自动化Reddit监控（附完整代码）",
+                "summary": "开发者分享如何利用Claude API自动化监控Reddit上的讨论，节省手动跟踪时间。这解决了品牌监控和舆情管理的效率问题，是真需求。商业模式可包装为SaaS工具，按API调用量收费。竞争格局中，与Brandwatch等竞品比，差异化在于低代码和AI分析能力，护城河较浅但实用性强。标签：[值得抄]（来源：DEV.to AI，作者：Henry Knight）",
+                "link": "https://dev.to/henryknight_dev/how-i-automated-reddit-monitoring-with-the-claude-api-full-code-1g7g",
                 "source": "AI",
                 "score": 4,
                 "tag": "工程实践"
             },
             {
-                "title": "WWDC 2026 前瞻：Siri 重大改版与 Apple Intelligence 更新",
-                "summary": "WWDC 2026 将展示 Siri 重大改版和 Apple Intelligence 更新。用户价值：解决 Siri 落后问题，提升用户体验。商业模式：苹果生态内增值，促进硬件销售。竞争格局：与 Google Gemini、Amazon Alexa 竞争，苹果隐私优势是护城河。标签：[真需求]（来源：The Verge、TechCrunch，2家来源报道）",
-                "link": "https://www.theverge.com/tech/944245/apple-wwdc-2026-ai-siri-gemini",
+                "title": "AI提示词解释混淆C代码",
+                "summary": "作者设计了一个提示词模板，让AI分析并解释混淆的C代码。这解决了逆向工程和代码理解难题，是真需求。商业模式可集成到IDE插件或安全工具中。竞争格局中，GitHub Copilot等已有类似功能，差异化在于专注混淆代码场景，护城河较浅。标签：[值得抄]（来源：DEV.to AI）",
+                "link": "https://dev.to/itsevilduck/ai-prompt-to-explain-obfuscated-c-code-1n9k",
+                "source": "AI",
+                "score": 4,
+                "tag": "工程实践"
+            },
+            {
+                "title": "AI“内容创作者”越来越难辨认",
+                "summary": "AI生成的虚拟形象和内容日益逼真，如Aitana Lopez这样的AI网红已难以与真人区分。这引发了内容真实性危机，用户信任度下降，平台审核成本激增。从PM视角看，这解决了内容生产效率问题，但本质是伪需求——用户真正需要的是可信内容，而非更多虚假信息。商业模式依赖广告和品牌合作，但长期可持续性存疑。竞争格局中，缺乏有效鉴别工具，护城河浅。标签：[伪需求]（来源：The Verge AI）",
+                "link": "https://www.theverge.com/ai-artificial-intelligence/943187/ai-content-creators",
                 "source": "AI",
                 "score": 3,
                 "tag": "行业动态"
             },
             {
-                "title": "豆包付费后月活减少 610 万",
-                "summary": "豆包推出付费后月活减少 610 万，用户对 AI 助手付费意愿低。用户价值：付费墙导致用户流失，说明免费模式更吸引。商业模式：订阅制收入不足以弥补用户损失，需重新评估。竞争格局：ChatGPT、文心一言等仍以免费为主，豆包需差异化。标签：[商业模式存疑]（来源：36氪）",
-                "link": "https://36kr.com/p/3840996342073604?f=rss",
+                "title": "Token末日是否来临？",
+                "summary": "随着AI公司计划上市，Token价格可能持续上涨，引发对成本压力的担忧。这揭示了AI服务定价模式的不确定性，是真需求——企业需要成本可控的AI方案。商业模式上，涨价可能损害用户关系，但短期可提升收入。竞争格局中，开源模型和替代方案成为潜在威胁，护城河在于品牌和生态。标签：[真需求]（来源：TechCrunch AI）",
+                "link": "https://techcrunch.com/2026/06/07/is-this-the-dawn-of-the-tokenpocalypse/",
                 "source": "AI",
                 "score": 3,
                 "tag": "行业动态"
             },
             {
-                "title": "港股鞋王千百度转型 AI 数据公司",
-                "summary": "港股鞋王千百度收购 AI 数据公司，转型“鞋履+AI 数据”双主业。用户价值：为 AI 训练提供数据标注服务，是刚需。商业模式：数据服务收费，但转型风险大。竞争格局：已有 Scale AI 等巨头，差异化在传统行业数据积累。标签：[真需求]（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/431056.html",
+                "title": "老板的视频是伪造的？六摄像头与看不见的谎言",
+                "summary": "文章探讨了从表面深度伪造到几何结构合成视频的技术演进，揭示了视频伪造的隐蔽性。这解决了视频真实性验证问题，是真需求。商业模式可提供检测服务或工具。竞争格局中，已有Deepfake检测工具，差异化在于应对新型合成技术，护城河中等。标签：[真需求]（来源：DEV.to AI）",
+                "link": "https://dev.to/caracomp/that-video-of-your-boss-six-cameras-and-a-lie-you-cant-see-13h7",
+                "source": "AI",
+                "score": 3,
+                "tag": "前沿研究"
+            },
+            {
+                "title": "教你用AI一节课收17万，华尔街精英排着队付费",
+                "summary": "AI培训课程单节收费17万元，花旗、美银等华尔街机构成为客户。这解决了企业AI技能提升的刚需，是真需求。商业模式通过高价课程和咨询变现，利润丰厚。竞争格局中，与Coursera等平台比，差异化在于定制化和高端定位，护城河较深。标签：[真需求]（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/431487.html",
                 "source": "AI",
                 "score": 3,
                 "tag": "行业动态"
             },
             {
-                "title": "B 站启动 AI 创造公开赛",
-                "summary": "B 站启动 AI 创造公开赛，鼓励用户用 AI 造产品，观众投币定前十。用户价值：激发创意，降低 AI 应用门槛。商业模式：平台流量和社区活跃度，间接变现。竞争格局：与其他 AI 比赛类似，但 B 站社区氛围独特，值得借鉴。标签：[值得抄]（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/431287.html",
-                "source": "AI",
-                "score": 3,
-                "tag": "行业动态"
-            },
-            {
-                "title": "高通汽车 AI 布局深化，单季营收 13 亿美元",
-                "summary": "高通汽车业务单季营收 13 亿美元，同比增长 38%，布局从感知智能到智能体 AI。用户价值：为汽车提供智能座舱和自动驾驶算力。商业模式：芯片销售，营收增长快。竞争格局：与英伟达、Mobileye 竞争，高通在通信和功耗有优势。标签：[真需求]（来源：爱范儿）",
-                "link": "https://www.ifanr.com/1668242?utm_source=rss&utm_medium=rss&utm_campaign=",
-                "source": "AI",
-                "score": 3,
-                "tag": "行业动态"
-            },
-            {
-                "title": "Meta 用 AI 生成点击诱饵新闻推送",
-                "summary": "Meta 在其 App 中推出 AI 生成的点击诱饵新闻推送，用 AI 批量制造低质内容。用户价值：为平台提供低成本内容，但损害用户体验，是伪需求。商业模式：广告收入，但长期侵蚀用户信任。竞争格局：与新闻机构冲突，面临监管风险。标签：[伪需求]（来源：The Verge）",
-                "link": "https://www.theverge.com/ai-artificial-intelligence/944235/meta-app-ai-clickbait-articles",
+                "title": "全渠道商务仍是噱头，谁真正实现了它？",
+                "summary": "文章批评多数全渠道商务方案只是表面功夫，只有少数机构能真正打通线上线下数据。这解决了零售业数据孤岛问题，是真需求。商业模式通过咨询和技术服务收费。竞争格局中，Shopify等平台已有基础，差异化在于深度整合能力，护城河较深。标签：[真需求]（来源：DEV.to AI）",
+                "link": "https://dev.to/elogic_commerce/omnichannel-commerce-is-still-mostly-theater-heres-who-makes-it-real-j0c",
                 "source": "AI",
                 "score": 2,
                 "tag": "行业动态"
             },
             {
-                "title": "特朗普政府可能获得 OpenAI 股权",
-                "summary": "特朗普政府可能通过交易获得 OpenAI 股权，以换取算力和政策支持。用户价值：国家 AI 战略层面，普通用户无直接价值。商业模式：政府投资换取技术主权，OpenAI 获得资金。竞争格局：可能改变 AI 产业格局，其他公司面临政策压力。标签：[商业模式存疑]（来源：TechCrunch）",
-                "link": "https://techcrunch.com/2026/06/06/the-trump-administration-might-take-an-equity-stake-in-openai/",
+                "title": "地平线创始人余凯不投离职创业员工？",
+                "summary": "地平线创始人余凯对离职创业员工采取“放任”态度，引发行业讨论。这反映了AI人才流动和创业文化，是伪需求——对产品无直接价值。商业模式不适用。竞争格局中，其他公司可能更严格，差异化在于开放文化，但护城河不深。标签：[伪需求]（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/431931.html",
                 "source": "AI",
                 "score": 2,
                 "tag": "行业动态"
             },
             {
-                "title": "Anthropic 呼吁全球放缓 AI 开发，自曝 80% 代码由 AI 编写",
-                "summary": "Anthropic 呼吁全球放缓 AI 开发，自曝 80% 代码由 AI 编写。用户价值：警示 AI 风险，但自身言行不一，是伪需求。商业模式：靠融资，呼吁放缓可能为自身争取时间。竞争格局：与 OpenAI 竞争，差异化在安全但被质疑。标签：[伪需求]（来源：爱范儿、36氪，2家来源报道）",
-                "link": "https://www.ifanr.com/1668239?utm_source=rss&utm_medium=rss&utm_campaign=",
-                "source": "AI",
-                "score": 2,
-                "tag": "行业动态"
-            },
-            {
-                "title": "印第安纳州数据中心争议：市长称反对者住“破房子”",
-                "summary": "印第安纳州谢尔比维尔市长称只有住“破房子”的人反对 20 亿美元数据中心。用户价值：数据中心带来就业和税收，但居民反对噪音能耗。商业模式：数据中心运营盈利。竞争格局：选址竞争，政策风险。标签：[真需求]（来源：The Verge）",
-                "link": "https://www.theverge.com/ai-artificial-intelligence/944984/shelbyville-indiana-mayor-shitty-houses-data-center",
-                "source": "AI",
-                "score": 2,
-                "tag": "行业动态"
-            },
-            {
-                "title": "Hinton 称 AI 已有意识",
-                "summary": "Hinton 声称 AI 已有意识，引发学界和公众热议。用户价值：无直接产品价值，但推动 AI 伦理讨论。商业模式：无。竞争格局：纯学术观点，不影响现有产品竞争。标签：[卷但没用]（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/431349.html",
+                "title": "马斯克39页SpaceX计划：人类史上最伟大的PPT",
+                "summary": "SpaceX发布39页IPO招股书，马斯克称其为人类史上最伟大的PPT。这解决了太空探索融资问题，是真需求。商业模式通过IPO募资，长期依赖商业发射和政府合同。竞争格局中，与蓝色起源等竞争，差异化在于可重复使用火箭和星链生态，护城河极深。标签：[真需求]（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/431694.html",
                 "source": "AI",
                 "score": 1,
-                "tag": "前沿研究"
+                "tag": "行业动态"
             }
         ];
 
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日最有 PMF 潜力的方向是企业 AI 安全。OpenAI Lockdown Mode 直接解决提示注入攻击这一真实痛点，企业付费意愿强，商业模式清晰（企业版增值）。竞争格局中，OpenAI 品牌信任度是护城河，且安全需求随 AI 应用深化持续增长。相比之下，Siri 改版依赖苹果生态但用户迁移成本低；汽车 AI 虽增长快但竞争激烈。建议关注企业级 AI 安全工具和服务的创业机会。";
+    const __DAILY_ANALYSIS__ = "今日最有PMF潜力的方向是AI视频生成和AI培训。国产开源框架在长视频生成上取得突破，满足内容创作的高效需求，且开源策略利于生态构建。AI培训高价课程被华尔街抢购，证明企业级AI技能提升是刚需，付费意愿强。Token价格上涨趋势也值得关注，可能推动成本优化方案的需求。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                         [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                 [
             {
-                "name": "sponsors/obra",
-                "desc": "An agentic skills framework &amp; software development methodology that works.",
-                "stars": "⭐+1008 today",
-                "link": "https://github.com/sponsors/obra",
+                "name": "NousResearch/hermes-agent",
+                "desc": "The agent that grows with you",
+                "stars": "⭐+1117 today",
+                "link": "https://github.com/NousResearch/hermes-agent",
                 "tag": "Agent 框架"
             },
             {
-                "name": "Panniantong/Agent-Reach",
-                "desc": "Give your AI agent eyes to see the entire internet. Read &amp; search Twitter, Reddit, YouTube, GitH",
-                "stars": "⭐+700 today",
-                "link": "https://github.com/Panniantong/Agent-Reach",
+                "name": "mvanhorn/last30days-skill",
+                "desc": "AI agent skill that researches any topic across Reddit, X, YouTube, HN, Polymarket, and the web - th",
+                "stars": "⭐+1097 today",
+                "link": "https://github.com/mvanhorn/last30days-skill",
                 "tag": "Agent 框架"
             },
             {
-                "name": "CopilotKit/CopilotKit",
-                "desc": "The Frontend Stack for Agents &amp; Generative UI. React, Angular, Mobile, Slack, and more. Makers o",
-                "stars": "⭐+613 today",
-                "link": "https://github.com/CopilotKit/CopilotKit",
-                "tag": "Agent 框架"
+                "name": "aaif-goose/goose",
+                "desc": "an open source, extensible AI agent that goes beyond code suggestions - install, execute, edit, and ",
+                "stars": "⭐+338 today",
+                "link": "https://github.com/aaif-goose/goose",
+                "tag": "大模型底层"
             }
         ];
 
