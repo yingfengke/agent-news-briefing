@@ -1045,6 +1045,8 @@ def main():
                         "summary": summary,
                         "link": _extract_link(parsed, summary),
                         "source": parsed.get("source", "AI"),
+                        "score": parsed.get("score", 0),
+                        "tags": parsed.get("tags", []),
                     })
                 detail = ""
                 if skip_count:
@@ -1064,6 +1066,8 @@ def main():
                         "summary": summary,
                         "link": _extract_link(parsed, summary),
                         "source": parsed.get("source", "AI"),
+                        "score": parsed.get("score", 0),
+                        "tags": parsed.get("tags", []),
                     })
                 detail = ""
                 if items_skip:

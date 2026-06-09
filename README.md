@@ -10,7 +10,7 @@
 
 ```
 多模态数据采集层 (collector.py)
-  └─ RSS 源 21 个（4 大类）
+  └─ RSS 源 28 个（4 大类）
        ↓ 原始数据池
 智能过滤与去重层 (deduplicator.py)
   ├─ URL 去重（SHA256 数据库，当日）
@@ -80,14 +80,13 @@ python send_email.py
 
 ## 数据源阵容
 
-### 中文媒体（6 个）
+### 中文媒体（5 个）
 | 源 | RSS |
 |:---|:---|
 | 量子位 | qbitai.com/feed |
 | InfoQ 中文 | infoq.cn/feed |
 | 稀土掘金 AI | juejin.cn/rss |
 | 少数派 | sspai.com/feed |
-| 极客公园 / 爱范儿 | geekpark.net / ifanr.com |
 | **36氪** | 36kr.com/feed |
 
 ### 前沿论文（3 个）
@@ -96,23 +95,36 @@ python send_email.py
 | ArXiv AI / CL | arxiv.org/rss/cs.AI / cs.CL |
 | HuggingFace Blog | huggingface.co/blog/feed.xml |
 
-### 核心框架 & 官方博客（6 个）
+### 核心框架 & 大厂博客（11 个）
 | 源 | RSS |
 |:---|:---|
-| LangChain | langchain-blog.ghost.io/rss |
+| ~~LangChain~~ | ~~langchain-blog.ghost.io/rss~~（已失效） |
 | OpenAI | openai.com/blog/rss.xml |
 | Google AI | blog.google/technology/ai/rss |
 | VentureBeat AI | venturebeat.com/category/ai/feed |
+| Anthropic News | rsshub.bestblogs.dev/anthropic/news |
+| Google DeepMind | deepmind.com/blog/feed/basic/ |
+| AI at Meta | rsshub.bestblogs.dev/meta/ai/blog |
+| AWS ML Blog | aws.amazon.com/blogs/amazon-ai/feed/ |
+| GitHub Blog | github.blog/feed/ |
 | **MIT Tech Review / The Verge AI** | technologyreview.com / theverge.com |
 
-### 全球社区 & 资讯（5 个）
+### Twitter 大佬 & 全球社区（11 个）
 | 源 | RSS |
 |:---|:---|
 | HackerNews AI | hnrss.org/frontpage?q=ai+OR+agent |
 | Reddit ML | reddit.com/r/MachineLearning/.rss |
 | DEV.to AI | dev.to/feed/tag/ai |
 | Product Hunt | producthunt.com/feed |
+| **Twitter @karpathy** | xgo.ing（AI 教育/LLM 深度思考） |
+| **Twitter @_akhaliq** | xgo.ing（AI 论文速递） |
+| **Twitter @AndrewYNg** | xgo.ing（AI 趋势风向标） |
+| **Twitter @AlexAlbert__** | xgo.ing（Anthropic 内部视角） |
+| **Twitter @AIatMeta** | xgo.ing（Meta AI 官方发布） |
+| **Twitter @aiDotEngineer** | xgo.ing（AI Engineer 社区） |
 | TechCrunch AI | techcrunch.com/category/artificial-intelligence/feed |
+
+> **注**：极客公园、爱范儿已临时停用（内容偏泛科技/AI 浓度低）；LangChain 域名迁移后不稳定；`PapersWithCode` 已被 Meta 关站；`V2EX AI` RSS 地址不可达。以上源已注释保留在 `config.py` 中，待恢复后随时启用。
 
 ## 项目结构
 
@@ -145,6 +157,8 @@ python send_email.py
 | 黑名单域名 | 7 个 |
 | 随机语气 | 极简风 / 毒舌风 / 深度风 / 极客风 / 微博热搜风 / 产品经理风 |
 | 彩蛋库 | 40 条 AI 冷知识 |
+| 采集配额 | 中文媒体3条 / 论文3条 / 大厂博客2条 / Twitter大佬4条 / 社区3条 |
+| 送审配额 | 来源平衡制：每源保底2条，最多送审30条 |
 
 ## 触发机制
 
