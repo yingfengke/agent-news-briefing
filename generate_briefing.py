@@ -309,6 +309,47 @@ def _truncate_context(items_for_ai: list[NewsItem], system_prompt: str,
                           content_limit=content_limit, max_items=max_items)
 
 
+def _safe_parse_json(text: str) -> dict:
+    """
+    健壮的 JSON 解析，兜底处理 AI 输出的各种不规范格式。
+    """
+    text = text.strip()
+    if not text:
+        return {}
+
+    # 去掉 markdown 代码块
+    if text.startswith("```"):
+        end_md = text.find("```", 3)
+        if end_md != -1:
+            text = text[3:end_md]
+        else:
+            text = text[3:]
+        text = text.strip()
+        if text.startswith("json"):
+            text = text[4:].strip()
+
+    # 提取第一个 { ... } 块
+    m = re.search(r"(\{[\s\S]*\})", text)
+    if m:
+        text = m.group(1)
+
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+
+    # 兜底：去掉末尾多余逗号
+    text = re.sub(r",\s*}", "}", text)
+    text = re.sub(r",\s*]", "]", text)
+
+    # 单引号转双引号
+    text = re.sub(r"'([^']+)'(\s*[:,\]}])", lambda m: chr(34) + m.group(1) + chr(34) + m.group(2), text)
+
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        return {}
+
 def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
     """
     将过滤后的干净新闻发给大模型。
@@ -380,20 +421,10 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
             content = result["choices"][0]["message"]["content"]
             print(f"✔ 成功 ({len(content)} 字符)")
 
-            # 解析 JSON
-            try:
-                parsed = json.loads(content)
-            except json.JSONDecodeError:
-                m = re.search(r"```(?:json)?\s*([\s\S]*?)```", content)
-                if m:
-                    parsed = json.loads(m.group(1).strip())
-                else:
-                    start = content.find("{")
-                    end = content.rfind("}")
-                    if start != -1 and end > start:
-                        parsed = json.loads(content[start:end+1])
-                    else:
-                        raise
+            # 解析 JSON（使用稳健解析器兜底）
+            parsed = _safe_parse_json(content)
+            if not parsed:
+                raise ValueError("AI 返回内容无法解析为 JSON")
 
             news_count = len(parsed.get("news", [])) if "news" in parsed else 0
             if not news_count:
