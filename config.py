@@ -39,7 +39,7 @@ EMAIL_OUTPUT = os.path.join(BASE_DIR, "email_content.html")
 CRAWL_LOG_FILE = os.path.join(BASE_DIR, ".crawl_log.json")
 
 # ============================================================
-# RSS 源 — 4 大类 21 个
+# RSS 源 — 4 大类 28 个
 # ============================================================
 RSS_SOURCES = [
     # ==================== 中文媒体与社区 ====================
@@ -53,8 +53,8 @@ RSS_SOURCES = [
     ("稀土掘金AI",   "https://juejin.cn/rss",                              "zh"),
     ("少数派",       "https://sspai.com/feed",                              "zh"),
     # 新增中文源：极客公园、爱范儿（弥补阿里云/腾讯云删除后的空缺）
-    ("极客公园",     "https://www.geekpark.net/rss",                        "zh"),
-    ("爱范儿",       "https://www.ifanr.com/feed",                          "zh"),
+    # ("极客公园",     "https://www.geekpark.net/rss",                        "zh"),  # 2026-06 临时不可用，保留备用
+    # ("爱范儿",       "https://www.ifanr.com/feed",                          "zh"),  # 内容偏消费电子，保留备用
     # 新增中文源：36氪（AI 创业报道，与量子位技术向互补）
     ("36氪",         "https://36kr.com/feed",                               "zh"),
 
@@ -66,9 +66,15 @@ RSS_SOURCES = [
     ("HuggingFace Blog", "https://huggingface.co/blog/feed.xml",           "en"),
 
     # ==================== 核心框架与开发者博客 ====================
-    ("LangChain",  "https://langchain-blog.ghost.io/rss/",                 "en"),
+    # ("LangChain",  "https://langchain-blog.ghost.io/rss/",                 "en"),  # 域名迁移后不稳定，保留备用
     ("OpenAI",     "https://openai.com/blog/rss.xml",                      "en"),
     ("Google AI",  "https://blog.google/technology/ai/rss/",               "en"),
+    # 新增大厂技术博客
+    ("Anthropic News", "https://rsshub.bestblogs.dev/anthropic/news",         "en"),
+    ("Google DeepMind", "https://deepmind.com/blog/feed/basic/",             "en"),
+    ("AI at Meta",      "https://rsshub.bestblogs.dev/meta/ai/blog",         "en"),
+    ("AWS ML Blog",     "https://aws.amazon.com/blogs/amazon-ai/feed/",      "en"),
+    ("GitHub Blog",     "https://github.blog/feed/",                         "en"),
     # Anthropic / Meta AI / LlamaIndex — 永久 404 已于 2026-05 确认
     # ("Anthropic",  "https://www.anthropic.com/blog/rss.xml",               "en"),
     # ("Meta AI",    "https://ai.meta.com/blog/feed/",                       "en"),
@@ -84,26 +90,41 @@ RSS_SOURCES = [
     ("Reddit ML",     "https://www.reddit.com/r/MachineLearning/.rss",     "en"),
     ("DEV.to AI",     "https://dev.to/feed/tag/ai",                        "en"),
     ("Product Hunt",  "https://www.producthunt.com/feed",                  "en"),
+    # ==================== Twitter 大佬（xgo.ing RSS 桥接） ====================
+    ("Twitter @karpathy",   "https://api.xgo.ing/rss/user/edf707b5c0b248579085f66d7a3c5524", "en"),
+    ("Twitter @_akhaliq",   "https://api.xgo.ing/rss/user/341f7b9f8d9b477e8bb200caa7f32c6e", "en"),
+    ("Twitter @AndrewYNg",  "https://api.xgo.ing/rss/user/08b5488b20bc437c8bfc317a52e5c26d", "en"),
+    ("Twitter @AlexAlbert__", "https://api.xgo.ing/rss/user/524525de0d69407b80f0a7d891fdc8df", "en"),
+    ("Twitter @AIatMeta",   "https://api.xgo.ing/rss/user/ef7c70f9568d45f4915169fef4ce90b4", "en"),
+    ("Twitter @aiDotEngineer", "https://api.xgo.ing/rss/user/7d19a619a1cc4a9896129211269d2c85", "en"),
     ("TechCrunch AI", "https://techcrunch.com/category/artificial-intelligence/feed/", "en"),
 ]
 
 MAX_PER_SOURCE = {
     # 中文媒体（放宽到 5 条保证素材）
-    "量子位": 5, "InfoQ中文": 5,
-    "稀土掘金AI": 5, "少数派": 5,
-    "极客公园": 5, "爱范儿": 5,
+    "量子位": 3, "InfoQ中文": 3,
+    "稀土掘金AI": 3, "少数派": 3,
+    # "极客公园": 5, "爱范儿": 5,  # 已注释
     # 前沿论文
-    "ArXiv AI": 5, "ArXiv CL": 5,
-    "HuggingFace Blog": 5,
+    "ArXiv AI": 3, "ArXiv CL": 3,
+    "HuggingFace Blog": 3,
     # 核心框架
-    "LangChain": 3, "OpenAI": 3, "Google AI": 3,
-    "VentureBeat AI": 5,
+    # "LangChain": 3,  # 已注释
+    "OpenAI": 2, "Google AI": 2,
+    # 大厂技术博客
+    "Anthropic News": 2, "Google DeepMind": 2,
+    "AI at Meta": 2, "AWS ML Blog": 2, "GitHub Blog": 2,
+    "VentureBeat AI": 3,
+    # Twitter 大佬（调高配额，xgo.ing 稳定性好）
+    "Twitter @karpathy": 4, "Twitter @_akhaliq": 4,
+    "Twitter @AndrewYNg": 4, "Twitter @AlexAlbert__": 4, "Twitter @AIatMeta": 4,
+    "Twitter @aiDotEngineer": 4,
     # 全球社区（高频更新源放宽到 6 条）
-    "HackerNews AI": 6, "Reddit ML": 6,
-    "DEV.to AI": 5,
-    "Product Hunt": 6, "TechCrunch AI": 6,
+    "HackerNews AI": 3, "Reddit ML": 3,
+    "DEV.to AI": 3,
+    "Product Hunt": 3, "TechCrunch AI": 3,
     # 新增源
-    "36氪": 5, "MIT Tech Review": 5, "The Verge AI": 5,
+    "36氪": 3, "MIT Tech Review": 3, "The Verge AI": 3,
 }
 
 # RSS 备用 URL（当主 RSS 源失败时自动切换，降低单点故障）
