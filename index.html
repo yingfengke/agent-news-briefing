@@ -142,77 +142,171 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                 [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                         [
             {
-                "title": "#📈热 开源社区力挺 OpenEnv 框架#",
-                "summary": "HuggingFace 博客宣布开源社区正在支持 OpenEnv，一个用于 Agentic 强化学习的框架。该框架旨在简化智能体训练和部署，推动 RL 在 Agent 领域的普及。（来源：HuggingFace Blog）网友A：开源社区又发力了，Agent 强化学习要起飞？网友B：OpenEnv 听起来像 OpenAI 的亲戚，但开源才是未来。",
-                "link": "https://huggingface.co/blog/openenv-agentic-rl",
+                "title": "Anthropic 发布 Claude Fable 5 和 Mythos 5 模型",
+                "summary": "Anthropic 推出 Claude Fable 5（Mythos 级），可一键生成趣味视频游戏，面向开发者与创作者。（该消息被2家来源报道）",
+                "link": "https://www.anthropic.com/news/claude-fable-5-mythos-5",
                 "source": "AI",
-                "score": 5,
+                "score": 4,
+                "tags": [
+                    "大模型"
+                ],
                 "tag": "开发工具"
             },
             {
-                "title": "#📈热 高德发布 3D 原生场景生成模型#",
-                "summary": "高德发布 ABot-Earth0.5，跨越 2D 蒸馏模式，以 3D 原生驱动高一致性场景生成，正式开放内测。这将极大提升地图和自动驾驶场景的生成质量。（来源：量子位）网友A：高德这是要抢游戏引擎的饭碗？网友B：3D 原生生成，地图终于要告别纸片人了。",
-                "link": "https://www.qbitai.com/2026/06/432489.html",
+                "title": "GitHub Copilot CLI 支持自定义 Agent 工作流",
+                "summary": "GitHub 推出 Copilot CLI 自定义 Agent 功能，开发者可将单次提示转化为可复用的终端工作流，提升效率。（来源：GitHub Blog）",
+                "link": "https://github.blog/ai-and-ml/github-copilot/from-one-off-prompts-to-workflows-how-to-use-custom-agents-in-github-copilot-cli/",
                 "source": "AI",
                 "score": 4,
-                "tag": "前沿研究"
-            },
-            {
-                "title": "#📈热 多篇 AI 研究论文发布#",
-                "summary": "今日 arXiv 多篇论文：将公平性视为对称操作来检测偏见；扩散模型用于数独分支选择；一致性驱动强化学习提升跨语言事实回忆；重新以人为中心进行 LLM 个性化；SafeGene 可复用安全对齐适配器；Lean4Agent 形式化验证 Agent 工作流。学术圈持续高产。（来源：ArXiv）网友A：数独也用扩散模型？杀鸡用牛刀啊。网友B：安全对齐适配器这个思路不错，开源模型有救了。",
-                "link": "https://arxiv.org/abs/2606.06514",
-                "source": "AI",
-                "score": 4,
-                "tag": "前沿研究"
-            },
-            {
-                "title": "#🔥爆 OpenAI 提交 IPO 申请#",
-                "summary": "OpenAI 正式向 SEC 提交机密 S-1 文件，启动 IPO 流程，紧随 Anthropic 之后。同时，Sam Altman 的眼扫描公司 Tools for Humanity 被曝裁员。AI 巨头上市竞赛白热化，网友：这是要割韭菜还是造福人类？（来源：OpenAI、The Verge、TechCrunch）网友A：IPO 和裁员同时来，Altman 这波操作很骚啊。网友B：OpenAI 终于要上市了，我的信仰充值机会来了？",
-                "link": "https://openai.com/index/openai-submits-confidential-s-1",
-                "source": "AI",
-                "score": 3,
-                "tag": "行业动态"
-            },
-            {
-                "title": "#🔥沸 苹果 WWDC26：AI 全面升级#",
-                "summary": "苹果 WWDC26 发布 iOS 27 等新系统，Siri 终于支持 AI 但国行无缘首发。Safari 用 AI 修复扩展短板，Liquid Glass 精调亮相。此前苹果因虚假广告赔偿 2.5 亿美元，这次 AI 演示显得更真实。网友：库克退休前的最后一场，AI 终于不是画饼了？（来源：The Verge、少数派、爱范儿、TechCrunch）网友A：国行用户再次被抛弃，Siri AI 什么时候来？网友B：Safari 扩展问题终于有救了，苹果 AI 虽迟但到。",
-                "link": "https://www.theverge.com/tech/946345/apple-safari-ai-update-extensions",
-                "source": "AI",
-                "score": 3,
+                "tags": [
+                    "开发工具"
+                ],
                 "tag": "开发工具"
             },
             {
-                "title": "#📈热 蚂蚁集团推海外 AI 支付方案#",
-                "summary": "蚂蚁集团推出海外 AI 支付解决方案，帮助商户实现全球智能体运营，并协助用户与商家判断智能体可信赖程度。这是国内金融科技巨头在 AI 支付领域的重要布局。（来源：量子位）网友A：支付宝这是要统治全球支付了？网友B：智能体可信度判断很关键，蚂蚁这步棋走得稳。",
-                "link": "https://www.qbitai.com/2026/06/432587.html",
+                "title": "Cohere 发布首个面向开发者的模型 North Mini Code",
+                "summary": "Cohere 推出 North Mini Code，专为代码生成与开发场景优化，降低开发者使用大模型的门槛。（来源：HuggingFace Blog）",
+                "link": "https://huggingface.co/blog/CohereLabs/introducing-north-mini-code",
                 "source": "AI",
-                "score": 3,
-                "tag": "行业动态"
+                "score": 4,
+                "tags": [
+                    "大模型",
+                    "开发工具"
+                ],
+                "tag": "开发工具"
             },
             {
-                "title": "#📈热 腾讯汤道生对话姚顺雨#",
-                "summary": "腾讯云 AI 产业应用大会上，汤道生与 MiniMax 创始人姚顺雨对话，评价混元 3 和元宝。腾讯发布覆盖 20 多个垂直场景的 Agent 解决方案，AI 应用生态加速落地。（来源：36氪）网友A：汤道生和姚顺雨同框，这是要联手？网友B：混元 3 到底行不行，看对话就知道了。",
-                "link": "https://36kr.com/p/3844018911889924?f=rss",
+                "title": "Nextdoor 和 Notion 分享 Codex 实战案例",
+                "summary": "OpenAI 发布两篇案例：Nextdoor 用 Codex 调查难复现问题，Notion 用 Codex 一键生成规格说明和 AI 语音输入。（来源：OpenAI）",
+                "link": "https://openai.com/index/nextdoor",
                 "source": "AI",
-                "score": 3,
-                "tag": "行业动态"
-            },
-            {
-                "title": "#📈热 零成本 AI 副业与编程挑战#",
-                "summary": "开发者分享用免费工具搭建完整 AI 副业，以及用 Lovable、Supabase 和 Claude 编写 1334 道编程挑战的真实经验，揭露“vibe coding”背后的丑陋面。AI 编程热潮下的冷思考。（来源：DEV.to）网友A：零成本副业？怕不是零收入。网友B：vibe coding 一时爽，维护火葬场。",
-                "link": "https://dev.to/kaithorne/i-built-a-complete-ai-side-business-for-0-heres-the-exact-stack-free-tools-only-2bbi",
-                "source": "AI",
-                "score": 3,
+                "score": 4,
+                "tags": [
+                    "开发工具"
+                ],
                 "tag": "工程实践"
             },
             {
-                "title": "#📈热 小米创始员工创业 AI 硬件#",
-                "summary": "小米创始员工范典创业成立格物科技，推出 AI 睡眠床头灯，主打“无摩擦”体验。该硬件通过 AI 调节光线和声音，帮助用户改善睡眠质量。（来源：36氪）网友A：小米系创业又来了，这次是 AI 床头灯，能治失眠吗？网友B：无摩擦是啥意思？不会半夜自动亮瞎眼吧。",
-                "link": "https://36kr.com/p/3844006775360002?f=rss",
+                "title": "论文提出 Agent 搜索框架：Is Grep All You Need?",
+                "summary": "新研究探讨 Agent 工具如何重塑搜索范式，提出基于 grep 的轻量级 Agent 搜索方法，引发开发者讨论。（来源：HackerNews AI）",
+                "link": "https://arxiv.org/abs/2605.15184",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "Agent框架"
+                ],
+                "tag": "前沿研究"
+            },
+            {
+                "title": "OmniMem：流式音视频 LLM 的扰动感知记忆压缩",
+                "summary": "新研究提出 OmniMem，针对流式音视频大语言模型的内存压缩方法，提升长上下文处理效率。（来源：ArXiv AI）",
+                "link": "https://arxiv.org/abs/2606.07577",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "大模型"
+                ],
+                "tag": "前沿研究"
+            },
+            {
+                "title": "Meta 发布 Muse Spark：迈向个人超级智能",
+                "summary": "Meta 推出 Muse Spark（MSL），旨在通过个性化 AI 实现个人超级智能，面向开发者与研究者。（来源：AI at Meta）",
+                "link": "https://ai.meta.com/blog/introducing-muse-spark-msl/",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "大模型"
+                ],
+                "tag": "开发工具"
+            },
+            {
+                "title": "PathoSage：病理学多源证据裁决的 Agent 工作流",
+                "summary": "新论文提出 PathoSage，一种经验感知的 Agent 工作流，用于病理学多源证据裁决，展示 Agent 在专业领域的应用。（来源：ArXiv AI）",
+                "link": "https://arxiv.org/abs/2606.07549",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "Agent框架"
+                ],
+                "tag": "前沿研究"
+            },
+            {
+                "title": "语音 Agent 双语能力基准测试发布",
+                "summary": "ServiceNow AI 在 HuggingFace 发布代码切换语音基准，评估前沿 ASR 模型处理双语客户的能力。（来源：HuggingFace Blog）",
+                "link": "https://huggingface.co/blog/ServiceNow-AI/code-switching",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "Agent框架"
+                ],
+                "tag": "开发工具"
+            },
+            {
+                "title": "微信 AI Agent 生态首批内测：猫眼等接入",
+                "summary": "猫眼娱乐宣布作为首批内测开发者接入微信 AI Agent 生态，微信正加速构建 Agent 平台。（来源：36氪）",
+                "link": "https://36kr.com/p/3845899768760580?f=rss",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "Agent框架"
+                ],
+                "tag": "行业动态"
+            },
+            {
+                "title": "2026 年 AI 使用统计：结构性转变影响招聘与工作",
+                "summary": "2026 年 AI 已从技术趋势转变为结构性力量，影响招聘、工作方式与开发者生态。（来源：DEV.to AI）",
+                "link": "https://dev.to/alifar/ai-usage-statistics-2026-the-structural-shift-behind-adoption-work-and-hiring-mlj",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "大模型"
+                ],
+                "tag": "行业动态"
+            },
+            {
+                "title": "混合人机 AI 企业领导力：Agent 采用率将激增 300%",
+                "summary": "MIT Tech Review 分析未来两年 AI Agent 采用率将增长 300%，企业需学习混合人机领导力。（来源：MIT Tech Review）",
+                "link": "https://www.technologyreview.com/2026/06/09/1137830/learning-to-lead-in-a-hybrid-human-ai-enterprise/",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "Agent框架"
+                ],
+                "tag": "行业动态"
+            },
+            {
+                "title": "Microsoft AI 负责人批评 Anthropic 暗示 Claude 有意识",
+                "summary": "Microsoft AI CEO Mustafa Suleyman 称 Anthropic 暗示 Claude 有意识的行为“非常危险”，引发行业争议。（来源：The Verge AI）",
+                "link": "https://www.theverge.com/tech/947197/microsoft-ai-mustafa-suleyman-anthropic-claude-conscious",
                 "source": "AI",
                 "score": 2,
+                "tags": [
+                    "大模型"
+                ],
+                "tag": "行业动态"
+            },
+            {
+                "title": "内蒙跑通 AI 逆袭新解法：Token 焦虑何解？",
+                "summary": "量子位报道内蒙古通过 AI 实现产业逆袭，探讨全行业 Token 焦虑的解决方案。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/433565.html",
+                "source": "AI",
+                "score": 2,
+                "tags": [
+                    "大模型"
+                ],
+                "tag": "行业动态"
+            },
+            {
+                "title": "理想智驾一号位创业，落户北京亦庄",
+                "summary": "原理想智驾负责人创业成立具身智能公司，10 天跻身独角兽，落户北京亦庄。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/433560.html",
+                "source": "AI",
+                "score": 2,
+                "tags": [
+                    "Agent框架"
+                ],
                 "tag": "行业动态"
             }
         ];
@@ -220,32 +314,32 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今天 AI 圈最炸裂的无疑是 OpenAI 提交 IPO 申请，上市竞赛正式打响，但 Altman 的眼扫描公司裁员又给这出戏加了点黑色幽默。苹果 WWDC26 的 AI 升级终于让 Siri 有了点智能，可惜国行用户再次被遗忘。国内蚂蚁、高德、腾讯纷纷亮出 AI 落地新招，开源社区也在 Agent 强化学习上发力。学术圈继续内卷，但开发者们已经开始反思 vibe coding 的坑了。一句话：AI 资本化加速，但别忘了技术本身还得靠谱。";
+    const __DAILY_ANALYSIS__ = "今日焦点：Anthropic 发布 Fable 5 模型，GitHub 和 Cohere 推出开发者工具，Agent 框架研究活跃。趋势：大模型能力持续增强，Agent 工作流与开发工具深度融合，国内微信加速 Agent 生态布局，开发者应关注多模态与代码生成方向。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                         [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                 [
             {
                 "name": "mvanhorn/last30days-skill",
                 "desc": "AI agent skill that researches any topic across Reddit, X, YouTube, HN, Polymarket, and the web - th",
-                "stars": "⭐+3558 today",
+                "stars": "⭐+3177 today",
                 "link": "https://github.com/mvanhorn/last30days-skill",
                 "tag": "Agent 框架"
             },
             {
-                "name": "Panniantong/Agent-Reach",
-                "desc": "Give your AI agent eyes to see the entire internet. Read &amp; search Twitter, Reddit, YouTube, GitH",
-                "stars": "⭐+796 today",
-                "link": "https://github.com/Panniantong/Agent-Reach",
-                "tag": "Agent 框架"
+                "name": "sponsors/santifer",
+                "desc": "AI-powered job search system built on Claude Code. 14 skill modes, Go dashboard, PDF generation, bat",
+                "stars": "⭐+1114 today",
+                "link": "https://github.com/sponsors/santifer",
+                "tag": "多模态与前沿"
             },
             {
-                "name": "aaif-goose/goose",
-                "desc": "an open source, extensible AI agent that goes beyond code suggestions - install, execute, edit, and ",
-                "stars": "⭐+699 today",
-                "link": "https://github.com/aaif-goose/goose",
-                "tag": "大模型底层"
+                "name": "phuryn/pm-skills",
+                "desc": "PM Skills Marketplace: 100+ agentic skills, commands, and plugins — from discovery to strategy, exec",
+                "stars": "⭐+808 today",
+                "link": "https://github.com/phuryn/pm-skills",
+                "tag": "Agent 框架"
             }
         ];
 
