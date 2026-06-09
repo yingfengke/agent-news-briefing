@@ -39,7 +39,7 @@ EMAIL_OUTPUT = os.path.join(BASE_DIR, "email_content.html")
 CRAWL_LOG_FILE = os.path.join(BASE_DIR, ".crawl_log.json")
 
 # ============================================================
-# RSS 源 — 4 大类 28 个
+# RSS 源 — 4 大类 29 个
 # ============================================================
 RSS_SOURCES = [
     # ==================== 中文媒体与社区 ====================
@@ -75,6 +75,7 @@ RSS_SOURCES = [
     ("AI at Meta",      "https://rsshub.bestblogs.dev/meta/ai/blog",         "en"),
     ("AWS ML Blog",     "https://aws.amazon.com/blogs/amazon-ai/feed/",      "en"),
     ("GitHub Blog",     "https://github.blog/feed/",                         "en"),
+    ("Vercel News",     "https://vercel.com/atom",                           "en"),
     # Anthropic / Meta AI / LlamaIndex — 永久 404 已于 2026-05 确认
     # ("Anthropic",  "https://www.anthropic.com/blog/rss.xml",               "en"),
     # ("Meta AI",    "https://ai.meta.com/blog/feed/",                       "en"),
@@ -113,7 +114,7 @@ MAX_PER_SOURCE = {
     "OpenAI": 2, "Google AI": 2,
     # 大厂技术博客
     "Anthropic News": 2, "Google DeepMind": 2,
-    "AI at Meta": 2, "AWS ML Blog": 2, "GitHub Blog": 2,
+    "AI at Meta": 2, "AWS ML Blog": 2, "GitHub Blog": 2, "Vercel News": 2,
     "VentureBeat AI": 3,
     # Twitter 大佬（调高配额，xgo.ing 稳定性好）
     "Twitter @karpathy": 4, "Twitter @_akhaliq": 4,
