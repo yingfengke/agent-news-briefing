@@ -10,7 +10,7 @@
 
 ```
 多模态数据采集层 (collector.py)
-  └─ RSS 源 28 个（4 大类）
+  └─ RSS 源 29 个（4 大类）
        ↓ 原始数据池
 智能过滤与去重层 (deduplicator.py)
   ├─ URL 去重（SHA256 数据库，当日）
@@ -107,6 +107,7 @@ python send_email.py
 | AI at Meta | rsshub.bestblogs.dev/meta/ai/blog |
 | AWS ML Blog | aws.amazon.com/blogs/amazon-ai/feed/ |
 | GitHub Blog | github.blog/feed/ |
+| Vercel News | vercel.com/atom |
 | **MIT Tech Review / The Verge AI** | technologyreview.com / theverge.com |
 
 ### Twitter 大佬 & 全球社区（11 个）
