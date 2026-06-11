@@ -142,167 +142,168 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                 [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                         [
             {
-                "title": "Using Probabilistic Programs to Train Inductive Reasoning in Large Language Models",
-                "summary": "[真·有用] 用概率程序训练LLM归纳推理，后训练新思路，值得一试。（来源：arXiv）",
-                "link": "https://arxiv.org/abs/2606.09856",
+                "title": "海马体显式记忆是大模型通往通用人工智能的基石",
+                "summary": "该论文提出海马体显式记忆（Hippocampal Explicit Memory）是AGI的关键架构组件，认为当前大语言模型（LLM）缺乏类似生物海马体的记忆系统，导致无法实现持续学习和情景记忆。论文从神经科学角度论证，将显式记忆模块引入Transformer架构可解决灾难性遗忘和长程依赖问题，对工程实践启示是需重新设计记忆增强的神经网络结构。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2606.11245",
+                "source": "AI",
+                "score": 5,
+                "tags": [
+                    "大模型",
+                    "AGI",
+                    "记忆架构"
+                ]
+            },
+            {
+                "title": "OpenAI 收购 Ona 以增强 Codex 的云端安全持久环境",
+                "summary": "OpenAI 宣布收购 Ona，旨在将 Codex 扩展为具备安全、持久云环境的开发平台。Ona 提供基于容器的隔离执行环境，与 Codex 结合后可使 AI 代码生成直接部署到云端沙箱，实现从生成到测试的闭环。对工程实践的启示是，AI 编程工具正从代码补全向全栈开发环境演进，云原生集成成为关键差异化能力。（来源：OpenAI）",
+                "link": "https://openai.com/index/openai-to-acquire-ona",
+                "source": "AI",
+                "score": 5,
+                "tags": [
+                    "AI开发工具",
+                    "Codex",
+                    "云环境"
+                ]
+            },
+            {
+                "title": "PoQ-Judge：面向去中心化大模型推理的代价感知质量评估框架",
+                "summary": "论文提出PoQ-Judge多架构评估框架，用于去中心化大模型推理网络中的质量证明（Proof-of-Quality）。该框架通过轻量级验证器对推理结果进行质量评分，并结合计算成本动态调整评估策略，解决了去中心化场景下信任与效率的平衡问题。对工程实践的启示是，在分布式AI系统中需设计可扩展的验证机制以保障输出可靠性。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2606.11196",
                 "source": "AI",
                 "score": 4,
                 "tags": [
                     "大模型",
-                    "训练方法"
-                ],
-                "tag": "前沿研究"
+                    "去中心化",
+                    "推理质量"
+                ]
             },
             {
-                "title": "Advanced Triage: Automating Feedback Prioritization for Freelance Graphic Designers with AI",
-                "summary": "[真·有用] AI自动分类自由设计师客户反馈，提升效率，小团队福音。（来源：DEV.to）",
-                "link": "https://dev.to/ken_deng_ai/advanced-triage-automating-feedback-prioritization-for-freelance-graphic-designers-with-ai-2ibm",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "Agent",
-                    "工具"
-                ],
-                "tag": "工程实践"
-            },
-            {
-                "title": "中国第一、全球第二！HiDream-O1-Image-1.5 登顶文生图榜单，超越谷歌、英伟达",
-                "summary": "[真·有用] 国产HiDream-O1登顶文生图榜单，超越谷歌英伟达，中国AI争气。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/434196.html",
+                "title": "结构注意力税：检索格式如何劫持上下文学习",
+                "summary": "论文揭示检索增强生成（RAG）中，检索结果的格式结构（如列表、表格）会显著影响大模型的上下文学习（ICL）效果，且这种影响独立于内容本身。研究发现模型对格式的注意力偏差导致性能下降，称为“结构注意力税”。对工程实践的启示是，RAG系统需优化检索结果的呈现格式，而非仅关注内容相关性。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2606.11198",
                 "source": "AI",
                 "score": 4,
                 "tags": [
                     "大模型",
-                    "文生图"
-                ],
-                "tag": "开发工具"
+                    "RAG",
+                    "上下文学习"
+                ]
             },
             {
-                "title": "Fresh off bond sale, Amazon borrows $17.5B from banks as AI spending continues",
-                "summary": "[卷王] 亚马逊刚发债又借175亿美元，AI烧钱无底洞，巨头也扛不住。（来源：TechCrunch）",
-                "link": "https://techcrunch.com/2026/06/10/fresh-off-bond-sale-amazon-borrows-17-5-billion-from-banks-as-ai-spending-continues/",
+                "title": "Anthropic 为 Claude Fable 隐形护栏致歉",
+                "summary": "Anthropic 公开道歉，承认其新模型 Claude Fable 中存在未公开的隐形护栏（invisible guardrails），这些护栏会静默限制模型输出，且用户无法感知。该事件引发对AI透明性和用户信任的广泛讨论。对工程实践的启示是，模型安全机制应明确文档化，隐形控制会破坏用户对AI系统的信任基础。（来源：The Verge）",
+                "link": "https://www.theverge.com/ai-artificial-intelligence/948280/anthropic-claude-fable-invisible-distillation-guardrail",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "大模型",
+                    "安全",
+                    "透明度"
+                ]
+            },
+            {
+                "title": "AI Agent 能否综合科学结论？",
+                "summary": "论文系统评估了科学 AI Agent 在综合多篇论文结论时的能力，发现当前 Agent 在跨论文推理、矛盾检测和证据权重评估方面存在显著不足。研究提出需构建专门的科学推理基准和评估框架。对工程实践的启示是，AI Agent 在科研辅助中需增强多源信息融合和逻辑一致性检查能力，而非简单摘要。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2606.11337",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "AI Agent",
+                    "科学推理",
+                    "评估"
+                ]
+            },
+            {
+                "title": "Claude Fable 5 低成本模式：调至 Low 档比 Opus 更便宜",
+                "summary": "Anthropic 的 Claude Fable 5 推出低成本推理模式，将模型精度调至 Low 档后，推理成本低于前代 Opus 模型。该模式通过动态精度缩放和注意力剪枝实现，在保持核心能力的同时大幅降低计算开销。对工程实践的启示是，大模型推理可通过精度-成本权衡实现更灵活的经济部署，为中小开发者提供低成本入口。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/434571.html",
                 "source": "AI",
                 "score": 3,
                 "tags": [
                     "大模型",
-                    "商业"
-                ],
-                "tag": "行业动态"
+                    "成本优化",
+                    "Claude"
+                ]
             },
             {
-                "title": "‘AI-pilled’ firms spend $7,500 per employee each month on AI",
-                "summary": "[卷王] AI上瘾公司每月每员工花7500美元，这钱烧得值吗？（来源：TechCrunch）",
-                "link": "https://techcrunch.com/2026/06/10/ai-pilled-firms-spend-7500-per-employee-each-month-on-ai/",
+                "title": "阿里发布免费高考志愿填报 AI Agent",
+                "summary": "阿里巴巴推出面向高考生的志愿填报 AI Agent，前期使用 40 万 AI 考生进行压力测试。该 Agent 基于大模型和知识图谱，结合历年录取数据、专业趋势和考生画像，提供个性化志愿推荐。对工程实践的启示是，AI Agent 在垂直场景中需结合领域知识库和模拟测试才能保证可靠性，压力测试是上线前关键步骤。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/434558.html",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "大模型",
-                    "商业"
-                ],
-                "tag": "行业动态"
+                    "AI Agent",
+                    "教育",
+                    "应用"
+                ]
             },
             {
-                "title": "独家｜字节 AI 制药开启拆分融资，AI4S 进入产业化阶段",
-                "summary": "[真·有用] 字节AI制药业务拆分融资，AI4S产业化加速，药企要慌了。（来源：36氪）",
-                "link": "https://36kr.com/p/3846956646124036?f=rss",
+                "title": "NightFeats：面向文本生成的多智能体检索增强生成系统",
+                "summary": "论文提出 NightFeats 系统，为 NeurIPS 2025 MMU-RAGent 竞赛文本生成赛道设计。该系统采用上下文优化的多智能体架构，包含检索、排序和生成三个协作智能体，通过动态上下文窗口管理提升RAG效率。对工程实践的启示是，多智能体协作可有效分解RAG任务，但需设计智能体间的通信协议和任务调度策略。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2606.11199",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "AI4S",
-                    "商业"
-                ],
-                "tag": "行业动态"
+                    "RAG",
+                    "多智能体",
+                    "系统架构"
+                ]
             },
             {
-                "title": "抖音征召天下「AI视频英才」！创作者们，这次是真能吃上AI红利了…",
-                "summary": "[真·有用] 抖音招募AI视频创作者，给流量给收益，AI创作红利期来了。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/433832.html",
+                "title": "GitHub 秘密扫描减少误报：大规模提升可信度",
+                "summary": "GitHub 宣布改进其秘密扫描（Secret Scanning）功能，通过机器学习模型和上下文分析大幅减少误报率。新方法结合代码语义分析和模式匹配，在保护敏感信息的同时降低对开发者的干扰。对工程实践的启示是，AI 安全工具需在召回率和精确率间取得平衡，上下文感知是减少误报的关键技术路径。（来源：GitHub Blog）",
+                "link": "https://github.blog/security/making-secret-scanning-more-trustworthy-reducing-false-positives-at-scale/",
                 "source": "AI",
                 "score": 3,
-                "tags": [
-                    "AI应用",
-                    "创作"
-                ],
-                "tag": "行业动态"
-            },
-            {
-                "title": "xAI fired an engineer who raised alarms about Grok safety, new lawsuit claims",
-                "summary": "[又画饼] xAI解雇提安全问题的工程师被起诉，安全承诺成空话。（来源：TechCrunch）",
-                "link": "https://techcrunch.com/2026/06/10/xai-fired-an-engineer-who-raised-alarms-about-grok-safety-new-lawsuit-claims/",
-                "source": "AI",
-                "score": 2,
                 "tags": [
                     "AI安全",
-                    "大模型"
-                ],
-                "tag": "行业动态"
+                    "代码扫描",
+                    "误报"
+                ]
             },
             {
-                "title": "The future of AI regulation is courting the strangest, most anxious bedfellows",
-                "summary": "[又画饼] AI监管拉拢奇怪盟友，华盛顿活动揭示监管混乱，落地遥遥无期。（来源：The Verge）",
-                "link": "https://www.theverge.com/column/947838/washington-ai-network-honors-2026-midterms",
+                "title": "Deezer 推出跨平台 AI 音乐检测器",
+                "summary": "Deezer 发布 AI 音乐检测工具，可扫描用户在 Spotify、Apple Music 等其他流媒体平台上的播放列表，识别 AI 生成曲目。该工具基于声学特征分析和模型指纹技术，能区分人类创作与 AI 生成音乐。对工程实践的启示是，AI 内容检测正从文本扩展到多模态领域，跨平台协作是提升检测覆盖率的有效手段。（来源：The Verge）",
+                "link": "https://www.theverge.com/ai-artificial-intelligence/948153/deezer-ai-music-detector-spotify-apple",
                 "source": "AI",
                 "score": 2,
                 "tags": [
-                    "AI政策"
-                ],
-                "tag": "行业动态"
-            },
-            {
-                "title": "Exploratory Responsiveness and Adaptive Rigidity under AI-Assisted Optimization",
-                "summary": "[又画饼] 论文提出AI辅助优化下探索与刚性理论，太抽象，开发者别指望。（来源：arXiv）",
-                "link": "https://arxiv.org/abs/2606.10086",
-                "source": "AI",
-                "score": 2,
-                "tags": [
-                    "大模型",
-                    "理论"
-                ],
-                "tag": "前沿研究"
-            },
-            {
-                "title": "东风联手九识，商用无人车也有“HI模式”了",
-                "summary": "[又画饼] 东风联手九识推商用无人车HI模式，但落地场景有限，别太兴奋。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/433956.html",
-                "source": "AI",
-                "score": 2,
-                "tags": [
-                    "自动驾驶",
-                    "Agent"
-                ],
-                "tag": "行业动态"
+                    "AI检测",
+                    "多模态",
+                    "音乐"
+                ]
             }
         ];
 
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今天最虚的是AI监管新闻——华盛顿那帮人还在拉帮结派画大饼，开发者别指望政策落地。最值得关注的是字节AI制药拆分融资，AI4S终于从实验室走向产业，这才是真金白银的赛道。另外抖音AI视频招募也值得留意，平台亲自下场喂饭，创作者别错过这波红利。";
+    const __DAILY_ANALYSIS__ = "今日技术动态显示两个关键趋势：一是记忆架构正成为大模型突破AGI瓶颈的核心方向，海马体显式记忆论文与多智能体RAG系统均指向结构化记忆的重要性，预计未来6个月将出现更多融合神经科学原理的Transformer变体。二是AI Agent的评估与信任机制加速构建，从去中心化推理质量证明到科学结论综合评估，行业正从追求能力转向保障可靠性。建议开发者关注记忆增强架构和可验证推理框架，这两者将决定下一代AI系统的实用边界。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                         [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                 [
             {
-                "name": "mvanhorn/last30days-skill",
-                "desc": "AI agent skill that researches any topic across Reddit, X, YouTube, HN, Polymarket, and the web - th",
-                "stars": "⭐+2561 today",
-                "link": "https://github.com/mvanhorn/last30days-skill",
+                "name": "addyosmani/agent-skills",
+                "desc": "Production-grade engineering skills for AI coding agents.",
+                "stars": "⭐+3275 today",
+                "link": "https://github.com/addyosmani/agent-skills",
                 "tag": "Agent 框架"
             },
             {
-                "name": "harry0703/MoneyPrinterTurbo",
-                "desc": "利用AI大模型，一键生成高清短视频 Generate short videos with one click using AI LLM.",
-                "stars": "⭐+1471 today",
-                "link": "https://github.com/harry0703/MoneyPrinterTurbo",
-                "tag": "大模型底层"
+                "name": "phuryn/pm-skills",
+                "desc": "PM Skills Marketplace: 100+ agentic skills, commands, and plugins — from discovery to strategy, exec",
+                "stars": "⭐+1944 today",
+                "link": "https://github.com/phuryn/pm-skills",
+                "tag": "Agent 框架"
             },
             {
                 "name": "sponsors/obra",
                 "desc": "An agentic skills framework &amp; software development methodology that works.",
-                "stars": "⭐+1205 today",
+                "stars": "⭐+1323 today",
                 "link": "https://github.com/sponsors/obra",
                 "tag": "Agent 框架"
             }
