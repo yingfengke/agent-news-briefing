@@ -350,6 +350,62 @@ def _safe_parse_json(text: str) -> dict:
     except json.JSONDecodeError:
         return {}
 
+def _translate_english_titles(items: list[dict]) -> list[dict]:
+    """
+    兜底：将纯英文标题翻译成中文（保留技术术语原文）。
+    判断逻辑：标题中无任何中文字符视为纯英文。
+    """
+    import re as _re
+    need = []
+    for i, it in enumerate(items):
+        title = it.get("title", "")
+        if not title:
+            continue
+        cn = sum(1 for c in title if '\u4e00' <= c <= '\u9fff')
+        if cn == 0:
+            need.append((i, title))
+    if not need:
+        return items
+    print(f"\n  [翻译兜底] {len(need)} 条纯英文标题，正在翻译...")
+    lines = "\n".join(f"{j+1}. {t}" for j, (_, t) in enumerate(need))
+    prompt = f"将以下英文标题翻译成自然中文，技术名词（GPT-5O、Agent、RAG、MoE等）保留英文：\n{lines}"
+    payload = json.dumps({"model": config.MODEL_NAME, "messages": [
+        {"role": "system", "content": "你专业翻译技术标题。"},
+        {"role": "user", "content": prompt},
+    ], "temperature": 0.1}).encode("utf-8")
+    try:
+        url = f"{config.API_BASE_URL.rstrip('/')}/v1/chat/completions"
+        req = Request(url, data=payload, headers={
+            "Authorization": f"Bearer {config.API_KEY}",
+            "Content-Type": "application/json",
+        })
+        with urlopen(req, timeout=60) as resp:
+            body = resp.read().decode("utf-8")
+            result = json.loads(body)
+        text = result["choices"][0]["message"]["content"]
+        for line in text.strip().split("\n"):
+            line = line.strip()
+            if not line or not line[0].isdigit():
+                continue
+            parts = line.split(".", 1)
+            if len(parts) != 2:
+                continue
+            try:
+                idx = int(parts[0].strip()) - 1
+                translated = parts[1].strip()
+                if 0 <= idx < len(need):
+                    oi = need[idx][0]
+                    old = items[oi]["title"]
+                    items[oi]["title"] = translated
+                    print(f"    {old[:35]}... → {translated[:35]}")
+            except (ValueError, IndexError):
+                continue
+        print(f"  [翻译兜底] 完成 {len(need)} 条")
+    except Exception as e:
+        print(f"  [翻译兜底] 失败: {str(e)[:60]}")
+    return items
+
+
 def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
     """
     将过滤后的干净新闻发给大模型。
@@ -1129,11 +1185,12 @@ def main():
                 ai_failed = True
 
     # ---- 新闻评分（独立 API 调用，不影响主体分析） ----
+    # ---- 新闻评分已合并到主分析输出，不再单独调用 ----
+    
+    # ---- 英文标题翻译兜底 ----
     if final_items and not ai_failed:
-        print(f"\n{'=' * 40}")
-        print("  新闻评分与标签标注")
-        print(f"{'=' * 40}")
-        final_items = _rate_news_items(final_items)
+        final_items = _translate_english_titles(final_items)
+    
     # ---- 5. 按评分排序（高→低） ----
     print(f"\n  ── 按评分排序（高→低） ──")
     final_items.sort(key=lambda x: x.get("score", 0) or 0, reverse=True)
