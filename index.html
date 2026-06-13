@@ -142,170 +142,71 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                 [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                         [
             {
-                "title": "ToolSense：审计大模型参数化工具知识的诊断框架",
-                "summary": "ArXiv 发布 ToolSense 框架，用于审计 LLM 中参数化工具知识。该框架可诊断模型对工具功能的理解深度，帮助开发者发现模型在工具调用中的盲点。用户价值：提升 LLM 工具使用的可靠性和可解释性，对 Agent 开发者是真需求。商业模式：开源框架，暂无直接收入。竞争格局：填补了工具知识审计的空白，护城河在于方法论创新。标签：[真需求]（来源：ArXiv AI）",
-                "link": "https://arxiv.org/abs/2606.12451",
+                "title": "1500美元训出的HRM模型获HuggingFace CEO和Bengio团队认可",
+                "summary": "一个参数量仅1B的HRM模型，训练成本仅1500美元，却获得HuggingFace CEO力荐和Bengio团队押注。用户价值：低成本训练高性能小模型，解决中小企业AI部署成本痛点；商业模式：开源模型带动生态，可能通过云服务或定制收费；竞争格局：与动辄数亿美元的大模型形成差异化，护城河在于训练效率和特定任务表现。标签：值得抄（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/435483.html",
+                "source": "AI",
+                "score": 5,
+                "tags": [
+                    "大模型",
+                    "开源"
+                ]
+            },
+            {
+                "title": "亚马逊安全研究导致Anthropic模型被政府封禁，CEO曾表达担忧",
+                "summary": "据华尔街日报，亚马逊安全研究促使白宫对Anthropic的Fable模型实施出口管制。亚马逊CEO Andy Jassy此前曾向政府提出模型安全担忧，随后Anthropic按政府命令切断Fable 5和Mythos 5访问。用户价值：政府监管介入，企业安全合规需求凸显；商业模式：Anthropic依赖企业客户，封禁影响收入；竞争格局：亚马逊与Anthropic合作中的安全博弈，护城河在于政府关系。标签：真需求（来源：The Verge、TechCrunch，3家来源报道）",
+                "link": "https://www.theverge.com/ai-artificial-intelligence/949601/amazon-anthropic-fablemythos-government-ban",
                 "source": "AI",
                 "score": 4,
                 "tags": [
                     "大模型",
-                    "工具使用"
+                    "安全合规"
                 ]
             },
             {
-                "title": "Olmo-Eval：面向模型开发循环的评估工作台",
-                "summary": "HuggingFace 博客发布 Olmo-Eval，一个用于模型开发循环的评估工作台，支持快速迭代测试。用户价值：简化模型评估流程，对 AI 研究员是真需求。商业模式：开源工具，通过社区贡献和生态绑定获利。竞争格局：与现有评估框架（如 LM Eval Harness）相比，更注重开发循环集成，护城河在于易用性和社区。标签：[真需求]（来源：HuggingFace Blog）",
-                "link": "https://huggingface.co/blog/allenai/olmo-eval",
+                "title": "具身智能：Jiuwen Symbiosis让Agent长出身体",
+                "summary": "Jiuwen Symbiosis项目探索将AI Agent与物理世界结合，构建下一代智能系统。用户价值：从虚拟助手到物理机器人，解决实际场景交互问题（如仓储、家庭服务）；商业模式：硬件+软件订阅，或提供行业解决方案；竞争格局：具身智能赛道玩家众多，差异化在于软硬件协同和场景落地能力。标签：真需求（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/435455.html",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "模型评估",
-                    "开发工具"
+                    "具身智能",
+                    "Agent"
                 ]
             },
             {
-                "title": "Preply 结合 AI 与人类导师个性化学习",
-                "summary": "OpenAI 案例研究：Preply 使用 OpenAI 生成课程摘要，实现个性化学习。用户价值：提升学习效率和个性化程度，对在线教育是真需求。商业模式：订阅制，AI 降低内容生产成本。竞争格局：与 Duolingo 等竞品相比，强调人机协同，护城河在于导师网络和 AI 集成。标签：[真需求]（来源：OpenAI）",
-                "link": "https://openai.com/index/preply",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "教育AI",
-                    "个性化学习"
-                ]
-            },
-            {
-                "title": "A3M 路由器更新：并行 LLM 路由洞察",
-                "summary": "DEV.to 文章介绍 A3M 路由器更新，通过并行路由多个 LLM 实现共识，减少幻觉。用户价值：提升生成可靠性，对 Agent 开发者是真需求。商业模式：开源框架，可商业化部署。竞争格局：与 LangChain 等路由方案相比，强调多模型共识，护城河在于算法创新。标签：[真需求]（来源：DEV.to AI）",
-                "link": "https://dev.to/megha_mukherjee_5eb776f2b/a3m-router-update-parallel-llm-routing-insights-zh-2po8",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "LLM路由",
-                    "幻觉缓解"
-                ]
-            },
-            {
-                "title": "Google 起诉利用 AI 诈骗数十万受害者的中国网络犯罪团伙",
-                "summary": "TechCrunch 报道，Google 起诉名为“Outsider Enterprise”的团伙，该团伙利用 AI 进行大规模诈骗。用户价值：打击 AI 滥用，保护用户安全，是真需求。商业模式：法律行动维护品牌声誉。竞争格局：与安全公司合作，护城河在于法律和技术能力。标签：[真需求]（来源：TechCrunch AI）",
-                "link": "https://techcrunch.com/2026/06/12/chinese-cybercrime-operation-that-used-ai-to-scam-hundreds-of-thousands-of-victims-sued-by-google/",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "AI安全",
-                    "法律"
-                ]
-            },
-            {
-                "title": "“重编程”成为逆转衰老最热门方法",
-                "summary": "MIT Tech Review 报道，Life Biosciences 等公司通过细胞重编程逆转衰老，引发关注。用户价值：潜在延长健康寿命，对老龄化社会是真需求。商业模式：生物技术公司，依赖融资和临床试验。竞争格局：与 Altos Labs 等竞品竞争，护城河在于专利和技术壁垒。标签：[真需求]（来源：MIT Tech Review）",
-                "link": "https://www.technologyreview.com/2026/06/12/1138829/reprogramming-buzziest-approach-reversing-aging-right-now/",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "生物科技",
-                    "抗衰老"
-                ]
-            },
-            {
-                "title": "MARD：镜像增强推理蒸馏用于药物相互作用预测",
-                "summary": "ArXiv 提出 MARD 方法，通过镜像增强推理蒸馏预测药物相互作用机制。用户价值：加速药物研发，对制药业是真需求。商业模式：开源研究，可商业化授权。竞争格局：与现有 DDI 预测模型相比，强调机制级预测，护城河在于算法创新。标签：[真需求]（来源：ArXiv CL）",
-                "link": "https://arxiv.org/abs/2606.12578",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "药物AI",
-                    "推理蒸馏"
-                ]
-            },
-            {
-                "title": "EDEN：意大利语大规模临床笔记语料库",
-                "summary": "ArXiv 发布 EDEN 语料库，包含大规模意大利语临床笔记，用于医疗 NLP 研究。该数据集可支持疾病诊断、药物相互作用等任务。用户价值：填补非英语医疗语料空白，对医疗 AI 是真需求。商业模式：学术开源，商业化需授权。竞争格局：差异化在于语言和领域专注，护城河来自数据稀缺性。标签：[真需求]（来源：ArXiv CL）",
-                "link": "https://arxiv.org/abs/2606.12569",
+                "title": "毕马威因明显幻觉撤回AI使用报告",
+                "summary": "毕马威发布的一份关于AI使用的报告因出现明显幻觉（AI生成不实信息）而被撤回。这再次证明AI作为信息源不可靠。用户价值：企业使用AI生成报告需人工审核，否则风险极高；商业模式：咨询公司靠专业信誉赚钱，幻觉事件损害品牌；竞争格局：AI工具在专业领域的可信度仍是痛点，护城河在于数据质量和验证机制。标签：真需求（来源：TechCrunch）",
+                "link": "https://techcrunch.com/2026/06/13/kpmg-pulls-report-on-ai-usage-due-to-apparent-hallucinations/",
                 "source": "AI",
                 "score": 3,
-                "tags": [
-                    "医疗AI",
-                    "NLP"
-                ]
-            },
-            {
-                "title": "帮助图表讲故事：基于论文的视频生成解释复杂科学图表",
-                "summary": "ArXiv 提出论文驱动的视频生成方法，自动为科学图表生成解释性视频。用户价值：降低科研人员理解复杂图表的时间成本，对学术传播是真需求。商业模式：开源研究，可集成到学术平台。竞争格局：与现有图表解释工具相比，视频形式更直观，护城河在于多模态生成能力。标签：[真需求]（来源：ArXiv CL）",
-                "link": "https://arxiv.org/abs/2606.12576",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "多模态",
-                    "科研工具"
-                ]
-            },
-            {
-                "title": "Siri 不会成为你的 AI 女友",
-                "summary": "The Verge 报道，苹果早期测试显示 Siri 不会提供情感伴侣功能，强调工具属性。用户价值：明确产品边界，避免用户误解，对隐私敏感用户是真需求。商业模式：免费集成，提升硬件生态粘性。竞争格局：与 Character.AI 等情感 AI 差异化，护城河在于隐私和生态。标签：[真需求]（来源：The Verge AI）",
-                "link": "https://www.theverge.com/tech/948890/siri-wont-be-your-ai-girlfriend",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "AI助手",
-                    "产品定位"
-                ]
-            },
-            {
-                "title": "Meta 数月前成立的 AI 部门被工程师称为“灵魂粉碎的古拉格”",
-                "summary": "TechCrunch 报道，Meta 拥有 6500 人的 AI 部门濒临崩溃，工程师抱怨工作环境压抑。用户价值：暴露大厂 AI 团队管理问题，对行业人才流动有警示。商业模式：Meta 依赖 AI 提升广告收入，但内部问题可能拖累创新。竞争格局：与 Google、OpenAI 竞争人才，护城河受侵蚀。标签：[卷但没用]（来源：TechCrunch AI）",
-                "link": "https://techcrunch.com/2026/06/12/metas-months-old-ai-unit-is-a-soul-crushing-gulag-say-the-engineers-stuck-inside-it/",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "大厂动态",
-                    "人才管理"
-                ]
-            },
-            {
-                "title": "千里收购毫米波雷达公司，布局全栈闭环",
-                "summary": "量子位报道，千里科技收购一家毫米波雷达公司，完善自动驾驶全栈能力。用户价值：提升自动驾驶感知能力，对车企是真需求。商业模式：收购整合，长期通过硬件销售获利。竞争格局：与 Mobileye 等竞品竞争，护城河在于垂直整合。标签：[真需求]（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/435196.html",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "自动驾驶",
-                    "收购"
-                ]
-            },
-            {
-                "title": "Level Read：让英语学习从“读得懂”开始",
-                "summary": "少数派介绍 Level Read 应用，通过分级英文新闻提升阅读能力。用户价值：降低英语学习门槛，对语言学习者是真需求。商业模式：订阅制或免费增值。竞争格局：与 Readlang 等竞品相比，强调分级和新闻内容，护城河在于内容库。标签：[真需求]（来源：少数派）",
-                "link": "https://sspai.com/post/110329",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "教育AI",
-                    "英语学习"
-                ]
-            },
-            {
-                "title": "世界杯第一天真按千问剧本踢了",
-                "summary": "量子位报道，阿里千问 AI 预测世界杯比赛结果，包括比分、红牌、绝杀全部命中。用户价值：展示 AI 预测能力，对体育迷是娱乐需求。商业模式：免费功能，提升品牌曝光。竞争格局：与竞品预测模型相比，准确性突出，但护城河不深。标签：[伪需求]（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/435321.html",
-                "source": "AI",
-                "score": 2,
                 "tags": [
                     "AI应用",
-                    "体育"
+                    "幻觉问题"
                 ]
             },
             {
-                "title": "YoooClaw C·ONE 智能硬件：把 AI 装进口袋",
-                "summary": "少数派体验 YoooClaw C·ONE，一款信用卡大小的 AI 卡片，提供轻量 AI 服务。用户价值：便携 AI 助手，但功能有限，可能是伪需求。商业模式：硬件销售，但市场接受度存疑。竞争格局：与 Rabbit R1 等类似产品竞争，护城河在于设计，但实用性不足。标签：[伪需求]（来源：少数派）",
-                "link": "https://sspai.com/post/110914",
+                "title": "OpenAI面临州检察长调查",
+                "summary": "OpenAI正面临来自多个州检察长的调查，涉及数据收集、隐私、安全等多方面问题。具体参与州未公布。用户价值：监管压力促使AI公司加强合规，用户数据保护需求上升；商业模式：OpenAI依赖API和订阅收入，调查可能影响业务扩张；竞争格局：监管风险是头部AI公司的共同挑战，差异化在于合规投入和透明度。标签：真需求（来源：TechCrunch）",
+                "link": "https://techcrunch.com/2026/06/13/openai-faces-investigation-from-state-attorneys-general/",
                 "source": "AI",
-                "score": 2,
+                "score": 3,
                 "tags": [
-                    "智能硬件",
-                    "AI助手"
+                    "大模型",
+                    "监管"
+                ]
+            },
+            {
+                "title": "2026智源大会开幕：推动AI、物理世界和生命科学三体互动",
+                "summary": "智源大会开幕，聚焦AI与物理世界、生命科学的交叉融合。用户价值：学术前沿推动产业落地，为AI应用提供新方向；商业模式：会议本身非盈利，但促进产学研合作，带动投资和项目；竞争格局：国内顶级AI学术会议，品牌影响力是护城河。标签：真需求（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/435394.html",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "行业会议",
+                    "前沿"
                 ]
             }
         ];
@@ -313,31 +214,31 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日 PMF 潜力最高方向是 AI 安全与合规，包括 Google 起诉 AI 诈骗和 ToolSense 审计框架，用户痛点明确且付费意愿强。其次是教育 AI（Preply、Level Read），个性化学习需求旺盛。生物科技抗衰老虽热但商业化周期长。智能硬件（YoooClaw）和体育预测（千问）偏伪需求，需谨慎投入。";
+    const __DAILY_ANALYSIS__ = "今日最具PMF潜力的方向是低成本小模型（HRM模型）和具身智能。1500美元训出1B参数模型，直击中小企业AI部署成本痛点，开源生态可快速验证PMF。具身智能从虚拟Agent走向物理世界，解决真实场景问题，但硬件成本高，需找到高价值垂直场景（如仓储、医疗）。监管新闻（Anthropic封禁、OpenAI调查）提示合规成本上升，但也是企业级AI服务的刚需。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                         [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                 [
             {
                 "name": "addyosmani/agent-skills",
                 "desc": "Production-grade engineering skills for AI coding agents.",
-                "stars": "⭐+2660 today",
+                "stars": "⭐+1507 today",
                 "link": "https://github.com/addyosmani/agent-skills",
                 "tag": "Agent 框架"
             },
             {
                 "name": "sponsors/obra",
                 "desc": "An agentic skills framework &amp; software development methodology that works.",
-                "stars": "⭐+1276 today",
+                "stars": "⭐+931 today",
                 "link": "https://github.com/sponsors/obra",
                 "tag": "Agent 框架"
             },
             {
-                "name": "sponsors/msitarzewski",
-                "desc": "A complete AI agency at your fingertips - From frontend wizards to Reddit community ninjas, from whi",
-                "stars": "⭐+1040 today",
-                "link": "https://github.com/sponsors/msitarzewski",
+                "name": "NVIDIA/SkillSpector",
+                "desc": "Security scanner for AI agent skills. Detect vulnerabilities, malicious patterns, and security risks",
+                "stars": "⭐+809 today",
+                "link": "https://github.com/NVIDIA/SkillSpector",
                 "tag": "Agent 框架"
             }
         ];
