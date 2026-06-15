@@ -142,38 +142,111 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                 [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                         [
             {
-                "title": "#Meta 取消 20 亿美元收购#",
-                "summary": "Meta 据报开始解除对 Manus 的 20 亿美元收购，因北京要求终止交易。这波操作背后是中美科技博弈升级，AI 并购越来越难了。网友A：Meta 这是被卡脖子了？网友B：Manus 团队白高兴一场。（来源：TechCrunch）",
-                "link": "https://techcrunch.com/2026/06/13/meta-reportedly-moves-to-unwind-2b-manus-deal-after-beijings-demand/",
+                "title": "#美国政府封禁Anthropic最强模型#",
+                "summary": "特朗普政府要求Anthropic下架最新AI模型，引发全球AI主权讨论。网友A：这波操作，非美国AI要笑了。网友B：政治干预AI，科研自由何在？（来源：The Verge, TechCrunch）",
+                "link": "https://www.theverge.com/ai-artificial-intelligence/950026/anthropic-fable-mythos-ban-ai-shutdown",
+                "source": "AI",
+                "score": 5,
+                "tags": [
+                    "AI安全",
+                    "政策"
+                ]
+            },
+            {
+                "title": "#脑机接口让渐冻症患者开口#",
+                "summary": "ALS患者Casey Harrell成为首位脑机接口“重度用户”，植入电极三年后能流畅说话。网友A：科技改变命运，泪目。网友B：马斯克Neuralink压力山大。（来源：MIT Tech Review）",
+                "link": "https://www.technologyreview.com/2026/06/15/1138953/man-als-first-power-user-brain-implant-speak-bci/",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "AI并购",
-                    "中美博弈"
+                    "脑机接口",
+                    "医疗AI"
                 ]
             },
             {
-                "title": "#AI 公司扎堆冲刺 IPO#",
-                "summary": "AI 初创公司们正试图搭上 SpaceX 上市的顺风车，纷纷加速 IPO 进程。这波上市潮背后是资本市场的狂热还是泡沫？网友A：赶紧上市套现，晚了就凉了。网友B：SpaceX 的浪太大，小心被拍死。（来源：TechCrunch）",
-                "link": "https://techcrunch.com/2026/06/14/as-ai-companies-race-to-go-public-who-else-is-along-for-the-ride/",
+                "title": "#智谱发布GLM-5.2旗舰模型#",
+                "summary": "智谱AI推出最新一代旗舰模型GLM-5.2，性能全面升级，国内大模型竞争再添变数。网友A：国产模型卷起来了！网友B：期待实测对比。（来源：36氪）",
+                "link": "https://36kr.com/p/3854486447510535?f=rss",
                 "source": "AI",
-                "score": 3,
+                "score": 4,
                 "tags": [
-                    "AI上市",
-                    "资本市场"
+                    "大模型"
                 ]
             },
             {
-                "title": "#高瓴投资柔性机器人 SoulX#",
-                "summary": "消费级柔性机器人公司 SoulX 完成数千万元天使轮融资，由高瓴创投领投。要把电影《超能陆战队》中的大白搬进现实家庭，柔性机器人赛道火了。网友A：大白什么时候能进我家？网友B：先解决扫地机器人不撞墙再说吧。（来源：36氪）",
-                "link": "https://36kr.com/p/3851572421432324?f=rss",
+                "title": "#OpenAI砸1.5亿美元建伙伴网络#",
+                "summary": "OpenAI推出合作伙伴网络，投资1.5亿美元帮助全球伙伴加速AI应用落地。网友A：OpenAI这是要搞生态帝国？网友B：小公司机会来了。（来源：OpenAI）",
+                "link": "https://openai.com/index/introducing-openai-partner-network",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "商业"
+                ]
+            },
+            {
+                "title": "#Meta AI模式搜索上线#",
+                "summary": "Meta在Facebook推出AI模式搜索，信息来自用户公开帖子，引发隐私担忧。网友A：我的帖子被拿去训练AI了？网友B：隐私换便利，老套路了。（来源：The Verge, TechCrunch）",
+                "link": "https://www.theverge.com/tech/950264/meta-ai-mode-search-facebook",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "机器人",
-                    "融资"
+                    "社交AI",
+                    "隐私"
+                ]
+            },
+            {
+                "title": "#GitHub开源多语言AI数据集#",
+                "summary": "GitHub发布新开放数据集，助力研究人员构建多语言AI模型，打破语言壁垒。网友A：开源万岁！网友B：中文数据够不够？（来源：GitHub Blog）",
+                "link": "https://github.blog/ai-and-ml/llms/accelerating-researchers-and-developers-building-multilingual-ai-with-a-new-open-dataset/",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "开源",
+                    "数据集"
+                ]
+            },
+            {
+                "title": "#韩国人为何痴迷AI#",
+                "summary": "MIT Tech Review分析韩国AI热潮：政府大力支持、民众接受度高，已成全球AI试验场。网友A：韩剧里AI都是标配了。网友B：中国也要加油啊。（来源：MIT Tech Review）",
+                "link": "https://www.technologyreview.com/2026/06/15/1138983/why-do-south-koreans-love-ai-so-much/",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "社会"
+                ]
+            },
+            {
+                "title": "#支付宝AI助手服务破亿#",
+                "summary": "支付宝政务AI助手“晓政”累计服务突破1亿次，覆盖160+城市，AI便民再进一步。网友A：办事越来越方便了。网友B：什么时候能帮我写作业？（来源：36氪）",
+                "link": "https://36kr.com/p/3854486447510535?f=rss",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "应用"
+                ]
+            },
+            {
+                "title": "#大模型当法官不靠谱？#",
+                "summary": "新研究揭示大模型（LLM）作为评估者存在可靠性和偏见问题，引发对AI评测体系的反思。网友A：AI自己都评不准，还评别人？网友B：人类法官也有偏见啊。（来源：ArXiv）",
+                "link": "https://arxiv.org/abs/2606.13685",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "研究",
+                    "评测"
+                ]
+            },
+            {
+                "title": "#校企合作AI4S#",
+                "summary": "上海交通大学与太初元碁签署合作协议，共同推进AI for Science（AI4S）研究。网友A：产学研结合好！网友B：期待科研成果落地。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/435848.html",
+                "source": "AI",
+                "score": 2,
+                "tags": [
+                    "AI4S",
+                    "合作"
                 ]
             }
         ];
@@ -181,32 +254,32 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今天AI圈最热的是Meta被迫取消20亿美元收购，中美科技博弈再升级；AI公司扎堆IPO，资本狂欢背后暗藏泡沫；高瓴押注柔性机器人，大白走进家庭还有多远？总之，AI江湖风起云涌，吃瓜群众坐等后续。";
+    const __DAILY_ANALYSIS__ = "今日AI圈最炸裂的是美国政府封禁Anthropic最强模型，政治干预AI引发全球热议；脑机接口让渐冻症患者开口说话感动无数人；智谱GLM-5.2和OpenAI伙伴网络则显示中美AI军备竞赛白热化。网友：这瓜吃得停不下来！";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                         [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                 [
             {
                 "name": "NVIDIA/SkillSpector",
                 "desc": "Security scanner for AI agent skills. Detect vulnerabilities, malicious patterns, and security risks",
-                "stars": "⭐+962 today",
+                "stars": "⭐+1079 today",
                 "link": "https://github.com/NVIDIA/SkillSpector",
+                "tag": "Agent 框架"
+            },
+            {
+                "name": "Panniantong/Agent-Reach",
+                "desc": "Give your AI agent eyes to see the entire internet. Read &amp; search Twitter, Reddit, YouTube, GitH",
+                "stars": "⭐+1045 today",
+                "link": "https://github.com/Panniantong/Agent-Reach",
                 "tag": "Agent 框架"
             },
             {
                 "name": "Introduction-to-Autonomous-Robots/Introduction-to-Autonomous-Robots",
                 "desc": "Introduction to Autonomous Robots",
-                "stars": "⭐+276 today",
+                "stars": "⭐+488 today",
                 "link": "https://github.com/Introduction-to-Autonomous-Robots/Introduction-to-Autonomous-Robots",
                 "tag": "Agent 框架"
-            },
-            {
-                "name": "shiyu-coder/Kronos",
-                "desc": "Kronos: A Foundation Model for the Language of Financial Markets",
-                "stars": "⭐+238 today",
-                "link": "https://github.com/shiyu-coder/Kronos",
-                "tag": "大模型底层"
             }
         ];
 
