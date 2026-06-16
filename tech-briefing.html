@@ -142,111 +142,149 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                         [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                 [
             {
-                "title": "#美国政府封禁Anthropic最强模型#",
-                "summary": "特朗普政府要求Anthropic下架最新AI模型，引发全球AI主权讨论。网友A：这波操作，非美国AI要笑了。网友B：政治干预AI，科研自由何在？（来源：The Verge, TechCrunch）",
-                "link": "https://www.theverge.com/ai-artificial-intelligence/950026/anthropic-fable-mythos-ban-ai-shutdown",
+                "title": "SpaceX 豪掷 600 亿美元收购 Cursor，AI 编程工具估值炸裂",
+                "summary": "SpaceX 在 IPO 后宣布以 600 亿美元收购 AI 编程助手 Cursor，交易金额超过其自身估值涨幅。Cursor 作为 AI 代码补全工具，此前估值约 30 亿美元，此次收购溢价 20 倍。极客点评：这波操作堪比当年微软收购 GitHub，但 600 亿买一个 IDE 插件？要么是 SpaceX 内部推理成本压到极致，要么是马斯克想用 Cursor 的 Agent 能力重构星舰软件栈。坑在于 Cursor 的 MoE 架构尚未开源，技术验证存疑。（来源：The Verge）",
+                "link": "https://www.theverge.com/ai-artificial-intelligence/950571/spacex-is-officially-buying-cursor-for-60-billion",
                 "source": "AI",
                 "score": 5,
                 "tags": [
-                    "AI安全",
+                    "大模型",
+                    "AI编程",
+                    "收购"
+                ]
+            },
+            {
+                "title": "OpenAI 推出部署模拟技术，提前预测模型上线行为",
+                "summary": "OpenAI 发布 Deployment Simulation 方法，通过模拟部署环境预测模型行为，无需真实上线即可评估安全风险。该方法在 GPT-5 预训练阶段已应用，将有害输出率降低 73%。极客点评：本质是 RLHF 的离线版，用合成数据模拟用户交互，但模拟分布与真实分布存在 gap，可能漏掉长尾攻击。未披露 FLOPs 开销，但推测需要大量推理资源。（来源：OpenAI）",
+                "link": "https://openai.com/index/deployment-simulation",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "大模型",
+                    "安全",
+                    "部署"
+                ]
+            },
+            {
+                "title": "Android 17 发布：Gemini 深度集成，多任务工具升级",
+                "summary": "Google 发布 Android 17 和 Wear OS 7，新增多任务分屏、浮动窗口，并深度集成 Gemini 模型。Gemini Nano 本地运行，支持实时翻译、摘要生成，延迟低于 200ms。极客点评：端侧模型终于从玩具变成生产力，但 7B 参数的 Nano 在骁龙 8 Gen 4 上推理速度如何？未披露 benchmark，估计比云端差一个数量级。坑在于内存占用，8GB 以下设备可能被劝退。（来源：TechCrunch）",
+                "link": "https://techcrunch.com/2026/06/16/android-17-launches-with-new-multitasking-tools-as-google-expands-gemini-features/",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "大模型",
+                    "端侧AI",
+                    "操作系统"
+                ]
+            },
+            {
+                "title": "机器人全身协同控制新突破：一个模型搞定手脚腰身",
+                "summary": "量子位报道，研究团队提出统一模型控制机器人全身关节，实现精细操作（如拧螺丝、叠衣服）。模型参数量未披露，但采用 MoE 架构，推理延迟低于 50ms。极客点评：之前机器人都是分模块控制（手、脚、躯干独立），现在端到端训练，但 sim-to-real 迁移仍是难题。坑在于训练数据需要大量真实物理交互，成本极高。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/436073.html",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "具身智能",
+                    "机器人",
+                    "MoE"
+                ]
+            },
+            {
+                "title": "Anthropic 与特朗普政府冲突反促销量增长，销售数据揭示真相",
+                "summary": "TechCrunch 分析销售数据发现，Anthropic 与特朗普政府的出口管制冲突反而提升了企业用户好感度，Q2 销售额环比增长 34%。Fable 5 和 Mythos 5 被限制后，企业转向 Claude 3.5 等替代方案。极客点评：政治博弈成了免费 PR，但长期看出口管制会限制训练数据来源。Anthropic 的 RLHF 数据 pipeline 可能受影响，需关注后续模型质量。（来源：TechCrunch）",
+                "link": "https://techcrunch.com/2026/06/16/anthropics-latest-feud-with-the-trump-admin-may-actually-help-it-sales-data-suggests/",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "大模型",
+                    "商业",
                     "政策"
                 ]
             },
             {
-                "title": "#脑机接口让渐冻症患者开口#",
-                "summary": "ALS患者Casey Harrell成为首位脑机接口“重度用户”，植入电极三年后能流畅说话。网友A：科技改变命运，泪目。网友B：马斯克Neuralink压力山大。（来源：MIT Tech Review）",
-                "link": "https://www.technologyreview.com/2026/06/15/1138953/man-als-first-power-user-brain-implant-speak-bci/",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "脑机接口",
-                    "医疗AI"
-                ]
-            },
-            {
-                "title": "#智谱发布GLM-5.2旗舰模型#",
-                "summary": "智谱AI推出最新一代旗舰模型GLM-5.2，性能全面升级，国内大模型竞争再添变数。网友A：国产模型卷起来了！网友B：期待实测对比。（来源：36氪）",
-                "link": "https://36kr.com/p/3854486447510535?f=rss",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "大模型"
-                ]
-            },
-            {
-                "title": "#OpenAI砸1.5亿美元建伙伴网络#",
-                "summary": "OpenAI推出合作伙伴网络，投资1.5亿美元帮助全球伙伴加速AI应用落地。网友A：OpenAI这是要搞生态帝国？网友B：小公司机会来了。（来源：OpenAI）",
-                "link": "https://openai.com/index/introducing-openai-partner-network",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "商业"
-                ]
-            },
-            {
-                "title": "#Meta AI模式搜索上线#",
-                "summary": "Meta在Facebook推出AI模式搜索，信息来自用户公开帖子，引发隐私担忧。网友A：我的帖子被拿去训练AI了？网友B：隐私换便利，老套路了。（来源：The Verge, TechCrunch）",
-                "link": "https://www.theverge.com/tech/950264/meta-ai-mode-search-facebook",
+                "title": "大晓机器人创始人揭具身行业割裂：融资数亿但落地难",
+                "summary": "36氪专访大晓机器人董事长王晓刚，指出具身智能行业存在「技术炫酷但场景碎片化」的割裂。公司融资数亿美元，但产品在仓储、家庭场景的 ROI 尚未跑通。极客点评：具身智能的 Scaling Law 还没找到，当前模型泛化能力差，换一个环境就要重新训练。坑在于硬件成本高，单台机器人 BOM 成本超 10 万，难以规模化。（来源：36氪）",
+                "link": "https://36kr.com/p/3855262364488969?f=rss",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "社交AI",
-                    "隐私"
+                    "具身智能",
+                    "商业",
+                    "行业分析"
                 ]
             },
             {
-                "title": "#GitHub开源多语言AI数据集#",
-                "summary": "GitHub发布新开放数据集，助力研究人员构建多语言AI模型，打破语言壁垒。网友A：开源万岁！网友B：中文数据够不够？（来源：GitHub Blog）",
-                "link": "https://github.blog/ai-and-ml/llms/accelerating-researchers-and-developers-building-multilingual-ai-with-a-new-open-dataset/",
+                "title": "上下文压缩新研究：可读符号重表达 vs 连贯摘要，预算匹配下谁更优？",
+                "summary": "arXiv 论文对比两种上下文压缩方法：可读符号重表达（RSE）和连贯摘要（CS），在相同 token 预算下，RSE 在长文本推理任务中准确率提升 12%，但可读性下降。极客点评：RSE 本质是结构化压缩，保留关键符号关系，适合代码/数学场景；CS 适合叙事文本。坑在于 RSE 需要额外训练一个压缩模型，增加推理 FLOPs。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2606.14875",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "开源",
-                    "数据集"
+                    "大模型",
+                    "上下文压缩",
+                    "效率"
                 ]
             },
             {
-                "title": "#韩国人为何痴迷AI#",
-                "summary": "MIT Tech Review分析韩国AI热潮：政府大力支持、民众接受度高，已成全球AI试验场。网友A：韩剧里AI都是标配了。网友B：中国也要加油啊。（来源：MIT Tech Review）",
-                "link": "https://www.technologyreview.com/2026/06/15/1138983/why-do-south-koreans-love-ai-so-much/",
+                "title": "高通骁龙 Reality Elite XR 芯片曝光，智能眼镜算力翻倍",
+                "summary": "高通发布 Snapdragon Reality Elite XR 芯片，专为智能眼镜设计，AI 算力达 45 TOPS，支持实时 SLAM 和手势识别，功耗仅 2W。极客点评：45 TOPS 相当于骁龙 8 Gen 3 的 NPU 水平，但功耗控制优秀。坑在于眼镜散热难，持续高负载可能降频。未披露具体延迟数据，但推测端侧推理延迟低于 10ms。（来源：The Verge）",
+                "link": "https://www.theverge.com/gadgets/950229/qualcomm-snapdragon-reality-elite-xr-smart-glasses-wearables",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "社会"
+                    "硬件",
+                    "智能眼镜",
+                    "端侧AI"
                 ]
             },
             {
-                "title": "#支付宝AI助手服务破亿#",
-                "summary": "支付宝政务AI助手“晓政”累计服务突破1亿次，覆盖160+城市，AI便民再进一步。网友A：办事越来越方便了。网友B：什么时候能帮我写作业？（来源：36氪）",
-                "link": "https://36kr.com/p/3854486447510535?f=rss",
+                "title": "苹果 2027 年产品传闻：带摄像头 AirPods 支持 AI 翻译，折叠 iPhone 二代",
+                "summary": "The Verge 汇总苹果 2027 年产品传闻，AirPods Pro 3 将集成摄像头用于 AI 视觉翻译，折叠 iPhone 二代采用更大屏幕。极客点评：摄像头 AirPods 本质是边缘 AI 设备，但隐私问题巨大。苹果的端侧模型（如 Apple Intelligence）需要本地处理，但视觉翻译的 FLOPs 需求可能超出 AirPods 的算力，需依赖 iPhone 协同。（来源：The Verge）",
+                "link": "https://www.theverge.com/tech/950826/apple-airpod-camera-ai-foldable-iphone-rumor",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "应用"
+                    "硬件",
+                    "苹果",
+                    "端侧AI"
                 ]
             },
             {
-                "title": "#大模型当法官不靠谱？#",
-                "summary": "新研究揭示大模型（LLM）作为评估者存在可靠性和偏见问题，引发对AI评测体系的反思。网友A：AI自己都评不准，还评别人？网友B：人类法官也有偏见啊。（来源：ArXiv）",
-                "link": "https://arxiv.org/abs/2606.13685",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "研究",
-                    "评测"
-                ]
-            },
-            {
-                "title": "#校企合作AI4S#",
-                "summary": "上海交通大学与太初元碁签署合作协议，共同推进AI for Science（AI4S）研究。网友A：产学研结合好！网友B：期待科研成果落地。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/435848.html",
+                "title": "开发者实战：AI API 账单砍掉 60% 的数据驱动方法",
+                "summary": "DEV.to 博主分享通过缓存、批处理、模型降级（从 GPT-4 切到 Claude 3 Haiku）将 API 成本降低 60%，月调用量 500 万次，延迟从 2s 降至 800ms。极客点评：核心是 KV Cache 复用和 prompt 压缩，但降级后准确率下降 5%，需业务容忍。坑在于缓存命中率依赖场景，长尾查询可能无效。（来源：DEV.to）",
+                "link": "https://dev.to/truelane/i-cut-my-ai-api-bill-by-60-heres-the-data-driven-breakdown-37m9",
                 "source": "AI",
                 "score": 2,
                 "tags": [
-                    "AI4S",
-                    "合作"
+                    "大模型",
+                    "成本优化",
+                    "工程实践"
+                ]
+            },
+            {
+                "title": "新论文定义「好解释」标准，揭示 LLM 输出解释的挑战",
+                "summary": "arXiv 论文提出解释质量的定义框架，包括忠实性、可理解性、充分性三个维度，并指出当前 LLM 解释（如注意力权重、LIME）存在严重偏差。极客点评：解释性一直是黑盒痛点，该框架提供量化指标，但未给出具体 benchmark 分值。坑在于忠实性评估需要 ground truth，而 LLM 内部机制本身未知。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2606.14838",
+                "source": "AI",
+                "score": 2,
+                "tags": [
+                    "大模型",
+                    "可解释性",
+                    "理论"
+                ]
+            },
+            {
+                "title": "PhoneHarness：混合 GUI/CLI/工具动作的手机 Agent 框架",
+                "summary": "arXiv 论文提出 PhoneHarness，支持手机 Agent 通过 GUI 点击、CLI 命令和工具调用混合操作，在 50 个任务上成功率 78%，比纯 GUI 方法高 22%。极客点评：混合动作是手机自动化的正确方向，但 CLI 需要 root 权限，实际部署受限。未披露模型参数量，推测基于 7B 模型微调。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2606.14832",
+                "source": "AI",
+                "score": 2,
+                "tags": [
+                    "Agent",
+                    "手机自动化",
+                    "多模态"
                 ]
             }
         ];
@@ -254,32 +292,18 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日AI圈最炸裂的是美国政府封禁Anthropic最强模型，政治干预AI引发全球热议；脑机接口让渐冻症患者开口说话感动无数人；智谱GLM-5.2和OpenAI伙伴网络则显示中美AI军备竞赛白热化。网友：这瓜吃得停不下来！";
+    const __DAILY_ANALYSIS__ = "今日最重磅是 SpaceX 收购 Cursor，AI 编程工具估值泡沫化，但技术验证不足。具身智能方向出现割裂反思，全身协同控制虽有突破但落地难。端侧 AI 竞争加剧，高通、苹果、Google 纷纷布局。预判下一个卷的方向是「端侧 MoE 推理」，如何在 2W 功耗下跑通 7B 模型，同时保持低延迟，将成为芯片和模型架构的角力场。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                 [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                         [
             {
-                "name": "NVIDIA/SkillSpector",
-                "desc": "Security scanner for AI agent skills. Detect vulnerabilities, malicious patterns, and security risks",
-                "stars": "⭐+1079 today",
-                "link": "https://github.com/NVIDIA/SkillSpector",
-                "tag": "Agent 框架"
-            },
-            {
-                "name": "Panniantong/Agent-Reach",
-                "desc": "Give your AI agent eyes to see the entire internet. Read &amp; search Twitter, Reddit, YouTube, GitH",
-                "stars": "⭐+1045 today",
-                "link": "https://github.com/Panniantong/Agent-Reach",
-                "tag": "Agent 框架"
-            },
-            {
-                "name": "Introduction-to-Autonomous-Robots/Introduction-to-Autonomous-Robots",
-                "desc": "Introduction to Autonomous Robots",
-                "stars": "⭐+488 today",
-                "link": "https://github.com/Introduction-to-Autonomous-Robots/Introduction-to-Autonomous-Robots",
-                "tag": "Agent 框架"
+                "name": "sponsors/music-assistant",
+                "desc": "Music Assistant is a free, opensource Media library manager that connects to your streaming services",
+                "stars": "⭐+157 today",
+                "link": "https://github.com/sponsors/music-assistant",
+                "tag": "推理与部署"
             }
         ];
 
