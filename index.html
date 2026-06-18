@@ -142,164 +142,192 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                         [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                 [
             {
-                "title": "#🔥爆OpenAI 化学家 AI 突破#",
-                "summary": "OpenAI联合Molecule.one用GPT-5.4打造近乎自主的AI化学家，成功改进药物化学中的棘手反应，相关论文登上HackerNews热榜。网友A：以后化学实验室要变AI炼丹房了？网友B：医药研发成本要降了！（来源：OpenAI，2家媒体报道）",
-                "link": "https://openai.com/index/ai-chemist-improves-reaction",
+                "title": "零样本视觉语言模型NAVI-Orbital首次在轨演示自主地球观测",
+                "summary": "arXiv发布NAVI-Orbital，首次在轨演示零样本视觉语言模型用于自主地球观测，无需预训练即可识别目标，提升卫星自主决策能力。（来源：ArXiv AI）",
+                "link": "https://arxiv.org/abs/2606.18271",
                 "source": "AI",
-                "score": 5,
+                "score": 4,
+                "tags": [
+                    "大模型",
+                    "视觉语言模型"
+                ]
+            },
+            {
+                "title": "Adobe Photoshop和Premiere推出AI助手",
+                "summary": "Adobe在Creative Cloud应用中新增对话式AI助手，支持Photoshop和Premiere，用户可通过自然语言指令完成图像编辑和视频剪辑任务。（来源：The Verge AI）",
+                "link": "https://www.theverge.com/tech/952099/adobe-ai-assistants-photoshop-premiere-illustrator-beta-launch",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "AI应用",
+                    "开发工具"
+                ]
+            },
+            {
+                "title": "AI推理初创公司Baseten据报以130亿美元估值融资15亿美元",
+                "summary": "AI推理平台Baseten接近完成15亿美元融资，估值达130亿美元，距上一轮巨额融资仅数月，反映AI推理基础设施需求激增。（来源：TechCrunch AI）",
+                "link": "https://techcrunch.com/2026/06/18/ai-inference-startup-baseten-reportedly-raising-1-5b-months-after-its-last-mega-round/",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "AI基础设施",
+                    "融资"
+                ]
+            },
+            {
+                "title": "研究揭示AI研究代理存在泄露机密风险",
+                "summary": "HuggingFace博客发布MosaicLeaks研究，指出AI研究代理可能无意中泄露敏感信息，强调在开发中需加强安全防护机制。（来源：HuggingFace Blog）",
+                "link": "https://huggingface.co/blog/ServiceNow/mosaicleaks",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "AI安全",
+                    "Agent"
+                ]
+            },
+            {
+                "title": "超越LoRA：探索更优微调技术",
+                "summary": "HuggingFace博客探讨超越LoRA的微调方法，比较多种参数高效微调技术，为开发者提供选择更优微调策略的参考。（来源：HuggingFace Blog）",
+                "link": "https://huggingface.co/blog/peft-beyond-lora",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "大模型",
+                    "微调"
+                ]
+            },
+            {
+                "title": "OpenAI为ChatGPT企业版推出新使用分析和支出控制功能",
+                "summary": "OpenAI发布ChatGPT Enterprise新功能，包括详细使用分析和可自定义支出控制，帮助企业更高效管理AI使用成本。（来源：OpenAI）",
+                "link": "https://openai.com/index/chatgpt-enterprise-spend-controls",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "大模型",
+                    "企业应用"
+                ]
+            },
+            {
+                "title": "GPT-5.5 Instant提升ChatGPT健康与医疗响应能力",
+                "summary": "OpenAI改进ChatGPT的健康智能，利用GPT-5.5 Instant模型提供更准确的医疗建议和健康咨询，但强调不替代专业医生。（来源：OpenAI）",
+                "link": "https://openai.com/index/improving-health-intelligence-in-chatgpt",
+                "source": "AI",
+                "score": 3,
                 "tags": [
                     "大模型",
                     "医疗AI"
                 ]
             },
             {
-                "title": "#🔥沸北京建 AI 工厂：10万P算力#",
-                "summary": "北京宣布建设AI工厂，目标10万P算力、日产10万亿Token，计划实现1000倍综合降本，堪称算力基建狂魔。网友A：这算力规模，大模型训练要卷出新高度。网友B：北京这是要当AI时代的“硅基城市”啊。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/436456.html",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "算力基建",
-                    "政策"
-                ]
-            },
-            {
-                "title": "#📈热六成美国人认为 AI 发展太快#",
-                "summary": "Pew最新民调显示，49%美国人使用过AI，三分之二认为AI发展速度过快，公众焦虑加剧。网友A：美国人民终于开始慌了？网友B：技术跑太快，伦理和法律追不上。（来源：The Verge）",
-                "link": "https://www.theverge.com/ai-artificial-intelligence/951653/pew-research-ai-chatbot-usage-advancing-too-quickly",
+                "title": "SproutRAG：基于注意力引导树搜索的长文档RAG方法",
+                "summary": "arXiv提出SproutRAG，通过注意力引导树搜索和渐进式嵌入，显著提升长文档检索增强生成的效果，适用于复杂知识问答。（来源：ArXiv CL）",
+                "link": "https://arxiv.org/abs/2606.18381",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "社会影响"
-                ]
-            },
-            {
-                "title": "#📈热国务院深入实施人工智能+行动#",
-                "summary": "国务院发文深入实施“人工智能+”行动，探索人机协同的新型工作形态，政策层面再添重磅信号。网友A：国家队出手，AI落地要加速了。网友B：打工人准备好和AI同事共处了吗？（来源：36氪）",
-                "link": "https://36kr.com/p/3857175761081348?f=rss",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "政策"
-                ]
-            },
-            {
-                "title": "#GitHub Copilot 改进上下文处理#",
-                "summary": "GitHub Copilot升级，优化上下文处理和模型路由，支持更复杂的代理工作（规划、编辑、调试），提升多Token利用率。网友A：Copilot越来越像真正的编程搭档了。网友B：上下文窗口再大点就更好了。（来源：GitHub Blog）",
-                "link": "https://github.blog/ai-and-ml/github-copilot/getting-more-from-each-token-how-copilot-improves-context-handling-and-model-routing/",
-                "source": "AI",
-                "score": 2,
-                "tags": [
-                    "AI编程",
+                    "RAG",
                     "大模型"
                 ]
             },
             {
-                "title": "#Google 医疗 AI AMIE 新研究#",
-                "summary": "Google AI发布新研究，展示医疗AI系统AMIE如何帮助管理健康状态，成果发表在Nature，引发医学界关注。网友A：以后看病先问AI？网友B：希望AI医生能减轻医疗资源压力。（来源：Google AI）",
-                "link": "https://blog.google/innovation-and-ai/models-and-research/google-research/amie-for-disease-management-in-nature/",
+                "title": "浏览器自动化对AI代理的实际效果分析",
+                "summary": "DEV.to文章评估多种浏览器自动化方案在AI代理中的表现，指出当前技术瓶颈和最佳实践，为开发者构建自主代理提供指导。（来源：DEV.to AI）",
+                "link": "https://dev.to/dylanworrall/browser-automation-for-ai-agents-what-actually-works-100m",
                 "source": "AI",
-                "score": 2,
+                "score": 3,
                 "tags": [
-                    "医疗AI"
+                    "Agent",
+                    "开发工具"
                 ]
             },
             {
-                "title": "#Snap 天价 AR 眼镜发布后股价暴跌#",
-                "summary": "Snap发布昂贵AR眼镜后股价大跌，市场反应冷淡，投资者质疑AR消费级前景。网友A：价格劝退，AR眼镜还是太遥远。网友B：Meta的雷朋眼镜笑而不语。（来源：TechCrunch）",
-                "link": "https://techcrunch.com/2026/06/17/after-unveiling-ridiculously-expensive-ar-glasses-snaps-stock-takes-a-dive/",
+                "title": "优化个人AI助手：基于Llama.cpp、Gemma 4 12B、MCP和Tavily",
+                "summary": "开发者分享零成本构建个人AI助手经验，利用Llama.cpp、Gemma 4 12B、MCP协议和Tavily搜索，实现高效本地化代理。（来源：DEV.to AI）",
+                "link": "https://dev.to/akdevcraft/next-iteration-improvements-optimizing-personal-agentic-ai-assistant-with-llamacpp-gemma-4-12b-5b4a",
                 "source": "AI",
-                "score": 2,
+                "score": 3,
                 "tags": [
-                    "AR",
-                    "硬件"
+                    "Agent",
+                    "开发工具"
                 ]
             },
             {
-                "title": "#OpenAI 推出 LifeSciBench 基准#",
-                "summary": "OpenAI发布LifeSciBench，由专家编写和评审的生命科学基准，用于评估AI在药物发现等领域的表现，填补行业空白。网友A：AI在生命科学领域要有标准考试了。网友B：这基准含金量高，不是刷榜能过的。（来源：OpenAI）",
-                "link": "https://openai.com/index/introducing-life-sci-bench",
+                "title": "CaVe-VLM-CoT：可解释视觉语言模型框架",
+                "summary": "arXiv提出CaVe-VLM-CoT框架，通过因果推理和思维链增强视觉语言模型的可解释性，提升模型在复杂任务中的透明度。（来源：ArXiv AI）",
+                "link": "https://arxiv.org/abs/2606.18385",
                 "source": "AI",
                 "score": 2,
                 "tags": [
-                    "基准测试",
-                    "医疗AI"
+                    "视觉语言模型",
+                    "可解释性"
                 ]
             },
             {
-                "title": "#MolmoMotion：语言引导3D运动预测#",
-                "summary": "Allen AI发布MolmoMotion，通过语言指令引导3D运动预测模型，可用于机器人、动画等领域，多模态交互再进一步。网友A：以后说句话就能让虚拟角色跳舞？网友B：多模态交互又进一步。（来源：HuggingFace Blog）",
-                "link": "https://huggingface.co/blog/allenai/molmomotion",
-                "source": "AI",
-                "score": 2,
-                "tags": [
-                    "多模态",
-                    "机器人"
-                ]
-            },
-            {
-                "title": "#PromptMN：伪提示语言新范式#",
-                "summary": "arXiv新论文提出PromptMN，一种伪提示语言方法，探索更高效的提示工程，可能改变大模型交互方式。网友A：提示工程也要卷出新花样了。网友B：以后AI可能自己写提示了。（来源：ArXiv）",
-                "link": "https://arxiv.org/abs/2606.17164",
+                "title": "大型音频语言模型实现连续音频思考",
+                "summary": "arXiv发布新方法，使大型音频语言模型能够进行连续音频思考，突破传统离散处理限制，提升语音交互的自然度。（来源：ArXiv CL）",
+                "link": "https://arxiv.org/abs/2606.18273",
                 "source": "AI",
                 "score": 2,
                 "tags": [
                     "大模型",
-                    "提示工程"
+                    "音频AI"
                 ]
             },
             {
-                "title": "#AI 转型最大门槛是人#",
-                "summary": "量子位文章指出AI转型最大障碍不是技术而是人，不主动改变就只能被改变，引发职场热议。网友A：扎心了，打工人要主动拥抱AI。网友B：企业培训跟不上，转型就是空谈。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/436435.html",
+                "title": "教育对话去标识化的全本地AI级联方法",
+                "summary": "arXiv提出Redact or Keep方法，利用全本地AI级联对教育对话进行去标识化，保护隐私同时保留关键信息。（来源：ArXiv CL）",
+                "link": "https://arxiv.org/abs/2606.18372",
                 "source": "AI",
                 "score": 2,
                 "tags": [
-                    "行业观察"
+                    "AI安全",
+                    "教育"
                 ]
             },
             {
-                "title": "#仙工智能港股IPO#",
-                "summary": "浙大系创业者创办的智能机器人公司仙工智能开始招股，市值112亿港元，机器人赛道再添上市新军。网友A：机器人赛道又一家上市，资本热捧。网友B：但落地盈利才是真考验。（来源：36氪）",
-                "link": "https://36kr.com/p/3857011810112521?f=rss",
+                "title": "共享工作空间中人机协作的协同效应研究",
+                "summary": "arXiv探索共享工作空间中人类与AI代理的协同效应，分析任务分配和交互模式对协作效率的影响。（来源：ArXiv AI）",
+                "link": "https://arxiv.org/abs/2606.18413",
                 "source": "AI",
                 "score": 2,
                 "tags": [
-                    "机器人",
-                    "投融资"
+                    "人机协作",
+                    "Agent"
                 ]
             },
             {
-                "title": "#SkillChain-Gym：生产库存控制基准#",
-                "summary": "arXiv新基准SkillChain-Gym，用于评估AI在供应链中断下的再技能规划与生产库存控制，工业AI应用细化。网友A：AI要管供应链了，仓库管理员瑟瑟发抖。网友B：工业AI应用越来越细。（来源：ArXiv）",
-                "link": "https://arxiv.org/abs/2606.17266",
+                "title": "亚马逊员工因支持数据中心限制面临解雇",
+                "summary": "三名亚马逊软件工程师因在市政听证会上支持数据中心建设限制，被公司纪律处分，引发AI基础设施扩张与员工权益争议。（来源：The Verge AI）",
+                "link": "https://www.theverge.com/ai-artificial-intelligence/952180/amazon-seattle-data-center-moratorium-aecj-disciplinary-action",
                 "source": "AI",
                 "score": 2,
                 "tags": [
-                    "工业AI",
-                    "基准测试"
+                    "AI基础设施",
+                    "社会影响"
                 ]
             },
             {
-                "title": "#AI 移民案件时间线工具#",
-                "summary": "开发者用AI为复杂移民案件生成时间线，提高法律工作效率，展示AI在垂直领域的落地。网友A：AI律师助理上线。网友B：移民律师要失业了？（来源：DEV.to）",
-                "link": "https://dev.to/ken_deng_ai/ai-powered-case-chronology-for-complex-immigration-cases-46j4",
+                "title": "AI看病需补上多轮追问能力，通用AI才能迈过医疗关",
+                "summary": "量子位报道指出，当前AI医疗应用缺乏多轮追问能力，导致诊断不准确，需提升对话交互深度才能满足临床需求。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/436758.html",
                 "source": "AI",
                 "score": 2,
                 "tags": [
-                    "法律AI"
+                    "医疗AI",
+                    "大模型"
                 ]
             },
             {
-                "title": "#程序员适应AI时代困境#",
-                "summary": "开发者社区讨论程序员在AI时代如何适应变化的市场，强调持续学习，引发共鸣。网友A：不是AI淘汰你，是会用AI的人淘汰你。网友B：转行做AI提示工程师？（来源：DEV.to）",
-                "link": "https://dev.to/jeromehardaway/the-dilemma-of-the-modern-programmer-adapting-to-a-changing-job-market-2glc",
+                "title": "GitHub通过拉取请求限制减少开源噪音",
+                "summary": "GitHub博客介绍如何通过设置PR限制，减少开源项目中的无效贡献，提升维护者效率，改善协作体验。（来源：GitHub Blog）",
+                "link": "https://github.blog/open-source/maintainers/how-pull-request-limits-are-cutting-down-the-noise/",
                 "source": "AI",
-                "score": 2,
+                "score": 1,
                 "tags": [
-                    "行业观察"
+                    "开发工具",
+                    "开源"
                 ]
             }
         ];
@@ -307,31 +335,31 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日AI圈最热话题：OpenAI用GPT-5.4造出近乎自主的AI化学家，药物研发要变天了！北京AI工厂10万P算力计划更是炸裂，国家队和巨头都在疯狂加码。另一边，六成美国人嫌AI跑太快，政策层面却高喊‘人工智能+’，这波冰火两重天，你站哪边？";
+    const __DAILY_ANALYSIS__ = "今日焦点集中在AI代理安全与推理基础设施融资，Baseten巨额融资预示推理层竞争加剧。Adobe AI助手落地标志AI工具化进入创意领域。开发者应关注零样本视觉模型和RAG新方法，同时警惕代理安全风险。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                 [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                         [
+            {
+                "name": "DeusData/codebase-memory-mcp",
+                "desc": "High-performance code intelligence MCP server. Indexes codebases into a persistent knowledge graph —",
+                "stars": "⭐+2308 today",
+                "link": "https://github.com/DeusData/codebase-memory-mcp",
+                "tag": "Agent 框架"
+            },
             {
                 "name": "sponsors/obra",
                 "desc": "An agentic skills framework &amp; software development methodology that works.",
-                "stars": "⭐+1205 today",
+                "stars": "⭐+1435 today",
                 "link": "https://github.com/sponsors/obra",
                 "tag": "Agent 框架"
             },
             {
-                "name": "Panniantong/Agent-Reach",
-                "desc": "Give your AI agent eyes to see the entire internet. Read &amp; search Twitter, Reddit, YouTube, GitH",
-                "stars": "⭐+1154 today",
-                "link": "https://github.com/Panniantong/Agent-Reach",
-                "tag": "Agent 框架"
-            },
-            {
-                "name": "DeusData/codebase-memory-mcp",
-                "desc": "High-performance code intelligence MCP server. Indexes codebases into a persistent knowledge graph —",
-                "stars": "⭐+718 today",
-                "link": "https://github.com/DeusData/codebase-memory-mcp",
+                "name": "Kilo-Org/kilocode",
+                "desc": "Kilo is the all-in-one agentic engineering platform. Build, ship, and iterate faster with the most p",
+                "stars": "⭐+1339 today",
+                "link": "https://github.com/Kilo-Org/kilocode",
                 "tag": "Agent 框架"
             }
         ];
