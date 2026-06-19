@@ -142,192 +142,115 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                 [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                         [
             {
-                "title": "零样本视觉语言模型NAVI-Orbital首次在轨演示自主地球观测",
-                "summary": "arXiv发布NAVI-Orbital，首次在轨演示零样本视觉语言模型用于自主地球观测，无需预训练即可识别目标，提升卫星自主决策能力。（来源：ArXiv AI）",
-                "link": "https://arxiv.org/abs/2606.18271",
+                "title": "Subquadratic声称突破大语言模型推理瓶颈",
+                "summary": "迈阿密AI初创公司Subquadratic走出隐身模式，宣称其新型架构突破了限制大语言模型（LLM）扩展的二次复杂度瓶颈。具体技术细节尚未完全公开，但暗示采用亚二次（subquadratic）注意力机制替代标准Transformer中的O(n²)计算。若属实，将显著降低长序列推理成本，改变模型部署的经济性。（来源：MIT Tech Review）",
+                "link": "https://www.technologyreview.com/2026/06/19/1139313/a-startup-claims-it-broke-through-a-bottleneck-thats-holding-back-llms/",
                 "source": "AI",
-                "score": 4,
+                "score": 5,
                 "tags": [
                     "大模型",
-                    "视觉语言模型"
+                    "架构创新"
                 ]
             },
             {
-                "title": "Adobe Photoshop和Premiere推出AI助手",
-                "summary": "Adobe在Creative Cloud应用中新增对话式AI助手，支持Photoshop和Premiere，用户可通过自然语言指令完成图像编辑和视频剪辑任务。（来源：The Verge AI）",
-                "link": "https://www.theverge.com/tech/952099/adobe-ai-assistants-photoshop-premiere-illustrator-beta-launch",
+                "title": "运行时治理自主AI系统的道义策略框架",
+                "summary": "arXiv:2606.19464提出一种基于道义逻辑（deontic logic）的运行时治理框架，用于约束自主AI代理系统行为。该框架将规范、义务与权限形式化，在推理循环中嵌入合规检查，确保代理行动符合预设伦理与安全边界。对工程实践的启示：AI代理系统需在架构层集成可验证的规则引擎，而非仅依赖后验过滤。（来源：ArXiv AI）",
+                "link": "https://arxiv.org/abs/2606.19464",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "AI应用",
+                    "AI Agent",
+                    "安全治理"
+                ]
+            },
+            {
+                "title": "GitHub内部数据分析代理构建实践",
+                "summary": "GitHub博客详细介绍了其内部数据分析代理的构建过程，该代理基于GitHub Copilot技术栈，允许用户通过自然语言查询数据仓库。架构上采用检索增强生成（RAG）结合结构化查询生成，并引入多轮对话与权限控制。启示：企业级AI代理需解决数据访问治理、查询准确性与用户意图理解之间的平衡。（来源：GitHub Blog）",
+                "link": "https://github.blog/ai-and-ml/github-copilot/how-we-built-an-internal-data-analytics-agent/",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "AI Agent",
                     "开发工具"
                 ]
             },
             {
-                "title": "AI推理初创公司Baseten据报以130亿美元估值融资15亿美元",
-                "summary": "AI推理平台Baseten接近完成15亿美元融资，估值达130亿美元，距上一轮巨额融资仅数月，反映AI推理基础设施需求激增。（来源：TechCrunch AI）",
-                "link": "https://techcrunch.com/2026/06/18/ai-inference-startup-baseten-reportedly-raising-1-5b-months-after-its-last-mega-round/",
+                "title": "Amazon Bedrock AgentCore实时网络搜索：消除AI幻觉的代理方案",
+                "summary": "Amazon Bedrock AgentCore推出实时网络搜索功能，使AI代理在推理过程中能动态检索最新网络信息，而非仅依赖静态知识库。与RAG对比，该方案在时效性任务上表现更优，但增加了延迟与成本。对工程实践的启示：生产级代理需根据任务类型混合使用RAG与实时搜索，并设计缓存与降级策略。（来源：DEV.to AI）",
+                "link": "https://dev.to/aarhamforensics_eb3c024eb/amazon-bedrock-agentcore-web-search-real-time-ai-agents-that-stop-hallucinating-1i08",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "AI基础设施",
-                    "融资"
+                    "AI Agent",
+                    "RAG"
                 ]
             },
             {
-                "title": "研究揭示AI研究代理存在泄露机密风险",
-                "summary": "HuggingFace博客发布MosaicLeaks研究，指出AI研究代理可能无意中泄露敏感信息，强调在开发中需加强安全防护机制。（来源：HuggingFace Blog）",
-                "link": "https://huggingface.co/blog/ServiceNow/mosaicleaks",
+                "title": "全球首个人形机器人通用小脑：2万小时数据实现零样本泛化",
+                "summary": "量子位报道称，某团队发布全球首个人形机器人通用小脑，基于2万小时人类动作数据训练，实现零样本泛化到新任务。该架构借鉴大语言模型（LLM）的预训练范式，将运动控制视为序列生成问题。启示：机器人领域正从专用控制器转向通用基础模型，数据规模与多样性是关键瓶颈。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/436813.html",
                 "source": "AI",
-                "score": 3,
+                "score": 4,
                 "tags": [
-                    "AI安全",
-                    "Agent"
-                ]
-            },
-            {
-                "title": "超越LoRA：探索更优微调技术",
-                "summary": "HuggingFace博客探讨超越LoRA的微调方法，比较多种参数高效微调技术，为开发者提供选择更优微调策略的参考。（来源：HuggingFace Blog）",
-                "link": "https://huggingface.co/blog/peft-beyond-lora",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "大模型",
-                    "微调"
-                ]
-            },
-            {
-                "title": "OpenAI为ChatGPT企业版推出新使用分析和支出控制功能",
-                "summary": "OpenAI发布ChatGPT Enterprise新功能，包括详细使用分析和可自定义支出控制，帮助企业更高效管理AI使用成本。（来源：OpenAI）",
-                "link": "https://openai.com/index/chatgpt-enterprise-spend-controls",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "大模型",
-                    "企业应用"
-                ]
-            },
-            {
-                "title": "GPT-5.5 Instant提升ChatGPT健康与医疗响应能力",
-                "summary": "OpenAI改进ChatGPT的健康智能，利用GPT-5.5 Instant模型提供更准确的医疗建议和健康咨询，但强调不替代专业医生。（来源：OpenAI）",
-                "link": "https://openai.com/index/improving-health-intelligence-in-chatgpt",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "大模型",
-                    "医疗AI"
-                ]
-            },
-            {
-                "title": "SproutRAG：基于注意力引导树搜索的长文档RAG方法",
-                "summary": "arXiv提出SproutRAG，通过注意力引导树搜索和渐进式嵌入，显著提升长文档检索增强生成的效果，适用于复杂知识问答。（来源：ArXiv CL）",
-                "link": "https://arxiv.org/abs/2606.18381",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "RAG",
+                    "机器人",
                     "大模型"
                 ]
             },
             {
-                "title": "浏览器自动化对AI代理的实际效果分析",
-                "summary": "DEV.to文章评估多种浏览器自动化方案在AI代理中的表现，指出当前技术瓶颈和最佳实践，为开发者构建自主代理提供指导。（来源：DEV.to AI）",
-                "link": "https://dev.to/dylanworrall/browser-automation-for-ai-agents-what-actually-works-100m",
+                "title": "扩散语言模型实验分析",
+                "summary": "arXiv:2606.19475对扩散语言模型（Diffusion Language Models）进行了系统性实验分析，对比其与自回归模型在生成质量、采样速度与可控性上的差异。研究发现扩散模型在长文本生成中连贯性更优，但推理延迟较高。启示：扩散架构可能成为自回归模型在特定场景（如文档生成）的替代方案，但需优化采样效率。（来源：ArXiv AI）",
+                "link": "https://arxiv.org/abs/2606.19475",
                 "source": "AI",
                 "score": 3,
-                "tags": [
-                    "Agent",
-                    "开发工具"
-                ]
-            },
-            {
-                "title": "优化个人AI助手：基于Llama.cpp、Gemma 4 12B、MCP和Tavily",
-                "summary": "开发者分享零成本构建个人AI助手经验，利用Llama.cpp、Gemma 4 12B、MCP协议和Tavily搜索，实现高效本地化代理。（来源：DEV.to AI）",
-                "link": "https://dev.to/akdevcraft/next-iteration-improvements-optimizing-personal-agentic-ai-assistant-with-llamacpp-gemma-4-12b-5b4a",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "Agent",
-                    "开发工具"
-                ]
-            },
-            {
-                "title": "CaVe-VLM-CoT：可解释视觉语言模型框架",
-                "summary": "arXiv提出CaVe-VLM-CoT框架，通过因果推理和思维链增强视觉语言模型的可解释性，提升模型在复杂任务中的透明度。（来源：ArXiv AI）",
-                "link": "https://arxiv.org/abs/2606.18385",
-                "source": "AI",
-                "score": 2,
-                "tags": [
-                    "视觉语言模型",
-                    "可解释性"
-                ]
-            },
-            {
-                "title": "大型音频语言模型实现连续音频思考",
-                "summary": "arXiv发布新方法，使大型音频语言模型能够进行连续音频思考，突破传统离散处理限制，提升语音交互的自然度。（来源：ArXiv CL）",
-                "link": "https://arxiv.org/abs/2606.18273",
-                "source": "AI",
-                "score": 2,
                 "tags": [
                     "大模型",
-                    "音频AI"
+                    "架构创新"
                 ]
             },
             {
-                "title": "教育对话去标识化的全本地AI级联方法",
-                "summary": "arXiv提出Redact or Keep方法，利用全本地AI级联对教育对话进行去标识化，保护隐私同时保留关键信息。（来源：ArXiv CL）",
-                "link": "https://arxiv.org/abs/2606.18372",
+                "title": "揭示大语言模型隐藏偏见：随机路径聚合可视化方法",
+                "summary": "arXiv:2606.19344提出一种名为随机路径聚合（Stochastic Path Aggregation）的可视化方法，用于揭示大语言模型（LLM）中的隐藏偏见。该方法通过分析模型内部表示在不同随机路径下的聚合模式，定位偏见来源。对工程实践的启示：模型部署前需进行内部表示层面的偏见审计，而非仅依赖输出测试。（来源：ArXiv CL）",
+                "link": "https://arxiv.org/abs/2606.19344",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "大模型",
+                    "安全治理"
+                ]
+            },
+            {
+                "title": "跨语言迁移中语言相关性与任务对齐的解耦研究",
+                "summary": "arXiv:2606.19346研究跨语言迁移中语言相关性与任务对齐的相互作用，发现两者在模型表现中贡献可分离。通过控制实验，作者提出一种解耦训练策略，提升低资源语言上的迁移效果。启示：多语言模型微调时应分别优化语言表征与任务适配，避免相互干扰。（来源：ArXiv CL）",
+                "link": "https://arxiv.org/abs/2606.19346",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "大模型",
+                    "多语言"
+                ]
+            },
+            {
+                "title": "AI实现药物全自动研发：GPT发布AI原创成果",
+                "summary": "量子位报道称，GPT模型在药物研发领域实现全自动闭环，从靶点发现到分子设计均由AI独立完成，并产出原创性成果。该工作展示了AI在科学发现中的自主性潜力。启示：AI代理在科研场景中需具备假设生成、实验设计与结果验证的完整能力链，而非仅作为辅助工具。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/436842.html",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "大模型",
+                    "AI Agent"
+                ]
+            },
+            {
+                "title": "AI原生陪伴机器人品牌ZuzuZoos获数千万元Pre-A轮融资",
+                "summary": "36氪报道，AI-Native科技潮玩品牌ZuzuZoos（查无此园）完成数千万元Pre-A轮融资，由锦秋领投。团队由moody前高管与大疆骨干组成，产品定位陪伴机器人，融合大语言模型（LLM）与情感计算。启示：消费级AI硬件正从功能型向情感型演进，多模态交互与个性化记忆是核心壁垒。（来源：36氪）",
+                "link": "https://36kr.com/p/3859926114161665?f=rss",
                 "source": "AI",
                 "score": 2,
                 "tags": [
-                    "AI安全",
-                    "教育"
-                ]
-            },
-            {
-                "title": "共享工作空间中人机协作的协同效应研究",
-                "summary": "arXiv探索共享工作空间中人类与AI代理的协同效应，分析任务分配和交互模式对协作效率的影响。（来源：ArXiv AI）",
-                "link": "https://arxiv.org/abs/2606.18413",
-                "source": "AI",
-                "score": 2,
-                "tags": [
-                    "人机协作",
-                    "Agent"
-                ]
-            },
-            {
-                "title": "亚马逊员工因支持数据中心限制面临解雇",
-                "summary": "三名亚马逊软件工程师因在市政听证会上支持数据中心建设限制，被公司纪律处分，引发AI基础设施扩张与员工权益争议。（来源：The Verge AI）",
-                "link": "https://www.theverge.com/ai-artificial-intelligence/952180/amazon-seattle-data-center-moratorium-aecj-disciplinary-action",
-                "source": "AI",
-                "score": 2,
-                "tags": [
-                    "AI基础设施",
-                    "社会影响"
-                ]
-            },
-            {
-                "title": "AI看病需补上多轮追问能力，通用AI才能迈过医疗关",
-                "summary": "量子位报道指出，当前AI医疗应用缺乏多轮追问能力，导致诊断不准确，需提升对话交互深度才能满足临床需求。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/436758.html",
-                "source": "AI",
-                "score": 2,
-                "tags": [
-                    "医疗AI",
-                    "大模型"
-                ]
-            },
-            {
-                "title": "GitHub通过拉取请求限制减少开源噪音",
-                "summary": "GitHub博客介绍如何通过设置PR限制，减少开源项目中的无效贡献，提升维护者效率，改善协作体验。（来源：GitHub Blog）",
-                "link": "https://github.blog/open-source/maintainers/how-pull-request-limits-are-cutting-down-the-noise/",
-                "source": "AI",
-                "score": 1,
-                "tags": [
-                    "开发工具",
-                    "开源"
+                    "机器人",
+                    "AI Agent"
                 ]
             }
         ];
@@ -335,31 +258,31 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日焦点集中在AI代理安全与推理基础设施融资，Baseten巨额融资预示推理层竞争加剧。Adobe AI助手落地标志AI工具化进入创意领域。开发者应关注零样本视觉模型和RAG新方法，同时警惕代理安全风险。";
+    const __DAILY_ANALYSIS__ = "今日技术焦点集中在AI代理的运行时治理与推理效率突破。Subquadratic的亚二次注意力架构若验证有效，将推动长上下文模型在2026年底前进入实用阶段，降低推理成本一个数量级。同时，道义策略框架与实时搜索代理的提出，表明行业正从追求模型能力转向构建可信任、可审计的代理系统。未来6个月，预计出现更多结合形式化验证与检索增强的混合架构，以及面向机器人领域的通用运动基础模型。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                         [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                 [
             {
-                "name": "DeusData/codebase-memory-mcp",
-                "desc": "High-performance code intelligence MCP server. Indexes codebases into a persistent knowledge graph —",
-                "stars": "⭐+2308 today",
-                "link": "https://github.com/DeusData/codebase-memory-mcp",
-                "tag": "Agent 框架"
+                "name": "sponsors/chopratejas",
+                "desc": "Compress tool outputs, logs, files, and RAG chunks before they reach the LLM. 60-95% fewer tokens, s",
+                "stars": "⭐+3938 today",
+                "link": "https://github.com/sponsors/chopratejas",
+                "tag": "大模型底层"
+            },
+            {
+                "name": "google-research/timesfm",
+                "desc": "TimesFM (Time Series Foundation Model) is a pretrained time-series foundation model developed by Goo",
+                "stars": "⭐+1516 today",
+                "link": "https://github.com/google-research/timesfm",
+                "tag": "大模型底层"
             },
             {
                 "name": "sponsors/obra",
                 "desc": "An agentic skills framework &amp; software development methodology that works.",
-                "stars": "⭐+1435 today",
+                "stars": "⭐+1113 today",
                 "link": "https://github.com/sponsors/obra",
-                "tag": "Agent 框架"
-            },
-            {
-                "name": "Kilo-Org/kilocode",
-                "desc": "Kilo is the all-in-one agentic engineering platform. Build, ship, and iterate faster with the most p",
-                "stars": "⭐+1339 today",
-                "link": "https://github.com/Kilo-Org/kilocode",
                 "tag": "Agent 框架"
             }
         ];
