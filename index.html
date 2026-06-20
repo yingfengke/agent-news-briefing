@@ -142,55 +142,33 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                         [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
             {
-                "title": "Subquadratic声称突破大语言模型推理瓶颈",
-                "summary": "迈阿密AI初创公司Subquadratic走出隐身模式，宣称其新型架构突破了限制大语言模型（LLM）扩展的二次复杂度瓶颈。具体技术细节尚未完全公开，但暗示采用亚二次（subquadratic）注意力机制替代标准Transformer中的O(n²)计算。若属实，将显著降低长序列推理成本，改变模型部署的经济性。（来源：MIT Tech Review）",
-                "link": "https://www.technologyreview.com/2026/06/19/1139313/a-startup-claims-it-broke-through-a-bottleneck-thats-holding-back-llms/",
+                "title": "三位 00 后开发者造出史上最快流式音视频社交模型",
+                "summary": "三位 00 后开发者用两个月构建出流式音视频生成模型，速度比 Veo 3 快 7 倍，成本仅为其 1/2000。模型采用轻量级架构与高效流式处理，实现实时社交场景下的音视频生成。技术原理：通过稀疏注意力与并行解码优化，大幅降低推理延迟。启示：小团队可通过架构创新实现 SOTA，低成本实时生成将推动社交 AI 应用爆发。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/436996.html",
                 "source": "AI",
                 "score": 5,
                 "tags": [
                     "大模型",
-                    "架构创新"
+                    "生成模型"
                 ]
             },
             {
-                "title": "运行时治理自主AI系统的道义策略框架",
-                "summary": "arXiv:2606.19464提出一种基于道义逻辑（deontic logic）的运行时治理框架，用于约束自主AI代理系统行为。该框架将规范、义务与权限形式化，在推理循环中嵌入合规检查，确保代理行动符合预设伦理与安全边界。对工程实践的启示：AI代理系统需在架构层集成可验证的规则引擎，而非仅依赖后验过滤。（来源：ArXiv AI）",
-                "link": "https://arxiv.org/abs/2606.19464",
+                "title": "OpenAI Codex 新增录制 Mac 工作流并转化为可复用技能功能",
+                "summary": "OpenAI Codex 推出新功能，可录制 Mac 桌面操作流程并自动转化为可复用的 AI 技能。该功能基于视觉理解与动作序列建模，将用户操作映射为结构化技能库，实现端到端工作流自动化。对工程实践的启示：AI Agent 从文本指令扩展到演示学习（demonstration learning），显著降低自动化门槛，开发者可快速构建复杂任务代理。（来源：DEV.to）",
+                "link": "https://dev.to/damogallagher/openai-codex-can-now-record-a-mac-workflow-and-turn-it-into-a-reusable-skill-4abo",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "AI Agent",
-                    "安全治理"
+                    "大模型",
+                    "Agent框架"
                 ]
             },
             {
-                "title": "GitHub内部数据分析代理构建实践",
-                "summary": "GitHub博客详细介绍了其内部数据分析代理的构建过程，该代理基于GitHub Copilot技术栈，允许用户通过自然语言查询数据仓库。架构上采用检索增强生成（RAG）结合结构化查询生成，并引入多轮对话与权限控制。启示：企业级AI代理需解决数据访问治理、查询准确性与用户意图理解之间的平衡。（来源：GitHub Blog）",
-                "link": "https://github.blog/ai-and-ml/github-copilot/how-we-built-an-internal-data-analytics-agent/",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "AI Agent",
-                    "开发工具"
-                ]
-            },
-            {
-                "title": "Amazon Bedrock AgentCore实时网络搜索：消除AI幻觉的代理方案",
-                "summary": "Amazon Bedrock AgentCore推出实时网络搜索功能，使AI代理在推理过程中能动态检索最新网络信息，而非仅依赖静态知识库。与RAG对比，该方案在时效性任务上表现更优，但增加了延迟与成本。对工程实践的启示：生产级代理需根据任务类型混合使用RAG与实时搜索，并设计缓存与降级策略。（来源：DEV.to AI）",
-                "link": "https://dev.to/aarhamforensics_eb3c024eb/amazon-bedrock-agentcore-web-search-real-time-ai-agents-that-stop-hallucinating-1i08",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "AI Agent",
-                    "RAG"
-                ]
-            },
-            {
-                "title": "全球首个人形机器人通用小脑：2万小时数据实现零样本泛化",
-                "summary": "量子位报道称，某团队发布全球首个人形机器人通用小脑，基于2万小时人类动作数据训练，实现零样本泛化到新任务。该架构借鉴大语言模型（LLM）的预训练范式，将运动控制视为序列生成问题。启示：机器人领域正从专用控制器转向通用基础模型，数据规模与多样性是关键瓶颈。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/436813.html",
+                "title": "英伟达推出机器人自主研究框架，让机器人自我探索学习技能",
+                "summary": "英伟达发布机器人自主研究框架，允许机器人通过自我探索与强化学习掌握技能，减少人工标注。该架构结合大规模物理仿真环境与基础模型（foundation model），实现零样本泛化。技术原理：利用世界模型（world model）进行内部模拟，加速策略学习。启示：具身智能训练范式转向自主探索，大幅降低数据依赖，推动机器人通用化进程。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/437041.html",
                 "source": "AI",
                 "score": 4,
                 "tags": [
@@ -199,58 +177,25 @@
                 ]
             },
             {
-                "title": "扩散语言模型实验分析",
-                "summary": "arXiv:2606.19475对扩散语言模型（Diffusion Language Models）进行了系统性实验分析，对比其与自回归模型在生成质量、采样速度与可控性上的差异。研究发现扩散模型在长文本生成中连贯性更优，但推理延迟较高。启示：扩散架构可能成为自回归模型在特定场景（如文档生成）的替代方案，但需优化采样效率。（来源：ArXiv AI）",
-                "link": "https://arxiv.org/abs/2606.19475",
+                "title": "陶哲轩 12 年前预言兑现：AI 成功辅助证明复杂数学定理",
+                "summary": "数学家陶哲轩 12 年前预言 AI 将改变数学研究，如今大模型成功辅助证明复杂定理。模型通过符号推理与自然语言结合，自动生成证明步骤并验证逻辑。技术原理：采用思维链（Chain-of-Thought）与形式化验证工具集成，提升推理可靠性。启示：大模型在数学推理领域取得突破，可辅助科研工作流，未来或成为数学家的标准工具。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/437023.html",
                 "source": "AI",
                 "score": 3,
                 "tags": [
                     "大模型",
-                    "架构创新"
+                    "数学推理"
                 ]
             },
             {
-                "title": "揭示大语言模型隐藏偏见：随机路径聚合可视化方法",
-                "summary": "arXiv:2606.19344提出一种名为随机路径聚合（Stochastic Path Aggregation）的可视化方法，用于揭示大语言模型（LLM）中的隐藏偏见。该方法通过分析模型内部表示在不同随机路径下的聚合模式，定位偏见来源。对工程实践的启示：模型部署前需进行内部表示层面的偏见审计，而非仅依赖输出测试。（来源：ArXiv CL）",
-                "link": "https://arxiv.org/abs/2606.19344",
+                "title": "诺贝尔奖得主 John Jumper 离开 DeepMind 加入 Anthropic",
+                "summary": "诺贝尔化学奖得主 John Jumper 宣布离开 Google DeepMind，加入竞争对手 Anthropic，将领导蛋白质结构预测与 AI 安全研究。此举可能加速 Anthropic 在生物 AI 领域的布局，同时影响 DeepMind 人才储备。启示：顶级 AI 人才流向安全研究，预示行业重心从能力提升转向安全治理，未来 6 个月可能引发更多人才流动。（来源：TechCrunch）",
+                "link": "https://techcrunch.com/2026/06/20/nobel-laureate-john-jumper-is-leaving-deepmind-for-rival-anthropic/",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "大模型",
-                    "安全治理"
-                ]
-            },
-            {
-                "title": "跨语言迁移中语言相关性与任务对齐的解耦研究",
-                "summary": "arXiv:2606.19346研究跨语言迁移中语言相关性与任务对齐的相互作用，发现两者在模型表现中贡献可分离。通过控制实验，作者提出一种解耦训练策略，提升低资源语言上的迁移效果。启示：多语言模型微调时应分别优化语言表征与任务适配，避免相互干扰。（来源：ArXiv CL）",
-                "link": "https://arxiv.org/abs/2606.19346",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "大模型",
-                    "多语言"
-                ]
-            },
-            {
-                "title": "AI实现药物全自动研发：GPT发布AI原创成果",
-                "summary": "量子位报道称，GPT模型在药物研发领域实现全自动闭环，从靶点发现到分子设计均由AI独立完成，并产出原创性成果。该工作展示了AI在科学发现中的自主性潜力。启示：AI代理在科研场景中需具备假设生成、实验设计与结果验证的完整能力链，而非仅作为辅助工具。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/436842.html",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "大模型",
-                    "AI Agent"
-                ]
-            },
-            {
-                "title": "AI原生陪伴机器人品牌ZuzuZoos获数千万元Pre-A轮融资",
-                "summary": "36氪报道，AI-Native科技潮玩品牌ZuzuZoos（查无此园）完成数千万元Pre-A轮融资，由锦秋领投。团队由moody前高管与大疆骨干组成，产品定位陪伴机器人，融合大语言模型（LLM）与情感计算。启示：消费级AI硬件正从功能型向情感型演进，多模态交互与个性化记忆是核心壁垒。（来源：36氪）",
-                "link": "https://36kr.com/p/3859926114161665?f=rss",
-                "source": "AI",
-                "score": 2,
-                "tags": [
-                    "机器人",
-                    "AI Agent"
+                    "人才流动",
+                    "AI安全"
                 ]
             }
         ];
@@ -258,31 +203,31 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日技术焦点集中在AI代理的运行时治理与推理效率突破。Subquadratic的亚二次注意力架构若验证有效，将推动长上下文模型在2026年底前进入实用阶段，降低推理成本一个数量级。同时，道义策略框架与实时搜索代理的提出，表明行业正从追求模型能力转向构建可信任、可审计的代理系统。未来6个月，预计出现更多结合形式化验证与检索增强的混合架构，以及面向机器人领域的通用运动基础模型。";
+    const __DAILY_ANALYSIS__ = "今日新闻揭示两大技术趋势：一是演示学习（demonstration learning）成为 Agent 主流交互方式，OpenAI Codex 录制工作流功能将大幅降低自动化门槛，预计 6 个月内出现大量基于演示的 Agent 工具。二是轻量级实时生成模型爆发，三位开发者用极低成本实现 SOTA 音视频生成，预示社交 AI 应用将迎来成本下降与体验升级。同时，英伟达机器人自主框架与陶哲轩 AI 数学案例表明，大模型正从语言向具身智能与科学推理深度渗透。人才流向 Anthropic 则暗示行业安全治理权重上升，未来半年内 AI 安全研究投入将显著增加。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                 [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                         [
             {
                 "name": "sponsors/chopratejas",
                 "desc": "Compress tool outputs, logs, files, and RAG chunks before they reach the LLM. 60-95% fewer tokens, s",
-                "stars": "⭐+3938 today",
+                "stars": "⭐+3786 today",
                 "link": "https://github.com/sponsors/chopratejas",
                 "tag": "大模型底层"
             },
             {
-                "name": "google-research/timesfm",
-                "desc": "TimesFM (Time Series Foundation Model) is a pretrained time-series foundation model developed by Goo",
-                "stars": "⭐+1516 today",
-                "link": "https://github.com/google-research/timesfm",
-                "tag": "大模型底层"
+                "name": "DeusData/codebase-memory-mcp",
+                "desc": "High-performance code intelligence MCP server. Indexes codebases into a persistent knowledge graph —",
+                "stars": "⭐+1267 today",
+                "link": "https://github.com/DeusData/codebase-memory-mcp",
+                "tag": "Agent 框架"
             },
             {
-                "name": "sponsors/obra",
-                "desc": "An agentic skills framework &amp; software development methodology that works.",
-                "stars": "⭐+1113 today",
-                "link": "https://github.com/sponsors/obra",
+                "name": "calesthio/OpenMontage",
+                "desc": "World's first open-source, agentic video production system. 12 pipelines, 52 tools, 500+ agent skill",
+                "stars": "⭐+677 today",
+                "link": "https://github.com/calesthio/OpenMontage",
                 "tag": "Agent 框架"
             }
         ];
