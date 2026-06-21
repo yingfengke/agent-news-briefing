@@ -142,60 +142,93 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
             {
-                "title": "三位 00 后开发者造出史上最快流式音视频社交模型",
-                "summary": "三位 00 后开发者用两个月构建出流式音视频生成模型，速度比 Veo 3 快 7 倍，成本仅为其 1/2000。模型采用轻量级架构与高效流式处理，实现实时社交场景下的音视频生成。技术原理：通过稀疏注意力与并行解码优化，大幅降低推理延迟。启示：小团队可通过架构创新实现 SOTA，低成本实时生成将推动社交 AI 应用爆发。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/436996.html",
+                "title": "大多数AI Agent未投入生产，以下是有效方法",
+                "summary": "调查显示仅少数公司真正运行AI Agent，成功关键在于明确目标、简化流程和持续监控。（来源：DEV.to）",
+                "link": "https://dev.to/studiomeyer_io/most-ai-agents-arent-in-production-heres-what-works-4ni9",
                 "source": "AI",
                 "score": 5,
                 "tags": [
-                    "大模型",
-                    "生成模型"
+                    "AI Agent",
+                    "生产部署"
                 ]
             },
             {
-                "title": "OpenAI Codex 新增录制 Mac 工作流并转化为可复用技能功能",
-                "summary": "OpenAI Codex 推出新功能，可录制 Mac 桌面操作流程并自动转化为可复用的 AI 技能。该功能基于视觉理解与动作序列建模，将用户操作映射为结构化技能库，实现端到端工作流自动化。对工程实践的启示：AI Agent 从文本指令扩展到演示学习（demonstration learning），显著降低自动化门槛，开发者可快速构建复杂任务代理。（来源：DEV.to）",
-                "link": "https://dev.to/damogallagher/openai-codex-can-now-record-a-mac-workflow-and-turn-it-into-a-reusable-skill-4abo",
+                "title": "AI技术在交接环节失败：协调差距导致80%生产系统崩溃",
+                "summary": "研究发现AI系统在任务交接时存在严重协调问题，导致80%生产系统故障，需改进架构设计。（来源：DEV.to）",
+                "link": "https://dev.to/aarhamforensics_eb3c024eb/ai-technology-fails-at-the-handoff-the-coordination-gap-breaking-80-of-production-systems-1ggp",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "大模型",
-                    "Agent框架"
+                    "AI系统",
+                    "生产故障"
                 ]
             },
             {
-                "title": "英伟达推出机器人自主研究框架，让机器人自我探索学习技能",
-                "summary": "英伟达发布机器人自主研究框架，允许机器人通过自我探索与强化学习掌握技能，减少人工标注。该架构结合大规模物理仿真环境与基础模型（foundation model），实现零样本泛化。技术原理：利用世界模型（world model）进行内部模拟，加速策略学习。启示：具身智能训练范式转向自主探索，大幅降低数据依赖，推动机器人通用化进程。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/437041.html",
+                "title": "超越Siri：iOS 27为iPhone带来的实用AI功能",
+                "summary": "苹果在iOS 27中推出多项实用AI功能，包括智能相册、实时翻译和自动化工作流，提升日常效率。（来源：TechCrunch）",
+                "link": "https://techcrunch.com/2026/06/21/beyond-siri-here-are-the-practical-ai-features-coming-to-your-iphone-in-ios-27/",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "机器人",
-                    "大模型"
+                    "iOS",
+                    "AI功能"
                 ]
             },
             {
-                "title": "陶哲轩 12 年前预言兑现：AI 成功辅助证明复杂数学定理",
-                "summary": "数学家陶哲轩 12 年前预言 AI 将改变数学研究，如今大模型成功辅助证明复杂定理。模型通过符号推理与自然语言结合，自动生成证明步骤并验证逻辑。技术原理：采用思维链（Chain-of-Thought）与形式化验证工具集成，提升推理可靠性。启示：大模型在数学推理领域取得突破，可辅助科研工作流，未来或成为数学家的标准工具。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/437023.html",
+                "title": "《大西洋月刊》创建可搜索数据库，记录用于训练AI的音乐",
+                "summary": "记者Alex Reisner公开四个音乐数据集，揭示AI训练中版权音乐使用情况，引发行业讨论。（来源：The Verge）",
+                "link": "https://www.theverge.com/ai-artificial-intelligence/953183/the-atlantic-searchable-database-music-ai-training-data",
                 "source": "AI",
-                "score": 3,
+                "score": 4,
                 "tags": [
-                    "大模型",
-                    "数学推理"
+                    "AI训练数据",
+                    "版权"
                 ]
             },
             {
-                "title": "诺贝尔奖得主 John Jumper 离开 DeepMind 加入 Anthropic",
-                "summary": "诺贝尔化学奖得主 John Jumper 宣布离开 Google DeepMind，加入竞争对手 Anthropic，将领导蛋白质结构预测与 AI 安全研究。此举可能加速 Anthropic 在生物 AI 领域的布局，同时影响 DeepMind 人才储备。启示：顶级 AI 人才流向安全研究，预示行业重心从能力提升转向安全治理，未来 6 个月可能引发更多人才流动。（来源：TechCrunch）",
-                "link": "https://techcrunch.com/2026/06/20/nobel-laureate-john-jumper-is-leaving-deepmind-for-rival-anthropic/",
+                "title": "具身智能赛道现状：大脑灵活、模型优秀，不是百亿估值就是独角兽",
+                "summary": "2026年具身智能融资已超去年全年，超半数资金流向机器人“大脑”研发，赛道持续火热。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/437198.html",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "人才流动",
-                    "AI安全"
+                    "具身智能",
+                    "融资"
+                ]
+            },
+            {
+                "title": "AI工作流实践：100% Vibe Coding完成Game Jam游戏开发",
+                "summary": "开发者分享使用AI Agent全程参与Game Jam游戏开发的经验，强调闭环反馈对Agent的重要性。（来源：少数派）",
+                "link": "https://sspai.com/post/110972",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "AI Agent",
+                    "游戏开发"
+                ]
+            },
+            {
+                "title": "2026年，1800个DeepSeek共同守护艾泽拉斯",
+                "summary": "玩家使用1800个DeepSeek模型辅助《魔兽世界》游戏，月成本仅340元，展示大模型游戏应用潜力。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/437141.html",
+                "source": "AI",
+                "score": 2,
+                "tags": [
+                    "DeepSeek",
+                    "游戏应用"
+                ]
+            },
+            {
+                "title": "我将微任务工人提示转化为1美元AI生产力包",
+                "summary": "开发者将微任务提示打包成低价AI生产力工具，验证快速变现模式，适合个人开发者尝试。（来源：DEV.to）",
+                "link": "https://dev.to/sean_mercado_92db80ad0933/i-turned-a-microtask-worker-prompt-into-a-1-ai-productivity-pack-4a1g",
+                "source": "AI",
+                "score": 2,
+                "tags": [
+                    "AI工具",
+                    "变现"
                 ]
             }
         ];
@@ -203,30 +236,30 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日新闻揭示两大技术趋势：一是演示学习（demonstration learning）成为 Agent 主流交互方式，OpenAI Codex 录制工作流功能将大幅降低自动化门槛，预计 6 个月内出现大量基于演示的 Agent 工具。二是轻量级实时生成模型爆发，三位开发者用极低成本实现 SOTA 音视频生成，预示社交 AI 应用将迎来成本下降与体验升级。同时，英伟达机器人自主框架与陶哲轩 AI 数学案例表明，大模型正从语言向具身智能与科学推理深度渗透。人才流向 Anthropic 则暗示行业安全治理权重上升，未来半年内 AI 安全研究投入将显著增加。";
+    const __DAILY_ANALYSIS__ = "今日焦点集中在AI Agent生产部署的挑战与成功实践，以及具身智能融资热潮。开发者应关注Agent协调问题与闭环工作流设计。同时，苹果iOS 27的AI功能普及和训练数据版权争议持续升温，预示AI应用将更注重实用性与合规性。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                         [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
             {
                 "name": "sponsors/chopratejas",
                 "desc": "Compress tool outputs, logs, files, and RAG chunks before they reach the LLM. 60-95% fewer tokens, s",
-                "stars": "⭐+3786 today",
+                "stars": "⭐+2617 today",
                 "link": "https://github.com/sponsors/chopratejas",
                 "tag": "大模型底层"
             },
             {
                 "name": "DeusData/codebase-memory-mcp",
                 "desc": "High-performance code intelligence MCP server. Indexes codebases into a persistent knowledge graph —",
-                "stars": "⭐+1267 today",
+                "stars": "⭐+1029 today",
                 "link": "https://github.com/DeusData/codebase-memory-mcp",
                 "tag": "Agent 框架"
             },
             {
                 "name": "calesthio/OpenMontage",
                 "desc": "World's first open-source, agentic video production system. 12 pipelines, 52 tools, 500+ agent skill",
-                "stars": "⭐+677 today",
+                "stars": "⭐+993 today",
                 "link": "https://github.com/calesthio/OpenMontage",
                 "tag": "Agent 框架"
             }
