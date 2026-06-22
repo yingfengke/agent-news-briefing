@@ -142,93 +142,105 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
             {
-                "title": "大多数AI Agent未投入生产，以下是有效方法",
-                "summary": "调查显示仅少数公司真正运行AI Agent，成功关键在于明确目标、简化流程和持续监控。（来源：DEV.to）",
-                "link": "https://dev.to/studiomeyer_io/most-ai-agents-arent-in-production-heres-what-works-4ni9",
+                "title": "OpenAI 推出 Daybreak 安全工具集：Codex Security 与 GPT-5.5-Cyber",
+                "summary": "OpenAI 发布 Daybreak 系列工具，包括 Codex Security（面向代码安全审计的 AI 代理）和 GPT-5.5-Cyber（专为网络安全场景微调的模型）。该工具集旨在通过自动化漏洞检测、威胁情报分析等能力，帮助组织构建端到端安全防线。对工程实践的启示：安全 Agent 将深度嵌入 CI/CD 流水线，模型微调需结合领域知识图谱与对抗训练。（来源：OpenAI）",
+                "link": "https://openai.com/index/daybreak-securing-the-world",
                 "source": "AI",
                 "score": 5,
                 "tags": [
-                    "AI Agent",
-                    "生产部署"
+                    "大模型",
+                    "安全",
+                    "Agent"
                 ]
             },
             {
-                "title": "AI技术在交接环节失败：协调差距导致80%生产系统崩溃",
-                "summary": "研究发现AI系统在任务交接时存在严重协调问题，导致80%生产系统故障，需改进架构设计。（来源：DEV.to）",
-                "link": "https://dev.to/aarhamforensics_eb3c024eb/ai-technology-fails-at-the-handoff-the-coordination-gap-breaking-80-of-production-systems-1ggp",
+                "title": "AI 芯片公司 Groq 确认 6.5 亿美元融资，重组团队应对英伟达 200 亿美元非收购交易",
+                "summary": "Groq 在英伟达 200 亿美元“非收购式人才吸纳”交易后，完成 6.5 亿美元融资并重新组建团队。Groq 的 LPU（语言处理单元）架构专为大模型推理优化，此次融资将用于扩大芯片产能和开发下一代推理加速器。对工程实践的启示：专用推理芯片与通用 GPU 的竞争加剧，AI 开发者需关注硬件生态兼容性与推理成本优化。（来源：TechCrunch AI）",
+                "link": "https://techcrunch.com/2026/06/22/ai-chipmaker-groq-confirms-650m-raise-re-staffs-after-nvidias-20b-not-acqui-hire-deal/",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "AI系统",
-                    "生产故障"
+                    "AI芯片",
+                    "基础设施"
                 ]
             },
             {
-                "title": "超越Siri：iOS 27为iPhone带来的实用AI功能",
-                "summary": "苹果在iOS 27中推出多项实用AI功能，包括智能相册、实时翻译和自动化工作流，提升日常效率。（来源：TechCrunch）",
-                "link": "https://techcrunch.com/2026/06/21/beyond-siri-here-are-the-practical-ai-features-coming-to-your-iphone-in-ios-27/",
+                "title": "阿里发布视频生成模型 HappyHorse 1.1：五大维度全面升级",
+                "summary": "阿里发布 HappyHorse 1.1，在视频生成质量、运动连贯性、多主体交互、长视频生成和风格控制五大维度升级。该模型基于扩散 Transformer 架构，引入时空注意力优化和渐进式训练策略，支持 1080p 分辨率、60 秒长视频生成。对工程实践的启示：视频生成模型正从“能生成”转向“可控生成”，多模态对齐与长时序一致性是核心难点。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/437317.html",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "iOS",
-                    "AI功能"
+                    "大模型",
+                    "视频生成"
                 ]
             },
             {
-                "title": "《大西洋月刊》创建可搜索数据库，记录用于训练AI的音乐",
-                "summary": "记者Alex Reisner公开四个音乐数据集，揭示AI训练中版权音乐使用情况，引发行业讨论。（来源：The Verge）",
-                "link": "https://www.theverge.com/ai-artificial-intelligence/953183/the-atlantic-searchable-database-music-ai-training-data",
+                "title": "DeepSeek 急招 Agent 人才，负责人多渠道贴广告",
+                "summary": "DeepSeek 全力押注 Agent 方向，负责人通过社交媒体、技术社区等渠道广泛招募 Agent 工程师。岗位要求包括多智能体协作框架设计、工具调用编排、记忆与规划系统开发等。对工程实践的启示：Agent 人才缺口反映行业从“模型能力”向“系统能力”的转型，Agent 框架（如 LangGraph、AutoGen）的工程化落地成为关键瓶颈。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/437249.html",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "AI训练数据",
-                    "版权"
+                    "Agent",
+                    "人才趋势"
                 ]
             },
             {
-                "title": "具身智能赛道现状：大脑灵活、模型优秀，不是百亿估值就是独角兽",
-                "summary": "2026年具身智能融资已超去年全年，超半数资金流向机器人“大脑”研发，赛道持续火热。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/437198.html",
+                "title": "AI 世界变得“循环”：代理群（Swarm of Agents）架构兴起",
+                "summary": "TechCrunch 报道一种名为“Loopy”的 Agent 架构，授权一群代理协同工作，通过循环反馈机制自主完成任务。该架构将传统单 Agent 的线性流程扩展为多 Agent 并行协作，每个 Agent 负责子任务并共享上下文。对工程实践的启示：Agent 编排从“链式”转向“图式”，需要新的通信协议、冲突解决和状态同步机制。（来源：TechCrunch AI）",
+                "link": "https://techcrunch.com/2026/06/22/the-ai-world-is-getting-loopy/",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "Agent框架",
+                    "架构"
+                ]
+            },
+            {
+                "title": "英伟达推出数据中心冷却系统，但无法根本解决 AI 用水问题",
+                "summary": "英伟达发布新型冷却系统，可减少数据中心内部用水量，但 TechCrunch 分析指出，AI 训练和推理的间接用水（如发电、芯片制造）才是更大问题。该系统采用液冷与空气冷却混合方案，降低 PUE 的同时减少蒸发损失。对工程实践的启示：绿色 AI 基础设施需全生命周期评估，开发者应关注模型效率与硬件能效的协同优化。（来源：TechCrunch AI）",
+                "link": "https://techcrunch.com/2026/06/22/nvidia-wants-to-cut-data-center-water-use-but-thats-not-the-same-as-fixing-ais-water-problem/",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "基础设施",
+                    "绿色AI"
+                ]
+            },
+            {
+                "title": "PP-OCRv6 登陆 Hugging Face：1.5M 到 34.5M 参数支持 50 种语言",
+                "summary": "PaddlePaddle 发布 PP-OCRv6 模型系列，参数范围从 1.5M（超轻量）到 34.5M（高精度），支持 50 种语言的文字识别。模型采用可分离卷积与注意力机制混合架构，通过知识蒸馏实现精度与速度的平衡。对工程实践的启示：多语言 OCR 的轻量化部署成为可能，开发者可根据场景选择模型大小，适合边缘设备与云端混合推理。（来源：HuggingFace Blog）",
+                "link": "https://huggingface.co/blog/PaddlePaddle/pp-ocrv6",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "开发工具",
+                    "OCR"
+                ]
+            },
+            {
+                "title": "映界科技：00 后团队的空间智能“赌注”",
+                "summary": "36氪报道映界科技，一支 00 后团队专注空间智能，旨在让机器人真正理解物理世界。其技术路线结合 3D 场景重建、物理引擎模拟与多模态感知，构建“大脑+小脑”架构。对工程实践的启示：具身智能从运动控制转向场景理解，空间智能需要大规模合成数据与真实环境对齐，模型需具备因果推理能力。（来源：36氪）",
+                "link": "https://36kr.com/p/3864071269569540?f=rss",
                 "source": "AI",
                 "score": 3,
                 "tags": [
                     "具身智能",
-                    "融资"
+                    "空间智能"
                 ]
             },
             {
-                "title": "AI工作流实践：100% Vibe Coding完成Game Jam游戏开发",
-                "summary": "开发者分享使用AI Agent全程参与Game Jam游戏开发的经验，强调闭环反馈对Agent的重要性。（来源：少数派）",
-                "link": "https://sspai.com/post/110972",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "AI Agent",
-                    "游戏开发"
-                ]
-            },
-            {
-                "title": "2026年，1800个DeepSeek共同守护艾泽拉斯",
-                "summary": "玩家使用1800个DeepSeek模型辅助《魔兽世界》游戏，月成本仅340元，展示大模型游戏应用潜力。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/437141.html",
+                "title": "三星电子向韩国所有员工开放 ChatGPT 和 Codex",
+                "summary": "三星电子宣布向韩国全体员工开放 ChatGPT 和 OpenAI Codex 的使用权限，此前因数据安全顾虑曾禁止使用。此举旨在提升内部开发效率，同时配套数据脱敏和审计机制。对工程实践的启示：企业级 AI 工具普及需平衡效率与安全，Codex 在代码生成场景的落地需结合私有代码库的 RAG 检索增强。（来源：36氪）",
+                "link": "https://36kr.com/p/3864065855706120?f=rss",
                 "source": "AI",
                 "score": 2,
                 "tags": [
-                    "DeepSeek",
-                    "游戏应用"
-                ]
-            },
-            {
-                "title": "我将微任务工人提示转化为1美元AI生产力包",
-                "summary": "开发者将微任务提示打包成低价AI生产力工具，验证快速变现模式，适合个人开发者尝试。（来源：DEV.to）",
-                "link": "https://dev.to/sean_mercado_92db80ad0933/i-turned-a-microtask-worker-prompt-into-a-1-ai-productivity-pack-4a1g",
-                "source": "AI",
-                "score": 2,
-                "tags": [
-                    "AI工具",
-                    "变现"
+                    "大模型",
+                    "企业应用"
                 ]
             }
         ];
@@ -236,31 +248,31 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日焦点集中在AI Agent生产部署的挑战与成功实践，以及具身智能融资热潮。开发者应关注Agent协调问题与闭环工作流设计。同时，苹果iOS 27的AI功能普及和训练数据版权争议持续升温，预示AI应用将更注重实用性与合规性。";
+    const __DAILY_ANALYSIS__ = "今日新闻凸显两大趋势：一是 Agent 架构从单链向多智能体群（Swarm）演进，DeepSeek 急招 Agent 人才与 Loopy 架构的报道相互印证，预示未来 6 个月 Agent 编排框架（如 LangGraph、AutoGen）将迎来爆发式迭代，并催生新的通信协议与状态管理标准。二是 AI 基础设施竞争加剧，Groq 融资与英伟达冷却系统表明推理芯片和绿色计算成为新焦点，开发者需关注硬件生态兼容性，同时模型效率优化（如 PP-OCRv6 的轻量化）将加速边缘 AI 落地。安全 Agent 工具（Daybreak）的推出则提示，AI 安全将从被动防御转向主动审计，Codex Security 可能成为 CI/CD 流水线的标配组件。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
             {
-                "name": "sponsors/chopratejas",
-                "desc": "Compress tool outputs, logs, files, and RAG chunks before they reach the LLM. 60-95% fewer tokens, s",
-                "stars": "⭐+2617 today",
-                "link": "https://github.com/sponsors/chopratejas",
+                "name": "calesthio/OpenMontage",
+                "desc": "World's first open-source, agentic video production system. 12 pipelines, 52 tools, 500+ agent skill",
+                "stars": "⭐+2935 today",
+                "link": "https://github.com/calesthio/OpenMontage",
+                "tag": "Agent 框架"
+            },
+            {
+                "name": "ZhuLinsen/daily_stock_analysis",
+                "desc": "LLM 驱动的多市场股票智能分析系统：多源行情、实时新闻、决策看板与自动推送，支持零成本定时运行。 LLM-powered multi-market stock analysis system wit",
+                "stars": "⭐+1560 today",
+                "link": "https://github.com/ZhuLinsen/daily_stock_analysis",
                 "tag": "大模型底层"
             },
             {
                 "name": "DeusData/codebase-memory-mcp",
                 "desc": "High-performance code intelligence MCP server. Indexes codebases into a persistent knowledge graph —",
-                "stars": "⭐+1029 today",
+                "stars": "⭐+1186 today",
                 "link": "https://github.com/DeusData/codebase-memory-mcp",
-                "tag": "Agent 框架"
-            },
-            {
-                "name": "calesthio/OpenMontage",
-                "desc": "World's first open-source, agentic video production system. 12 pipelines, 52 tools, 500+ agent skill",
-                "stars": "⭐+993 today",
-                "link": "https://github.com/calesthio/OpenMontage",
                 "tag": "Agent 框架"
             }
         ];
