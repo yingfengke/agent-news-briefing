@@ -142,105 +142,136 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
             {
-                "title": "OpenAI 推出 Daybreak 安全工具集：Codex Security 与 GPT-5.5-Cyber",
-                "summary": "OpenAI 发布 Daybreak 系列工具，包括 Codex Security（面向代码安全审计的 AI 代理）和 GPT-5.5-Cyber（专为网络安全场景微调的模型）。该工具集旨在通过自动化漏洞检测、威胁情报分析等能力，帮助组织构建端到端安全防线。对工程实践的启示：安全 Agent 将深度嵌入 CI/CD 流水线，模型微调需结合领域知识图谱与对抗训练。（来源：OpenAI）",
-                "link": "https://openai.com/index/daybreak-securing-the-world",
+                "title": "GPT-5 Pro 破解三年免疫学谜题",
+                "summary": "免疫学家 Derya Unutmaz 利用 GPT-5 Pro 解决了一个困扰三年的 T 细胞机制谜题。模型通过多轮推理和文献交叉验证提出假设，实验证实有效。未披露模型参数量，但展示了 LLM 在科研中的零样本推理潜力。极客视角：这比刷 benchmark 更有说服力，但可复现性存疑。（来源：OpenAI）",
+                "link": "https://openai.com/index/gpt-5-immunology-mystery",
                 "source": "AI",
                 "score": 5,
                 "tags": [
                     "大模型",
-                    "安全",
-                    "Agent"
+                    "科研"
                 ]
             },
             {
-                "title": "AI 芯片公司 Groq 确认 6.5 亿美元融资，重组团队应对英伟达 200 亿美元非收购交易",
-                "summary": "Groq 在英伟达 200 亿美元“非收购式人才吸纳”交易后，完成 6.5 亿美元融资并重新组建团队。Groq 的 LPU（语言处理单元）架构专为大模型推理优化，此次融资将用于扩大芯片产能和开发下一代推理加速器。对工程实践的启示：专用推理芯片与通用 GPU 的竞争加剧，AI 开发者需关注硬件生态兼容性与推理成本优化。（来源：TechCrunch AI）",
-                "link": "https://techcrunch.com/2026/06/22/ai-chipmaker-groq-confirms-650m-raise-re-staffs-after-nvidias-20b-not-acqui-hire-deal/",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "AI芯片",
-                    "基础设施"
-                ]
-            },
-            {
-                "title": "阿里发布视频生成模型 HappyHorse 1.1：五大维度全面升级",
-                "summary": "阿里发布 HappyHorse 1.1，在视频生成质量、运动连贯性、多主体交互、长视频生成和风格控制五大维度升级。该模型基于扩散 Transformer 架构，引入时空注意力优化和渐进式训练策略，支持 1080p 分辨率、60 秒长视频生成。对工程实践的启示：视频生成模型正从“能生成”转向“可控生成”，多模态对齐与长时序一致性是核心难点。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/437317.html",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "大模型",
-                    "视频生成"
-                ]
-            },
-            {
-                "title": "DeepSeek 急招 Agent 人才，负责人多渠道贴广告",
-                "summary": "DeepSeek 全力押注 Agent 方向，负责人通过社交媒体、技术社区等渠道广泛招募 Agent 工程师。岗位要求包括多智能体协作框架设计、工具调用编排、记忆与规划系统开发等。对工程实践的启示：Agent 人才缺口反映行业从“模型能力”向“系统能力”的转型，Agent 框架（如 LangGraph、AutoGen）的工程化落地成为关键瓶颈。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/437249.html",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "Agent",
-                    "人才趋势"
-                ]
-            },
-            {
-                "title": "AI 世界变得“循环”：代理群（Swarm of Agents）架构兴起",
-                "summary": "TechCrunch 报道一种名为“Loopy”的 Agent 架构，授权一群代理协同工作，通过循环反馈机制自主完成任务。该架构将传统单 Agent 的线性流程扩展为多 Agent 并行协作，每个 Agent 负责子任务并共享上下文。对工程实践的启示：Agent 编排从“链式”转向“图式”，需要新的通信协议、冲突解决和状态同步机制。（来源：TechCrunch AI）",
-                "link": "https://techcrunch.com/2026/06/22/the-ai-world-is-getting-loopy/",
+                "title": "Anthropic 推出 Claude Tag：Slack 上的常驻 AI 队友",
+                "summary": "Claude Tag 是 Anthropic 的新功能，允许团队在 Slack 中 @提及 Claude 作为常驻 AI 队友。它学习公司上下文，提供实时代码审查、文档生成和决策支持。TechCrunch 指出其隐私风险：模型持续读取 Slack 消息。极客视角：这本质是 RAG + Agent 的轻量落地，但数据主权和幻觉控制是坑。（2 家来源交叉验证）",
+                "link": "https://www.anthropic.com/news/introducing-claude-tag",
                 "source": "AI",
                 "score": 4,
                 "tags": [
                     "Agent框架",
-                    "架构"
+                    "企业应用"
                 ]
             },
             {
-                "title": "英伟达推出数据中心冷却系统，但无法根本解决 AI 用水问题",
-                "summary": "英伟达发布新型冷却系统，可减少数据中心内部用水量，但 TechCrunch 分析指出，AI 训练和推理的间接用水（如发电、芯片制造）才是更大问题。该系统采用液冷与空气冷却混合方案，降低 PUE 的同时减少蒸发损失。对工程实践的启示：绿色 AI 基础设施需全生命周期评估，开发者应关注模型效率与硬件能效的协同优化。（来源：TechCrunch AI）",
-                "link": "https://techcrunch.com/2026/06/22/nvidia-wants-to-cut-data-center-water-use-but-thats-not-the-same-as-fixing-ais-water-problem/",
+                "title": "HuggingFace 实验 Transformers.js 的跨域存储 API",
+                "summary": "HuggingFace 博客提出 Cross-Origin Storage API 提案，旨在浏览器中安全共享模型权重和缓存。这能减少 Web AI 应用的加载延迟，但面临跨域安全挑战。极客视角：WebGPU + 跨域存储将推动浏览器端推理，但 CORS 策略和隐私沙盒是拦路虎。（来源：HuggingFace Blog）",
+                "link": "https://huggingface.co/blog/cross-origin-storage",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "WebAI",
+                    "浏览器"
+                ]
+            },
+            {
+                "title": "正行创新完成近亿美元天使轮融资，瞄准物理智能",
+                "summary": "正行创新获近亿美元天使轮融资，由正大集团、华勤技术等联合投资。公司以“数据-模型-基础设施”系统协同路径，主攻物理智能（机器人、自动驾驶）。未披露具体模型参数或 benchmark。极客视角：物理智能是下一个风口，但数据采集和 sim-to-real 迁移仍是瓶颈。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/437694.html",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "机器人",
+                    "融资"
+                ]
+            },
+            {
+                "title": "OpenAI 推动高级 AI 共享标准建设",
+                "summary": "OpenAI 发布高级 AI 共享标准倡议，重点支持评估框架的标准化。此举旨在降低前沿模型的安全对齐成本，但未披露具体 benchmark 或参数量。极客视角：标准制定是双刃剑，可能加速合规但限制创新。（来源：OpenAI）",
+                "link": "https://openai.com/index/helping-build-shared-standards-for-advanced-ai",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "基础设施",
-                    "绿色AI"
+                    "大模型",
+                    "安全"
                 ]
             },
             {
-                "title": "PP-OCRv6 登陆 Hugging Face：1.5M 到 34.5M 参数支持 50 种语言",
-                "summary": "PaddlePaddle 发布 PP-OCRv6 模型系列，参数范围从 1.5M（超轻量）到 34.5M（高精度），支持 50 种语言的文字识别。模型采用可分离卷积与注意力机制混合架构，通过知识蒸馏实现精度与速度的平衡。对工程实践的启示：多语言 OCR 的轻量化部署成为可能，开发者可根据场景选择模型大小，适合边缘设备与云端混合推理。（来源：HuggingFace Blog）",
-                "link": "https://huggingface.co/blog/PaddlePaddle/pp-ocrv6",
+                "title": "AI 超级 PAC 斥资 2700 万美元干预地方选举",
+                "summary": "企业 AI 超级 PAC 在纽约第 12 选区地方选举中投入 2700 万美元，支持亲 AI 监管的候选人。此举引发对 AI 政治影响力的讨论。极客视角：AI 行业 lobbying 加速，可能影响未来模型监管框架，开发者需关注政策风向。（来源：The Verge）",
+                "link": "https://www.theverge.com/policy/954970/ai-super-pacs-alex-bores-new-york-12th-district",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "开发工具",
-                    "OCR"
+                    "政策",
+                    "行业"
                 ]
             },
             {
-                "title": "映界科技：00 后团队的空间智能“赌注”",
-                "summary": "36氪报道映界科技，一支 00 后团队专注空间智能，旨在让机器人真正理解物理世界。其技术路线结合 3D 场景重建、物理引擎模拟与多模态感知，构建“大脑+小脑”架构。对工程实践的启示：具身智能从运动控制转向场景理解，空间智能需要大规模合成数据与真实环境对齐，模型需具备因果推理能力。（来源：36氪）",
-                "link": "https://36kr.com/p/3864071269569540?f=rss",
+                "title": "离散 MCP 工具 vs execute_code：何时胜出",
+                "summary": "DEV.to 文章对比了离散 MCP 工具与 execute_code 在 Agent 场景中的优劣。以船用 Agent 读取 SignalK 数据为例，离散 MCP 工具在安全性和可调试性上胜出，但 execute_code 更灵活。极客视角：MCP 协议标准化是关键，但当前生态碎片化严重。（来源：DEV.to）",
+                "link": "https://dev.to/clarkbw--/discrete-mcp-tools-vs-executecode-when-each-wins-1d9c",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "具身智能",
-                    "空间智能"
+                    "Agent框架",
+                    "MCP"
                 ]
             },
             {
-                "title": "三星电子向韩国所有员工开放 ChatGPT 和 Codex",
-                "summary": "三星电子宣布向韩国全体员工开放 ChatGPT 和 OpenAI Codex 的使用权限，此前因数据安全顾虑曾禁止使用。此举旨在提升内部开发效率，同时配套数据脱敏和审计机制。对工程实践的启示：企业级 AI 工具普及需平衡效率与安全，Codex 在代码生成场景的落地需结合私有代码库的 RAG 检索增强。（来源：36氪）",
-                "link": "https://36kr.com/p/3864065855706120?f=rss",
+                "title": "云计算巨头助力小鹏、Kimi 和猎豹拥抱 Agentic AI",
+                "summary": "云计算一哥（推测为阿里云或 AWS）为小鹏、Kimi 和猎豹提供 Agentic AI 基础设施，支持高并发推理和低延迟服务。未披露具体延迟或吞吐量数据。极客视角：Agentic AI 爆发需要云厂商提供弹性算力和 MLOps 工具，但成本控制是挑战。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/437672.html",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "云服务",
+                    "Agent框架"
+                ]
+            },
+            {
+                "title": "AI 创投圆桌：比共识更早一步的真实棋局",
+                "summary": "36氪 WAVES 圆桌讨论 AI 创投现状，共识认为 Agent 和垂直应用是下一波机会，但估值泡沫隐现。极客视角：投资热点从基础模型转向应用层，但技术壁垒降低后，差异化更难。（来源：36氪）",
+                "link": "https://36kr.com/p/3865630193030145?f=rss",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "行业",
+                    "投资"
+                ]
+            },
+            {
+                "title": "GitHub 博客：自动化工作流如何提升领导力",
+                "summary": "GitHub 博客分享一位高级领导通过自动化日常任务（如代码审查、会议纪要生成）释放 30% 时间用于战略决策。未披露具体工具链，但强调 AI 辅助而非替代。极客视角：自动化不是终点，重构工作流才是，但过度依赖可能导致团队技能退化。（来源：GitHub Blog）",
+                "link": "https://github.blog/developer-skills/github/i-automated-my-job-and-it-made-me-a-better-leader/",
                 "source": "AI",
                 "score": 2,
                 "tags": [
-                    "大模型",
-                    "企业应用"
+                    "开发者工具"
+                ]
+            },
+            {
+                "title": "Google Home 更新：通过衣物识别提升人脸识别准确率",
+                "summary": "Google Home 新更新引入衣物特征辅助人脸识别，降低智能摄像头误报率。未披露具体模型参数量或准确率提升数据。极客视角：多模态融合是趋势，但衣物变化频繁，实际增益可能有限，隐私争议是隐忧。（来源：The Verge）",
+                "link": "https://www.theverge.com/tech/955385/google-home-familiar-faces-clothing",
+                "source": "AI",
+                "score": 2,
+                "tags": [
+                    "多模态",
+                    "智能家居"
+                ]
+            },
+            {
+                "title": "镁合金材料公司「宜镁华」完成数千万元天使轮融资",
+                "summary": "「宜镁华」获数千万元天使轮融资，专注高导热、高强韧镁合金，切入机器人等高端制造。未披露具体性能数据。极客视角：材料创新是机器人轻量化的关键，但量产一致性是难点。（来源：36氪）",
+                "link": "https://36kr.com/p/3864082158785539?f=rss",
+                "source": "AI",
+                "score": 2,
+                "tags": [
+                    "机器人",
+                    "材料"
                 ]
             }
         ];
@@ -248,32 +279,32 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日新闻凸显两大趋势：一是 Agent 架构从单链向多智能体群（Swarm）演进，DeepSeek 急招 Agent 人才与 Loopy 架构的报道相互印证，预示未来 6 个月 Agent 编排框架（如 LangGraph、AutoGen）将迎来爆发式迭代，并催生新的通信协议与状态管理标准。二是 AI 基础设施竞争加剧，Groq 融资与英伟达冷却系统表明推理芯片和绿色计算成为新焦点，开发者需关注硬件生态兼容性，同时模型效率优化（如 PP-OCRv6 的轻量化）将加速边缘 AI 落地。安全 Agent 工具（Daybreak）的推出则提示，AI 安全将从被动防御转向主动审计，Codex Security 可能成为 CI/CD 流水线的标配组件。";
+    const __DAILY_ANALYSIS__ = "Agent 框架和物理智能是今日两大热点。Claude Tag 和 MCP 工具对比表明，Agent 落地正从实验走向生产，但数据主权和标准化仍是痛点。物理智能（正行创新、宜镁华）获资本青睐，但 sim-to-real 和数据采集瓶颈待解。预计短期内 Agent 框架（如 MCP 协议）会先卷起来，因为技术门槛更低、生态更成熟。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
             {
                 "name": "calesthio/OpenMontage",
                 "desc": "World's first open-source, agentic video production system. 12 pipelines, 52 tools, 500+ agent skill",
-                "stars": "⭐+2935 today",
+                "stars": "⭐+3590 today",
                 "link": "https://github.com/calesthio/OpenMontage",
+                "tag": "Agent 框架"
+            },
+            {
+                "name": "DeusData/codebase-memory-mcp",
+                "desc": "High-performance code intelligence MCP server. Indexes codebases into a persistent knowledge graph —",
+                "stars": "⭐+1299 today",
+                "link": "https://github.com/DeusData/codebase-memory-mcp",
                 "tag": "Agent 框架"
             },
             {
                 "name": "ZhuLinsen/daily_stock_analysis",
                 "desc": "LLM 驱动的多市场股票智能分析系统：多源行情、实时新闻、决策看板与自动推送，支持零成本定时运行。 LLM-powered multi-market stock analysis system wit",
-                "stars": "⭐+1560 today",
+                "stars": "⭐+1121 today",
                 "link": "https://github.com/ZhuLinsen/daily_stock_analysis",
                 "tag": "大模型底层"
-            },
-            {
-                "name": "DeusData/codebase-memory-mcp",
-                "desc": "High-performance code intelligence MCP server. Indexes codebases into a persistent knowledge graph —",
-                "stars": "⭐+1186 today",
-                "link": "https://github.com/DeusData/codebase-memory-mcp",
-                "tag": "Agent 框架"
             }
         ];
 
