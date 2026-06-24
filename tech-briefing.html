@@ -142,136 +142,112 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
             {
-                "title": "GPT-5 Pro 破解三年免疫学谜题",
-                "summary": "免疫学家 Derya Unutmaz 利用 GPT-5 Pro 解决了一个困扰三年的 T 细胞机制谜题。模型通过多轮推理和文献交叉验证提出假设，实验证实有效。未披露模型参数量，但展示了 LLM 在科研中的零样本推理潜力。极客视角：这比刷 benchmark 更有说服力，但可复现性存疑。（来源：OpenAI）",
-                "link": "https://openai.com/index/gpt-5-immunology-mystery",
+                "title": "神经符号驱动：基于规则的可信推理用于驾驶视觉-语言-动作模型",
+                "summary": "提出神经符号驱动方法，将交通规则等知识作为约束融入视觉-语言-动作（VLA）模型，实现可解释、可信推理。架构上结合符号推理与神经网络，确保输出符合规则。对自动驾驶AI工程实践启示：可提升安全性和可解释性，降低对纯数据驱动的依赖。（来源：ArXiv）",
+                "link": "https://arxiv.org/abs/2606.23938",
                 "source": "AI",
                 "score": 5,
                 "tags": [
                     "大模型",
-                    "科研"
+                    "自动驾驶",
+                    "神经符号"
                 ]
             },
             {
-                "title": "Anthropic 推出 Claude Tag：Slack 上的常驻 AI 队友",
-                "summary": "Claude Tag 是 Anthropic 的新功能，允许团队在 Slack 中 @提及 Claude 作为常驻 AI 队友。它学习公司上下文，提供实时代码审查、文档生成和决策支持。TechCrunch 指出其隐私风险：模型持续读取 Slack 消息。极客视角：这本质是 RAG + Agent 的轻量落地，但数据主权和幻觉控制是坑。（2 家来源交叉验证）",
-                "link": "https://www.anthropic.com/news/introducing-claude-tag",
+                "title": "EXPO-SQL：基于执行的子句级策略优化提升文本到SQL准确率",
+                "summary": "提出基于执行结果的子句级策略优化方法，通过执行反馈优化SQL生成中的每个子句，提升Text-to-SQL准确率。架构上引入执行验证和细粒度奖励，改变传统端到端训练方式。对工程实践启示：可显著提升复杂查询的生成质量，降低幻觉。（来源：ArXiv）",
+                "link": "https://arxiv.org/abs/2606.23693",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "Agent框架",
-                    "企业应用"
+                    "大模型",
+                    "Text-to-SQL",
+                    "优化"
                 ]
             },
             {
-                "title": "HuggingFace 实验 Transformers.js 的跨域存储 API",
-                "summary": "HuggingFace 博客提出 Cross-Origin Storage API 提案，旨在浏览器中安全共享模型权重和缓存。这能减少 Web AI 应用的加载延迟，但面临跨域安全挑战。极客视角：WebGPU + 跨域存储将推动浏览器端推理，但 CORS 策略和隐私沙盒是拦路虎。（来源：HuggingFace Blog）",
-                "link": "https://huggingface.co/blog/cross-origin-storage",
+                "title": "量化检索增强生成系统中的先验主导性",
+                "summary": "量化检索增强生成（RAG）系统中先验知识（模型内部知识）对输出的主导程度，发现先验知识常压制检索结果。架构上提出度量指标，指导RAG系统设计时平衡内部知识与外部检索。对工程实践启示：需调整检索权重或采用反事实训练，提升RAG可靠性。（来源：ArXiv）",
+                "link": "https://arxiv.org/abs/2606.23695",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "WebAI",
-                    "浏览器"
+                    "大模型",
+                    "RAG",
+                    "检索增强"
                 ]
             },
             {
-                "title": "正行创新完成近亿美元天使轮融资，瞄准物理智能",
-                "summary": "正行创新获近亿美元天使轮融资，由正大集团、华勤技术等联合投资。公司以“数据-模型-基础设施”系统协同路径，主攻物理智能（机器人、自动驾驶）。未披露具体模型参数或 benchmark。极客视角：物理智能是下一个风口，但数据采集和 sim-to-real 迁移仍是瓶颈。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/437694.html",
+                "title": "HIL-ResRL：1小时真机强化学习微调成功率突破95%",
+                "summary": "提出人类在环的残差强化学习（HIL-ResRL）方法，仅需1小时真机微调即可使视觉-语言-动作（VLA）模型成功率突破95%。架构上采用残差策略网络，即插即用，不改变原模型结构。对工程实践启示：极大降低机器人技能学习的数据和时间成本，加速VLA落地。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/438166.html",
                 "source": "AI",
                 "score": 4,
                 "tags": [
+                    "大模型",
                     "机器人",
-                    "融资"
+                    "强化学习"
                 ]
             },
             {
-                "title": "OpenAI 推动高级 AI 共享标准建设",
-                "summary": "OpenAI 发布高级 AI 共享标准倡议，重点支持评估框架的标准化。此举旨在降低前沿模型的安全对齐成本，但未披露具体 benchmark 或参数量。极客视角：标准制定是双刃剑，可能加速合规但限制创新。（来源：OpenAI）",
-                "link": "https://openai.com/index/helping-build-shared-standards-for-advanced-ai",
+                "title": "HuggingFace 发布真实世界自动语音识别排行榜",
+                "summary": "HuggingFace 发布FFASR排行榜，涵盖噪声、口音、远场等真实场景，评估自动语音识别（ASR）模型实际表现。架构上提供标准化测试集和评估协议。对工程实践启示：推动ASR模型从实验室指标向真实场景优化，促进语音AI落地。（来源：HuggingFace Blog）",
+                "link": "https://huggingface.co/blog/ffasr-leaderboard",
                 "source": "AI",
                 "score": 3,
                 "tags": [
                     "大模型",
-                    "安全"
+                    "语音识别",
+                    "基准测试"
                 ]
             },
             {
-                "title": "AI 超级 PAC 斥资 2700 万美元干预地方选举",
-                "summary": "企业 AI 超级 PAC 在纽约第 12 选区地方选举中投入 2700 万美元，支持亲 AI 监管的候选人。此举引发对 AI 政治影响力的讨论。极客视角：AI 行业 lobbying 加速，可能影响未来模型监管框架，开发者需关注政策风向。（来源：The Verge）",
-                "link": "https://www.theverge.com/policy/954970/ai-super-pacs-alex-bores-new-york-12th-district",
+                "title": "Figma 推出AI动效和着色器工具",
+                "summary": "Figma 在Config 2026大会上推出AI动效和着色器工具，允许设计师通过自然语言生成动画和着色器代码。架构上集成大语言模型（LLM）到设计工具中，实现代码生成与可视化。对工程实践启示：AI辅助设计工具将降低动效开发门槛，改变设计工作流。（来源：The Verge）",
+                "link": "https://www.theverge.com/tech/955831/figma-code-design-tools-config-2026-announcements",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "政策",
-                    "行业"
+                    "开发工具",
+                    "AI设计",
+                    "代码生成"
                 ]
             },
             {
-                "title": "离散 MCP 工具 vs execute_code：何时胜出",
-                "summary": "DEV.to 文章对比了离散 MCP 工具与 execute_code 在 Agent 场景中的优劣。以船用 Agent 读取 SignalK 数据为例，离散 MCP 工具在安全性和可调试性上胜出，但 execute_code 更灵活。极客视角：MCP 协议标准化是关键，但当前生态碎片化严重。（来源：DEV.to）",
-                "link": "https://dev.to/clarkbw--/discrete-mcp-tools-vs-executecode-when-each-wins-1d9c",
+                "title": "百度智能云发布千帆Token Plan企业版，率先适配GLM-5.2",
+                "summary": "百度智能云发布千帆Token Plan企业版，率先适配智谱GLM-5.2等模型，提供企业级大模型服务。架构上支持多模型统一管理、Token配额和成本控制。对工程实践启示：企业可灵活选择模型，降低部署成本，推动大模型在企业场景的规模化应用。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/438174.html",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "Agent框架",
-                    "MCP"
-                ]
-            },
-            {
-                "title": "云计算巨头助力小鹏、Kimi 和猎豹拥抱 Agentic AI",
-                "summary": "云计算一哥（推测为阿里云或 AWS）为小鹏、Kimi 和猎豹提供 Agentic AI 基础设施，支持高并发推理和低延迟服务。未披露具体延迟或吞吐量数据。极客视角：Agentic AI 爆发需要云厂商提供弹性算力和 MLOps 工具，但成本控制是挑战。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/437672.html",
-                "source": "AI",
-                "score": 3,
-                "tags": [
+                    "大模型",
                     "云服务",
-                    "Agent框架"
+                    "企业应用"
                 ]
             },
             {
-                "title": "AI 创投圆桌：比共识更早一步的真实棋局",
-                "summary": "36氪 WAVES 圆桌讨论 AI 创投现状，共识认为 Agent 和垂直应用是下一波机会，但估值泡沫隐现。极客视角：投资热点从基础模型转向应用层，但技术壁垒降低后，差异化更难。（来源：36氪）",
-                "link": "https://36kr.com/p/3865630193030145?f=rss",
+                "title": "豆包专业版正式上线，面向专业用户提供更强推理能力",
+                "summary": "字节跳动旗下豆包推出专业版，提供更强推理能力和更大上下文窗口，面向专业用户。架构上可能采用更大规模模型或优化推理架构。对工程实践启示：专业版大模型产品差异化竞争加剧，推动模型在复杂任务中的应用。（来源：36氪）",
+                "link": "https://36kr.com/p/3867032586867972?f=rss",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "行业",
-                    "投资"
+                    "大模型",
+                    "产品发布"
                 ]
             },
             {
-                "title": "GitHub 博客：自动化工作流如何提升领导力",
-                "summary": "GitHub 博客分享一位高级领导通过自动化日常任务（如代码审查、会议纪要生成）释放 30% 时间用于战略决策。未披露具体工具链，但强调 AI 辅助而非替代。极客视角：自动化不是终点，重构工作流才是，但过度依赖可能导致团队技能退化。（来源：GitHub Blog）",
-                "link": "https://github.blog/developer-skills/github/i-automated-my-job-and-it-made-me-a-better-leader/",
+                "title": "影眸科技发布Hyper3D Rodin Gen-2，3D生成进入“思考时代”",
+                "summary": "影眸科技发布Rodin Gen-2 3D编辑模型，支持多视角一致性生成和编辑，实现“思考式”3D生成。架构上结合扩散模型与3D表示学习，提升生成质量。对工程实践启示：3D内容生成效率和质量大幅提升，降低3D建模门槛。（来源：36氪）",
+                "link": "https://36kr.com/p/3865060112438533?f=rss",
                 "source": "AI",
-                "score": 2,
+                "score": 3,
                 "tags": [
-                    "开发者工具"
-                ]
-            },
-            {
-                "title": "Google Home 更新：通过衣物识别提升人脸识别准确率",
-                "summary": "Google Home 新更新引入衣物特征辅助人脸识别，降低智能摄像头误报率。未披露具体模型参数量或准确率提升数据。极客视角：多模态融合是趋势，但衣物变化频繁，实际增益可能有限，隐私争议是隐忧。（来源：The Verge）",
-                "link": "https://www.theverge.com/tech/955385/google-home-familiar-faces-clothing",
-                "source": "AI",
-                "score": 2,
-                "tags": [
-                    "多模态",
-                    "智能家居"
-                ]
-            },
-            {
-                "title": "镁合金材料公司「宜镁华」完成数千万元天使轮融资",
-                "summary": "「宜镁华」获数千万元天使轮融资，专注高导热、高强韧镁合金，切入机器人等高端制造。未披露具体性能数据。极客视角：材料创新是机器人轻量化的关键，但量产一致性是难点。（来源：36氪）",
-                "link": "https://36kr.com/p/3864082158785539?f=rss",
-                "source": "AI",
-                "score": 2,
-                "tags": [
-                    "机器人",
-                    "材料"
+                    "大模型",
+                    "3D生成",
+                    "扩散模型"
                 ]
             }
         ];
@@ -279,32 +255,32 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "Agent 框架和物理智能是今日两大热点。Claude Tag 和 MCP 工具对比表明，Agent 落地正从实验走向生产，但数据主权和标准化仍是痛点。物理智能（正行创新、宜镁华）获资本青睐，但 sim-to-real 和数据采集瓶颈待解。预计短期内 Agent 框架（如 MCP 协议）会先卷起来，因为技术门槛更低、生态更成熟。";
+    const __DAILY_ANALYSIS__ = "今日技术趋势聚焦于VLA模型的可信推理与高效微调。神经符号驱动方法通过规则约束提升自动驾驶安全性，HIL-ResRL以残差强化学习实现1小时真机微调，两者共同指向VLA在机器人领域的快速落地。同时，RAG系统的先验主导性量化研究提示，未来6个月将出现更多动态平衡内部知识与外部检索的架构，如反事实训练或自适应权重调整。此外，Text-to-SQL的细粒度优化方法（EXPO-SQL）将推动NL2SQL在复杂查询中的实用化。整体来看，AI Agent的可信推理与知识融合成为核心挑战，神经符号方法和RAG优化是关键路径。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
             {
-                "name": "calesthio/OpenMontage",
+                "name": "sponsors/calesthio",
                 "desc": "World's first open-source, agentic video production system. 12 pipelines, 52 tools, 500+ agent skill",
-                "stars": "⭐+3590 today",
-                "link": "https://github.com/calesthio/OpenMontage",
-                "tag": "Agent 框架"
-            },
-            {
-                "name": "DeusData/codebase-memory-mcp",
-                "desc": "High-performance code intelligence MCP server. Indexes codebases into a persistent knowledge graph —",
-                "stars": "⭐+1299 today",
-                "link": "https://github.com/DeusData/codebase-memory-mcp",
+                "stars": "⭐+3703 today",
+                "link": "https://github.com/sponsors/calesthio",
                 "tag": "Agent 框架"
             },
             {
                 "name": "ZhuLinsen/daily_stock_analysis",
                 "desc": "LLM 驱动的多市场股票智能分析系统：多源行情、实时新闻、决策看板与自动推送，支持零成本定时运行。 LLM-powered multi-market stock analysis system wit",
-                "stars": "⭐+1121 today",
+                "stars": "⭐+1461 today",
                 "link": "https://github.com/ZhuLinsen/daily_stock_analysis",
                 "tag": "大模型底层"
+            },
+            {
+                "name": "NousResearch/hermes-agent",
+                "desc": "The agent that grows with you",
+                "stars": "⭐+1174 today",
+                "link": "https://github.com/NousResearch/hermes-agent",
+                "tag": "Agent 框架"
             }
         ];
 
