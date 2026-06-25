@@ -142,112 +142,181 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
             {
-                "title": "神经符号驱动：基于规则的可信推理用于驾驶视觉-语言-动作模型",
-                "summary": "提出神经符号驱动方法，将交通规则等知识作为约束融入视觉-语言-动作（VLA）模型，实现可解释、可信推理。架构上结合符号推理与神经网络，确保输出符合规则。对自动驾驶AI工程实践启示：可提升安全性和可解释性，降低对纯数据驱动的依赖。（来源：ArXiv）",
-                "link": "https://arxiv.org/abs/2606.23938",
+                "title": "#OpenAI推迟GPT-5.6#",
+                "summary": "特朗普政府以安全为由要求推迟，OpenAI被迫延期发布GPT-5.6。网友炸锅：这波操作是保护还是阻碍？网友A：政治干预AI发展，寒蝉效应来了。网友B：安全第一，慢点出也行。（来源：The Verge）",
+                "link": "https://www.theverge.com/ai-artificial-intelligence/957372/openai-will-delay-gpt-5-6-after-trump-administration-request",
                 "source": "AI",
                 "score": 5,
                 "tags": [
                     "大模型",
-                    "自动驾驶",
-                    "神经符号"
+                    "政策"
                 ]
             },
             {
-                "title": "EXPO-SQL：基于执行的子句级策略优化提升文本到SQL准确率",
-                "summary": "提出基于执行结果的子句级策略优化方法，通过执行反馈优化SQL生成中的每个子句，提升Text-to-SQL准确率。架构上引入执行验证和细粒度奖励，改变传统端到端训练方式。对工程实践启示：可显著提升复杂查询的生成质量，降低幻觉。（来源：ArXiv）",
-                "link": "https://arxiv.org/abs/2606.23693",
+                "title": "#Claude逆袭ChatGPT付费用户#",
+                "summary": "Anthropic的Claude在付费消费者市场持续增长，正在蚕食ChatGPT的领地。网友A：Claude写代码真的香，但ChatGPT生态太强。网友B：付费用户用脚投票，说明Claude确实好用。（来源：TechCrunch）",
+                "link": "https://techcrunch.com/2026/06/25/anthropics-claude-is-winning-over-paid-consumers-a-market-owned-by-chatgpt/",
                 "source": "AI",
                 "score": 4,
                 "tags": [
                     "大模型",
-                    "Text-to-SQL",
-                    "优化"
+                    "商业"
                 ]
             },
             {
-                "title": "量化检索增强生成系统中的先验主导性",
-                "summary": "量化检索增强生成（RAG）系统中先验知识（模型内部知识）对输出的主导程度，发现先验知识常压制检索结果。架构上提出度量指标，指导RAG系统设计时平衡内部知识与外部检索。对工程实践启示：需调整检索权重或采用反事实训练，提升RAG可靠性。（来源：ArXiv）",
-                "link": "https://arxiv.org/abs/2606.23695",
+                "title": "#23亿美元押注游戏训练AI代理#",
+                "summary": "General Intuition融资3.2亿美元，总估值23亿，用数百万小时游戏数据训练AI代理，目标让AI学会真实世界技能。网友A：打游戏也能拯救世界？网友B：这波操作比《头号玩家》还猛。（来源：TechCrunch）",
+                "link": "https://techcrunch.com/2026/06/25/general-intuitions-2-3b-bet-that-video-games-can-train-ai-agents-for-the-real-world/",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "大模型",
-                    "RAG",
-                    "检索增强"
+                    "AI代理",
+                    "融资"
                 ]
             },
             {
-                "title": "HIL-ResRL：1小时真机强化学习微调成功率突破95%",
-                "summary": "提出人类在环的残差强化学习（HIL-ResRL）方法，仅需1小时真机微调即可使视觉-语言-动作（VLA）模型成功率突破95%。架构上采用残差策略网络，即插即用，不改变原模型结构。对工程实践启示：极大降低机器人技能学习的数据和时间成本，加速VLA落地。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/438166.html",
+                "title": "#Patronus AI获5000万美元测试代理#",
+                "summary": "前Meta研究员创立的Patronus AI融资5000万，打造“数字世界”压力测试AI代理，确保它们靠谱。网友A：AI代理翻车太多，测试公司赚翻了。网友B：这钱花得值，安全第一。（来源：TechCrunch）",
+                "link": "https://techcrunch.com/2026/06/25/patronus-ai-lands-50m-to-build-digital-worlds-that-stress-test-ai-agents/",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "大模型",
-                    "机器人",
-                    "强化学习"
+                    "AI代理",
+                    "融资"
                 ]
             },
             {
-                "title": "HuggingFace 发布真实世界自动语音识别排行榜",
-                "summary": "HuggingFace 发布FFASR排行榜，涵盖噪声、口音、远场等真实场景，评估自动语音识别（ASR）模型实际表现。架构上提供标准化测试集和评估协议。对工程实践启示：推动ASR模型从实验室指标向真实场景优化，促进语音AI落地。（来源：HuggingFace Blog）",
-                "link": "https://huggingface.co/blog/ffasr-leaderboard",
+                "title": "#OpenAI发布代理改变工作研究报告#",
+                "summary": "OpenAI最新论文揭示AI代理如何重塑工作流程，从自动化到协作，效率提升显著。网友A：我的工作要被代理抢了？网友B：别慌，先学会用代理。（来源：OpenAI）",
+                "link": "https://openai.com/index/how-agents-are-transforming-work",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "AI代理",
+                    "研究"
+                ]
+            },
+            {
+                "title": "#科大讯飞发布企业服务Claw平台#",
+                "summary": "一句话搞定需求到方案全流程，科大讯飞Claw平台让企业AI落地更简单。网友A：讯飞终于发力企业级了。网友B：希望不是PPT，来点真东西。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/438638.html",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "企业服务",
+                    "大模型"
+                ]
+            },
+            {
+                "title": "#三体联名AI全感穿戴设备发布#",
+                "summary": "光帆科技与三体宇宙联合推出联名款AI全感穿戴设备，并发布重磅视频《破晓》。网友A：三体IP+AI，科幻照进现实。网友B：价格别太离谱就行。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/438658.html",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "硬件",
+                    "IP"
+                ]
+            },
+            {
+                "title": "#开源AI笔记工具OpenKnowledge发布#",
+                "summary": "号称开源AI优先的Obsidian/Notion替代品，OpenKnowledge上线GitHub，支持AI辅助笔记。网友A：终于有开源AI笔记了，Notion再见。网友B：先观望，生态很重要。（来源：HackerNews）",
+                "link": "https://github.com/inkeep/open-knowledge",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "开源",
+                    "工具"
+                ]
+            },
+            {
+                "title": "#GitHub Copilot代理框架性能评估#",
+                "summary": "GitHub发布Copilot代理框架评估报告，对比不同模型和任务下的效率与性能。网友A：Copilot越来越像真程序员了。网友B：期待开源版本。（来源：GitHub Blog）",
+                "link": "https://github.blog/ai-and-ml/github-copilot/evaluating-performance-and-efficiency-of-the-github-copilot-agentic-harness-across-models-and-tasks/",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "代码生成",
+                    "AI代理"
+                ]
+            },
+            {
+                "title": "#维基百科编辑如何塑造大模型价值观#",
+                "summary": "新研究揭示：一小群维基百科志愿者通过编辑就能影响LLM的价值观输出。网友A：原来AI的价值观是这么来的。网友B：赶紧去改维基百科！（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2606.24890",
                 "source": "AI",
                 "score": 3,
                 "tags": [
                     "大模型",
-                    "语音识别",
-                    "基准测试"
+                    "价值观"
                 ]
             },
             {
-                "title": "Figma 推出AI动效和着色器工具",
-                "summary": "Figma 在Config 2026大会上推出AI动效和着色器工具，允许设计师通过自然语言生成动画和着色器代码。架构上集成大语言模型（LLM）到设计工具中，实现代码生成与可视化。对工程实践启示：AI辅助设计工具将降低动效开发门槛，改变设计工作流。（来源：The Verge）",
-                "link": "https://www.theverge.com/tech/955831/figma-code-design-tools-config-2026-announcements",
+                "title": "#百度AI志愿助手已服务1500万人#",
+                "summary": "百度官方数据：高考期间超2.5亿用户使用AI志愿助手，填报效率大幅提升。网友A：AI填志愿靠谱吗？网友B：比瞎填强，至少数据准。（来源：36氪）",
+                "link": "https://36kr.com/p/3868502221018370?f=rss",
                 "source": "AI",
-                "score": 3,
+                "score": 2,
                 "tags": [
-                    "开发工具",
-                    "AI设计",
-                    "代码生成"
+                    "应用",
+                    "教育"
                 ]
             },
             {
-                "title": "百度智能云发布千帆Token Plan企业版，率先适配GLM-5.2",
-                "summary": "百度智能云发布千帆Token Plan企业版，率先适配智谱GLM-5.2等模型，提供企业级大模型服务。架构上支持多模型统一管理、Token配额和成本控制。对工程实践启示：企业可灵活选择模型，降低部署成本，推动大模型在企业场景的规模化应用。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/438174.html",
+                "title": "#AI减重1亿斤行动上线#",
+                "summary": "阿福减重推出AI做“搭子”的减重计划，目标减重1亿斤，网友抢体脂秤。网友A：AI监督我减肥，有戏吗？网友B：先减个10斤试试。（来源：36氪）",
+                "link": "https://36kr.com/p/3868596994069509?f=rss",
                 "source": "AI",
-                "score": 3,
+                "score": 2,
+                "tags": [
+                    "应用",
+                    "健康"
+                ]
+            },
+            {
+                "title": "#Facebook复活创作者工作室为AI应用#",
+                "summary": "Meta将已停服的Creator Studio重新上线，变身AI陪伴应用，帮助创作者管理内容。网友A：AI版小助手来了。网友B：别又是个半成品。（来源：The Verge）",
+                "link": "https://www.theverge.com/tech/956668/meta-facebook-creator-studio-ai-app-relaunch",
+                "source": "AI",
+                "score": 2,
+                "tags": [
+                    "应用",
+                    "社交"
+                ]
+            },
+            {
+                "title": "#福特召回前工程师修复自动化错误#",
+                "summary": "福特因自动化系统导致质量问题，不得不请回前工程师手动修复，JD Power排名升至第一。网友A：AI还是不如老司机。网友B：自动化翻车现场。（来源：The Verge）",
+                "link": "https://www.theverge.com/transportation/956316/ford-quality-jd-power-ranking-ai-automated-mistakes",
+                "source": "AI",
+                "score": 2,
+                "tags": [
+                    "自动化",
+                    "汽车"
+                ]
+            },
+            {
+                "title": "#混合模型预测哪些token更准#",
+                "summary": "HuggingFace博客分析混合模型在不同token上的预测能力差异，揭示模型内部机制。网友A：技术细节，看不懂但大受震撼。网友B：期待开源实现。（来源：HuggingFace Blog）",
+                "link": "https://huggingface.co/blog/allenai/hybrid-token-prediction",
+                "source": "AI",
+                "score": 1,
                 "tags": [
                     "大模型",
-                    "云服务",
-                    "企业应用"
+                    "研究"
                 ]
             },
             {
-                "title": "豆包专业版正式上线，面向专业用户提供更强推理能力",
-                "summary": "字节跳动旗下豆包推出专业版，提供更强推理能力和更大上下文窗口，面向专业用户。架构上可能采用更大规模模型或优化推理架构。对工程实践启示：专业版大模型产品差异化竞争加剧，推动模型在复杂任务中的应用。（来源：36氪）",
-                "link": "https://36kr.com/p/3867032586867972?f=rss",
+                "title": "#一键运行vLLM服务器#",
+                "summary": "HuggingFace推出新功能：在HF Jobs上一键部署vLLM推理服务器，简化部署流程。网友A：部署终于不用写脚本了。网友B：GPU贵不贵？（来源：HuggingFace Blog）",
+                "link": "https://huggingface.co/blog/vllm-jobs",
                 "source": "AI",
-                "score": 3,
+                "score": 1,
                 "tags": [
-                    "大模型",
-                    "产品发布"
-                ]
-            },
-            {
-                "title": "影眸科技发布Hyper3D Rodin Gen-2，3D生成进入“思考时代”",
-                "summary": "影眸科技发布Rodin Gen-2 3D编辑模型，支持多视角一致性生成和编辑，实现“思考式”3D生成。架构上结合扩散模型与3D表示学习，提升生成质量。对工程实践启示：3D内容生成效率和质量大幅提升，降低3D建模门槛。（来源：36氪）",
-                "link": "https://36kr.com/p/3865060112438533?f=rss",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "大模型",
-                    "3D生成",
-                    "扩散模型"
+                    "推理与部署",
+                    "工具"
                 ]
             }
         ];
@@ -255,31 +324,31 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日技术趋势聚焦于VLA模型的可信推理与高效微调。神经符号驱动方法通过规则约束提升自动驾驶安全性，HIL-ResRL以残差强化学习实现1小时真机微调，两者共同指向VLA在机器人领域的快速落地。同时，RAG系统的先验主导性量化研究提示，未来6个月将出现更多动态平衡内部知识与外部检索的架构，如反事实训练或自适应权重调整。此外，Text-to-SQL的细粒度优化方法（EXPO-SQL）将推动NL2SQL在复杂查询中的实用化。整体来看，AI Agent的可信推理与知识融合成为核心挑战，神经符号方法和RAG优化是关键路径。";
+    const __DAILY_ANALYSIS__ = "今天AI圈最炸裂的是OpenAI被特朗普政府要求推迟GPT-5.6，政治干预AI发展引发热议。同时Claude在付费市场逆袭、游戏训练代理获23亿估值、代理测试公司融资5000万，代理赛道全面爆发。国内科大讯飞、百度、三体联名等也动作频频。网友：AI的夏天来了，但安全与监管的博弈才刚刚开始。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
             {
                 "name": "sponsors/calesthio",
                 "desc": "World's first open-source, agentic video production system. 12 pipelines, 52 tools, 500+ agent skill",
-                "stars": "⭐+3703 today",
+                "stars": "⭐+3553 today",
                 "link": "https://github.com/sponsors/calesthio",
                 "tag": "Agent 框架"
             },
             {
-                "name": "ZhuLinsen/daily_stock_analysis",
-                "desc": "LLM 驱动的多市场股票智能分析系统：多源行情、实时新闻、决策看板与自动推送，支持零成本定时运行。 LLM-powered multi-market stock analysis system wit",
-                "stars": "⭐+1461 today",
-                "link": "https://github.com/ZhuLinsen/daily_stock_analysis",
-                "tag": "大模型底层"
+                "name": "google-labs-code/design.md",
+                "desc": "A format specification for describing a visual identity to coding agents. DESIGN.md gives agents a p",
+                "stars": "⭐+1407 today",
+                "link": "https://github.com/google-labs-code/design.md",
+                "tag": "Agent 框架"
             },
             {
-                "name": "NousResearch/hermes-agent",
-                "desc": "The agent that grows with you",
-                "stars": "⭐+1174 today",
-                "link": "https://github.com/NousResearch/hermes-agent",
+                "name": "JCodesMore/ai-website-cloner-template",
+                "desc": "Clone any website with one command using AI coding agents",
+                "stars": "⭐+1021 today",
+                "link": "https://github.com/JCodesMore/ai-website-cloner-template",
                 "tag": "Agent 框架"
             }
         ];
