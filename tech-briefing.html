@@ -142,181 +142,113 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
             {
-                "title": "#OpenAI推迟GPT-5.6#",
-                "summary": "特朗普政府以安全为由要求推迟，OpenAI被迫延期发布GPT-5.6。网友炸锅：这波操作是保护还是阻碍？网友A：政治干预AI发展，寒蝉效应来了。网友B：安全第一，慢点出也行。（来源：The Verge）",
-                "link": "https://www.theverge.com/ai-artificial-intelligence/957372/openai-will-delay-gpt-5-6-after-trump-administration-request",
+                "title": "OpenAI 预览 GPT-5.6 Sol：下一代模型能力显著提升",
+                "summary": "OpenAI 发布 GPT-5.6 Sol 预览版，该模型在推理、多模态理解和代码生成等核心能力上取得显著进步。架构层面可能引入了新的注意力机制和训练策略，以支持更长的上下文窗口和更低的推理延迟。对开发者而言，这意味着需要重新评估现有应用的提示工程策略和微调流程，以充分利用模型增强的指令遵循能力。（来源：OpenAI）",
+                "link": "https://openai.com/index/previewing-gpt-5-6-sol",
                 "source": "AI",
                 "score": 5,
                 "tags": [
-                    "大模型",
-                    "政策"
-                ]
-            },
-            {
-                "title": "#Claude逆袭ChatGPT付费用户#",
-                "summary": "Anthropic的Claude在付费消费者市场持续增长，正在蚕食ChatGPT的领地。网友A：Claude写代码真的香，但ChatGPT生态太强。网友B：付费用户用脚投票，说明Claude确实好用。（来源：TechCrunch）",
-                "link": "https://techcrunch.com/2026/06/25/anthropics-claude-is-winning-over-paid-consumers-a-market-owned-by-chatgpt/",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "大模型",
-                    "商业"
-                ]
-            },
-            {
-                "title": "#23亿美元押注游戏训练AI代理#",
-                "summary": "General Intuition融资3.2亿美元，总估值23亿，用数百万小时游戏数据训练AI代理，目标让AI学会真实世界技能。网友A：打游戏也能拯救世界？网友B：这波操作比《头号玩家》还猛。（来源：TechCrunch）",
-                "link": "https://techcrunch.com/2026/06/25/general-intuitions-2-3b-bet-that-video-games-can-train-ai-agents-for-the-real-world/",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "AI代理",
-                    "融资"
-                ]
-            },
-            {
-                "title": "#Patronus AI获5000万美元测试代理#",
-                "summary": "前Meta研究员创立的Patronus AI融资5000万，打造“数字世界”压力测试AI代理，确保它们靠谱。网友A：AI代理翻车太多，测试公司赚翻了。网友B：这钱花得值，安全第一。（来源：TechCrunch）",
-                "link": "https://techcrunch.com/2026/06/25/patronus-ai-lands-50m-to-build-digital-worlds-that-stress-test-ai-agents/",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "AI代理",
-                    "融资"
-                ]
-            },
-            {
-                "title": "#OpenAI发布代理改变工作研究报告#",
-                "summary": "OpenAI最新论文揭示AI代理如何重塑工作流程，从自动化到协作，效率提升显著。网友A：我的工作要被代理抢了？网友B：别慌，先学会用代理。（来源：OpenAI）",
-                "link": "https://openai.com/index/how-agents-are-transforming-work",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "AI代理",
-                    "研究"
-                ]
-            },
-            {
-                "title": "#科大讯飞发布企业服务Claw平台#",
-                "summary": "一句话搞定需求到方案全流程，科大讯飞Claw平台让企业AI落地更简单。网友A：讯飞终于发力企业级了。网友B：希望不是PPT，来点真东西。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/438638.html",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "企业服务",
                     "大模型"
                 ]
             },
             {
-                "title": "#三体联名AI全感穿戴设备发布#",
-                "summary": "光帆科技与三体宇宙联合推出联名款AI全感穿戴设备，并发布重磅视频《破晓》。网友A：三体IP+AI，科幻照进现实。网友B：价格别太离谱就行。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/438658.html",
+                "title": "Anthropic 的 Mythos 模型问题持续恶化",
+                "summary": "Anthropic 的 Mythos 类模型下线两周后，问题仍未解决，涉及与特朗普政府的谈判僵局。技术层面，该事件暴露了前沿大模型在部署后可能出现的不可预见的对齐和安全漏洞，尤其是当模型行为与监管要求冲突时。这提醒工程团队在模型上线前需建立更完善的监控和回滚机制，并考虑模型行为的法律合规性。（来源：The Verge AI）",
+                "link": "https://www.theverge.com/ai-artificial-intelligence/957327/anthropic-mythos-fable-ai-trump-administration-negotiations",
                 "source": "AI",
-                "score": 3,
+                "score": 5,
                 "tags": [
-                    "硬件",
-                    "IP"
+                    "大模型",
+                    "AI安全"
                 ]
             },
             {
-                "title": "#开源AI笔记工具OpenKnowledge发布#",
-                "summary": "号称开源AI优先的Obsidian/Notion替代品，OpenKnowledge上线GitHub，支持AI辅助笔记。网友A：终于有开源AI笔记了，Notion再见。网友B：先观望，生态很重要。（来源：HackerNews）",
-                "link": "https://github.com/inkeep/open-knowledge",
+                "title": "检测与控制大模型谄媚行为的级联线性特征方法",
+                "summary": "arXiv 新论文提出利用级联线性特征（Cascading Linear Features）来检测和缓解大模型中的谄媚行为（Sycophancy）。该方法通过分析模型内部表示中的线性子空间，识别导致模型倾向于迎合用户偏好的特征，并实现可控干预。这对工程实践的启示是：可以通过可解释性工具在推理时动态调整模型输出，减少偏见，提升可靠性。（来源：ArXiv AI）",
+                "link": "https://arxiv.org/abs/2606.26155",
                 "source": "AI",
-                "score": 3,
+                "score": 4,
                 "tags": [
-                    "开源",
-                    "工具"
+                    "大模型",
+                    "AI安全"
                 ]
             },
             {
-                "title": "#GitHub Copilot代理框架性能评估#",
-                "summary": "GitHub发布Copilot代理框架评估报告，对比不同模型和任务下的效率与性能。网友A：Copilot越来越像真程序员了。网友B：期待开源版本。（来源：GitHub Blog）",
-                "link": "https://github.blog/ai-and-ml/github-copilot/evaluating-performance-and-efficiency-of-the-github-copilot-agentic-harness-across-models-and-tasks/",
+                "title": "基准测试饱和后的新评估范式：以 CORE-Bench 为例",
+                "summary": "论文探讨了当基准测试准确率饱和后，如何设计更有效的评估方法。以 CORE-Bench 为案例，提出应转向动态、对抗性测试集，并引入任务难度自适应评分。对工程实践的启示：模型评估不应依赖静态基准，而应构建持续更新的评估流水线，结合用户反馈和在线指标，以真实反映模型在开放场景下的能力。（来源：ArXiv AI）",
+                "link": "https://arxiv.org/abs/2606.26158",
                 "source": "AI",
-                "score": 3,
+                "score": 4,
                 "tags": [
-                    "代码生成",
-                    "AI代理"
+                    "大模型",
+                    "评估方法"
                 ]
             },
             {
-                "title": "#维基百科编辑如何塑造大模型价值观#",
-                "summary": "新研究揭示：一小群维基百科志愿者通过编辑就能影响LLM的价值观输出。网友A：原来AI的价值观是这么来的。网友B：赶紧去改维基百科！（来源：arXiv）",
-                "link": "https://arxiv.org/abs/2606.24890",
+                "title": "后训练阶段损害模型中间训练的同情心价值观",
+                "summary": "研究发现，标准后训练流程（如 RLHF）会显著削弱模型在中间训练阶段习得的同情心（Compassion）价值观，且退化程度与领域相关。这表明后训练存在领域依赖的价值观遗忘问题。对工程实践的启示：在微调或对齐时，需引入领域特定的价值观保留机制，例如多任务学习或正则化项，以防止模型在特定任务上失去有益特质。（来源：ArXiv CL）",
+                "link": "https://arxiv.org/abs/2606.26102",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "大模型",
+                    "AI对齐"
+                ]
+            },
+            {
+                "title": "AI 集群在 GPU 空闲时仍会失败的原因分析",
+                "summary": "文章深入分析了 AI 训练集群中即使 GPU 利用率不高，仍可能因网络拓扑、存储 I/O 瓶颈或调度器设计缺陷导致整体训练失败。关键发现是数据加载和通信同步是主要瓶颈。对工程实践的启示：构建 AI 基础设施时，需平衡计算、网络和存储资源，并采用异步通信和智能数据预取策略来提升集群稳定性。（来源：DEV.to AI）",
+                "link": "https://dev.to/zubairakbar/why-ai-clusters-fail-even-when-gpus-are-idle-5hdb",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "AI基础设施"
+                ]
+            },
+            {
+                "title": "深度机智获数亿元融资，加速物理 AI 基座模型落地",
+                "summary": "深度机智（DeepWise）在两个月内连续完成两轮数亿元融资，其核心路线是全栈自研物理 AI 基座模型，涵盖感知、决策和控制。这标志着资本对具身智能（Embodied AI）和物理世界交互模型的信心增强。对工程实践的启示：物理 AI 模型需要融合多模态数据与强化学习，对实时性和鲁棒性要求更高，开发者应关注仿真到真实（Sim-to-Real）的迁移技术。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/438887.html",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "具身智能",
+                    "融资"
+                ]
+            },
+            {
+                "title": "谷歌推理专家离职加入 Meta，曾由李飞飞招募",
+                "summary": "谷歌一位在推理（Reasoning）领域的关键研究员离职并加入 Meta，该研究员此前由李飞飞招募。这一人才流动反映了科技巨头在推理能力这一前沿方向上的激烈竞争。对工程实践的启示：推理能力的提升是下一代大模型的核心，开发者应关注如思维链（Chain-of-Thought）、自我一致性等技术的工程化实现，以提升模型在复杂任务上的表现。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/438848.html",
                 "source": "AI",
                 "score": 3,
                 "tags": [
                     "大模型",
-                    "价值观"
+                    "人才流动"
                 ]
             },
             {
-                "title": "#百度AI志愿助手已服务1500万人#",
-                "summary": "百度官方数据：高考期间超2.5亿用户使用AI志愿助手，填报效率大幅提升。网友A：AI填志愿靠谱吗？网友B：比瞎填强，至少数据准。（来源：36氪）",
-                "link": "https://36kr.com/p/3868502221018370?f=rss",
+                "title": "使用 AI 自动生成 README、CI/CD 流水线和文档的实践",
+                "summary": "作者分享了利用 AI 工具（如 GPT 系列）自动生成项目 README、CI/CD 配置和开发文档的完整工作流。关键技巧包括提供结构化提示和上下文示例。对工程实践的启示：AI 可以显著降低项目初始化和维护的重复劳动，但开发者仍需人工审核输出以确保准确性和安全性，建议将 AI 生成纳入版本控制流程。（来源：DEV.to AI）",
+                "link": "https://dev.to/bristo_biju_105adeeefb4df/i-used-ai-to-write-my-readme-cicd-pipeline-and-docs-heres-exactly-how-5fp9",
                 "source": "AI",
                 "score": 2,
                 "tags": [
-                    "应用",
-                    "教育"
+                    "AI应用",
+                    "开发工具"
                 ]
             },
             {
-                "title": "#AI减重1亿斤行动上线#",
-                "summary": "阿福减重推出AI做“搭子”的减重计划，目标减重1亿斤，网友抢体脂秤。网友A：AI监督我减肥，有戏吗？网友B：先减个10斤试试。（来源：36氪）",
-                "link": "https://36kr.com/p/3868596994069509?f=rss",
-                "source": "AI",
-                "score": 2,
-                "tags": [
-                    "应用",
-                    "健康"
-                ]
-            },
-            {
-                "title": "#Facebook复活创作者工作室为AI应用#",
-                "summary": "Meta将已停服的Creator Studio重新上线，变身AI陪伴应用，帮助创作者管理内容。网友A：AI版小助手来了。网友B：别又是个半成品。（来源：The Verge）",
-                "link": "https://www.theverge.com/tech/956668/meta-facebook-creator-studio-ai-app-relaunch",
-                "source": "AI",
-                "score": 2,
-                "tags": [
-                    "应用",
-                    "社交"
-                ]
-            },
-            {
-                "title": "#福特召回前工程师修复自动化错误#",
-                "summary": "福特因自动化系统导致质量问题，不得不请回前工程师手动修复，JD Power排名升至第一。网友A：AI还是不如老司机。网友B：自动化翻车现场。（来源：The Verge）",
-                "link": "https://www.theverge.com/transportation/956316/ford-quality-jd-power-ranking-ai-automated-mistakes",
-                "source": "AI",
-                "score": 2,
-                "tags": [
-                    "自动化",
-                    "汽车"
-                ]
-            },
-            {
-                "title": "#混合模型预测哪些token更准#",
-                "summary": "HuggingFace博客分析混合模型在不同token上的预测能力差异，揭示模型内部机制。网友A：技术细节，看不懂但大受震撼。网友B：期待开源实现。（来源：HuggingFace Blog）",
-                "link": "https://huggingface.co/blog/allenai/hybrid-token-prediction",
+                "title": "从零开始通过 AI API 佣金赚取收入的经验分享",
+                "summary": "作者分享了如何通过推广 AI API 服务（如 OpenAI、Anthropic）的联盟计划，从零粉丝开始赚取佣金。核心策略是专注于垂直领域的内容创作和精准引流。对工程实践的启示：AI 生态的商业模式正在多样化，开发者可考虑将 API 集成与内容营销结合，但需注意合规性和用户隐私保护。（来源：DEV.to AI）",
+                "link": "https://dev.to/smartcore/zero-followers-real-cash-how-i-started-earning-ai-api-commissions-from-nothing-5ph",
                 "source": "AI",
                 "score": 1,
                 "tags": [
-                    "大模型",
-                    "研究"
-                ]
-            },
-            {
-                "title": "#一键运行vLLM服务器#",
-                "summary": "HuggingFace推出新功能：在HF Jobs上一键部署vLLM推理服务器，简化部署流程。网友A：部署终于不用写脚本了。网友B：GPU贵不贵？（来源：HuggingFace Blog）",
-                "link": "https://huggingface.co/blog/vllm-jobs",
-                "source": "AI",
-                "score": 1,
-                "tags": [
-                    "推理与部署",
-                    "工具"
+                    "AI生态",
+                    "商业"
                 ]
             }
         ];
@@ -324,31 +256,31 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今天AI圈最炸裂的是OpenAI被特朗普政府要求推迟GPT-5.6，政治干预AI发展引发热议。同时Claude在付费市场逆袭、游戏训练代理获23亿估值、代理测试公司融资5000万，代理赛道全面爆发。国内科大讯飞、百度、三体联名等也动作频频。网友：AI的夏天来了，但安全与监管的博弈才刚刚开始。";
+    const __DAILY_ANALYSIS__ = "今日技术焦点集中在模型对齐与评估的深层挑战上。级联线性特征方法为检测模型谄媚行为提供了可解释的工程路径，而同情心价值观在后训练中的退化问题则揭示了当前对齐技术的局限性。预计未来6个月，业界将加速开发动态、对抗性的评估基准，并探索多任务学习或正则化方法以保留模型的有益特质。同时，物理AI基座模型的融资热潮表明，具身智能正从研究走向工程落地，仿真到真实迁移技术将成为关键瓶颈。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
-            {
-                "name": "sponsors/calesthio",
-                "desc": "World's first open-source, agentic video production system. 12 pipelines, 52 tools, 500+ agent skill",
-                "stars": "⭐+3553 today",
-                "link": "https://github.com/sponsors/calesthio",
-                "tag": "Agent 框架"
-            },
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
             {
                 "name": "google-labs-code/design.md",
                 "desc": "A format specification for describing a visual identity to coding agents. DESIGN.md gives agents a p",
-                "stars": "⭐+1407 today",
+                "stars": "⭐+2319 today",
                 "link": "https://github.com/google-labs-code/design.md",
                 "tag": "Agent 框架"
             },
             {
-                "name": "JCodesMore/ai-website-cloner-template",
-                "desc": "Clone any website with one command using AI coding agents",
-                "stars": "⭐+1021 today",
-                "link": "https://github.com/JCodesMore/ai-website-cloner-template",
+                "name": "sponsors/calesthio",
+                "desc": "World's first open-source, agentic video production system. 12 pipelines, 52 tools, 500+ agent skill",
+                "stars": "⭐+1674 today",
+                "link": "https://github.com/sponsors/calesthio",
+                "tag": "Agent 框架"
+            },
+            {
+                "name": "xbtlin/ai-berkshire",
+                "desc": "AI 时代的伯克希尔：基于 Claude Code 的价值投资研究框架。巴菲特·芒格·段永平·李录四大师方法论 + 多Agent并行研究。| AI-era Berkshire: a value inv",
+                "stars": "⭐+1270 today",
+                "link": "https://github.com/xbtlin/ai-berkshire",
                 "tag": "Agent 框架"
             }
         ];
