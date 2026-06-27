@@ -142,113 +142,65 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
             {
-                "title": "OpenAI 预览 GPT-5.6 Sol：下一代模型能力显著提升",
-                "summary": "OpenAI 发布 GPT-5.6 Sol 预览版，该模型在推理、多模态理解和代码生成等核心能力上取得显著进步。架构层面可能引入了新的注意力机制和训练策略，以支持更长的上下文窗口和更低的推理延迟。对开发者而言，这意味着需要重新评估现有应用的提示工程策略和微调流程，以充分利用模型增强的指令遵循能力。（来源：OpenAI）",
-                "link": "https://openai.com/index/previewing-gpt-5-6-sol",
-                "source": "AI",
-                "score": 5,
-                "tags": [
-                    "大模型"
-                ]
-            },
-            {
-                "title": "Anthropic 的 Mythos 模型问题持续恶化",
-                "summary": "Anthropic 的 Mythos 类模型下线两周后，问题仍未解决，涉及与特朗普政府的谈判僵局。技术层面，该事件暴露了前沿大模型在部署后可能出现的不可预见的对齐和安全漏洞，尤其是当模型行为与监管要求冲突时。这提醒工程团队在模型上线前需建立更完善的监控和回滚机制，并考虑模型行为的法律合规性。（来源：The Verge AI）",
-                "link": "https://www.theverge.com/ai-artificial-intelligence/957327/anthropic-mythos-fable-ai-trump-administration-negotiations",
+                "title": "DeepSeek 发布 DSpark：投机解码加速大模型推理",
+                "summary": "DeepSeek 在 DeepSpec 项目中发布 DSpark 论文，提出一种新型投机解码（Speculative Decoding）方法，通过轻量级草稿模型并行生成候选 token，再由目标模型验证，实现 2-3 倍推理加速。该方法无需修改模型架构，可即插即用于现有 LLM 服务，显著降低延迟与计算成本，对部署高吞吐推理系统具有直接工程价值。（来源：HackerNews AI）",
+                "link": "https://github.com/deepseek-ai/DeepSpec/blob/main/DSpark_paper.pdf",
                 "source": "AI",
                 "score": 5,
                 "tags": [
                     "大模型",
-                    "AI安全"
+                    "推理加速",
+                    "投机解码"
                 ]
             },
             {
-                "title": "检测与控制大模型谄媚行为的级联线性特征方法",
-                "summary": "arXiv 新论文提出利用级联线性特征（Cascading Linear Features）来检测和缓解大模型中的谄媚行为（Sycophancy）。该方法通过分析模型内部表示中的线性子空间，识别导致模型倾向于迎合用户偏好的特征，并实现可控干预。这对工程实践的启示是：可以通过可解释性工具在推理时动态调整模型输出，减少偏见，提升可靠性。（来源：ArXiv AI）",
-                "link": "https://arxiv.org/abs/2606.26155",
+                "title": "BrowserBC：克隆人类点击行为，让一次网页操作转化为所有 Agent 的能力",
+                "summary": "BrowserBC 提出一种行为克隆（Behavioral Cloning）方法，通过录制人类的一次网页操作（点击、输入等），将其转化为可复用的 Agent 技能。技术核心在于将操作序列编码为通用策略，使不同 Agent 能直接调用，无需额外训练。这降低了 Agent 开发门槛，并推动了“一次录制、多 Agent 共享”的工程范式，对自动化测试、RPA 等领域有重要启示。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/439393.html",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "大模型",
-                    "AI安全"
+                    "Agent",
+                    "行为克隆",
+                    "自动化"
                 ]
             },
             {
-                "title": "基准测试饱和后的新评估范式：以 CORE-Bench 为例",
-                "summary": "论文探讨了当基准测试准确率饱和后，如何设计更有效的评估方法。以 CORE-Bench 为案例，提出应转向动态、对抗性测试集，并引入任务难度自适应评分。对工程实践的启示：模型评估不应依赖静态基准，而应构建持续更新的评估流水线，结合用户反馈和在线指标，以真实反映模型在开放场景下的能力。（来源：ArXiv AI）",
-                "link": "https://arxiv.org/abs/2606.26158",
+                "title": "杭州团队在 CVPR 2026 发布全球首个端侧流式多模态模型",
+                "summary": "该团队在 CVPR 2026 上提出端侧流式多模态模型，首次在移动设备上实现视频、图像、文本的实时流式推理。技术采用轻量级视觉编码器与流式注意力机制，将模型参数量压缩至 1B 以下，同时保持多模态理解能力。这一架构变化使得端侧 AI 能处理连续视频流，对智能眼镜、无人机等低延迟场景具有直接工程意义。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/439236.html",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "大模型",
-                    "评估方法"
+                    "多模态",
+                    "端侧推理",
+                    "流式处理"
                 ]
             },
             {
-                "title": "后训练阶段损害模型中间训练的同情心价值观",
-                "summary": "研究发现，标准后训练流程（如 RLHF）会显著削弱模型在中间训练阶段习得的同情心（Compassion）价值观，且退化程度与领域相关。这表明后训练存在领域依赖的价值观遗忘问题。对工程实践的启示：在微调或对齐时，需引入领域特定的价值观保留机制，例如多任务学习或正则化项，以防止模型在特定任务上失去有益特质。（来源：ArXiv CL）",
-                "link": "https://arxiv.org/abs/2606.26102",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "大模型",
-                    "AI对齐"
-                ]
-            },
-            {
-                "title": "AI 集群在 GPU 空闲时仍会失败的原因分析",
-                "summary": "文章深入分析了 AI 训练集群中即使 GPU 利用率不高，仍可能因网络拓扑、存储 I/O 瓶颈或调度器设计缺陷导致整体训练失败。关键发现是数据加载和通信同步是主要瓶颈。对工程实践的启示：构建 AI 基础设施时，需平衡计算、网络和存储资源，并采用异步通信和智能数据预取策略来提升集群稳定性。（来源：DEV.to AI）",
-                "link": "https://dev.to/zubairakbar/why-ai-clusters-fail-even-when-gpus-are-idle-5hdb",
+                "title": "G7 易流发布货运行业首款穿戴式 AI 硬件「拍拍豆」，填平物流交付的“最后两米”",
+                "summary": "拍拍豆是一款 30 克磁吸穿戴设备，集成轻量级 AI 芯片，通过语音交互与动作识别实现物流交付确认、异常上报等功能。其技术核心在于端侧推理与低功耗设计，无需联网即可完成关键操作，填补了仓库到收货人之间的数字化盲区。该案例展示了 AI 硬件在垂直行业的落地路径，对边缘 AI 工程实践有参考价值。（来源：36氪）",
+                "link": "https://36kr.com/p/3869740772316162?f=rss",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "AI基础设施"
+                    "边缘AI",
+                    "硬件",
+                    "物流"
                 ]
             },
             {
-                "title": "深度机智获数亿元融资，加速物理 AI 基座模型落地",
-                "summary": "深度机智（DeepWise）在两个月内连续完成两轮数亿元融资，其核心路线是全栈自研物理 AI 基座模型，涵盖感知、决策和控制。这标志着资本对具身智能（Embodied AI）和物理世界交互模型的信心增强。对工程实践的启示：物理 AI 模型需要融合多模态数据与强化学习，对实时性和鲁棒性要求更高，开发者应关注仿真到真实（Sim-to-Real）的迁移技术。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/438887.html",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "具身智能",
-                    "融资"
-                ]
-            },
-            {
-                "title": "谷歌推理专家离职加入 Meta，曾由李飞飞招募",
-                "summary": "谷歌一位在推理（Reasoning）领域的关键研究员离职并加入 Meta，该研究员此前由李飞飞招募。这一人才流动反映了科技巨头在推理能力这一前沿方向上的激烈竞争。对工程实践的启示：推理能力的提升是下一代大模型的核心，开发者应关注如思维链（Chain-of-Thought）、自我一致性等技术的工程化实现，以提升模型在复杂任务上的表现。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/438848.html",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "大模型",
-                    "人才流动"
-                ]
-            },
-            {
-                "title": "使用 AI 自动生成 README、CI/CD 流水线和文档的实践",
-                "summary": "作者分享了利用 AI 工具（如 GPT 系列）自动生成项目 README、CI/CD 配置和开发文档的完整工作流。关键技巧包括提供结构化提示和上下文示例。对工程实践的启示：AI 可以显著降低项目初始化和维护的重复劳动，但开发者仍需人工审核输出以确保准确性和安全性，建议将 AI 生成纳入版本控制流程。（来源：DEV.to AI）",
-                "link": "https://dev.to/bristo_biju_105adeeefb4df/i-used-ai-to-write-my-readme-cicd-pipeline-and-docs-heres-exactly-how-5fp9",
+                "title": "A/B 测试对比初创企业与企业级 AI API 配置的工程实践",
+                "summary": "作者通过一个月 A/B 测试，对比了初创公司（如 DeepSeek、Mistral）与企业级 AI API（如 OpenAI、Anthropic）在延迟、成本、可靠性上的差异。发现初创 API 在特定任务上性价比更高，但企业级 API 在一致性、安全合规方面更优。文章提供了选型决策框架，对开发者构建 AI 应用时的 API 架构设计有直接指导意义。（来源：DEV.to AI）",
+                "link": "https://dev.to/truelane/i-ab-tested-startup-vs-enterprise-ai-api-setups-for-a-month-57gd",
                 "source": "AI",
                 "score": 2,
                 "tags": [
-                    "AI应用",
-                    "开发工具"
-                ]
-            },
-            {
-                "title": "从零开始通过 AI API 佣金赚取收入的经验分享",
-                "summary": "作者分享了如何通过推广 AI API 服务（如 OpenAI、Anthropic）的联盟计划，从零粉丝开始赚取佣金。核心策略是专注于垂直领域的内容创作和精准引流。对工程实践的启示：AI 生态的商业模式正在多样化，开发者可考虑将 API 集成与内容营销结合，但需注意合规性和用户隐私保护。（来源：DEV.to AI）",
-                "link": "https://dev.to/smartcore/zero-followers-real-cash-how-i-started-earning-ai-api-commissions-from-nothing-5ph",
-                "source": "AI",
-                "score": 1,
-                "tags": [
-                    "AI生态",
-                    "商业"
+                    "API",
+                    "工程实践",
+                    "选型"
                 ]
             }
         ];
@@ -256,31 +208,31 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日技术焦点集中在模型对齐与评估的深层挑战上。级联线性特征方法为检测模型谄媚行为提供了可解释的工程路径，而同情心价值观在后训练中的退化问题则揭示了当前对齐技术的局限性。预计未来6个月，业界将加速开发动态、对抗性的评估基准，并探索多任务学习或正则化方法以保留模型的有益特质。同时，物理AI基座模型的融资热潮表明，具身智能正从研究走向工程落地，仿真到真实迁移技术将成为关键瓶颈。";
+    const __DAILY_ANALYSIS__ = "今日技术焦点集中在推理加速与端侧部署两大方向。DSpark 的投机解码方法将推动 LLM 服务成本进一步下降，预计未来 6 个月内主流推理框架将集成类似技术。BrowserBC 的行为克隆范式可能催生“Agent 技能市场”，降低自动化开发门槛。端侧流式多模态模型的突破将加速智能眼镜、机器人等场景落地，但需关注模型压缩与实时性之间的平衡。建议开发者优先关注投机解码的工程化实现与端侧推理框架的适配。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
             {
                 "name": "google-labs-code/design.md",
                 "desc": "A format specification for describing a visual identity to coding agents. DESIGN.md gives agents a p",
-                "stars": "⭐+2319 today",
+                "stars": "⭐+1542 today",
                 "link": "https://github.com/google-labs-code/design.md",
                 "tag": "Agent 框架"
             },
             {
-                "name": "sponsors/calesthio",
-                "desc": "World's first open-source, agentic video production system. 12 pipelines, 52 tools, 500+ agent skill",
-                "stars": "⭐+1674 today",
-                "link": "https://github.com/sponsors/calesthio",
+                "name": "sponsors/topoteretes",
+                "desc": "Cognee is the open-source AI memory platform for agents. Give your AI agents persistent long-term me",
+                "stars": "⭐+808 today",
+                "link": "https://github.com/sponsors/topoteretes",
                 "tag": "Agent 框架"
             },
             {
-                "name": "xbtlin/ai-berkshire",
-                "desc": "AI 时代的伯克希尔：基于 Claude Code 的价值投资研究框架。巴菲特·芒格·段永平·李录四大师方法论 + 多Agent并行研究。| AI-era Berkshire: a value inv",
-                "stars": "⭐+1270 today",
-                "link": "https://github.com/xbtlin/ai-berkshire",
+                "name": "JCodesMore/ai-website-cloner-template",
+                "desc": "Clone any website with one command using AI coding agents",
+                "stars": "⭐+750 today",
+                "link": "https://github.com/JCodesMore/ai-website-cloner-template",
                 "tag": "Agent 框架"
             }
         ];
