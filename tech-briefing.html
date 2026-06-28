@@ -142,65 +142,89 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
             {
-                "title": "DeepSeek 发布 DSpark：投机解码加速大模型推理",
-                "summary": "DeepSeek 在 DeepSpec 项目中发布 DSpark 论文，提出一种新型投机解码（Speculative Decoding）方法，通过轻量级草稿模型并行生成候选 token，再由目标模型验证，实现 2-3 倍推理加速。该方法无需修改模型架构，可即插即用于现有 LLM 服务，显著降低延迟与计算成本，对部署高吞吐推理系统具有直接工程价值。（来源：HackerNews AI）",
-                "link": "https://github.com/deepseek-ai/DeepSpec/blob/main/DSpark_paper.pdf",
+                "title": "智谱AI发布开源权重模型GLM-5.2，声称可媲美Mythos网络安全能力",
+                "summary": "中国智谱AI（Zhipu AI）发布了开源权重模型GLM-5.2，部分研究人员声称其在网络安全任务上可媲美Mythos。该模型采用混合专家架构（MoE），通过稀疏激活和动态路由机制提升推理效率，对开发者而言，开源权重意味着可进行本地微调与部署，降低了对商业API的依赖，但需注意模型安全性与合规性。",
+                "link": "https://www.theverge.com/ai-artificial-intelligence/958804/chinas-z-ai-glm-52-mythos-cybersecurity",
                 "source": "AI",
-                "score": 5,
+                "score": 4,
                 "tags": [
                     "大模型",
-                    "推理加速",
-                    "投机解码"
+                    "开源模型",
+                    "网络安全"
                 ]
             },
             {
-                "title": "BrowserBC：克隆人类点击行为，让一次网页操作转化为所有 Agent 的能力",
-                "summary": "BrowserBC 提出一种行为克隆（Behavioral Cloning）方法，通过录制人类的一次网页操作（点击、输入等），将其转化为可复用的 Agent 技能。技术核心在于将操作序列编码为通用策略，使不同 Agent 能直接调用，无需额外训练。这降低了 Agent 开发门槛，并推动了“一次录制、多 Agent 共享”的工程范式，对自动化测试、RPA 等领域有重要启示。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/439393.html",
+                "title": "福特重新聘用资深工程师，因AI未能达到预期效果",
+                "summary": "福特公司承认“错误地认为仅引入人工智能就能解决工程问题”，并重新聘用经验丰富的“灰胡子”工程师。这反映了AI在复杂工业场景中的局限性：模型缺乏领域知识与因果推理能力，无法替代人类专家的经验判断。对AI Agent开发的启示：在关键决策环节，需设计人机协同机制，而非完全自动化。",
+                "link": "https://techcrunch.com/2026/06/28/ford-rehires-gray-beard-engineers-after-ai-falls-short/",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "Agent",
-                    "行为克隆",
-                    "自动化"
+                    "AI应用",
+                    "工程实践",
+                    "人机协同"
                 ]
             },
             {
-                "title": "杭州团队在 CVPR 2026 发布全球首个端侧流式多模态模型",
-                "summary": "该团队在 CVPR 2026 上提出端侧流式多模态模型，首次在移动设备上实现视频、图像、文本的实时流式推理。技术采用轻量级视觉编码器与流式注意力机制，将模型参数量压缩至 1B 以下，同时保持多模态理解能力。这一架构变化使得端侧 AI 能处理连续视频流，对智能眼镜、无人机等低延迟场景具有直接工程意义。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/439236.html",
+                "title": "抱抱脸模型排行榜被个人开发者yuxinlu1的模型霸榜",
+                "summary": "在Hugging Face模型排行榜上，个人开发者yuxinlu1的模型超越多家大厂，占据榜首。该模型可能通过精细的数据筛选、高效的微调策略（如LoRA）或创新的架构改进实现性能突破。对工程实践的启示：模型性能不仅取决于参数量，数据质量与训练技巧同样关键，小团队也能通过专注优化取得领先。",
+                "link": "https://www.qbitai.com/2026/06/439603.html",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "多模态",
-                    "端侧推理",
-                    "流式处理"
+                    "大模型",
+                    "开源社区",
+                    "模型优化"
                 ]
             },
             {
-                "title": "G7 易流发布货运行业首款穿戴式 AI 硬件「拍拍豆」，填平物流交付的“最后两米”",
-                "summary": "拍拍豆是一款 30 克磁吸穿戴设备，集成轻量级 AI 芯片，通过语音交互与动作识别实现物流交付确认、异常上报等功能。其技术核心在于端侧推理与低功耗设计，无需联网即可完成关键操作，填补了仓库到收货人之间的数字化盲区。该案例展示了 AI 硬件在垂直行业的落地路径，对边缘 AI 工程实践有参考价值。（来源：36氪）",
-                "link": "https://36kr.com/p/3869740772316162?f=rss",
+                "title": "Bash4LLM+：轻量级无依赖的Bash包装器，用于LLM API交互",
+                "summary": "Bash4LLM+是一个单文件Bash包装器，无需外部依赖即可通过终端与LLM API交互。其设计理念是极简主义，通过curl和jq等标准工具实现请求封装与响应解析，适合CI/CD流水线或资源受限环境。对工程实践的启示：在微服务或自动化脚本中，可快速集成LLM能力，避免引入重量级SDK。",
+                "link": "https://github.com/kamaludu/bash4llm/",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "边缘AI",
-                    "硬件",
-                    "物流"
+                    "开发工具",
+                    "LLM API",
+                    "Bash"
                 ]
             },
             {
-                "title": "A/B 测试对比初创企业与企业级 AI API 配置的工程实践",
-                "summary": "作者通过一个月 A/B 测试，对比了初创公司（如 DeepSeek、Mistral）与企业级 AI API（如 OpenAI、Anthropic）在延迟、成本、可靠性上的差异。发现初创 API 在特定任务上性价比更高，但企业级 API 在一致性、安全合规方面更优。文章提供了选型决策框架，对开发者构建 AI 应用时的 API 架构设计有直接指导意义。（来源：DEV.to AI）",
-                "link": "https://dev.to/truelane/i-ab-tested-startup-vs-enterprise-ai-api-setups-for-a-month-57gd",
+                "title": "华尔街认为美国存储芯片制造商美光可能成为下一个英伟达",
+                "summary": "华尔街分析师看好美光科技（Micron），认为其高带宽存储器（HBM）在AI训练与推理中需求激增，有望复制英伟达的增长轨迹。HBM通过堆叠DRAM芯片实现高带宽低延迟，是大模型训练的关键组件。对AI基础设施的启示：存储带宽正成为算力瓶颈，开发者需关注硬件架构变化以优化模型部署。",
+                "link": "https://techcrunch.com/2026/06/28/why-wall-street-thinks-us-memory-maker-micron-is-the-next-nvidia/",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "AI基础设施",
+                    "硬件",
+                    "存储"
+                ]
+            },
+            {
+                "title": "检察官将ChatGPT日志作为帕利塞兹火灾案证据",
+                "summary": "在帕利塞兹火灾纵火案中，检察官使用被告的ChatGPT对话日志作为证据，导致审判无效。该事件凸显了LLM日志在司法取证中的新角色：对话历史可能包含意图、计划或行为线索。对AI Agent开发的启示：需设计可审计的日志系统，确保用户隐私与法律合规之间的平衡。",
+                "link": "https://www.theverge.com/ai-artificial-intelligence/958751/prosecutors-chatgpt-palisades-wildfire-arson-mistrial",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "AI伦理",
+                    "法律",
+                    "日志审计"
+                ]
+            },
+            {
+                "title": "前端工程师的噩梦：一行命令克隆任意网站的开源项目获20k Star",
+                "summary": "GitHub上一个开源项目允许用户通过一行命令克隆任意网站，获得20k Star。该工具可能利用浏览器自动化（如Puppeteer）和HTML解析技术，实现静态资源与布局的完整复制。对AI Agent的启示：此类工具可被用于网页数据采集与Agent训练环境构建，但需注意版权与反爬策略。",
+                "link": "https://www.qbitai.com/2026/06/439515.html",
                 "source": "AI",
                 "score": 2,
                 "tags": [
-                    "API",
-                    "工程实践",
-                    "选型"
+                    "开源工具",
+                    "网页克隆",
+                    "前端"
                 ]
             }
         ];
@@ -208,31 +232,31 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日技术焦点集中在推理加速与端侧部署两大方向。DSpark 的投机解码方法将推动 LLM 服务成本进一步下降，预计未来 6 个月内主流推理框架将集成类似技术。BrowserBC 的行为克隆范式可能催生“Agent 技能市场”，降低自动化开发门槛。端侧流式多模态模型的突破将加速智能眼镜、机器人等场景落地，但需关注模型压缩与实时性之间的平衡。建议开发者优先关注投机解码的工程化实现与端侧推理框架的适配。";
+    const __DAILY_ANALYSIS__ = "今日新闻凸显两个趋势：一是开源模型与个人开发者正通过精细优化挑战大厂垄断，如GLM-5.2和yuxinlu1的模型，预示未来6个月模型竞争将从参数规模转向数据质量与微调效率；二是AI在工业与法律等高风险场景的落地面临信任与合规挑战，福特案例与ChatGPT日志证据表明，Agent设计需强化人机协同与可审计性。建议开发者关注轻量级工具（如Bash4LLM+）以降低集成门槛，同时建立日志与安全机制应对监管。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
             {
-                "name": "google-labs-code/design.md",
-                "desc": "A format specification for describing a visual identity to coding agents. DESIGN.md gives agents a p",
-                "stars": "⭐+1542 today",
-                "link": "https://github.com/google-labs-code/design.md",
+                "name": "DeusData/codebase-memory-mcp",
+                "desc": "High-performance code intelligence MCP server. Indexes codebases into a persistent knowledge graph —",
+                "stars": "⭐+2162 today",
+                "link": "https://github.com/DeusData/codebase-memory-mcp",
                 "tag": "Agent 框架"
             },
             {
-                "name": "sponsors/topoteretes",
-                "desc": "Cognee is the open-source AI memory platform for agents. Give your AI agents persistent long-term me",
-                "stars": "⭐+808 today",
-                "link": "https://github.com/sponsors/topoteretes",
+                "name": "xbtlin/ai-berkshire",
+                "desc": "AI 时代的伯克希尔：基于 Claude Code / Codex 的价值投资研究框架。巴菲特·芒格·段永平·李录四大师方法论 + 多Agent并行研究。| AI-era Berkshire: a v",
+                "stars": "⭐+1456 today",
+                "link": "https://github.com/xbtlin/ai-berkshire",
                 "tag": "Agent 框架"
             },
             {
-                "name": "JCodesMore/ai-website-cloner-template",
-                "desc": "Clone any website with one command using AI coding agents",
-                "stars": "⭐+750 today",
-                "link": "https://github.com/JCodesMore/ai-website-cloner-template",
+                "name": "HKUDS/Vibe-Trading",
+                "desc": "\"Vibe-Trading: Your Personal Trading Agent\"",
+                "stars": "⭐+490 today",
+                "link": "https://github.com/HKUDS/Vibe-Trading",
                 "tag": "Agent 框架"
             }
         ];
