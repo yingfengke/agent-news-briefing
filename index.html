@@ -142,89 +142,145 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
             {
-                "title": "智谱AI发布开源权重模型GLM-5.2，声称可媲美Mythos网络安全能力",
-                "summary": "中国智谱AI（Zhipu AI）发布了开源权重模型GLM-5.2，部分研究人员声称其在网络安全任务上可媲美Mythos。该模型采用混合专家架构（MoE），通过稀疏激活和动态路由机制提升推理效率，对开发者而言，开源权重意味着可进行本地微调与部署，降低了对商业API的依赖，但需注意模型安全性与合规性。",
-                "link": "https://www.theverge.com/ai-artificial-intelligence/958804/chinas-z-ai-glm-52-mythos-cybersecurity",
+                "title": "全球首个：隐空间世界模型，打通长时序双向物理因果链",
+                "summary": "具身智能公司发布隐空间世界模型，实现长时序双向物理因果推理，获2亿美元融资，冲上具身榜单第一。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/439891.html",
+                "source": "AI",
+                "score": 5,
+                "tags": [
+                    "Agent框架"
+                ]
+            },
+            {
+                "title": "多智能体LLM团队中人格组成何时重要？",
+                "summary": "研究揭示人格提示对多智能体LLM团队协作效率的影响，为Agent系统设计提供指导，强调人格组成的关键作用。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2606.27443",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "大模型",
-                    "开源模型",
-                    "网络安全"
+                    "Agent框架"
                 ]
             },
             {
-                "title": "福特重新聘用资深工程师，因AI未能达到预期效果",
-                "summary": "福特公司承认“错误地认为仅引入人工智能就能解决工程问题”，并重新聘用经验丰富的“灰胡子”工程师。这反映了AI在复杂工业场景中的局限性：模型缺乏领域知识与因果推理能力，无法替代人类专家的经验判断。对AI Agent开发的启示：在关键决策环节，需设计人机协同机制，而非完全自动化。",
-                "link": "https://techcrunch.com/2026/06/28/ford-rehires-gray-beard-engineers-after-ai-falls-short/",
+                "title": "技术前沿的Agent信心",
+                "summary": "Gartner称2026年为“转折点”，企业AI投资激增，Agent技术信心增强，技术前沿迎来新机遇。（来源：MIT Tech Review）",
+                "link": "https://www.technologyreview.com/2026/06/29/1139635/agent-confidence-on-the-technical-frontier/",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "AI应用",
-                    "工程实践",
-                    "人机协同"
+                    "Agent框架"
                 ]
             },
             {
-                "title": "抱抱脸模型排行榜被个人开发者yuxinlu1的模型霸榜",
-                "summary": "在Hugging Face模型排行榜上，个人开发者yuxinlu1的模型超越多家大厂，占据榜首。该模型可能通过精细的数据筛选、高效的微调策略（如LoRA）或创新的架构改进实现性能突破。对工程实践的启示：模型性能不仅取决于参数量，数据质量与训练技巧同样关键，小团队也能通过专注优化取得领先。",
-                "link": "https://www.qbitai.com/2026/06/439603.html",
+                "title": "内化未来：世界模型规划的统一Agent训练范式",
+                "summary": "新论文提出统一训练范式，让LLM Agent内化未来状态以提升规划能力，推动世界模型与Agent融合。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2606.27483",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "大模型",
-                    "开源社区",
-                    "模型优化"
+                    "Agent框架"
                 ]
             },
             {
-                "title": "Bash4LLM+：轻量级无依赖的Bash包装器，用于LLM API交互",
-                "summary": "Bash4LLM+是一个单文件Bash包装器，无需外部依赖即可通过终端与LLM API交互。其设计理念是极简主义，通过curl和jq等标准工具实现请求封装与响应解析，适合CI/CD流水线或资源受限环境。对工程实践的启示：在微服务或自动化脚本中，可快速集成LLM能力，避免引入重量级SDK。",
-                "link": "https://github.com/kamaludu/bash4llm/",
+                "title": "OpenAI 预告 Codex 新硬件",
+                "summary": "OpenAI发布与Codex编程工具相关的硬件设备预告，具体细节待揭晓，可能改变AI编程体验。（来源：The Verge）",
+                "link": "https://www.theverge.com/ai-artificial-intelligence/959174/openai-codex-hardware-work-louder",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "开发工具"
+                ]
+            },
+            {
+                "title": "Git 2.55 亮点",
+                "summary": "开源Git项目发布2.55版本，带来新特性和bug修复，提升开发者日常工作效率。（来源：GitHub Blog）",
+                "link": "https://github.blog/open-source/git/highlights-from-git-2-55/",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "开发工具"
+                ]
+            },
+            {
+                "title": "Claude Mythos让梁文锋决定融资",
+                "summary": "DeepSeek创始人梁文锋因Claude Mythos的竞争压力决定融资，大模型军备竞赛加剧，行业格局生变。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/06/439863.html",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "大模型"
+                ]
+            },
+            {
+                "title": "AI模型网络：概念、现状与未来",
+                "summary": "论文提出AI模型网络概念，探讨模型间协作与通信机制，为未来模型生态系统提供理论基础。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2606.27382",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "开发工具",
-                    "LLM API",
-                    "Bash"
+                    "大模型"
                 ]
             },
             {
-                "title": "华尔街认为美国存储芯片制造商美光可能成为下一个英伟达",
-                "summary": "华尔街分析师看好美光科技（Micron），认为其高带宽存储器（HBM）在AI训练与推理中需求激增，有望复制英伟达的增长轨迹。HBM通过堆叠DRAM芯片实现高带宽低延迟，是大模型训练的关键组件。对AI基础设施的启示：存储带宽正成为算力瓶颈，开发者需关注硬件架构变化以优化模型部署。",
-                "link": "https://techcrunch.com/2026/06/28/why-wall-street-thinks-us-memory-maker-micron-is-the-next-nvidia/",
+                "title": "DiScoFormer：一个跨分布的密度与分数Transformer",
+                "summary": "Allen AI发布新模型，统一处理密度估计和分数预测，适用于多种分布，提升模型泛化能力。（来源：HuggingFace）",
+                "link": "https://huggingface.co/blog/allenai/discoformer",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "AI基础设施",
-                    "硬件",
-                    "存储"
+                    "大模型"
                 ]
             },
             {
-                "title": "检察官将ChatGPT日志作为帕利塞兹火灾案证据",
-                "summary": "在帕利塞兹火灾纵火案中，检察官使用被告的ChatGPT对话日志作为证据，导致审判无效。该事件凸显了LLM日志在司法取证中的新角色：对话历史可能包含意图、计划或行为线索。对AI Agent开发的启示：需设计可审计的日志系统，确保用户隐私与法律合规之间的平衡。",
-                "link": "https://www.theverge.com/ai-artificial-intelligence/958751/prosecutors-chatgpt-palisades-wildfire-arson-mistrial",
+                "title": "GitHub Advisory Database 内部：漏洞数量破纪录时会发生什么",
+                "summary": "2026年5月GitHub发布1560条审核建议，分析漏洞激增应对策略，强调供应链安全重要性。（来源：GitHub Blog）",
+                "link": "https://github.blog/security/supply-chain-security/inside-the-advisory-database-and-what-happens-when-vulnerability-volume-breaks-records/",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "AI伦理",
-                    "法律",
-                    "日志审计"
+                    "开发工具"
                 ]
             },
             {
-                "title": "前端工程师的噩梦：一行命令克隆任意网站的开源项目获20k Star",
-                "summary": "GitHub上一个开源项目允许用户通过一行命令克隆任意网站，获得20k Star。该工具可能利用浏览器自动化（如Puppeteer）和HTML解析技术，实现静态资源与布局的完整复制。对AI Agent的启示：此类工具可被用于网页数据采集与Agent训练环境构建，但需注意版权与反爬策略。",
-                "link": "https://www.qbitai.com/2026/06/439515.html",
+                "title": "AI Agent 不是你的'同事'",
+                "summary": "MIT Tech Review评论文章，提醒开发者正确看待AI Agent的角色，避免过度拟人化，理性评估其能力边界。（来源：MIT Tech Review）",
+                "link": "https://www.technologyreview.com/2026/06/29/1139849/ai-agents-are-not-your-coworkers/",
                 "source": "AI",
-                "score": 2,
+                "score": 3,
                 "tags": [
-                    "开源工具",
-                    "网页克隆",
-                    "前端"
+                    "Agent框架"
+                ]
+            },
+            {
+                "title": "使用 Aurora PostgreSQL 构建 AI Agent 治理：Zarynx 案例研究",
+                "summary": "文章介绍如何利用Aurora PostgreSQL实现自主AI Agent的治理与监控，提供企业级实践案例。（来源：DEV.to）",
+                "link": "https://dev.to/ashwin_630e649e618b09ca82/building-ai-agent-governance-with-aurora-postgresql-zarynx-case-study-2okd",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "Agent框架"
+                ]
+            },
+            {
+                "title": "百度OCR模型Unlimited OCR在HuggingFace、GitHub四榜登顶",
+                "summary": "百度发布OCR模型Unlimited OCR，在HuggingFace和GitHub多个榜单取得第一，推动文字识别技术发展。（来源：36氪）",
+                "link": "https://36kr.com/p/3873626425332743?f=rss",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "开发工具"
+                ]
+            },
+            {
+                "title": "自研全域柔性电子皮肤，Moxy摸喜发布首款AI陪伴机器人",
+                "summary": "奥感微旗下品牌发布无对话、无摄像头的纯触觉交互AI陪伴机器人，采用柔性电子皮肤技术。（来源：36氪）",
+                "link": "https://36kr.com/p/3874015941645570?f=rss",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "Agent框架"
                 ]
             }
         ];
@@ -232,31 +288,31 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日新闻凸显两个趋势：一是开源模型与个人开发者正通过精细优化挑战大厂垄断，如GLM-5.2和yuxinlu1的模型，预示未来6个月模型竞争将从参数规模转向数据质量与微调效率；二是AI在工业与法律等高风险场景的落地面临信任与合规挑战，福特案例与ChatGPT日志证据表明，Agent设计需强化人机协同与可审计性。建议开发者关注轻量级工具（如Bash4LLM+）以降低集成门槛，同时建立日志与安全机制应对监管。";
+    const __DAILY_ANALYSIS__ = "今日焦点：隐空间世界模型突破具身智能，Agent人格与规划研究深化；Git 2.55与Codex硬件更新提升开发效率；DeepSeek融资显示大模型竞争白热化。Agent治理与安全成为企业关注重点，开发者需紧跟工具与框架演进。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
-            {
-                "name": "DeusData/codebase-memory-mcp",
-                "desc": "High-performance code intelligence MCP server. Indexes codebases into a persistent knowledge graph —",
-                "stars": "⭐+2162 today",
-                "link": "https://github.com/DeusData/codebase-memory-mcp",
-                "tag": "Agent 框架"
-            },
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
             {
                 "name": "xbtlin/ai-berkshire",
                 "desc": "AI 时代的伯克希尔：基于 Claude Code / Codex 的价值投资研究框架。巴菲特·芒格·段永平·李录四大师方法论 + 多Agent并行研究。| AI-era Berkshire: a v",
-                "stars": "⭐+1456 today",
+                "stars": "⭐+1397 today",
                 "link": "https://github.com/xbtlin/ai-berkshire",
                 "tag": "Agent 框架"
             },
             {
-                "name": "HKUDS/Vibe-Trading",
-                "desc": "\"Vibe-Trading: Your Personal Trading Agent\"",
-                "stars": "⭐+490 today",
-                "link": "https://github.com/HKUDS/Vibe-Trading",
+                "name": "sponsors/msitarzewski",
+                "desc": "A complete AI agency at your fingertips - From frontend wizards to Reddit community ninjas, from whi",
+                "stars": "⭐+1221 today",
+                "link": "https://github.com/sponsors/msitarzewski",
+                "tag": "Agent 框架"
+            },
+            {
+                "name": "browser-use/video-use",
+                "desc": "Edit videos with coding agents",
+                "stars": "⭐+976 today",
+                "link": "https://github.com/browser-use/video-use",
                 "tag": "Agent 框架"
             }
         ];
