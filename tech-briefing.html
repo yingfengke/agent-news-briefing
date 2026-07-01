@@ -142,93 +142,82 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
             {
-                "title": "ChatGPT 全球采用率持续增长，OpenAI 发布最新数据",
-                "summary": "OpenAI 发布 Signals 数据，显示 ChatGPT 在全球范围内的采用率持续扩大，覆盖更多行业和地区。用户价值：验证了对话式 AI 在办公、教育、创意等场景的真实需求，PMF 已初步形成。商业模式：免费+订阅（Plus/Pro/Team）分层，ARR 已超 30 亿美元。竞争格局：面对 Claude、Gemini、Kimi 等竞品，ChatGPT 凭借先发优势和生态粘性保持领先，但差异化在减弱。 [真需求]（来源：OpenAI）",
-                "link": "https://openai.com/index/how-chatgpt-adoption-has-expanded",
+                "title": "Anthropic 推出 Claude Science，专为科研场景优化",
+                "summary": "Anthropic 发布 Claude Science，针对科研文献分析、实验设计等场景优化。用户价值：解决科研人员信息过载和实验规划痛点，真需求。商业模式：订阅制或按用量收费，面向高校和企业。竞争格局：与 Google DeepMind、NotebookLM 差异化，护城河在于领域数据微调。[真需求]（来源：MIT Tech Review）",
+                "link": "https://www.technologyreview.com/2026/07/01/1139996/the-download-anthropic-claude-science-california-carbon-manure/",
                 "source": "AI",
                 "score": 5,
                 "tags": [
                     "大模型",
-                    "商业化"
+                    "垂直应用"
                 ]
             },
             {
-                "title": "Kimi 估值升至 315 亿美元，ARR 突破 3 亿美元",
-                "summary": "月之暗面旗下 Kimi 大模型估值达 315 亿美元，年化收入超 3 亿美元，成为国内大模型商业化标杆。用户价值：长文本处理、搜索增强等场景被验证。商业模式：免费+会员订阅+API 调用，收入结构健康。竞争格局：与百度文心、阿里通义、字节豆包竞争，差异化在于长上下文和产品体验。 [真需求]（来源：36氪）",
-                "link": "https://36kr.com/p/3873626697470985?f=rss",
+                "title": "英伟达开源机器人技能库，Jim Fan 称范式已变",
+                "summary": "英伟达开源机器人技能库，支持持续学习与迁移。用户价值：降低机器人开发门槛，复用技能模块，真需求。商业模式：通过硬件（Jetson）和云服务变现，开源吸引生态。竞争格局：与 Google、Meta 的机器人框架竞争，护城河在于 GPU 生态和仿真工具。[值得抄]（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/07/441396.html",
                 "source": "AI",
                 "score": 5,
                 "tags": [
-                    "大模型",
-                    "商业化"
-                ]
-            },
-            {
-                "title": "Google NotebookLM 新增 TikTok 风格视频摘要功能",
-                "summary": "NotebookLM 推出 AI Clips 功能，可将研究笔记自动生成为竖屏短视频，类似 TikTok 风格。用户价值：解决知识获取效率问题，将长文本转化为易消费的短视频，降低认知负担。商业模式：免费工具，通过 Google 生态变现（云服务、广告）。竞争格局：与 Perplexity、Mem 等知识管理工具差异化明显，护城河在于 Google 搜索和文档生态。 [值得抄]（来源：The Verge AI）",
-                "link": "https://www.theverge.com/tech/959778/google-notebooklm-ai-clips",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "产品创新",
-                    "知识管理"
-                ]
-            },
-            {
-                "title": "开源 Agent 框架 OpenClaw 正式登陆 Android 和 iOS",
-                "summary": "OpenClaw 是一款免费开源的 Agent 编程框架，现支持移动端运行，用户可在手机上执行自动化任务。用户价值：让普通用户也能使用 Agent 完成重复操作，降低门槛。商业模式：开源免费，通过企业版/云服务收费。竞争格局：与 AutoGen、LangGraph 等相比，移动端差异化明显，但护城河浅。 [值得抄]（来源：TechCrunch AI）",
-                "link": "https://techcrunch.com/2026/06/30/openclaw-is-finally-available-on-android-and-ios/",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "Agent框架",
+                    "具身智能",
                     "开源"
                 ]
             },
             {
-                "title": "前 DeepMind 三人组创办量化对冲基金 AI 实验室 EquiLibre",
-                "summary": "三位曾开发扑克 AI 的 DeepMind 研究员在布拉格创立 EquiLibre Technologies，将博弈论和强化学习用于量化交易。用户价值：为对冲基金提供超额收益。商业模式：管理费+业绩提成，直接赚钱。竞争格局：与 Renaissance、Two Sigma 等竞争，差异化在于 DeepMind 的 AI 方法论。 [真需求]（来源：TechCrunch AI）",
-                "link": "https://techcrunch.com/2026/06/30/the-deepmind-trio-who-built-a-poker-ai-are-now-making-money-for-quant-hedge-funds/",
+                "title": "Anthropic 的 Fable 5 模型获准重新部署",
+                "summary": "Anthropic 与美国政府谈判后，其此前因出口管制被禁的 Fable 5 模型获准回归。用户价值：解决高端模型可用性问题，但受政策限制，商业模式存疑。竞争格局：与 OpenAI、Google 竞争，但受地缘政治影响，护城河脆弱。[商业模式存疑]（来源：The Verge AI、Anthropic News）",
+                "link": "https://www.theverge.com/ai-artificial-intelligence/958964/anthropic-claude-fable-5-is-back",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "AI金融",
-                    "创业"
+                    "大模型",
+                    "政策"
                 ]
             },
             {
-                "title": "Netflix 用 AI 生成已故演员 Gene Wilder 声音，引发伦理争议",
-                "summary": "Netflix 在《威利·旺卡》真人秀预告片中使用 AI 生成 Gene Wilder 的声音，未提前获得家属许可。用户价值：降低内容制作成本，但可能侵犯肖像权。商业模式：通过 AI 降低配音/旁白成本，但面临法律风险。竞争格局：AI 声音克隆技术已成熟，但伦理合规是护城河。 [伪需求]（来源：The Verge AI）",
-                "link": "https://www.theverge.com/streaming/959684/netflix-wonka-golden-ticket-gene-wilder",
+                "title": "Hugging Face 与 Cerebras 合作，将 Gemma 4 用于实时语音 AI",
+                "summary": "双方合作将 Gemma 4 模型部署到 Cerebras 芯片上，实现低延迟实时语音交互。用户价值：解决语音助手延迟高、体验差的问题，真需求。商业模式：芯片+模型捆绑销售，或按推理量收费。竞争格局：与 NVIDIA GPU 方案竞争，差异化在于专用芯片的能效比。[值得抄]（来源：HuggingFace Blog）",
+                "link": "https://huggingface.co/blog/cerebras-gemma4-voice-ai",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "语音AI",
+                    "芯片"
+                ]
+            },
+            {
+                "title": "Twelve Labs 获 1 亿美元融资，视频 AI 挑战聊天机器人",
+                "summary": "视频 AI 公司 Twelve Labs 完成 1 亿美元融资，押注视频理解超越文本聊天。用户价值：解决视频内容搜索、分析效率低的问题，真需求。商业模式：API 调用收费，面向媒体、安防等行业。竞争格局：与 OpenAI 视频模型、Google Video AI 竞争，护城河在于多模态训练数据。[真需求]（来源：DEV.to AI）",
+                "link": "https://dev.to/xoomar/twelve-labs-grabs-100m-as-video-ai-battles-chatbots-3423",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "视频AI",
+                    "融资"
+                ]
+            },
+            {
+                "title": "清华系初创完成数亿元种子轮融资，拒绝「世界模型」标签",
+                "summary": "清华系初创公司（李一鸣团队）完成数亿元种子轮融资，专注物理世界模拟而非通用世界模型。用户价值：解决工业仿真、机器人训练数据稀缺问题，真需求。商业模式：B2B 授权或云服务。竞争格局：与跨维智能、DeepMind 等差异化，护城河在于清华学术资源。[真需求]（来源：36氪）",
+                "link": "https://36kr.com/p/3877109751803904?f=rss",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "物理AI",
+                    "融资"
+                ]
+            },
+            {
+                "title": "Cloudflare 新政策：AI 公司须为出版商内容付费",
+                "summary": "Cloudflare 要求 AI 公司 9 月 15 日前分离爬虫并支付内容使用费。用户价值：保护出版商权益，但增加 AI 公司成本。商业模式：Cloudflare 作为中间商抽成。竞争格局：与 Google、OpenAI 等博弈，护城河在于 CDN 网络垄断地位。[商业模式存疑]（来源：TechCrunch AI）",
+                "link": "https://techcrunch.com/2026/07/01/cloudflares-new-policy-pushes-ai-companies-to-pay-for-publishers-content/",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "AI伦理",
-                    "娱乐"
-                ]
-            },
-            {
-                "title": "跨维智能获百亿估值，押注物理 AGI 赛道",
-                "summary": "跨维智能宣布百亿估值，专注于物理世界通用人工智能（物理 AGI），通过空间智能赋能机器人。用户价值：解决机器人自主感知和操作问题。商业模式：向工业/服务机器人厂商提供算法和平台。竞争格局：与优艾智合、乐动机器人等竞争，差异化在于“物理 AGI”概念。 [商业模式存疑]（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/440949.html",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "具身智能",
-                    "机器人"
-                ]
-            },
-            {
-                "title": "乐动机器人打造物理 AI 基础设施，港股新贵押注万亿市场",
-                "summary": "乐动机器人定位物理 AI 基础设施，通过高质量数字化空间数据，为机器人提供环境理解能力。用户价值：降低机器人部署成本。商业模式：卖硬件+软件订阅。竞争格局：与跨维智能、优艾智合等竞争，护城河在于数据积累。 [卷但没用]（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/06/440818.html",
-                "source": "AI",
-                "score": 2,
-                "tags": [
-                    "具身智能",
-                    "机器人"
+                    "政策",
+                    "数据合规"
                 ]
             }
         ];
@@ -236,31 +225,31 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日最值得关注的 PMF 方向是大模型商业化（Kimi 和 ChatGPT 的数据验证了对话式 AI 的付费意愿）和 Agent 移动化（OpenClaw 降低门槛）。物理 AGI 赛道估值虽高，但落地场景和收入模式仍不清晰，属于长期布局。建议产品经理重点关注知识管理工具的视频化创新（NotebookLM Clips），该功能可能成为新的流量入口。";
+    const __DAILY_ANALYSIS__ = "今日最具 PMF 潜力的方向是垂直场景 AI 应用（Claude Science、视频 AI）和具身智能基础设施（英伟达机器人技能库、清华物理模拟）。前者解决科研、媒体等行业的真实痛点，付费意愿明确；后者通过开源降低开发成本，生态壁垒高。相比之下，政策驱动的商业模式（Cloudflare 付费）和受地缘政治影响的模型部署（Fable 5）不确定性较大。建议关注实时语音 AI 的芯片-模型协同方案，可能成为下一个爆点。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
             {
                 "name": "sponsors/msitarzewski",
                 "desc": "A complete AI agency at your fingertips - From frontend wizards to Reddit community ninjas, from whi",
-                "stars": "⭐+1793 today",
+                "stars": "⭐+2097 today",
                 "link": "https://github.com/sponsors/msitarzewski",
                 "tag": "Agent 框架"
             },
             {
-                "name": "xbtlin/ai-berkshire",
-                "desc": "AI 时代的伯克希尔：基于 Claude Code / Codex 的价值投资研究框架。巴菲特·芒格·段永平·李录四大师方法论 + 多Agent并行研究。| AI-era Berkshire: a v",
-                "stars": "⭐+966 today",
-                "link": "https://github.com/xbtlin/ai-berkshire",
+                "name": "sponsors/diegosouzapw",
+                "desc": "Never stop coding. Free AI gateway: one endpoint, 231+ providers (50+ free), connect Claude Code, Co",
+                "stars": "⭐+1012 today",
+                "link": "https://github.com/sponsors/diegosouzapw",
                 "tag": "Agent 框架"
             },
             {
-                "name": "sponsors/obra",
-                "desc": "An agentic skills framework &amp; software development methodology that works.",
-                "stars": "⭐+884 today",
-                "link": "https://github.com/sponsors/obra",
+                "name": "facebook/astryx",
+                "desc": "An open source design system that's fully customizable and agent ready",
+                "stars": "⭐+714 today",
+                "link": "https://github.com/facebook/astryx",
                 "tag": "Agent 框架"
             }
         ];
