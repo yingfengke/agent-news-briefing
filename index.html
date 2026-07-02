@@ -142,82 +142,137 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
             {
-                "title": "Anthropic 推出 Claude Science，专为科研场景优化",
-                "summary": "Anthropic 发布 Claude Science，针对科研文献分析、实验设计等场景优化。用户价值：解决科研人员信息过载和实验规划痛点，真需求。商业模式：订阅制或按用量收费，面向高校和企业。竞争格局：与 Google DeepMind、NotebookLM 差异化，护城河在于领域数据微调。[真需求]（来源：MIT Tech Review）",
-                "link": "https://www.technologyreview.com/2026/07/01/1139996/the-download-anthropic-claude-science-california-carbon-manure/",
+                "title": "全球首个英伟达含量为0的万亿模型，成海外开发者抢手货",
+                "summary": "某团队发布首个完全基于AMD MI300X训练的万亿参数模型，在OpenRouter上霸榜。性能对标Llama-3-405B，训练使用数千张AMD GPU，未披露具体FLOPs和benchmark分值。极客点评：打破英伟达垄断，但AMD ROCm生态工具链不成熟，部署坑多，算子兼容性需踩雷。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/07/442047.html",
                 "source": "AI",
                 "score": 5,
                 "tags": [
                     "大模型",
-                    "垂直应用"
+                    "硬件"
                 ]
             },
             {
-                "title": "英伟达开源机器人技能库，Jim Fan 称范式已变",
-                "summary": "英伟达开源机器人技能库，支持持续学习与迁移。用户价值：降低机器人开发门槛，复用技能模块，真需求。商业模式：通过硬件（Jetson）和云服务变现，开源吸引生态。竞争格局：与 Google、Meta 的机器人框架竞争，护城河在于 GPU 生态和仿真工具。[值得抄]（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/07/441396.html",
+                "title": "AReaL 2.0开源：面向自演进智能体的强化学习基础设施",
+                "summary": "AReaL 2.0开源，提供在线RL训练框架，支持Agent自我演进。在Minecraft等环境测试，训练效率提升5倍，未披露具体参数量和FLOPs。极客点评：自演进Agent是前沿方向，但RL训练稳定性仍是挑战，reward hacking问题需关注。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/07/442134.html",
                 "source": "AI",
-                "score": 5,
+                "score": 4,
                 "tags": [
-                    "具身智能",
-                    "开源"
+                    "Agent",
+                    "强化学习"
                 ]
             },
             {
-                "title": "Anthropic 的 Fable 5 模型获准重新部署",
-                "summary": "Anthropic 与美国政府谈判后，其此前因出口管制被禁的 Fable 5 模型获准回归。用户价值：解决高端模型可用性问题，但受政策限制，商业模式存疑。竞争格局：与 OpenAI、Google 竞争，但受地缘政治影响，护城河脆弱。[商业模式存疑]（来源：The Verge AI、Anthropic News）",
-                "link": "https://www.theverge.com/ai-artificial-intelligence/958964/anthropic-claude-fable-5-is-back",
+                "title": "科大讯飞智能交互生态发布会：三大平台升级，星火4.0中文超越GPT-4o",
+                "summary": "科大讯飞升级语音识别、NLU、CV三大平台，推出星火大模型4.0。在中文benchmark（如CLUE）上超越GPT-4o，但未披露参数量。极客点评：国产大模型追赶，但英文能力存疑，生态封闭，API定价未公开。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/07/442048.html",
                 "source": "AI",
                 "score": 4,
                 "tags": [
                     "大模型",
-                    "政策"
+                    "语音"
                 ]
             },
             {
-                "title": "Hugging Face 与 Cerebras 合作，将 Gemma 4 用于实时语音 AI",
-                "summary": "双方合作将 Gemma 4 模型部署到 Cerebras 芯片上，实现低延迟实时语音交互。用户价值：解决语音助手延迟高、体验差的问题，真需求。商业模式：芯片+模型捆绑销售，或按推理量收费。竞争格局：与 NVIDIA GPU 方案竞争，差异化在于专用芯片的能效比。[值得抄]（来源：HuggingFace Blog）",
-                "link": "https://huggingface.co/blog/cerebras-gemma4-voice-ai",
+                "title": "利用潜在空间：从控制向量到模型校准器的统一框架",
+                "summary": "系统综述steering vector到模型校准器的方法，提出统一框架。在Llama-3-70B上测试，校准后MMLU提升2.3%，未披露推理延迟开销。极客点评：实用综述，steering vector工程化指南，但校准引入额外计算，需权衡精度与速度。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2607.00083",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "语音AI",
-                    "芯片"
+                    "大模型",
+                    "可解释性"
                 ]
             },
             {
-                "title": "Twelve Labs 获 1 亿美元融资，视频 AI 挑战聊天机器人",
-                "summary": "视频 AI 公司 Twelve Labs 完成 1 亿美元融资，押注视频理解超越文本聊天。用户价值：解决视频内容搜索、分析效率低的问题，真需求。商业模式：API 调用收费，面向媒体、安防等行业。竞争格局：与 OpenAI 视频模型、Google Video AI 竞争，护城河在于多模态训练数据。[真需求]（来源：DEV.to AI）",
-                "link": "https://dev.to/xoomar/twelve-labs-grabs-100m-as-video-ai-battles-chatbots-3423",
+                "title": "初创公司用多样性集成解决AI群体思维问题",
+                "summary": "一家初创公司通过多样性模型集成和对抗性辩论机制，减少LLM输出同质化。在多个benchmark上多样性指标提升30%，但推理成本翻倍（2x FLOPs）。极客点评：解决LLM“群体思维”有实际价值，但集成推理成本高，需优化KV Cache复用。（来源：MIT Tech Review）",
+                "link": "https://www.technologyreview.com/2026/07/02/1140027/the-download-ai-groupthink-llms/",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "视频AI",
-                    "融资"
+                    "大模型",
+                    "多样性"
                 ]
             },
             {
-                "title": "清华系初创完成数亿元种子轮融资，拒绝「世界模型」标签",
-                "summary": "清华系初创公司（李一鸣团队）完成数亿元种子轮融资，专注物理世界模拟而非通用世界模型。用户价值：解决工业仿真、机器人训练数据稀缺问题，真需求。商业模式：B2B 授权或云服务。竞争格局：与跨维智能、DeepMind 等差异化，护城河在于清华学术资源。[真需求]（来源：36氪）",
-                "link": "https://36kr.com/p/3877109751803904?f=rss",
+                "title": "可控叙事渲染：用控制向量精确调整故事生成",
+                "summary": "提出可控叙事渲染方法，通过steering vector调整生成故事的风格和情节。在GPT-4o上测试，风格控制准确率提升12%，未披露完整benchmark。极客点评：steering vector落地应用，但泛化性存疑，不同模型间迁移需重新训练。（来源：arXiv）",
+                "link": "https://arxiv.org/abs/2607.00009",
                 "source": "AI",
-                "score": 4,
+                "score": 3,
                 "tags": [
-                    "物理AI",
-                    "融资"
+                    "大模型",
+                    "可控生成"
                 ]
             },
             {
-                "title": "Cloudflare 新政策：AI 公司须为出版商内容付费",
-                "summary": "Cloudflare 要求 AI 公司 9 月 15 日前分离爬虫并支付内容使用费。用户价值：保护出版商权益，但增加 AI 公司成本。商业模式：Cloudflare 作为中间商抽成。竞争格局：与 Google、OpenAI 等博弈，护城河在于 CDN 网络垄断地位。[商业模式存疑]（来源：TechCrunch AI）",
-                "link": "https://techcrunch.com/2026/07/01/cloudflares-new-policy-pushes-ai-companies-to-pay-for-publishers-content/",
+                "title": "Meta悄悄发布“氛围编码”游戏应用Pocket",
+                "summary": "Meta推出实验性AI应用Pocket，用户通过自然语言描述生成小游戏，采用vibe-coding范式。未披露技术细节和性能数据。极客点评：vibe-coding落地，但生成质量有限，更像玩具，缺乏复杂游戏逻辑支持。（来源：TechCrunch）",
+                "link": "https://techcrunch.com/2026/07/02/meta-quietly-launches-vibe-coded-gaming-app-pocket/",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "AI应用",
+                    "游戏"
+                ]
+            },
+            {
+                "title": "OpenAI提议给特朗普政府5%的AI繁荣分成",
+                "summary": "OpenAI向美国政府提议给予5%所有权股份，以换取政策支持。此举旨在缓解监管压力，但引发对AI公司政治化的担忧。极客点评：政治博弈，技术层面无影响，但可能影响开源生态和模型发布节奏。（来源：The Verge）",
+                "link": "https://www.theverge.com/ai-artificial-intelligence/960588/openai-government-5-percent-stake-trump",
                 "source": "AI",
                 "score": 3,
                 "tags": [
                     "政策",
-                    "数据合规"
+                    "OpenAI"
+                ]
+            },
+            {
+                "title": "宇树科技科创板IPO注册获批，Meta算力过剩系误读",
+                "summary": "证监会同意宇树科技科创板IPO注册，同时业内人士澄清Meta算力过剩是误读，实际需求仍旺盛。极客点评：机器人公司上市利好，算力需求长期看涨，但估值泡沫需警惕。（来源：36氪）",
+                "link": "https://36kr.com/p/3878550357946625?f=rss",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "机器人",
+                    "行业"
+                ]
+            },
+            {
+                "title": "系统流「爽文」被AI Agent实现：职场短剧自动化生成",
+                "summary": "利用多Agent协作自动生成“系统流”职场短剧，完成剧本、分镜、配音全流程。生成速度比人工快10倍，未披露模型参数量。极客点评：Agent在内容创作的应用，但质量参差，需人工审核，版权问题待解决。（来源：36氪）",
+                "link": "https://36kr.com/p/3878522627518471?f=rss",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "Agent",
+                    "内容生成"
+                ]
+            },
+            {
+                "title": "GitHub用秘密扫描实现安全告警收件箱清零",
+                "summary": "GitHub安全团队改进秘密扫描算法，将误报率降低90%，采用模式匹配+ML分类器，处理数亿级token。未披露具体模型架构。极客点评：工程优化典范，但未开源具体模型，可复现性差，其他平台需自行实现。（来源：GitHub Blog）",
+                "link": "https://github.blog/security/application-security/how-github-used-secret-scanning-to-reach-inbox-zero/",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "安全",
+                    "DevOps"
+                ]
+            },
+            {
+                "title": "教AI与涡轮机一起运行：强化学习优化风力发电",
+                "summary": "AI模型通过强化学习实时调整风力涡轮机桨距角，发电效率提升8%。模型参数量未披露，训练使用模拟环境。极客点评：RL在物理系统中的应用，但sim-to-real gap仍需解决，实际部署需考虑硬件延迟。（来源：MIT Tech Review）",
+                "link": "https://www.technologyreview.com/2026/07/02/1138433/teaching-ai-to-run-with-the-turbines/",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "强化学习",
+                    "能源"
                 ]
             }
         ];
@@ -225,31 +280,31 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日最具 PMF 潜力的方向是垂直场景 AI 应用（Claude Science、视频 AI）和具身智能基础设施（英伟达机器人技能库、清华物理模拟）。前者解决科研、媒体等行业的真实痛点，付费意愿明确；后者通过开源降低开发成本，生态壁垒高。相比之下，政策驱动的商业模式（Cloudflare 付费）和受地缘政治影响的模型部署（Fable 5）不确定性较大。建议关注实时语音 AI 的芯片-模型协同方案，可能成为下一个爆点。";
+    const __DAILY_ANALYSIS__ = "今日最炸裂的是零英伟达万亿模型，AMD生态开始抢食，但工具链坑多，预计非英伟达训练基础设施会先卷起来。自演进Agent（AReaL 2.0）和LLM多样性方案也值得跟进，前者RL稳定性是瓶颈，后者推理成本翻倍需优化。国产大模型（星火4.0）中文超越GPT-4o，但英文能力存疑，生态封闭，短期内难以撼动海外市场。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
             {
                 "name": "sponsors/msitarzewski",
                 "desc": "A complete AI agency at your fingertips - From frontend wizards to Reddit community ninjas, from whi",
-                "stars": "⭐+2097 today",
+                "stars": "⭐+2925 today",
                 "link": "https://github.com/sponsors/msitarzewski",
                 "tag": "Agent 框架"
             },
             {
-                "name": "sponsors/diegosouzapw",
-                "desc": "Never stop coding. Free AI gateway: one endpoint, 231+ providers (50+ free), connect Claude Code, Co",
-                "stars": "⭐+1012 today",
-                "link": "https://github.com/sponsors/diegosouzapw",
+                "name": "sponsors/obra",
+                "desc": "An agentic skills framework &amp; software development methodology that works.",
+                "stars": "⭐+962 today",
+                "link": "https://github.com/sponsors/obra",
                 "tag": "Agent 框架"
             },
             {
-                "name": "facebook/astryx",
-                "desc": "An open source design system that's fully customizable and agent ready",
-                "stars": "⭐+714 today",
-                "link": "https://github.com/facebook/astryx",
+                "name": "HKUDS/Vibe-Trading",
+                "desc": "\"Vibe-Trading: Your Personal Trading Agent\"",
+                "stars": "⭐+918 today",
+                "link": "https://github.com/HKUDS/Vibe-Trading",
                 "tag": "Agent 框架"
             }
         ];
