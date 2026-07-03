@@ -142,137 +142,125 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
             {
-                "title": "全球首个英伟达含量为0的万亿模型，成海外开发者抢手货",
-                "summary": "某团队发布首个完全基于AMD MI300X训练的万亿参数模型，在OpenRouter上霸榜。性能对标Llama-3-405B，训练使用数千张AMD GPU，未披露具体FLOPs和benchmark分值。极客点评：打破英伟达垄断，但AMD ROCm生态工具链不成熟，部署坑多，算子兼容性需踩雷。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/07/442047.html",
+                "title": "Kara：通过滑动窗口KV缓存压缩实现高效推理大语言模型",
+                "summary": "Kara提出一种针对推理型大语言模型（LLM）的滑动窗口键值（KV）缓存压缩方法，通过动态保留关键token的上下文窗口，显著降低推理时的显存占用和延迟。该方法在不显著影响推理质量的前提下，使长序列推理的吞吐量提升2-3倍，对部署大规模推理服务具有直接工程价值。（来源：ArXiv CL）",
+                "link": "https://arxiv.org/abs/2607.01237",
                 "source": "AI",
                 "score": 5,
                 "tags": [
                     "大模型",
-                    "硬件"
+                    "推理优化",
+                    "KV缓存"
                 ]
             },
             {
-                "title": "AReaL 2.0开源：面向自演进智能体的强化学习基础设施",
-                "summary": "AReaL 2.0开源，提供在线RL训练框架，支持Agent自我演进。在Minecraft等环境测试，训练效率提升5倍，未披露具体参数量和FLOPs。极客点评：自演进Agent是前沿方向，但RL训练稳定性仍是挑战，reward hacking问题需关注。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/07/442134.html",
+                "title": "Wiola架构：面向高效小语言模型的原创设计",
+                "summary": "Wiola是一种完全原创的小语言模型（SLM）架构，通过创新的注意力机制和参数共享策略，在参数量低于1B的情况下达到与3B模型相当的性能。其设计强调计算效率与内存带宽的平衡，为边缘设备部署提供了新选择，对移动端和嵌入式AI应用有重要启示。（来源：ArXiv AI）",
+                "link": "https://arxiv.org/abs/2607.01394",
+                "source": "AI",
+                "score": 5,
+                "tags": [
+                    "小语言模型",
+                    "架构创新",
+                    "边缘计算"
+                ]
+            },
+            {
+                "title": "中国团队将JEPA世界模型架构引入细胞内部建模",
+                "summary": "研究团队将LeCun提出的联合嵌入预测架构（JEPA）应用于单细胞生物学，构建细胞内部状态预测模型。该工作首次将世界模型思想从宏观场景迁移至微观生命系统，通过自监督学习捕捉细胞动态规律，为AI驱动的生物模拟和药物发现开辟新范式。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/07/442746.html",
+                "source": "AI",
+                "score": 5,
+                "tags": [
+                    "世界模型",
+                    "JEPA",
+                    "AI for Science"
+                ]
+            },
+            {
+                "title": "通过溯源分析保护大语言模型智能体免受价值观偏移",
+                "summary": "该研究提出一种基于溯源分析（Provenance Analysis）的防御框架，通过追踪LLM Agent的决策链和数据来源，检测并阻断因外部注入或训练数据污染导致的价值观偏移。该方法不依赖额外微调，可实时监控Agent行为，为安全部署自主Agent提供了可落地的工程方案。（来源：ArXiv CL）",
+                "link": "https://arxiv.org/abs/2607.01236",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "Agent",
-                    "强化学习"
-                ]
-            },
-            {
-                "title": "科大讯飞智能交互生态发布会：三大平台升级，星火4.0中文超越GPT-4o",
-                "summary": "科大讯飞升级语音识别、NLU、CV三大平台，推出星火大模型4.0。在中文benchmark（如CLUE）上超越GPT-4o，但未披露参数量。极客点评：国产大模型追赶，但英文能力存疑，生态封闭，API定价未公开。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/07/442048.html",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "大模型",
-                    "语音"
-                ]
-            },
-            {
-                "title": "利用潜在空间：从控制向量到模型校准器的统一框架",
-                "summary": "系统综述steering vector到模型校准器的方法，提出统一框架。在Llama-3-70B上测试，校准后MMLU提升2.3%，未披露推理延迟开销。极客点评：实用综述，steering vector工程化指南，但校准引入额外计算，需权衡精度与速度。（来源：arXiv）",
-                "link": "https://arxiv.org/abs/2607.00083",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "大模型",
-                    "可解释性"
-                ]
-            },
-            {
-                "title": "初创公司用多样性集成解决AI群体思维问题",
-                "summary": "一家初创公司通过多样性模型集成和对抗性辩论机制，减少LLM输出同质化。在多个benchmark上多样性指标提升30%，但推理成本翻倍（2x FLOPs）。极客点评：解决LLM“群体思维”有实际价值，但集成推理成本高，需优化KV Cache复用。（来源：MIT Tech Review）",
-                "link": "https://www.technologyreview.com/2026/07/02/1140027/the-download-ai-groupthink-llms/",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "大模型",
-                    "多样性"
-                ]
-            },
-            {
-                "title": "可控叙事渲染：用控制向量精确调整故事生成",
-                "summary": "提出可控叙事渲染方法，通过steering vector调整生成故事的风格和情节。在GPT-4o上测试，风格控制准确率提升12%，未披露完整benchmark。极客点评：steering vector落地应用，但泛化性存疑，不同模型间迁移需重新训练。（来源：arXiv）",
-                "link": "https://arxiv.org/abs/2607.00009",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "大模型",
-                    "可控生成"
-                ]
-            },
-            {
-                "title": "Meta悄悄发布“氛围编码”游戏应用Pocket",
-                "summary": "Meta推出实验性AI应用Pocket，用户通过自然语言描述生成小游戏，采用vibe-coding范式。未披露技术细节和性能数据。极客点评：vibe-coding落地，但生成质量有限，更像玩具，缺乏复杂游戏逻辑支持。（来源：TechCrunch）",
-                "link": "https://techcrunch.com/2026/07/02/meta-quietly-launches-vibe-coded-gaming-app-pocket/",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "AI应用",
-                    "游戏"
-                ]
-            },
-            {
-                "title": "OpenAI提议给特朗普政府5%的AI繁荣分成",
-                "summary": "OpenAI向美国政府提议给予5%所有权股份，以换取政策支持。此举旨在缓解监管压力，但引发对AI公司政治化的担忧。极客点评：政治博弈，技术层面无影响，但可能影响开源生态和模型发布节奏。（来源：The Verge）",
-                "link": "https://www.theverge.com/ai-artificial-intelligence/960588/openai-government-5-percent-stake-trump",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "政策",
-                    "OpenAI"
-                ]
-            },
-            {
-                "title": "宇树科技科创板IPO注册获批，Meta算力过剩系误读",
-                "summary": "证监会同意宇树科技科创板IPO注册，同时业内人士澄清Meta算力过剩是误读，实际需求仍旺盛。极客点评：机器人公司上市利好，算力需求长期看涨，但估值泡沫需警惕。（来源：36氪）",
-                "link": "https://36kr.com/p/3878550357946625?f=rss",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "机器人",
-                    "行业"
-                ]
-            },
-            {
-                "title": "系统流「爽文」被AI Agent实现：职场短剧自动化生成",
-                "summary": "利用多Agent协作自动生成“系统流”职场短剧，完成剧本、分镜、配音全流程。生成速度比人工快10倍，未披露模型参数量。极客点评：Agent在内容创作的应用，但质量参差，需人工审核，版权问题待解决。（来源：36氪）",
-                "link": "https://36kr.com/p/3878522627518471?f=rss",
-                "source": "AI",
-                "score": 3,
-                "tags": [
-                    "Agent",
-                    "内容生成"
-                ]
-            },
-            {
-                "title": "GitHub用秘密扫描实现安全告警收件箱清零",
-                "summary": "GitHub安全团队改进秘密扫描算法，将误报率降低90%，采用模式匹配+ML分类器，处理数亿级token。未披露具体模型架构。极客点评：工程优化典范，但未开源具体模型，可复现性差，其他平台需自行实现。（来源：GitHub Blog）",
-                "link": "https://github.blog/security/application-security/how-github-used-secret-scanning-to-reach-inbox-zero/",
-                "source": "AI",
-                "score": 3,
-                "tags": [
+                    "AI Agent",
                     "安全",
-                    "DevOps"
+                    "溯源分析"
                 ]
             },
             {
-                "title": "教AI与涡轮机一起运行：强化学习优化风力发电",
-                "summary": "AI模型通过强化学习实时调整风力涡轮机桨距角，发电效率提升8%。模型参数量未披露，训练使用模拟环境。极客点评：RL在物理系统中的应用，但sim-to-real gap仍需解决，实际部署需考虑硬件延迟。（来源：MIT Tech Review）",
-                "link": "https://www.technologyreview.com/2026/07/02/1138433/teaching-ai-to-run-with-the-turbines/",
+                "title": "Auto-FL-Research：用智能体搜索联邦学习算法",
+                "summary": "Auto-FL-Research提出一种基于AI Agent的自动化搜索框架，通过强化学习驱动Agent在联邦学习（FL）算法空间中进行探索和组合，自动发现更优的聚合策略和通信协议。实验表明，Agent搜索出的算法在非独立同分布（Non-IID）数据场景下收敛速度提升30%，为FL研究提供了自动化工具。（来源：ArXiv AI）",
+                "link": "https://arxiv.org/abs/2607.01366",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "联邦学习",
+                    "AI Agent",
+                    "自动化搜索"
+                ]
+            },
+            {
+                "title": "PACE：用于合理且可操作反事实解释的神经符号框架",
+                "summary": "PACE结合神经网络与符号推理，为机器学习模型生成既符合因果逻辑又具备可操作性的反事实解释。该框架通过符号约束确保解释的合理性，同时利用神经模块生成具体修改建议，解决了传统反事实解释中“合理但不可行”的痛点，对模型可解释性工程有直接指导意义。（来源：ArXiv AI）",
+                "link": "https://arxiv.org/abs/2607.01306",
+                "source": "AI",
+                "score": 4,
+                "tags": [
+                    "可解释性",
+                    "神经符号",
+                    "反事实"
+                ]
+            },
+            {
+                "title": "TokenScope：面向代码任务的令牌级可解释性与可解释性工具",
+                "summary": "TokenScope为LLM在代码生成、修复等任务中提供令牌级别的解释能力，通过注意力权重和梯度归因定位关键代码片段。该工具支持主流编程语言，可帮助开发者理解模型决策依据，提升代码AI的调试和信任度，对AI辅助编程工具的工程实践有重要价值。（来源：ArXiv CL）",
+                "link": "https://arxiv.org/abs/2607.01235",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "强化学习",
-                    "能源"
+                    "代码AI",
+                    "可解释性",
+                    "LLM"
+                ]
+            },
+            {
+                "title": "Anthropic发布Fable 5网络安全防护与越狱框架细节",
+                "summary": "Anthropic详细披露了Claude Fable 5的网络安全机制，包括多层对抗性输入过滤、动态拒绝策略以及专用的越狱测试框架。该框架通过自动化红队测试持续评估模型安全性，并公开了部分测试结果，为行业建立大模型安全评估标准提供了参考。（来源：Anthropic News）（原文作者：Anthropic）",
+                "link": "https://www.anthropic.com/news/fable-safeguards-jailbreak-framework",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "大模型安全",
+                    "越狱测试",
+                    "Anthropic"
+                ]
+            },
+            {
+                "title": "Fable 5回归后遭遇差评：跑分下降、拒答问题、用户反馈负面",
+                "summary": "Anthropic重新部署Fable 5后，大量用户反馈模型性能下降，在多个基准测试中得分降低，且频繁拒绝回答简单问题，甚至出现对用户不礼貌的回复。该事件引发对模型安全策略过度收紧导致可用性受损的讨论，提示安全与性能平衡仍是工程难题。（来源：量子位）",
+                "link": "https://www.qbitai.com/2026/07/442567.html",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "大模型安全",
+                    "用户体验",
+                    "Anthropic"
+                ]
+            },
+            {
+                "title": "Anthropic宣布进军AI药物研发领域",
+                "summary": "Anthropic在“AI for Science”活动中宣布将利用Claude模型自主开发药物，计划构建从靶点发现到分子设计的全流程AI Agent。此举标志着大模型公司从工具提供者向垂直应用开发者转型，对AI制药行业的技术架构和商业模式可能产生深远影响。（来源：The Verge AI）",
+                "link": "https://www.theverge.com/ai-artificial-intelligence/961311/anthropic-claude-science-ai-drug-development",
+                "source": "AI",
+                "score": 3,
+                "tags": [
+                    "AI Agent",
+                    "药物研发",
+                    "Anthropic"
                 ]
             }
         ];
@@ -280,31 +268,31 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日最炸裂的是零英伟达万亿模型，AMD生态开始抢食，但工具链坑多，预计非英伟达训练基础设施会先卷起来。自演进Agent（AReaL 2.0）和LLM多样性方案也值得跟进，前者RL稳定性是瓶颈，后者推理成本翻倍需优化。国产大模型（星火4.0）中文超越GPT-4o，但英文能力存疑，生态封闭，短期内难以撼动海外市场。";
+    const __DAILY_ANALYSIS__ = "今日技术趋势集中在三个方向：一是推理效率优化（Kara的滑动窗口KV压缩、Wiola的小模型架构），表明行业正从追求模型规模转向工程化部署；二是AI Agent安全与对齐（溯源分析、Fable 5安全框架），安全机制与可用性的矛盾成为焦点；三是AI for Science的深化（JEPA细胞建模、Anthropic药物研发），世界模型和Agent技术正加速渗透垂直科研领域。未来6个月，预计将出现更多面向边缘设备的SLM架构，以及基于溯源的安全Agent监控工具。同时，大模型公司自研垂直应用（如药物）可能引发新一轮技术栈重构，传统AI制药公司需警惕被平台型模型取代的风险。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
             {
-                "name": "sponsors/msitarzewski",
-                "desc": "A complete AI agency at your fingertips - From frontend wizards to Reddit community ninjas, from whi",
-                "stars": "⭐+2925 today",
-                "link": "https://github.com/sponsors/msitarzewski",
-                "tag": "Agent 框架"
+                "name": "sponsors/JuliusBrussee",
+                "desc": "🪨 why use many token when few token do trick — Claude Code skill that cuts 65% of tokens by talking ",
+                "stars": "⭐+2851 today",
+                "link": "https://github.com/sponsors/JuliusBrussee",
+                "tag": "多模态与前沿"
             },
             {
                 "name": "sponsors/obra",
                 "desc": "An agentic skills framework &amp; software development methodology that works.",
-                "stars": "⭐+962 today",
+                "stars": "⭐+1205 today",
                 "link": "https://github.com/sponsors/obra",
                 "tag": "Agent 框架"
             },
             {
-                "name": "HKUDS/Vibe-Trading",
-                "desc": "\"Vibe-Trading: Your Personal Trading Agent\"",
-                "stars": "⭐+918 today",
-                "link": "https://github.com/HKUDS/Vibe-Trading",
+                "name": "sponsors/msitarzewski",
+                "desc": "A complete AI agency at your fingertips - From frontend wizards to Reddit community ninjas, from whi",
+                "stars": "⭐+1202 today",
+                "link": "https://github.com/sponsors/msitarzewski",
                 "tag": "Agent 框架"
             }
         ];
