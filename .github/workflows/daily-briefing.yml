@@ -37,6 +37,7 @@ jobs:
       - name: 安装依赖
         run: |
           pip install -r requirements.txt
+          pip check
 
       # ============================================================
       # 以下关键步骤使用 retry 机制：
