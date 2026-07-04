@@ -1,20 +1,25 @@
 # Python 依赖
 # 安装: pip install -r requirements.txt
+# 锁定日期: 2026-07-04
+# 更新: pip freeze | grep -iE 'python-dotenv|datasketch|jieba|numpy|feedparser|scikit-learn|sgmllib3k' > requirements.txt
 
 # API 密钥管理
-python-dotenv
+python-dotenv==1.2.2
 
 # 内容指纹去重（MinHash + LSH）
-datasketch
+datasketch==1.10.0
 
 # 中文分词（MinHash 预处理）
-jieba
+jieba==0.42.1
 
 # 向量计算
-numpy>=1.24.0
+numpy==2.4.6
 
 # RSS/Atom 解析（比 xml.etree 更鲁棒，支持松散格式 + content:encoded）
-feedparser
+feedparser==6.0.12
+
+# feedparser 依赖
+sgmllib3k==1.0.0
 
 # 语义去重聚类
-scikit-learn>=1.3.0
+scikit-learn==1.9.0

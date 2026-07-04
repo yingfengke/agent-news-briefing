@@ -309,12 +309,17 @@ def _truncate_context(items_for_ai: list[NewsItem], system_prompt: str,
                           content_limit=content_limit, max_items=max_items)
 
 
+# JSON 解析质量监控
+_json_parse_stats = {"total": 0, "direct_ok": 0, "fallback_comma": 0, "fallback_quotes": 0, "failed": 0}
+
 def _safe_parse_json(text: str) -> dict:
     """
     健壮的 JSON 解析，兜底处理 AI 输出的各种不规范格式。
     """
+    _json_parse_stats["total"] += 1
     text = text.strip()
     if not text:
+        _json_parse_stats["failed"] += 1
         return {}
 
     # 去掉 markdown 代码块
@@ -334,7 +339,9 @@ def _safe_parse_json(text: str) -> dict:
         text = m.group(1)
 
     try:
-        return json.loads(text)
+        result = json.loads(text)
+        _json_parse_stats["direct_ok"] += 1
+        return result
     except json.JSONDecodeError:
         pass
 
@@ -342,12 +349,22 @@ def _safe_parse_json(text: str) -> dict:
     text = re.sub(r",\s*}", "}", text)
     text = re.sub(r",\s*]", "]", text)
 
-    # 单引号转双引号
+    try:
+        result = json.loads(text)
+        _json_parse_stats["fallback_comma"] += 1
+        return result
+    except json.JSONDecodeError:
+        pass
+
+    # 兜底：单引号转双引号
     text = re.sub(r"'([^']+)'(\s*[:,\]}])", lambda m: chr(34) + m.group(1) + chr(34) + m.group(2), text)
 
     try:
-        return json.loads(text)
+        result = json.loads(text)
+        _json_parse_stats["fallback_quotes"] += 1
+        return result
     except json.JSONDecodeError:
+        _json_parse_stats["failed"] += 1
         return {}
 
 def _translate_english_titles(items: list[dict]) -> list[dict]:
@@ -486,6 +503,15 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
             if not news_count:
                 news_count = len(parsed.get("international", [])) + len(parsed.get("china", []))
             print(f"  → AI 筛选: {news_count} 条新闻")
+            stats = _json_parse_stats
+            if stats["total"] > 0:
+                direct_pct = stats["direct_ok"] / stats["total"] * 100
+                comma_pct = stats["fallback_comma"] / stats["total"] * 100
+                quote_pct = stats["fallback_quotes"] / stats["total"] * 100
+                fail_pct = stats["failed"] / stats["total"] * 100
+                print(f"  \u2192 JSON 质量: 直接通过 {direct_pct:.0f}% | 逗号修复 {comma_pct:.0f}% | 引号修复 {quote_pct:.0f}% | 失败 {fail_pct:.0f}%")
+                if fail_pct > 5:
+                    print(f"  [WARNING] JSON 解析失败率 {fail_pct:.0f}% 超过 5% 阈值，建议检查 Prompt 效果")
             return (style_name, parsed)
 
         except Exception as e:

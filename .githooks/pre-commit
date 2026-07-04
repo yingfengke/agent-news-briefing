@@ -1,0 +1,5 @@
+#!/bin/sh
+# pre-commit hook: 阻止 .env 文件被意外提交
+# 安装: git config core.hooksPath .githooks
+
+. "$(git rev-parse --show-toplevel)/.githooks/_env_check.sh"

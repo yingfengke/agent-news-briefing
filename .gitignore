@@ -17,9 +17,12 @@ agent_news_briefing/.idea/
 email_content.html
 email_content.txt
 .rag_store.json
-
-# Cloudflare Wrangler 缓存
-.wrangler/
 .crawl_log.json
 .embedding_cache.json
-.worker_check.json
+
+# 忽略所有 Markdown 文档，仅保留 README.md
+*.md
+!README.md
+
+# 忽略临时测试文件
+test.py
