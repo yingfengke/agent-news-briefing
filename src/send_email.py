@@ -17,24 +17,15 @@ from email.mime.text import MIMEText
 from email.header import Header
 from email.utils import formataddr
 
-from dotenv import load_dotenv
+from src import config
 
-# ============================================================
-# 加载 .env
-# ============================================================
-load_dotenv()
+SMTP_SERVER   = config.SMTP_SERVER
+SMTP_PORT     = config.SMTP_PORT
+SENDER_EMAIL  = config.SENDER_EMAIL
+AUTH_CODE     = config.AUTH_CODE
+RECEIVER_EMAIL = config.RECEIVER_EMAIL
 
-SMTP_SERVER   = os.getenv("SMTP_SERVER", "smtp.qq.com")
-SMTP_PORT     = int(os.getenv("SMTP_PORT", "465"))
-SENDER_EMAIL  = os.getenv("SENDER_EMAIL", "")
-AUTH_CODE     = os.getenv("AUTH_CODE", "")    # QQ邮箱授权码非登录密码
-RECEIVER_EMAIL = os.getenv("RECEIVER_EMAIL", "")
-
-# ============================================================
-# 配置
-# ============================================================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-HTML_FILE = os.path.join(BASE_DIR, "email_content.html")
+HTML_FILE = config.EMAIL_OUTPUT
 
 
 def get_html_content():
@@ -96,7 +87,7 @@ def send():
 
     # 生成纯文本版本
     plain_text = html_to_plain(html)
-    plain_path = os.path.join(BASE_DIR, "email_content.txt")
+    plain_path = os.path.join(config.BASE_DIR, "web", "email_content.txt")
     with open(plain_path, "w", encoding="utf-8") as f:
         f.write(plain_text)
     print(f"  ✔ 已生成纯文本备份 ({len(plain_text)} 字符)")

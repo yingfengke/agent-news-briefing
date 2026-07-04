@@ -22,9 +22,9 @@ import urllib.error
 
 REPO = os.environ.get("GITHUB_REPO", "yingfengke/agent-news-briefing")
 TOKEN = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-FILES = ["tech-briefing.html", "index.html", ".url_dedup_db.json"]
+FILES = ["web/tech-briefing.html", "web/index.html", ".url_dedup_db.json"]
 
 
 def api_call(method: str, path: str, data: dict | None = None) -> dict:
