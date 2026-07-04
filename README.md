@@ -140,7 +140,6 @@ python send_email.py
 │   ├── daily-briefing.yml   # GitHub Actions 工作流
 │   └── github_api_push.py   # GitHub API 文件推送
 ├── email_template.html   # 邮件模板
-├── worker.js             # Cloudflare Worker 触发器
 ├── requirements.txt      # Python 依赖
 └── .env.example          # 环境变量模板
 ```
@@ -182,7 +181,8 @@ GitHub Actions (schedule 06:00 BJT + 手动触发)
 | AI 语气 | `config.py` → `SYSTEM_PROMPT_*` |
 | 彩蛋内容 | `config.py` → `AI_TRIVIA` |
 | 推送时间 | `.github/workflows/daily-briefing.yml` → `cron` |
+| 安全钩子 | `.githooks/` → 克隆后执行 `git config core.hooksPath .githooks` 启用 |
 
 ---
 
-*☕ 每天早上 6:00，为 AI 开发者精选当天最重要的技术动态*
+*每天早上 6:00，为 AI 开发者精选当天最重要的技术动态*
