@@ -142,125 +142,93 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
             {
-                "title": "Kara：通过滑动窗口KV缓存压缩实现高效推理大语言模型",
-                "summary": "Kara提出一种针对推理型大语言模型（LLM）的滑动窗口键值（KV）缓存压缩方法，通过动态保留关键token的上下文窗口，显著降低推理时的显存占用和延迟。该方法在不显著影响推理质量的前提下，使长序列推理的吞吐量提升2-3倍，对部署大规模推理服务具有直接工程价值。（来源：ArXiv CL）",
-                "link": "https://arxiv.org/abs/2607.01237",
+                "title": "Anthropic 发布 Claude Sonnet 5，最强智能体化模型",
+                "summary": "Claude Sonnet 5 发布，具备更强的智能体能力，可自主规划执行复杂任务，性能显著提升。（来源：Anthropic News）",
+                "link": "https://www.anthropic.com/news/claude-sonnet-5",
                 "source": "AI",
                 "score": 5,
                 "tags": [
                     "大模型",
-                    "推理优化",
-                    "KV缓存"
+                    "Agent框架"
                 ]
             },
             {
-                "title": "Wiola架构：面向高效小语言模型的原创设计",
-                "summary": "Wiola是一种完全原创的小语言模型（SLM）架构，通过创新的注意力机制和参数共享策略，在参数量低于1B的情况下达到与3B模型相当的性能。其设计强调计算效率与内存带宽的平衡，为边缘设备部署提供了新选择，对移动端和嵌入式AI应用有重要启示。（来源：ArXiv AI）",
-                "link": "https://arxiv.org/abs/2607.01394",
-                "source": "AI",
-                "score": 5,
-                "tags": [
-                    "小语言模型",
-                    "架构创新",
-                    "边缘计算"
-                ]
-            },
-            {
-                "title": "中国团队将JEPA世界模型架构引入细胞内部建模",
-                "summary": "研究团队将LeCun提出的联合嵌入预测架构（JEPA）应用于单细胞生物学，构建细胞内部状态预测模型。该工作首次将世界模型思想从宏观场景迁移至微观生命系统，通过自监督学习捕捉细胞动态规律，为AI驱动的生物模拟和药物发现开辟新范式。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/07/442746.html",
-                "source": "AI",
-                "score": 5,
-                "tags": [
-                    "世界模型",
-                    "JEPA",
-                    "AI for Science"
-                ]
-            },
-            {
-                "title": "通过溯源分析保护大语言模型智能体免受价值观偏移",
-                "summary": "该研究提出一种基于溯源分析（Provenance Analysis）的防御框架，通过追踪LLM Agent的决策链和数据来源，检测并阻断因外部注入或训练数据污染导致的价值观偏移。该方法不依赖额外微调，可实时监控Agent行为，为安全部署自主Agent提供了可落地的工程方案。（来源：ArXiv CL）",
-                "link": "https://arxiv.org/abs/2607.01236",
+                "title": "阿里巴巴内部全面禁用 Claude Code，列为高风险软件",
+                "summary": "阿里巴巴将 Claude Code 列为高风险软件，禁止员工使用，引发对 AI 编码工具安全性的讨论。（该消息被 2 家来源报道）",
+                "link": "https://techcrunch.com/2026/07/04/alibaba-reportedly-bans-employees-from-using-claude-code/",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "AI Agent",
-                    "安全",
-                    "溯源分析"
+                    "开发工具",
+                    "大模型"
                 ]
             },
             {
-                "title": "Auto-FL-Research：用智能体搜索联邦学习算法",
-                "summary": "Auto-FL-Research提出一种基于AI Agent的自动化搜索框架，通过强化学习驱动Agent在联邦学习（FL）算法空间中进行探索和组合，自动发现更优的聚合策略和通信协议。实验表明，Agent搜索出的算法在非独立同分布（Non-IID）数据场景下收敛速度提升30%，为FL研究提供了自动化工具。（来源：ArXiv AI）",
-                "link": "https://arxiv.org/abs/2607.01366",
+                "title": "Hugging Face 与 Cerebras 合作将 Gemma 4 用于实时语音 AI",
+                "summary": "双方联合推出基于 Gemma 4 的实时语音 AI 方案，利用 Cerebras 硬件加速推理，降低延迟。（来源：HuggingFace Blog）",
+                "link": "https://huggingface.co/blog/cerebras-gemma4-voice-ai",
                 "source": "AI",
                 "score": 4,
                 "tags": [
-                    "联邦学习",
-                    "AI Agent",
-                    "自动化搜索"
+                    "大模型",
+                    "语音AI"
                 ]
             },
             {
-                "title": "PACE：用于合理且可操作反事实解释的神经符号框架",
-                "summary": "PACE结合神经网络与符号推理，为机器学习模型生成既符合因果逻辑又具备可操作性的反事实解释。该框架通过符号约束确保解释的合理性，同时利用神经模块生成具体修改建议，解决了传统反事实解释中“合理但不可行”的痛点，对模型可解释性工程有直接指导意义。（来源：ArXiv AI）",
-                "link": "https://arxiv.org/abs/2607.01306",
-                "source": "AI",
-                "score": 4,
-                "tags": [
-                    "可解释性",
-                    "神经符号",
-                    "反事实"
-                ]
-            },
-            {
-                "title": "TokenScope：面向代码任务的令牌级可解释性与可解释性工具",
-                "summary": "TokenScope为LLM在代码生成、修复等任务中提供令牌级别的解释能力，通过注意力权重和梯度归因定位关键代码片段。该工具支持主流编程语言，可帮助开发者理解模型决策依据，提升代码AI的调试和信任度，对AI辅助编程工具的工程实践有重要价值。（来源：ArXiv CL）",
-                "link": "https://arxiv.org/abs/2607.01235",
+                "title": "ScarfBench：面向企业 Java 框架迁移的 AI Agent 基准测试",
+                "summary": "IBM 研究团队发布 ScarfBench，专门评估 AI Agent 在 Java 框架迁移任务中的表现，填补企业级基准空白。（来源：HuggingFace Blog）",
+                "link": "https://huggingface.co/blog/ibm-research/scarfbench",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "代码AI",
-                    "可解释性",
-                    "LLM"
+                    "Agent框架",
+                    "基准测试"
                 ]
             },
             {
-                "title": "Anthropic发布Fable 5网络安全防护与越狱框架细节",
-                "summary": "Anthropic详细披露了Claude Fable 5的网络安全机制，包括多层对抗性输入过滤、动态拒绝策略以及专用的越狱测试框架。该框架通过自动化红队测试持续评估模型安全性，并公开了部分测试结果，为行业建立大模型安全评估标准提供了参考。（来源：Anthropic News）（原文作者：Anthropic）",
-                "link": "https://www.anthropic.com/news/fable-safeguards-jailbreak-framework",
+                "title": "OpenAI 数据显示 ChatGPT 采用率全球持续增长",
+                "summary": "OpenAI 发布 Signals 数据，显示 ChatGPT 在全球各行业采用率稳步上升，企业级应用成主要驱动力。（来源：OpenAI）",
+                "link": "https://openai.com/index/how-chatgpt-adoption-has-expanded",
                 "source": "AI",
                 "score": 3,
                 "tags": [
-                    "大模型安全",
-                    "越狱测试",
-                    "Anthropic"
+                    "大模型",
+                    "市场分析"
                 ]
             },
             {
-                "title": "Fable 5回归后遭遇差评：跑分下降、拒答问题、用户反馈负面",
-                "summary": "Anthropic重新部署Fable 5后，大量用户反馈模型性能下降，在多个基准测试中得分降低，且频繁拒绝回答简单问题，甚至出现对用户不礼貌的回复。该事件引发对模型安全策略过度收紧导致可用性受损的讨论，提示安全与性能平衡仍是工程难题。（来源：量子位）",
-                "link": "https://www.qbitai.com/2026/07/442567.html",
+                "title": "OpenAI 发布 Genebench-Pro 案例研究，展示基因基准测试",
+                "summary": "Genebench-Pro 案例研究揭示 AI 在基因数据分析中的表现，为生物信息学开发者提供参考。（来源：OpenAI）",
+                "link": "https://openai.com/index/genebench-pro/case-studies",
                 "source": "AI",
-                "score": 3,
+                "score": 2,
                 "tags": [
-                    "大模型安全",
-                    "用户体验",
-                    "Anthropic"
+                    "大模型",
+                    "基准测试"
                 ]
             },
             {
-                "title": "Anthropic宣布进军AI药物研发领域",
-                "summary": "Anthropic在“AI for Science”活动中宣布将利用Claude模型自主开发药物，计划构建从靶点发现到分子设计的全流程AI Agent。此举标志着大模型公司从工具提供者向垂直应用开发者转型，对AI制药行业的技术架构和商业模式可能产生深远影响。（来源：The Verge AI）",
-                "link": "https://www.theverge.com/ai-artificial-intelligence/961311/anthropic-claude-science-ai-drug-development",
+                "title": "如何使用 Poe 在 2026 年高效撰写博客草稿",
+                "summary": "教程介绍利用 Poe 平台结合 AI 模型快速生成博客初稿，提升内容创作效率。（来源：DEV.to AI）",
+                "link": "https://dev.to/leosociallseointent/how-to-use-poe-for-blog-post-drafts-in-2026-1bf9",
                 "source": "AI",
-                "score": 3,
+                "score": 2,
                 "tags": [
-                    "AI Agent",
-                    "药物研发",
-                    "Anthropic"
+                    "开发工具",
+                    "内容创作"
+                ]
+            },
+            {
+                "title": "为什么 AI 模型专业化是不可避免的趋势",
+                "summary": "博客文章分析 AI 模型从通用走向专业化的必然性，探讨对开发者和企业的影响。（来源：HuggingFace Blog）",
+                "link": "https://huggingface.co/blog/Dharma-AI/why-specialization-is-inevitable",
+                "source": "AI",
+                "score": 2,
+                "tags": [
+                    "大模型",
+                    "行业趋势"
                 ]
             }
         ];
@@ -268,31 +236,31 @@
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日技术趋势集中在三个方向：一是推理效率优化（Kara的滑动窗口KV压缩、Wiola的小模型架构），表明行业正从追求模型规模转向工程化部署；二是AI Agent安全与对齐（溯源分析、Fable 5安全框架），安全机制与可用性的矛盾成为焦点；三是AI for Science的深化（JEPA细胞建模、Anthropic药物研发），世界模型和Agent技术正加速渗透垂直科研领域。未来6个月，预计将出现更多面向边缘设备的SLM架构，以及基于溯源的安全Agent监控工具。同时，大模型公司自研垂直应用（如药物）可能引发新一轮技术栈重构，传统AI制药公司需警惕被平台型模型取代的风险。";
+    const __DAILY_ANALYSIS__ = "今日焦点：Claude Sonnet 5 强化智能体能力，阿里禁用 Claude Code 凸显企业安全顾虑。模型专业化与实时语音 AI 成为新方向，Agent 基准测试逐步细化。开发者需关注模型安全合规与专用工具选择。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
             {
                 "name": "sponsors/JuliusBrussee",
                 "desc": "🪨 why use many token when few token do trick — Claude Code skill that cuts 65% of tokens by talking ",
-                "stars": "⭐+2851 today",
+                "stars": "star+1089 today",
                 "link": "https://github.com/sponsors/JuliusBrussee",
                 "tag": "多模态与前沿"
             },
             {
-                "name": "sponsors/obra",
-                "desc": "An agentic skills framework &amp; software development methodology that works.",
-                "stars": "⭐+1205 today",
-                "link": "https://github.com/sponsors/obra",
-                "tag": "Agent 框架"
+                "name": "sponsors/Zackriya-Solutions",
+                "desc": "Privacy first, AI meeting assistant with 4x faster Parakeet/Whisper live transcription, speaker diar",
+                "stars": "star+865 today",
+                "link": "https://github.com/sponsors/Zackriya-Solutions",
+                "tag": "大模型底层"
             },
             {
-                "name": "sponsors/msitarzewski",
-                "desc": "A complete AI agency at your fingertips - From frontend wizards to Reddit community ninjas, from whi",
-                "stars": "⭐+1202 today",
-                "link": "https://github.com/sponsors/msitarzewski",
+                "name": "alibaba/page-agent",
+                "desc": "JavaScript in-page GUI agent. Control web interfaces with natural language.",
+                "stars": "star+726 today",
+                "link": "https://github.com/alibaba/page-agent",
                 "tag": "Agent 框架"
             }
         ];
