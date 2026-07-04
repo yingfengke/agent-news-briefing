@@ -51,7 +51,7 @@ jobs:
           timeout_minutes: 15
           max_attempts: 3
           retry_wait_seconds: 300
-          command: python generate_briefing.py
+          command: python -m src.main
 
       - name: ② 发送邮件推送（失败自动重试）
         uses: nick-fields/retry@v3
@@ -59,10 +59,10 @@ jobs:
           timeout_minutes: 5
           max_attempts: 3
           retry_wait_seconds: 300
-          command: python send_email.py
+          command: python -m src.send_email
 
       - name: ③ 通过 GitHub API 更新网页文件（Pages 自动从 main branch 部署）
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python .github/workflows/github_api_push.py
+          python scripts/github_api_push.py

@@ -23,3 +23,6 @@ sgmllib3k==1.0.0
 
 # 语义去重聚类
 scikit-learn==1.9.0
+
+# Token 精确估算
+tiktoken==0.9.0

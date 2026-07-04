@@ -29,8 +29,8 @@ import jieba
 import numpy as np
 from datasketch import MinHash, MinHashLSH
 
-import config
-from models import NewsItem, FilterReport
+from src import config
+from src.models import NewsItem, FilterReport
 
 
 # ============================================================
@@ -546,7 +546,7 @@ def run_pipeline(items: list[NewsItem]) -> FilterReport:
 # ============================================================
 
 if __name__ == "__main__":
-    from collector import collect_all
+    from src.collector import collect_all
     raw = collect_all()
     report = run_pipeline(raw)
     report.print_report()

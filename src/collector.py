@@ -20,8 +20,8 @@ from urllib.request import Request, urlopen
 
 import feedparser
 
-import config
-from models import NewsItem
+from src import config
+from src.models import NewsItem
 
 
 # ============================================================

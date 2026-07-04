@@ -1,4 +1,4 @@
-# AI & Agent 开发者晨报 ☕
+# AI & Agent 开发者晨报
 
 每天早 6:00 自动推送 AI/Agent 领域最新技术动态。由 **GitHub Actions** 定时触发。
 
@@ -9,23 +9,23 @@
 ## 架构一览
 
 ```
-多模态数据采集层 (collector.py)
-  └─ RSS 源 29 个（4 大类）
+多模态数据采集层 (src/collector.py)
+  └─ RSS 源 29 个（4 大类，约 20 个有效）
        ↓ 原始数据池
-智能过滤与去重层 (deduplicator.py)
+智能过滤与去重层 (src/deduplicator.py)
   ├─ URL 去重（SHA256 数据库，当日）
   ├─ 内容指纹去重（datasketch MinHash+LSH + jieba 分词，阈值 0.8）
   ├─ 语义去重（Qwen/Qwen3-Embedding-4B + Union-Find 聚类，阈值 0.92）
   └─ 来源可信度过滤（白名单 40 个域名 + 信号评分，阈值 0.40）
-       ↓ 干净数据（来源配额制：每源保底 2 条，覆盖 ≥5 个源）
-AI 分析层 (generate_briefing.py)
+       ↓ 干净数据（来源配额制：每源保底 2 条，覆盖 >=5 个源）
+AI 分析层 (src/ai_analyzer.py)
   ├─ 跨天历史排重（SequenceMatcher + 关键词模糊匹配，基于已发布简报）
-  ├─ Token 感知上下文截断（防 400 错误）
+  ├─ 精确 tiktoken 估算 + 安全系数（防 400 错误）
   ├─ 随机六套语气：极简风 / 毒舌风 / 深度风 / 极客风 / 微博热搜风 / 产品经理风
-  ├─ 失败自动重试 3 次（step ① + ② 各自独立重试）
-  ├─ 新闻评分系统（独立 API 调用：1-5 星 + 5 类标签）
+  ├─ 失败自动重试 3 次（step 1 + 2 各自独立重试）
+  ├─ AI 主分析直接输出新闻评分（1-5 星 + 标签分类）
   └─ 生成 HTML + 邮件 + GitHub API 推送网页
-       ↓ 写入 tech-briefing.html → 历史闭环，供次日排重使用
+       ↓ 写入 web/tech-briefing.html → 历史闭环，供次日排重使用
 GitHub Pages 自动部署（从 main branch 构建）
 ```
 
@@ -74,8 +74,8 @@ github.com/yingfengke/agent-news-briefing
 
 ```bash
 pip install -r requirements.txt
-python generate_briefing.py
-python send_email.py
+python -m src.main
+python -m src.send_email
 ```
 
 ## 数据源阵容
@@ -130,19 +130,37 @@ python send_email.py
 ## 项目结构
 
 ```
-├── config.py             # 集中配置（RSS源 / 阈值 / AI参数 / 语气 / 彩蛋）
-├── models.py             # 统一数据结构（NewsItem / FilterReport）
-├── collector.py          # 采集层（RSS → 数据池）
-├── deduplicator.py       # 过滤层（4 阶段串联去重）
-├── generate_briefing.py  # 主流程编排器
-├── send_email.py         # 邮件发送（multipart/alternative）
-├── .github/workflows/
-│   ├── daily-briefing.yml   # GitHub Actions 工作流
-│   └── github_api_push.py   # GitHub API 文件推送
-├── email_template.html   # 邮件模板
-├── requirements.txt      # Python 依赖
-└── .env.example          # 环境变量模板
+├── src/                    # 源代码包
+│   ├── __init__.py
+│   ├── main.py             # 主流程编排
+│   ├── collector.py        # 采集层（RSS → 数据池）
+│   ├── deduplicator.py     # 过滤层（4 阶段串联去重）
+│   ├── ai_analyzer.py      # AI 分析 + Token 估算 + 质量监控
+│   ├── html_writer.py      # HTML / 邮件生成
+│   ├── trending_fetcher.py # GitHub Trending 抓取
+│   ├── send_email.py       # 邮件发送（multipart/alternative）
+│   ├── models.py           # 统一数据模型
+│   └── config/             # 配置子包
+│       ├── __init__.py
+│       ├── constants.py    # API/邮件/阈值常量
+│       ├── sources.py      # RSS 源 + 配额 + 黑白名单
+│       ├── prompts.py      # 6 套 AI System Prompt
+│       ├── trending_tags.py
+│       ├── trivia.py / trivia.json
+├── scripts/
+│   └── github_api_push.py  # GitHub API 文件推送
+├── web/                    # 网页 & 邮件模板
+│   ├── tech-briefing.html
+│   ├── index.html
+│   ├── email_template.html
+│   └── email_content.html  # 运行时生成（已 gitignore）
+├── .githooks/              # git 安全钩子
+├── .github/workflows/      # CI/CD
+├── requirements.txt        # Python 依赖（已锁定版本）
+└── .env.example            # 环境变量模板
 ```
+
+> **运行方式**: `python -m src.main`（从项目根目录执行）
 
 ## 技术参数
 
@@ -164,10 +182,10 @@ python send_email.py
 
 ```
 GitHub Actions (schedule 06:00 BJT + 手动触发)
-  ├─ 安装依赖
-  ├─ generate_briefing.py → 采集 → 过滤 → AI分析 → 生成 HTML
-  ├─ send_email.py → multipart 邮件
-  └─ github_api_push.py → API 更新网页文件
+  ├─ 安装依赖 + pip check
+  ├─ python -m src.main → 采集 → 过滤 → AI分析 → 生成 HTML
+  ├─ python -m src.send_email → multipart 邮件
+  └─ python scripts/github_api_push.py → API 更新网页文件
        └─ GitHub Pages 自动从 main branch 部署
 ```
 
@@ -175,11 +193,11 @@ GitHub Actions (schedule 06:00 BJT + 手动触发)
 
 | 配置项 | 位置 |
 |:---|:---|
-| RSS 源列表 | `config.py` → `RSS_SOURCES` |
-| 去重阈值 | `config.py` → `DEDUP_*` |
-| 白/黑名单 | `config.py` → `CREDIBILITY_*` |
-| AI 语气 | `config.py` → `SYSTEM_PROMPT_*` |
-| 彩蛋内容 | `config.py` → `AI_TRIVIA` |
+| RSS 源列表 | `src/config/sources.py` → `RSS_SOURCES` |
+| 去重阈值 | `src/config/constants.py` → `DEDUP_*` |
+| 白/黑名单 | `src/config/sources.py` → `CREDIBILITY_*` |
+| AI 语气 | `src/config/prompts.py` → `SYSTEM_PROMPT_*` |
+| 彩蛋内容 | `src/config/trivia.json` |
 | 推送时间 | `.github/workflows/daily-briefing.yml` → `cron` |
 | 安全钩子 | `.githooks/` → 克隆后执行 `git config core.hooksPath .githooks` 启用 |
 
