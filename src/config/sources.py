@@ -24,7 +24,15 @@ RSS_SOURCES = [
     # ("HuggingFace论文",  "https://huggingface.co/papers/feed",              "en"),
     ("ArXiv AI",         "https://arxiv.org/rss/cs.AI",                    "en"),
     ("ArXiv CL",         "https://arxiv.org/rss/cs.CL",                    "en"),
+    ("ArXiv LG",         "https://arxiv.org/rss/cs.LG",                    "en"),
+    ("ArXiv CV",         "https://arxiv.org/rss/cs.CV",                    "en"),
     ("HuggingFace Blog", "https://huggingface.co/blog/feed.xml",           "en"),
+
+    # ==================== AI 媒体与深度分析 ====================
+    ("The Decoder",      "https://the-decoder.com/feed/",                  "en"),
+    ("MarkTechPost",     "https://www.marktechpost.com/feed/",            "en"),
+    ("TLDR AI",          "https://tldr.tech/api/rss/ai",                  "en"),
+    ("Last Week in AI",  "https://lastweekin.ai/feed",                    "en"),
 
     # ==================== 核心框架与开发者博客 ====================
     # ("LangChain",  "https://langchain-blog.ghost.io/rss/",                 "en"),  # 域名迁移后不稳定，保留备用
@@ -68,7 +76,7 @@ MAX_PER_SOURCE = {
     "稀土掘金AI": 3, "少数派": 3,
     # "极客公园": 5, "爱范儿": 5,  # 已注释
     # 前沿论文
-    "ArXiv AI": 3, "ArXiv CL": 3,
+    "ArXiv AI": 3, "ArXiv CL": 3, "ArXiv LG": 3, "ArXiv CV": 3,
     "HuggingFace Blog": 3,
     # 核心框架
     # "LangChain": 3,  # 已注释
@@ -77,6 +85,9 @@ MAX_PER_SOURCE = {
     "Anthropic News": 2, "Google DeepMind": 2,
     "AI at Meta": 2, "AWS ML Blog": 2, "GitHub Blog": 2, "Vercel News": 2,
     "VentureBeat AI": 3,
+    # AI 媒体与深度分析
+    "The Decoder": 3, "MarkTechPost": 3,
+    "TLDR AI": 3, "Last Week in AI": 3,
     # Twitter 大佬（调高配额，xgo.ing 稳定性好）
     "Twitter @karpathy": 4, "Twitter @_akhaliq": 4,
     "Twitter @AndrewYNg": 4, "Twitter @AlexAlbert__": 4, "Twitter @AIatMeta": 4,
@@ -127,6 +138,7 @@ CREDIBILITY_WHITELIST = [
     "github.com", "techcrunch.com", "venturebeat.com",
     "wired.com", "technologyreview.com",
     "theverge.com",
+    "the-decoder.com", "marktechpost.com", "tldr.tech", "lastweekin.ai",
     "v2ex.com", "hnrss.org", "api.xgo.ing",
 ]
 
@@ -135,4 +147,20 @@ CREDIBILITY_BLACKLIST = [
     "zhihu.com",  # 知乎内容质量参差，作为社交平台归类
     "douyin.com", "kuaishou.com",
     "bilibili.com",  # 视频平台，非文字新闻源
+]
+
+# 新闻分类顺序（用于邮件板块渲染）
+CATEGORY_ORDER = ["大模型", "Agent框架", "产品发布", "推理与部署",
+                  "论文与研究", "开源/仓库", "安全/对齐", "行业动态", "其他动态"]
+
+# 标题关键词 → 分类映射（tags 为空时的 fallback）
+TITLE_CATEGORY_MAP = [
+    (r"gpt|o1|o3|claude|gemini|llama|deepseek|qwen|kimi|glm|moonshot|phi|mistral", "大模型"),
+    (r"agent|mcp|function.call|tool.use|autonomous|workflow|langgraph|autogen|crewai", "Agent框架"),
+    (r"发布|上线|推出|release|launch|beta|preview|公测", "产品发布"),
+    (r"推理|部署|inference|serve|vllm|triton|tensorrt|onnx|量化|压缩", "推理与部署"),
+    (r"论文|arxiv|研究|research|paper|benchmark|sota", "论文与研究"),
+    (r"开源|open.source|github|gitlab|huggingface|pypi|npm", "开源/仓库"),
+    (r"安全|对齐|safety|alignment|guardrail|red.team|jailbreak", "安全/对齐"),
+    (r"融资|收购|投资|财报|估值|ipo|上市|监管|政策|竞争", "行业动态"),
 ]

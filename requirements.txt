@@ -1,7 +1,7 @@
 # Python 依赖
 # 安装: pip install -r requirements.txt
 # 锁定日期: 2026-07-04
-# 更新: pip freeze | grep -iE 'python-dotenv|datasketch|jieba|numpy|feedparser|scikit-learn|sgmllib3k' > requirements.txt
+# 更新: pip freeze | grep -iE 'python-dotenv|datasketch|jieba|numpy|feedparser|scikit-learn|sgmllib3k|tiktoken|beautifulsoup4|jinja2' > requirements.txt
 
 # API 密钥管理
 python-dotenv==1.2.2
@@ -26,3 +26,9 @@ scikit-learn==1.9.0
 
 # Token 精确估算
 tiktoken==0.9.0
+
+# HTML 解析（GitHub Trending 抓取）
+beautifulsoup4==4.15.0
+
+# 邮件模板引擎
+jinja2==3.1.6

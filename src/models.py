@@ -73,7 +73,7 @@ class FilterReport:
         return f"""
         <tr>
           <td style="padding:16px 20px;background:#f8f8f6;border-radius:10px;margin-top:16px;">
-            <div style="font-size:11px;color:#888;letter-spacing:1px;margin-bottom:8px;">📋 今日过滤摘要</div>
+            <div style="font-size:11px;color:#888;letter-spacing:1px;margin-bottom:8px;">今日过滤摘要</div>
             <table width="100%" cellpadding="0" cellspacing="0" style="font-size:12px;color:#666;">
               <tr>
                 <td style="padding:2px 0;">采集</td>

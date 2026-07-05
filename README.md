@@ -1,8 +1,8 @@
 # AI & Agent 开发者晨报
 
-每天早 6:00 自动推送 AI/Agent 领域最新技术动态。由 **GitHub Actions** 定时触发。
+每天早 6:00 自动推送 AI/Agent 领域最新技术动态，08:30 补充 AIHOT 精选（排重后推送）。由 **GitHub Actions** 定时触发。
 
-三层架构：**多模态采集 → 智能去重过滤 → AI 分析与简报生成**，全自动 serverless 运行。
+三层架构：**多模态采集 → 智能去重过滤 → 规则预筛 → AI 分析与简报生成**，全自动 serverless 运行。
 
 ---
 
@@ -10,21 +10,26 @@
 
 ```
 多模态数据采集层 (src/collector.py)
-  └─ RSS 源 29 个（4 大类，约 20 个有效）
+  └─ RSS 源 36 个（并发 8 线程 + 指数退避重试）
        ↓ 原始数据池
 智能过滤与去重层 (src/deduplicator.py)
   ├─ URL 去重（SHA256 数据库，当日）
   ├─ 内容指纹去重（datasketch MinHash+LSH + jieba 分词，阈值 0.8）
-  ├─ 语义去重（Qwen/Qwen3-Embedding-4B + Union-Find 聚类，阈值 0.92）
+  ├─ 语义去重（Qwen/Qwen3-Embedding-4B + numpy 矩阵批量计算，阈值 0.92）
   └─ 来源可信度过滤（白名单 40 个域名 + 信号评分，阈值 0.40）
-       ↓ 干净数据（来源配额制：每源保底 2 条，覆盖 >=5 个源）
+       ↓ 干净数据
+规则预筛层 (src/ai_analyzer.py)
+  ├─ 过滤正文 < 10 字的垃圾内容
+  └─ Twitter 源间去重（同标题推文保留最完整的一条）
+       ↓ 配额制选 40 条（每源保底 2 条，覆盖 >=5 个源）
 AI 分析层 (src/ai_analyzer.py)
+  ├─ Twitter 专用精选：免费 9B 模型（GLM-Z1）筛选最佳推文
   ├─ 跨天历史排重（SequenceMatcher + 关键词模糊匹配，基于已发布简报）
   ├─ 精确 tiktoken 估算 + 安全系数（防 400 错误）
-  ├─ 随机六套语气：极简风 / 毒舌风 / 深度风 / 极客风 / 微博热搜风 / 产品经理风
-  ├─ 失败自动重试 3 次（step 1 + 2 各自独立重试）
-  ├─ AI 主分析直接输出新闻评分（1-5 星 + 标签分类）
-  └─ 生成 HTML + 邮件 + GitHub API 推送网页
+  ├─ 随机六套语气：极简资讯 / 毒舌辣评 / 深度解读 / 极客观点 / 微博热搜 / 产品经理
+  ├─ 失败自动重试 3 次
+  ├─ AI 主分析直接输出新闻评分（1-5 分，综合信源权威度 + 新颖度 + 影响度 + 实用价值）
+  └─ 生成 HTML + 分类邮件 + RSS Feed + GitHub API 推送网页
        ↓ 写入 web/tech-briefing.html → 历史闭环，供次日排重使用
 GitHub Pages 自动部署（从 main branch 构建）
 ```
@@ -32,17 +37,23 @@ GitHub Pages 自动部署（从 main branch 构建）
 ## 邮件内容板块
 
 ```
-☕ AI & Agent 开发者晨报 · 今日风格：深度风
-  今日从 85 条新闻中精选 30 条
+DAILY BRIEFING · 今日风格：深度解读
+AI & Agent 开发者晨报
+─────────────────────
+2026年7月4日 · 今日从 84 条新闻中精选 15 条
 
-📌 今日新闻（按评分高→低排序）
+大模型 (3条)       ── 按板块分类展示
+  ── [来源] 新闻卡片（评分4）...
+Agent框架 (2条)
+  ── [来源] 新闻卡片（评分3）...
+...
 📊 今日深度分析（AI 生成趋势预判）
 📚 本周热门学习项目（GitHub Trending）
 🎲 彩蛋角落（AI 冷知识 / 编程笑话）
 📋 今日过滤摘要（各层去重统计）
 ---
 本简报由 AI 自动生成 · 内容仅供参考
-github.com/yingfengke/agent-news-briefing
+GitHub: yingfengke/agent-news-briefing
 ```
 
 ## 快速部署
@@ -89,11 +100,15 @@ python -m src.send_email
 | 少数派 | sspai.com/feed |
 | **36氪** | 36kr.com/feed |
 
-### 前沿论文（3 个）
+### 前沿论文与 AI 媒体（9 个）
 | 源 | RSS |
 |:---|:---|
-| ArXiv AI / CL | arxiv.org/rss/cs.AI / cs.CL |
+| ArXiv AI / CL / LG / CV | arxiv.org/rss/cs.AI / cs.CL / cs.LG / cs.CV |
 | HuggingFace Blog | huggingface.co/blog/feed.xml |
+| **The Decoder** | the-decoder.com/feed |
+| **MarkTechPost** | marktechpost.com/feed |
+| **TLDR AI** | tldr.tech/api/rss/ai |
+| **Last Week in AI** | lastweekin.ai/feed |
 
 ### 核心框架 & 大厂博客（11 个）
 | 源 | RSS |
@@ -133,13 +148,14 @@ python -m src.send_email
 ├── src/                    # 源代码包
 │   ├── __init__.py
 │   ├── main.py             # 主流程编排
-│   ├── collector.py        # 采集层（RSS → 数据池）
+│   ├── collector.py        # 采集层（RSS → 数据池，并发 8 线程）
 │   ├── deduplicator.py     # 过滤层（4 阶段串联去重）
-│   ├── ai_analyzer.py      # AI 分析 + Token 估算 + 质量监控
-│   ├── html_writer.py      # HTML / 邮件生成
-│   ├── trending_fetcher.py # GitHub Trending 抓取
+│   ├── ai_analyzer.py      # AI 分析 + 规则预筛 + Twitter精选 + Token估算
+│   ├── html_writer.py      # HTML / 分类邮件 / RSS Feed 生成
+│   ├── trending_fetcher.py # GitHub Trending 抓取（BeautifulSoup）
 │   ├── send_email.py       # 邮件发送（multipart/alternative）
 │   ├── models.py           # 统一数据模型
+│   ├── logger.py           # 集中式日志系统
 │   └── config/             # 配置子包
 │       ├── __init__.py
 │       ├── constants.py    # API/邮件/阈值常量
@@ -149,13 +165,16 @@ python -m src.send_email
 │       ├── trivia.py / trivia.json
 ├── scripts/
 │   └── github_api_push.py  # GitHub API 文件推送
-├── web/                    # 网页 & 邮件模板
+├── web/                    # 网页 & 邮件模板 & RSS Feed
 │   ├── tech-briefing.html
 │   ├── index.html
+│   ├── rss.xml             # 运行时生成（RSS 2.0 Feed）
 │   ├── email_template.html
 │   └── email_content.html  # 运行时生成（已 gitignore）
+├── logs/                   # 运行时日志（已 gitignore）
 ├── .githooks/              # git 安全钩子
 ├── .github/workflows/      # CI/CD
+├── tests/                  # 单元测试（38 个，覆盖 5 个模块）
 ├── requirements.txt        # Python 依赖（已锁定版本）
 └── .env.example            # 环境变量模板
 ```
@@ -173,20 +192,20 @@ python -m src.send_email
 | 可信度阈值 | 0.40（信号评分制） |
 | 白名单域名 | 40 个 |
 | 黑名单域名 | 7 个 |
-| 随机语气 | 极简风 / 毒舌风 / 深度风 / 极客风 / 微博热搜风 / 产品经理风 |
+| 随机语气 | 极简资讯 / 毒舌辣评 / 深度解读 / 极客观点 / 微博热搜 / 产品经理 |
 | 彩蛋库 | 40 条 AI 冷知识 |
-| 采集配额 | 中文媒体3条 / 论文3条 / 大厂博客2条 / Twitter大佬4条 / 社区3条 |
-| 送审配额 | 来源平衡制：每源保底2条，最多送审30条 |
+| 采集配额 | 中文媒体3条 / 论文3条 / AI媒体3条 / 大厂博客2条 / Twitter大佬4条 / 社区3条 |
+| 送审配额 | 来源平衡制：每源保底2条，最多送审40条 |
 
 ## 触发机制
 
 ```
-GitHub Actions (schedule 06:00 BJT + 手动触发)
-  ├─ 安装依赖 + pip check
-  ├─ python -m src.main → 采集 → 过滤 → AI分析 → 生成 HTML
-  ├─ python -m src.send_email → multipart 邮件
-  └─ python scripts/github_api_push.py → API 更新网页文件
-       └─ GitHub Pages 自动从 main branch 部署
+GitHub Actions (schedule 06:00 BJT + 08:30 BJT + 手动触发)
+  ├─ 06:00 步骤①: python -m src.main → 采集 → 过滤 → 规则预筛 → AI分析 → 生成 HTML
+  ├─ 06:00 步骤②: python -m src.send_email → multipart 邮件
+  ├─ 06:00 步骤③: python scripts/github_api_push.py → API 更新网页文件
+  ├─ 08:30 步骤④: python -m src.aihot_pusher → 抓取 AIHOT → 排重 → 有新增才补推
+  └─ GitHub Pages 自动从 main branch 部署
 ```
 
 ## 自定义配置
@@ -196,9 +215,11 @@ GitHub Actions (schedule 06:00 BJT + 手动触发)
 | RSS 源列表 | `src/config/sources.py` → `RSS_SOURCES` |
 | 去重阈值 | `src/config/constants.py` → `DEDUP_*` |
 | 白/黑名单 | `src/config/sources.py` → `CREDIBILITY_*` |
+| 新闻分类配置 | `src/config/sources.py` → `CATEGORY_ORDER` / `TITLE_CATEGORY_MAP` |
 | AI 语气 | `src/config/prompts.py` → `SYSTEM_PROMPT_*` |
 | 彩蛋内容 | `src/config/trivia.json` |
 | 推送时间 | `.github/workflows/daily-briefing.yml` → `cron` |
+| AIHOT 补推配置 | `src/aihot_pusher.py` → `AIHOT_API` / `SIMILARITY_THRESHOLD` |
 | 安全钩子 | `.githooks/` → 克隆后执行 `git config core.hooksPath .githooks` 启用 |
 
 ---

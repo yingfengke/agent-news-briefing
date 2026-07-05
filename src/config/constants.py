@@ -22,6 +22,7 @@ SMTP_PORT = int(os.getenv("SMTP_PORT", "465"))
 # 文件路径
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 HTML_FILE = os.path.join(BASE_DIR, "web", "tech-briefing.html")
+AIHOT_HISTORY_FILE = os.path.join(BASE_DIR, ".aihot_history.json")
 EMAIL_TEMPLATE = os.path.join(BASE_DIR, "web", "email_template.html")
 EMAIL_OUTPUT = os.path.join(BASE_DIR, "web", "email_content.html")
 CRAWL_LOG_FILE = os.path.join(BASE_DIR, ".crawl_log.json")

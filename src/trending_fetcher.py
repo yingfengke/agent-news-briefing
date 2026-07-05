@@ -2,34 +2,51 @@
 """
 trending_fetcher.py — GitHub Trending 热门项目抓取
 
+使用 BeautifulSoup 解析 HTML，替代脆弱的正则表达式方案。
+
 独立数据源，不经过过滤层和 AI 分析。
 """
 
 import json
+import logging
 import re
 from datetime import datetime, timedelta
 from urllib.request import Request, urlopen
 
+from bs4 import BeautifulSoup
+
 from src import config
+from src.logger import get_logger
+
+log = get_logger("trending")
+
+
+def _try_parse_int(text: str) -> int:
+    """尝试从文本中提取整数（如 '1,234 stars today' -> 1234）"""
+    nums = re.findall(r'[\d,]+', text)
+    if nums:
+        return int(nums[0].replace(",", ""))
+    return 0
 
 
 def fetch_github_trending():
     """
-    直接爬取 github.com/trending 官方页面，解析热门项目。
+    用 BeautifulSoup 解析 github.com/trending 官方页面。
     不依赖任何第三方 API。
     返回: [{"name","desc","stars","link","tag"}, ...]
     """
     TAG_MAP = config.TRENDING_TAG_MAP if hasattr(config, 'TRENDING_TAG_MAP') else {}
 
     urls = [
-        "https://github.com/trending?since=daily",
-        "https://github.com/trending?since=weekly",
+        ("https://github.com/trending?since=daily", "daily"),
+        ("https://github.com/trending?since=weekly", "weekly"),
     ]
-    projects = []
+    all_projects = []
 
-    for url in urls:
+    for url, period in urls:
+        projects = []
         try:
-            print(f"\n  -> 抓取 GitHub Trending 官方页面 ({url.split('=')[-1]}) ... ", end="", flush=True)
+            log.info("  抓取 GitHub Trending (%s) ...", period)
             req = Request(url, headers={
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
                 "Accept": "text/html,application/xhtml+xml",
@@ -37,38 +54,48 @@ def fetch_github_trending():
             with urlopen(req, timeout=20) as resp:
                 html = resp.read().decode("utf-8", "ignore")
 
-            repo_blocks = re.findall(
-                r'<article[^>]*class="[^"]*Box-row[^"]*"[^>]*>([\s\S]*?)</article>',
-                html, re.I
-            )
-            print(f"找到 {len(repo_blocks)} 个项目块 ... ", end="", flush=True)
+            soup = BeautifulSoup(html, "html.parser")
+            repo_articles = soup.find_all("article", class_=lambda c: c and "Box-row" in c)
+            log.info("  找到 %d 个项目块", len(repo_articles))
 
-            for block in repo_blocks:
-                href_m = re.search(r'href="/([a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+)"', block)
-                if not href_m:
+            for article in repo_articles:
+                # 仓库全名
+                h2 = article.find("h2")
+                if not h2:
                     continue
-                full_name = href_m.group(1).strip()
-                if "/" in full_name.replace("/", "", 1):
+                a_tag = h2.find("a")
+                if not a_tag or not a_tag.get("href"):
                     continue
+                full_name = a_tag["href"].strip("/")
 
-                desc_m = re.search(r'<p[^>]*class="[^"]*col-9[^"]*"[^>]*>\s*([\s\S]*?)\s*</p>', block)
-                if not desc_m:
-                    desc_m = re.search(r'<p[^>]*>\s*([^<]{10,200})\s*</p>', block)
-                desc = re.sub(r'\s+', ' ', desc_m.group(1).strip()) if desc_m else ""
-                desc = re.sub(r'<[^>]+>', '', desc).strip()
+                # 描述
+                desc = ""
+                p_tag = article.find("p", class_=lambda c: c and "col-9" in c)
+                if p_tag:
+                    desc = p_tag.get_text(strip=True)
+                if not desc or len(desc) < 5:
+                    p_tag = article.find("p")
+                    if p_tag:
+                        desc = p_tag.get_text(strip=True)
 
-                stars_today_m = re.search(r'([\d,]+)\s*stars?\s*today', block, re.I)
-                if stars_today_m:
-                    stars_n = int(stars_today_m.group(1).replace(",", ""))
-                    stars_str = f"star+{stars_n} today"
-                else:
+                # 今日星标
+                stars_str = ""
+                stars_n = 0
+                # 查找包含 "stars today" 的标签
+                for tag in article.find_all(["span", "div", "a"]):
+                    text = tag.get_text(strip=True)
+                    if "stars today" in text.lower():
+                        stars_n = _try_parse_int(text)
+                        stars_str = f"star+{stars_n} today"
+                        break
+                if not stars_str:
                     stars_str = "star N/A"
-                    stars_n = 0
 
-                text = f"{full_name} {desc}".lower()
+                # 标签匹配
+                combined = f"{full_name} {desc}".lower()
                 matched_tag = ""
                 for kw, tag in TAG_MAP.items():
-                    if kw in text:
+                    if kw in combined:
                         matched_tag = tag
                         break
 
@@ -79,15 +106,16 @@ def fetch_github_trending():
                         "link": f"https://github.com/{full_name}", "tag": matched_tag,
                     })
 
-            print(f" 筛出 {len(projects)} 个")
-            if projects:
+            log.info("  筛出 %d 个", len(projects))
+            all_projects.extend(projects)
+            if all_projects:
                 break
         except Exception as e:
-            print(f"失败 {e}")
+            log.warning("GitHub Trending 抓取失败: %s", e)
             continue
 
-    if not projects:
-        print(f"\n  -> 备用：GitHub Search API ... ", end="", flush=True)
+    if not all_projects:
+        log.info("  备用：GitHub Search API ...")
         try:
             week_ago = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
             search_url = (f"https://api.github.com/search/repositories"
@@ -103,26 +131,26 @@ def fetch_github_trending():
                 fn = repo.get("full_name", "")
                 desc = repo.get("description", "") or ""
                 sn = repo.get("stargazers_count", 0)
-                text = f"{fn} {desc}".lower()
+                combined = f"{fn} {desc}".lower()
                 mt = ""
                 for kw, tag in TAG_MAP.items():
-                    if kw in text:
+                    if kw in combined:
                         mt = tag
                         break
                 if not mt:
                     mt = "Agent 框架"
                 if fn and len(desc) > 5:
-                    projects.append({
+                    all_projects.append({
                         "name": fn, "desc": desc[:100],
                         "stars": f"star {sn:,}", "link": f"https://github.com/{fn}", "tag": mt,
                     })
-                if len(projects) >= 3:
+                if len(all_projects) >= 3:
                     break
-            print(f"备用找到 {len(projects)} 个")
+            log.info("  备用找到 %d 个", len(all_projects))
         except Exception as e2:
-            print(f"失败 {e2}")
+            log.warning("备用 API 失败: %s", e2)
 
-    projects.sort(key=lambda x: x.get("stars_n", 0), reverse=True)
-    for p in projects:
+    all_projects.sort(key=lambda x: x.get("stars_n", 0), reverse=True)
+    for p in all_projects:
         p.pop("stars_n", None)
-    return projects[:3]
+    return all_projects[:3]
