@@ -9,7 +9,7 @@ Jinja2==3.1.6
 joblib==1.5.3
 MarkupSafe==3.0.3
 narwhals==2.23.0
-numpy==2.4.6
+numpy==2.5.1
 python-dotenv==1.2.2
 regex==2026.6.28
 requests==2.34.2
