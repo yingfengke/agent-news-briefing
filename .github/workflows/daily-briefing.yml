@@ -64,7 +64,7 @@ jobs:
       # ============================================================
 
       - name: ① 抓取新闻 + AI 分析 + 生成 HTML（失败自动重试）
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 15
           max_attempts: 3
@@ -72,7 +72,7 @@ jobs:
           command: python -m src.main
 
       - name: ② 发送邮件推送（失败自动重试）
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 5
           max_attempts: 3
@@ -135,7 +135,7 @@ jobs:
             url-dedup-db-
 
       - name: ④ AIHOT 补推（与早间简报排重，有新内容才发）
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@v4
         with:
           timeout_minutes: 5
           max_attempts: 2
