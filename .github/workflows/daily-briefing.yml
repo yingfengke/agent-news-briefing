@@ -41,6 +41,11 @@ jobs:
           pip install -r requirements.txt
           pip check
 
+      - name: 依赖安全审计
+        run: |
+          pip install pip-audit
+          pip-audit --desc on -r requirements.txt || echo "存在已知漏洞依赖，建议及时更新"
+
       # ============================================================
       # 以下关键步骤使用 retry 机制：
       #   失败后每隔 5 分钟自动重试，最多 3 次
