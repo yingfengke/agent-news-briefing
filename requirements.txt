@@ -18,6 +18,6 @@ scipy==1.18.0
 sgmllib3k==1.0.0
 soupsieve==2.8.4
 threadpoolctl==3.6.0
-tiktoken==0.9.0
+tiktoken==0.13.0
 typing_extensions==4.16.0
 urllib3==2.7.0
