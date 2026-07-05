@@ -212,6 +212,8 @@ def main():
     log.info("  AIHOT 日报补推")
     log.info("=" * 50)
 
+    today = datetime.now()
+
     # 1. 抓取 AIHOT 精选
     all_items = fetch_aihot_curated()
     if not all_items:
@@ -256,13 +258,6 @@ def main():
             log.info("  AIHOT 历史已记录 %d 条标题", len(new_titles))
         except Exception as e:
             log.warning("记录 AIHOT 历史失败: %s", e)
-    else:
-        # 也更新网页版
-        try:
-            from src.html_writer import generate_rss_feed
-            # 注：这里只是更新一下日志，实际 RSS 的完整内容由主流程生成
-        except ImportError:
-            pass
     else:
         log.info("无新增内容，无需补推")
 

@@ -16,11 +16,14 @@ agent_news_briefing/.idea/
 # 忽略运行时生成的中间文件
 web/email_content.html
 email_content.txt
-.rag_store.json
-.crawl_log.json
-.embedding_cache.json
-.aihot_history.json
-.source_health.json
+
+# 忽略所有 JSON 状态文件，仅保留 .last_style.json
+*.json
+!src/config/trivia.json
+!.last_style.json
+
+# 忽略 JS 文件（仅用于旧邮件检查，已弃用）
+*.js
 
 # 忽略所有 Markdown 文档，仅保留 README.md
 *.md
