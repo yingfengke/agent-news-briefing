@@ -253,8 +253,20 @@ class SemanticDeduper:
                     self._cache[keys[idx]] = vec
                     results[idx] = vec
             except Exception as e:
-                log.warning("Embedding 批失败: %s", str(e)[:50])
-                # API 失败的项保留 None，不会被聚类丢弃
+                log.warning("Embedding 批失败 (第1次): %s", str(e)[:50])
+                # 重试一次
+                try:
+                    time.sleep(3)
+                    req2 = Request(self._api_url, data=payload, headers=self._headers)
+                    with urlopen(req2, timeout=30) as resp2:
+                        result2 = json.loads(resp2.read().decode("utf-8"))
+                    for j, idx in enumerate(batch_ids):
+                        vec2 = result2["data"][j]["embedding"]
+                        self._cache[keys[idx]] = vec2
+                        results[idx] = vec2
+                except Exception as e2:
+                    log.warning("Embedding 批失败 (重试后): %s", str(e2)[:50])
+                    # API 失败的项保留 None，不会被聚类丢弃
 
             processed = min(batch_start + config.DEDUP_EMBEDDING_BATCH, len(uncached_indices))
             if processed % (config.DEDUP_EMBEDDING_BATCH * 2) == 0:
