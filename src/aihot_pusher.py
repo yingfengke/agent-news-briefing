@@ -122,17 +122,6 @@ def send_supplementary_email(new_items: list[dict], morning_failed: bool = False
         subtitle = f"AIHOT 精选 {len(new_items)} 条补充"
         intro = "以下为 AIHOT 今日精选，与早间简报不重复："
         subject_prefix = "【AIHOT 补推】"
-    """发送补推邮件"""
-    if not new_items:
-        log.info("无新增内容，跳过补推")
-        return False
-
-    if not all([config.SENDER_EMAIL, config.AUTH_CODE, config.RECEIVER_EMAIL]):
-        log.error("邮箱配置不完整，跳过补推")
-        return False
-
-    today = datetime.now()
-    date_str = f"{today.year}年{today.month:02d}月{today.day:02d}日"
 
     # 生成邮件正文
     items_html = []
