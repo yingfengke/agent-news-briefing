@@ -16,6 +16,7 @@ deduplicator.py — 智能过滤与去重系统 v2
 
 import hashlib
 import json
+import logging
 import os
 import re
 import time
@@ -31,6 +32,9 @@ from datasketch import MinHash, MinHashLSH
 
 from src import config
 from src.models import NewsItem, FilterReport
+from src.logger import get_logger
+
+log = get_logger("dedup")
 
 
 # ============================================================
@@ -202,61 +206,80 @@ class SemanticDeduper:
         """缓存键：标题前 50 字"""
         return item.title.strip()[:50]
 
-    def _get_embedding(self, item: NewsItem) -> Optional[list[float]]:
-        """获取 Embedding 向量（先查缓存，再调 API）"""
-        key = self._cache_key(item)
-        if key in self._cache:
-            return self._cache[key]
+    def _get_embeddings_batch(self, items: list[NewsItem]) -> list[Optional[list[float]]]:
+        """
+        批量获取 Embedding 向量（优先查缓存，不足的批量调 API）。
+        将 O(n) 次 API 调用降低为 O(n/batch_size) 次。
+        """
+        n = len(items)
+        keys = [self._cache_key(it) for it in items]
+        results: list[Optional[list[float]]] = []
+
+        # 先查缓存
+        uncached_indices: list[int] = []
+        for i, key in enumerate(keys):
+            if key in self._cache:
+                results.append(self._cache[key])
+            else:
+                results.append(None)
+                uncached_indices.append(i)
+
+        if not uncached_indices:
+            return results
 
         if not config.API_KEY:
-            return None
+            return results
 
-        text = f"{item.title} {item.content}"[:512]
-        payload = json.dumps({
-            "model": config.EMBEDDING_MODEL,
-            "input": text,
-        }).encode("utf-8")
+        # 分批调用 API
+        for batch_start in range(0, len(uncached_indices), config.DEDUP_EMBEDDING_BATCH):
+            batch_ids = uncached_indices[batch_start:batch_start + config.DEDUP_EMBEDDING_BATCH]
+            batch_texts = [
+                (f"{items[idx].title} {items[idx].content}")[:512]
+                for idx in batch_ids
+            ]
 
-        try:
-            req = Request(self._api_url, data=payload, headers=self._headers)
-            with urlopen(req, timeout=30) as resp:
-                result = json.loads(resp.read().decode("utf-8"))
-            vec = result["data"][0]["embedding"]
-            self._cache[key] = vec
-            return vec
-        except Exception as e:
-            print(f"    [Embedding] {key[:30]}... {str(e)[:50]}")
-            return None
+            payload = json.dumps({
+                "model": config.EMBEDDING_MODEL,
+                "input": batch_texts,
+            }).encode("utf-8")
 
-    def _cosine_similarity(self, a: list[float], b: list[float]) -> float:
-        a_np = np.array(a, dtype=np.float32)
-        b_np = np.array(b, dtype=np.float32)
-        norm_a = np.linalg.norm(a_np)
-        norm_b = np.linalg.norm(b_np)
-        if norm_a == 0 or norm_b == 0:
-            return 0.0
-        return float(np.dot(a_np, b_np) / (norm_a * norm_b))
+            try:
+                req = Request(self._api_url, data=payload, headers=self._headers)
+                with urlopen(req, timeout=30) as resp:
+                    result = json.loads(resp.read().decode("utf-8"))
+
+                for j, idx in enumerate(batch_ids):
+                    vec = result["data"][j]["embedding"]
+                    self._cache[keys[idx]] = vec
+                    results[idx] = vec
+            except Exception as e:
+                log.warning("Embedding 批失败: %s", str(e)[:50])
+                # API 失败的项保留 None，不会被聚类丢弃
+
+            processed = min(batch_start + config.DEDUP_EMBEDDING_BATCH, len(uncached_indices))
+            if processed % (config.DEDUP_EMBEDDING_BATCH * 2) == 0:
+                log.info("  ... Embedding %d/%d", processed, len(uncached_indices))
+
+        return results
 
     def deduplicate(self, items: list[NewsItem]) -> list[NewsItem]:
         """
         语义去重主入口。
 
-        1. 获取所有向量的 Embedding
-        2. 用 Union-Find 聚类
-        3. 每簇保留发布时间最早的
-        4. 标注多源报道计数
+        1. 批量获取所有向量的 Embedding
+        2. 用 numpy 矩阵乘法一次性计算所有余弦相似度
+        3. 用 Union-Find 聚类
+        4. 每簇保留发布时间最早的
+        5. 标注多源报道计数
         """
         if not items:
             return items
 
         n = len(items)
-        # 获取 Embedding
-        vectors: list[Optional[list[float]]] = []
-        for i, it in enumerate(items):
-            vec = self._get_embedding(it)
-            vectors.append(vec)
-            if (i + 1) % 10 == 0:
-                print(f"    ... Embedding {i+1}/{n}")
+        log.info("  [语义去重] 获取 %d 条 Embedding ...", n)
+
+        # 批量获取 Embedding（减少 API 调用次数）
+        vectors = self._get_embeddings_batch(items)
 
         # 对成功获取到向量的构建聚类
         valid_indices = [i for i, v in enumerate(vectors) if v is not None]
@@ -266,9 +289,17 @@ class SemanticDeduper:
             self._save_cache()
             return items
 
+        # numpy 矩阵乘法一次性计算所有余弦相似度
+        valid_vecs_np = np.array(valid_vecs, dtype=np.float32)
+        norms = np.linalg.norm(valid_vecs_np, axis=1, keepdims=True)
+        norms[norms == 0] = 1  # 避免除零
+        normed = valid_vecs_np / norms
+        sim_matrix = normed @ normed.T  # 全量余弦相似度矩阵
+
         # Union-Find 聚类
-        parent = list(range(len(valid_indices)))
-        cluster_sizes = [1] * len(valid_indices)
+        m = len(valid_indices)
+        parent = list(range(m))
+        cluster_sizes = [1] * m
 
         def find(x):
             while parent[x] != x:
@@ -285,18 +316,16 @@ class SemanticDeduper:
             parent[ry] = rx
             cluster_sizes[rx] += cluster_sizes[ry]
 
-        # 分批计算相似度（避免 O(n²) 全量计算）
-        batch_size = config.DEDUP_EMBEDDING_BATCH
+        # 遍历上三角矩阵，合并相似项
         comparisons = 0
-        for i in range(len(valid_indices)):
-            for j in range(i + 1, len(valid_indices)):
-                sim = self._cosine_similarity(valid_vecs[i], valid_vecs[j])
-                comparisons += 1
-                if sim > self.threshold:
+        for i in range(m):
+            for j in range(i + 1, m):
+                if sim_matrix[i][j] > self.threshold:
                     union(i, j)
+                comparisons += 1
 
-        print(f"    [语义去重] {n} 条 → 计算 {comparisons} 对相似度 → "
-              f"{len(set(find(i) for i in range(len(valid_indices))))} 簇")
+        log.info("  [语义去重] %d 条 -> 矩阵 %dx%d = %d 对 -> %d 簇",
+                  n, m, m, comparisons, len(set(find(i) for i in range(m))))
 
         # 按簇分组
         clusters: dict[int, list[int]] = defaultdict(list)
@@ -405,8 +434,8 @@ class CredibilityFilter:
         return False
 
     def _content_length_ok(self, item: NewsItem) -> bool:
-        """正文长度是否 > 200 字（基本门槛）"""
-        return len(item.content) > 200
+        """正文长度是否 >= 10 字（基本门槛，防止空/垃圾内容）"""
+        return len(item.content) >= 10
 
     def score(self, item: NewsItem) -> float:
         """计算信任分数，返回 0.0 ~ 1.0"""
@@ -480,9 +509,9 @@ def run_pipeline(items: list[NewsItem]) -> FilterReport:
             with open(config.URL_DB_FILE, "r") as f:
                 data = json.load(f)
             cross_day_hashes = set(data.get("urls", []))
-            print(f"  → 加载跨天 URL 去重库: {len(cross_day_hashes)} 条历史哈希")
+            log.info("  -> 加载跨天 URL 去重库: %d 条历史哈希", len(cross_day_hashes))
     except Exception as e:
-        print(f"  [警告] 加载跨天 URL 去重库失败: {e}")
+        log.warning("加载跨天 URL 去重库失败: %s", e)
 
     # 清空 session DB（避免重试污染）
     try:
@@ -491,7 +520,8 @@ def run_pipeline(items: list[NewsItem]) -> FilterReport:
     except Exception:
         pass
 
-    print(f"\n  ── A. URL 去重 ──")
+    log.info("")
+    log.info("  -- A. URL 去重 --")
     url_deduper = UrlDeduper(initial_set=cross_day_hashes)
     after_a = []
     for it in items:
@@ -500,13 +530,14 @@ def run_pipeline(items: list[NewsItem]) -> FilterReport:
         else:
             report.url_removed += 1
     url_deduper.flush()
-    print(f"  {len(items)} → {len(after_a)} (去重 {report.url_removed} 条)")
+    log.info("  %d -> %d (去重 %d 条)", len(items), len(after_a), report.url_removed)
 
     if not after_a:
         return report
 
     # ---- B: MinHash + LSH 内容指纹去重 ----
-    print(f"\n  ── B. 内容指纹去重 (MinHash+LSH) ──")
+    log.info("")
+    log.info("  -- B. 内容指纹去重 (MinHash+LSH) --")
     mh_deduper = MinhashDeduper()
     after_b = []
     for it in after_a:
@@ -514,27 +545,29 @@ def run_pipeline(items: list[NewsItem]) -> FilterReport:
             after_b.append(it)
         else:
             report.minhash_removed += 1
-    print(f"  {len(after_a)} → {len(after_b)} (去重 {report.minhash_removed} 条)")
+    log.info("  %d -> %d (去重 %d 条)", len(after_a), len(after_b), report.minhash_removed)
 
     if not after_b:
         return report
 
     # ---- C: 语义去重 (Embedding + Union-Find) ----
-    print(f"\n  ── C. 语义去重 (Embedding+聚类) ──")
+    log.info("")
+    log.info("  -- C. 语义去重 (Embedding+聚类) --")
     semanticer = SemanticDeduper()
     after_c = semanticer.deduplicate(after_b)
     report.semantic_removed = len(after_b) - len(after_c)
-    print(f"  {len(after_b)} → {len(after_c)} (去重 {report.semantic_removed} 条，含聚类标注)")
+    log.info("  %d -> %d (去重 %d 条，含聚类标注)", len(after_b), len(after_c), report.semantic_removed)
 
     if not after_c:
         return report
 
     # ---- D: 可信度过滤 ----
-    print(f"\n  ── D. 来源可信度过滤 ──")
+    log.info("")
+    log.info("  -- D. 来源可信度过滤 --")
     filter_d = CredibilityFilter()
     after_d = [it for it in after_c if not filter_d.should_filter(it)]
     report.credibility_removed = len(after_c) - len(after_d)
-    print(f"  {len(after_c)} → {len(after_d)} (过滤 {report.credibility_removed} 条)")
+    log.info("  %d -> %d (过滤 %d 条)", len(after_c), len(after_d), report.credibility_removed)
 
     report.total_output = len(after_d)
     report.remaining_items = after_d
@@ -555,4 +588,4 @@ if __name__ == "__main__":
         tags = f" [{', '.join(it.tags)}]" if it.tags else ""
         print(f"  [{it.source}]{tags} {it.title[:60]}")
         if "多家来源报道" in it.content:
-            print(f"     ⚡ {it.content[-30:]}")
+            print(f"     {it.content[-30:]}")

@@ -18,6 +18,10 @@ from email.header import Header
 from email.utils import formataddr
 
 from src import config
+from src.logger import get_logger, log_structured
+import logging
+
+log = get_logger("email")
 
 SMTP_SERVER   = config.SMTP_SERVER
 SMTP_PORT     = config.SMTP_PORT
@@ -31,7 +35,7 @@ HTML_FILE = config.EMAIL_OUTPUT
 def get_html_content():
     """读取最终的 HTML 文件内容作为邮件正文"""
     if not os.path.exists(HTML_FILE):
-        print(f"[错误] HTML 文件不存在: {HTML_FILE}")
+        log.error("HTML 文件不存在: %s", HTML_FILE)
         return None
     with open(HTML_FILE, "r", encoding="utf-8") as f:
         return f.read()
@@ -78,7 +82,7 @@ def html_to_plain(html: str) -> str:
 def send():
     """发送 multipart/alternative 简报邮件"""
     if not all([SENDER_EMAIL, AUTH_CODE, RECEIVER_EMAIL]):
-        print("[错误] 邮箱配置不完整，请检查 .env 文件中的 SENDER_EMAIL / AUTH_CODE / RECEIVER_EMAIL")
+        log.error("邮箱配置不完整，请检查 .env 文件")
         return False
 
     html = get_html_content()
@@ -90,7 +94,7 @@ def send():
     plain_path = os.path.join(config.BASE_DIR, "web", "email_content.txt")
     with open(plain_path, "w", encoding="utf-8") as f:
         f.write(plain_text)
-    print(f"  ✔ 已生成纯文本备份 ({len(plain_text)} 字符)")
+    log.info("已生成纯文本备份 (%d 字符)", len(plain_text))
 
     # 主题
     today = datetime.now()
@@ -114,27 +118,30 @@ def send():
     msg.attach(part_html)
 
     try:
-        print(f"  连接 SMTP 服务器 {SMTP_SERVER}:{SMTP_PORT} ...", end=" ", flush=True)
+        log.info("连接 SMTP 服务器 %s:%d ...", SMTP_SERVER, SMTP_PORT)
         with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, timeout=30) as server:
             server.login(SENDER_EMAIL, AUTH_CODE)
             server.sendmail(SENDER_EMAIL, [RECEIVER_EMAIL], msg.as_string())
-        print("✔ 发送成功")
+        log.info("发送成功")
+        log_structured(log, logging.INFO, "email_send_success",
+                       sender=SENDER_EMAIL, receiver=RECEIVER_EMAIL,
+                       chars=len(plain_text))
         return True
     except smtplib.SMTPAuthenticationError:
-        print("✘ 认证失败，请检查邮箱地址和授权码是否正确")
+        log.error("认证失败，请检查邮箱地址和授权码是否正确")
         return False
     except smtplib.SMTPException as e:
-        print(f"✘ SMTP 错误: {e}")
+        log.error("SMTP 错误: %s", e)
         return False
     except Exception as e:
-        print(f"✘ 发送失败: {e}")
+        log.error("发送失败: %s", e)
         return False
 
 
 if __name__ == "__main__":
-    print("=" * 50)
-    print("  每日简报邮件发送")
-    print("=" * 50)
-    print(f"  发件人: {SENDER_EMAIL}")
-    print(f"  收件人: {RECEIVER_EMAIL}")
+    log.info("%s", "=" * 50)
+    log.info("  每日简报邮件发送")
+    log.info("%s", "=" * 50)
+    log.info("  发件人: %s", SENDER_EMAIL)
+    log.info("  收件人: %s", RECEIVER_EMAIL)
     send()

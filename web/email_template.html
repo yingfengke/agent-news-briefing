@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI & Agent 开发者晨报</title>
 </head>
-<body style="margin:0;padding:0;background-color:#f5f4f0;font-family:'Segoe UI','PingFang SC','Hiragino Sans GB',sans-serif;">
+<body style="margin:0;padding:0;background-color:#f5f4f0;font-family:'Helvetica Neue','PingFang SC','Microsoft YaHei',sans-serif;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f4f0;padding:30px 0;">
     <tr>
       <td align="center">
@@ -13,37 +13,51 @@
 
           <!-- 头部 -->
           <tr>
-            <td style="padding:0 0 20px 20px;border-left:4px solid #1a1a1a;">
-              <div style="font-size:11px;color:#aaa;letter-spacing:1.5px;margin-bottom:6px;">☕ 每日推送 · AI 开发者专属{{style_tag}}</div>
-              <h1 style="font-size:26px;font-weight:800;color:#1a1a1a;margin:0;letter-spacing:-0.5px;">AI &amp; Agent 开发者晨报</h1>
-              <p style="font-size:12px;color:#888;margin:8px 0 2px 0;">{{date}}</p>
-              <p style="font-size:11px;color:#aaa;margin:0;">{{filter_tagline}}</p>
+            <td style="background:#ffffff;border-radius:12px;border:1px solid #e0e0e0;padding:24px;">
+              <div style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:11px;color:#999;letter-spacing:0.5px;margin-bottom:4px;white-space:nowrap;">DAILY BRIEFING{{style_tag}}</div>
+              <h1 style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:22px;font-weight:600;color:#1a1a1a;margin:0 0 2px 0;">AI &amp; Agent 开发者晨报</h1>
+              <div style="width:40px;height:2px;background:#1a1a1a;margin:12px 0;"></div>
+              <p style="font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;color:#888;margin:0;">{{date}} · {{filter_tagline}}</p>
             </td>
           </tr>
 
 
 
-          {{news_items}}
+  <!-- 新闻卡片 -->
+          {% if news_items %}
+          {{ news_items }}
+          {% endif %}
+
           <!-- 深度分析 -->
-          {{daily_analysis_section}}
+          {% if daily_analysis_section %}
+          {{ daily_analysis_section }}
+          {% endif %}
 
           <!-- 项目推荐 -->
-          {{projects_section}}
+          {% if projects_section %}
+          {{ projects_section }}
+          {% endif %}
 
           <!-- 彩蛋角落 -->
-          {{trivia_section}}
+          {% if trivia_section %}
+          {{ trivia_section }}
+          {% endif %}
 
           <!-- 过滤摘要 -->
-          {{filter_report_section}}
+          {% if filter_report_section %}
+          {{ filter_report_section }}
+          {% endif %}
 
           <!-- 原文链接备份 -->
-          {{link_list_section}}
+          {% if link_list_section %}
+          {{ link_list_section }}
+          {% endif %}
 
           <!-- 底部 -->
           <tr>
             <td style="padding:20px 0 0 0;border-top:1px solid #e0e0e0;">
-              <p style="font-size:11px;color:#bbb;margin:0 0 4px 0;text-align:right;">本简报由 AI 自动生成 · 内容仅供参考</p>
-              <p style="font-size:11px;color:#bbb;margin:0;text-align:right;">
+              <p style="font-size:11px;color:#bbb;margin:0 0 4px 0;text-align:center;">本简报由 AI 自动生成 · 内容仅供参考</p>
+              <p style="font-size:11px;color:#bbb;margin:0;text-align:center;">
                 <span style="color:#888;">{{repo_url}}</span>
               </p>
             </td>

@@ -1,9 +1,10 @@
 name: AI Agent 开发者晨报
 
 on:
-  # 每天早上 6:00 北京时间 (22:00 UTC)
+  # 每天早上 6:00 北京时间 (22:00 UTC) + AIHOT 补推 08:30 (00:30 UTC)
   schedule:
     - cron: '0 22 * * *'
+    - cron: '30 0 * * *'
   # 支持手动触发
   workflow_dispatch:
 
@@ -11,7 +12,8 @@ permissions:
   contents: write
 
 jobs:
-  build-and-push:
+  morning-briefing:
+    if: github.event.schedule == '0 22 * * *' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     # 所有步骤共享的环境变量（来自 GitHub Secrets，无一硬编码）
@@ -66,3 +68,38 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python scripts/github_api_push.py
+
+  aihot-supplement:
+    if: github.event.schedule == '30 0 * * *'
+    runs-on: ubuntu-latest
+
+    env:
+      API_BASE_URL: ${{ secrets.API_BASE_URL }}
+      API_KEY: ${{ secrets.API_KEY }}
+      MODEL_NAME: ${{ secrets.MODEL_NAME }}
+      SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+      AUTH_CODE: ${{ secrets.AUTH_CODE }}
+      RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
+      SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+      SMTP_PORT: ${{ secrets.SMTP_PORT }}
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Python 环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安装依赖
+        run: |
+          pip install -r requirements.txt
+
+      - name: ④ AIHOT 补推（与早间简报排重，有新内容才发）
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 5
+          max_attempts: 2
+          retry_wait_seconds: 300
+          command: python -m src.aihot_pusher
