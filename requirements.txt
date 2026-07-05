@@ -1,34 +1,23 @@
-# Python 依赖
-# 安装: pip install -r requirements.txt
-# 锁定日期: 2026-07-04
-# 更新: pip freeze | grep -iE 'python-dotenv|datasketch|jieba|numpy|feedparser|scikit-learn|sgmllib3k|tiktoken|beautifulsoup4|jinja2' > requirements.txt
-
-# API 密钥管理
-python-dotenv==1.2.2
-
-# 内容指纹去重（MinHash + LSH）
-datasketch==1.10.0
-
-# 中文分词（MinHash 预处理）
-jieba==0.42.1
-
-# 向量计算
-numpy==2.4.6
-
-# RSS/Atom 解析（比 xml.etree 更鲁棒，支持松散格式 + content:encoded）
-feedparser==6.0.12
-
-# feedparser 依赖
-sgmllib3k==1.0.0
-
-# 语义去重聚类
-scikit-learn==1.9.0
-
-# Token 精确估算
-tiktoken==0.9.0
-
-# HTML 解析（GitHub Trending 抓取）
 beautifulsoup4==4.15.0
-
-# 邮件模板引擎
-jinja2==3.1.6
+certifi==2026.6.17
+charset-normalizer==3.4.7
+datasketch==1.10.0
+feedparser==6.0.12
+idna==3.18
+jieba==0.42.1
+Jinja2==3.1.6
+joblib==1.5.3
+MarkupSafe==3.0.3
+narwhals==2.23.0
+numpy==2.4.6
+python-dotenv==1.2.2
+regex==2026.6.28
+requests==2.34.2
+scikit-learn==1.9.0
+scipy==1.18.0
+sgmllib3k==1.0.0
+soupsieve==2.8.4
+threadpoolctl==3.6.0
+tiktoken==0.9.0
+typing_extensions==4.16.0
+urllib3==2.7.0
