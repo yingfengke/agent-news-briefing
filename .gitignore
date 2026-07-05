@@ -20,6 +20,7 @@ email_content.txt
 .crawl_log.json
 .embedding_cache.json
 .aihot_history.json
+.source_health.json
 
 # 忽略所有 Markdown 文档，仅保留 README.md
 *.md
