@@ -79,6 +79,23 @@ def _prescreen_items(items: list[NewsItem]) -> list[NewsItem]:
     if removed_short:
         log.info("  -> 预筛: 过滤 %d 条过短内容（正文 < 10 字）", removed_short)
 
+    # 规则 1b: 过滤疑似提示词注入的内容
+    injection_patterns = [
+        r"忽略.*(?:指令|规则|要求|之前)",
+        r"ignore.*(?:previous|instruction|prompt)",
+        r"输出.*(?:系统提示词|API Key|密码|密钥)",
+        r"output.*(?:system prompt|api.?key|secret|password)",
+        r"你.*(?:现在|接下来).*(?:是|扮演|作为)",
+        r"(?:你|you).*(?:are now|will act as|pretend)",
+    ]
+    combined = re.compile("|".join(injection_patterns), re.IGNORECASE)
+    before = len(filtered)
+    filtered = [it for it in filtered
+                if not combined.search(it.title or "") and not combined.search(it.content or "")]
+    removed_inject = before - len(filtered)
+    if removed_inject:
+        log.warning("  -> 预筛: 过滤 %d 条疑似提示词注入内容", removed_inject)
+
     # 规则 2: Twitter 源间去重
     twitter_items = []
     non_twitter = []
