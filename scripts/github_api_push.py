@@ -5,6 +5,9 @@ github_api_push.py — 通过 Git Data API 批量推送文件（单 commit）
 将多个文件在一个 commit 中一次性推送到 main 分支，
 避免 Contents API 每个文件单独 commit 触发多次 Pages 构建。
 
+同时读取 .gitignore 规则，自动跳过被忽略的文件，
+防止本地隐私文件（如 .md 规划文档、运行时缓存等）被意外推送到仓库。
+
 用法:
  python github_api_push.py
 
@@ -14,6 +17,7 @@ github_api_push.py — 通过 Git Data API 批量推送文件（单 commit）
 """
 
 import base64
+import fnmatch
 import json
 import os
 import sys
@@ -24,9 +28,48 @@ REPO = os.environ.get("GITHUB_REPO", "yingfengke/agent-news-briefing")
 TOKEN = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-FILES = ["web/tech-briefing.html", "web/index.html", "web/rss.xml", ".url_dedup_db.json", ".source_health.json"]
+# 需要推送的文件列表（仅网页文件 + 需要跨运行持久化的 URL 去重库）
+FILES = ["web/tech-briefing.html", "web/index.html", "web/rss.xml", ".url_dedup_db.json"]
 
 API_BASE = f"https://api.github.com/repos/{REPO}"
+
+
+def _load_gitignore_patterns() -> tuple[list[str], list[str]]:
+    """读取 .gitignore，返回 (忽略模式列表, 例外模式列表)"""
+    ignore_file = os.path.join(BASE_DIR, ".gitignore")
+    patterns = []
+    negations = []
+    if not os.path.exists(ignore_file):
+        return patterns, negations
+
+    with open(ignore_file, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.startswith("!"):
+                negations.append(line[1:])
+            else:
+                patterns.append(line)
+    return patterns, negations
+
+
+def _is_ignored(path: str, patterns: list[str], negations: list[str]) -> bool:
+    """判断路径是否被 .gitignore 忽略"""
+    # 先检查是否命中例外规则
+    for neg in negations:
+        if fnmatch.fnmatch(path, neg) or fnmatch.fnmatch(os.path.basename(path), neg):
+            return False
+    # 再检查忽略规则
+    for pat in patterns:
+        # 目录规则（以 / 结尾）也匹配路径前缀
+        if pat.endswith("/"):
+            dir_pat = pat.rstrip("/")
+            if path.startswith(dir_pat + "/") or fnmatch.fnmatch(path, dir_pat + "/*"):
+                return True
+        if fnmatch.fnmatch(path, pat) or fnmatch.fnmatch(os.path.basename(path), pat):
+            return True
+    return False
 
 
 def _headers():
@@ -59,6 +102,21 @@ def main():
     print(f"\n ── Git Data API 单 commit 推送 ──")
     print(f" 仓库: {REPO}")
 
+    # 读取 .gitignore
+    patterns, negations = _load_gitignore_patterns()
+
+    # 过滤掉被 .gitignore 忽略的文件
+    files_to_push = []
+    for fname in FILES:
+        if _is_ignored(fname, patterns, negations):
+            print(f" 跳过（被 .gitignore 忽略）: {fname}")
+            continue
+        files_to_push.append(fname)
+
+    if not files_to_push:
+        print(" 没有文件需要推送")
+        return
+
     # 1. 获取当前 HEAD
     ref = _req("GET", f"{API_BASE}/git/refs/heads/main")
     if ref.get("error"):
@@ -77,15 +135,15 @@ def main():
 
     # 3. 为每个文件创建 blob
     blobs = []
-    for fname in FILES:
+    for fname in files_to_push:
         filepath = os.path.join(BASE_DIR, fname)
         if not os.path.exists(filepath):
-            print(f" 跳过（不存在）: {fname}")
+            print(f" 跳过（本地不存在）: {fname}")
             continue
         with open(filepath, "rb") as f:
-            content = f.read()
+            content_b64 = base64.b64encode(f.read()).decode()
         blob = _req("POST", f"{API_BASE}/git/blobs", {
-            "content": base64.b64encode(content).decode(),
+            "content": content_b64,
             "encoding": "base64",
         })
         if blob.get("error"):
