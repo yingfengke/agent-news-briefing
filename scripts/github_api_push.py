@@ -28,8 +28,8 @@ REPO = os.environ.get("GITHUB_REPO", "yingfengke/agent-news-briefing")
 TOKEN = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# 需要推送的文件列表（仅网页文件 + 需要跨运行持久化的 URL 去重库）
-FILES = ["web/tech-briefing.html", "web/index.html", "web/rss.xml", ".url_dedup_db.json"]
+# 需要推送的文件列表（仅网页文件，状态文件通过 actions/cache 管理）
+FILES = ["web/tech-briefing.html", "web/index.html", "web/rss.xml"]
 
 API_BASE = f"https://api.github.com/repos/{REPO}"
 
