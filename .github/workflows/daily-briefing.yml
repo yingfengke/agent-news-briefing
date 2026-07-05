@@ -47,6 +47,16 @@ jobs:
           pip install pip-audit
           pip-audit --desc on -r requirements.txt || (echo "::warning::存在已知漏洞依赖，建议及时更新" && exit 1)
 
+      # 恢复 URL 去重缓存（状态文件不推送至仓库，通过 Actions Cache 持久化）
+      - name: 恢复 URL 去重缓存
+        uses: actions/cache@v4
+        id: url-dedup-cache
+        with:
+          path: .url_dedup_db.json
+          key: url-dedup-db-${{ github.run_id }}
+          restore-keys: |
+            url-dedup-db-
+
       # ============================================================
       # 以下关键步骤使用 retry 机制：
       #   失败后每隔 5 分钟自动重试，最多 3 次
@@ -75,6 +85,13 @@ jobs:
         run: |
           python scripts/github_api_push.py
 
+      # 保存 URL 去重缓存供下次运行使用
+      - name: 保存 URL 去重缓存
+        uses: actions/cache/save@v4
+        with:
+          path: .url_dedup_db.json
+          key: url-dedup-db-${{ github.run_id }}
+
   aihot-supplement:
     if: github.event.schedule == '30 0 * * *'
     runs-on: ubuntu-latest
@@ -102,6 +119,16 @@ jobs:
       - name: 安装依赖
         run: |
           pip install -r requirements.txt
+
+      # 恢复 URL 去重缓存（aihot_pusher 需要读取排重历史）
+      - name: 恢复 URL 去重缓存
+        uses: actions/cache@v4
+        id: url-dedup-cache-aihot
+        with:
+          path: .url_dedup_db.json
+          key: url-dedup-db-aihot-${{ github.run_id }}
+          restore-keys: |
+            url-dedup-db-
 
       - name: ④ AIHOT 补推（与早间简报排重，有新内容才发）
         uses: nick-fields/retry@v3
