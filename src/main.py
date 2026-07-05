@@ -19,6 +19,7 @@ generate_briefing.py — AI & Agent 开发者晨报 主流程编排器
 """
 
 import json
+import logging
 import os
 import re
 import sys
@@ -30,8 +31,11 @@ from src.models import NewsItem, FilterReport
 from src.collector import collect_all
 from src.deduplicator import run_pipeline
 from src.ai_analyzer import call_ai_analysis, reset_parse_stats
-from src.html_writer import write_html, generate_email_html
+from src.html_writer import write_html, make_email_with_categories, generate_rss_feed
 from src.trending_fetcher import fetch_github_trending
+from src.logger import get_logger, log_structured
+
+log = get_logger("main")
 
 
 def _extract_link(it: dict, summary: str, title_exact_map: dict, source_title_map: dict) -> str:
@@ -41,13 +45,13 @@ def _extract_link(it: dict, summary: str, title_exact_map: dict, source_title_ma
         m = re.search(r'https?://[^\s<>)\]】、，,]+', summary)
         if m:
             link = m.group(0)
-            print(f"    [链接兜底-摘要] {link[:60]}")
+            log.debug("链接兜底-摘要: %s", link[:60])
 
     if not link:
         title = (it.get("title", "") or "").lower().strip()
         if title[:50] in title_exact_map:
             link = title_exact_map[title[:50]]
-            print(f"    [链接兜底-精确匹配] {link[:60]}")
+            log.debug("链接兜底-精确匹配: %s", link[:60])
 
     if not link:
         title = (it.get("title", "") or "").lower().strip()
@@ -75,14 +79,13 @@ def _extract_link(it: dict, summary: str, title_exact_map: dict, source_title_ma
 
         if best_score >= 0.4 and best_match:
             link = best_match
-            print(f"    [链接兜底-模糊匹配] {link[:60]} (相似度{best_score:.2f})")
+            log.debug("链接兜底-模糊匹配: %s (相似度%.2f)", link[:60], best_score)
 
     return link
 
 
 def _try_parse_item(it):
     """尝试将 AI 输出条目解析为字典。"""
-    import json as _json
     if isinstance(it, dict):
         return it, True
     if isinstance(it, str):
@@ -92,15 +95,15 @@ def _try_parse_item(it):
             if stripped.startswith("json"):
                 stripped = stripped[4:].strip()
         try:
-            parsed = _json.loads(stripped)
+            parsed = json.loads(stripped)
             if isinstance(parsed, dict):
                 return parsed, True
             if isinstance(parsed, list) and len(parsed) > 0 and isinstance(parsed[0], dict):
-                print(f"    [抢救] 字符串 JSON 数组 -> 取首元素")
+                log.debug("字符串 JSON 数组，取首元素")
                 return parsed[0], True
-        except _json.JSONDecodeError:
+        except json.JSONDecodeError:
             pass
-    print(f"    [警告] 无法解析的条目: {str(it)[:80]}")
+    log.warning("无法解析的条目: %s", str(it)[:80])
     return None, False
 
 
@@ -110,22 +113,24 @@ def _try_parse_item(it):
 
 def main():
     reset_parse_stats()
-    print("=" * 60)
-    print("  AI & Agent 开发者晨报 - 三层架构 v2.0")
-    print(f"  采集: {len(config.RSS_SOURCES)} 个 RSS 源")
-    print(f"  模型: {config.MODEL_NAME}")
-    print("=" * 60)
+    log.info("=" * 60)
+    log.info("  AI & Agent 开发者晨报 - 三层架构 v2.0")
+    log.info("  采集: %d 个 RSS 源", len(config.RSS_SOURCES))
+    log.info("  模型: %s", config.MODEL_NAME)
+    log.info("=" * 60)
 
     # ---- 1. 采集层 ----
-    print(f"\n{'=' * 40}")
-    print("  第 1 层：多模态数据采集")
-    print(f"{'=' * 40}")
+    log.info("")
+    log.info("%s", "=" * 40)
+    log.info("  第 1 层：多模态数据采集")
+    log.info("%s", "=" * 40)
     raw_pool = collect_all()
 
     # ---- 2. 过滤层 ----
-    print(f"\n{'=' * 40}")
-    print("  第 2 层：智能过滤与去重")
-    print(f"{'=' * 40}")
+    log.info("")
+    log.info("%s", "=" * 40)
+    log.info("  第 2 层：智能过滤与去重")
+    log.info("%s", "=" * 40)
     if raw_pool:
         report = run_pipeline(raw_pool)
     else:
@@ -134,19 +139,20 @@ def main():
     clean_items = report.remaining_items
 
     # ---- 3. AI 分析层 ----
-    print(f"\n{'=' * 40}")
-    print("  第 3 层：AI 分析与简报生成")
-    print(f"{'=' * 40}")
+    log.info("")
+    log.info("%s", "=" * 40)
+    log.info("  第 3 层：AI 分析与简报生成")
+    log.info("%s", "=" * 40)
 
     trivia = get_random_trivia()
-    print(f"  今日彩蛋: {trivia}")
+    log.info("  今日彩蛋: %s", trivia)
 
     final_items = []
     daily_analysis = ""
     ai_failed = False
 
     if not clean_items:
-        print("  [信息] 过滤后无可用数据，发送空报告邮件")
+        log.info("  过滤后无可用数据，发送空报告邮件")
         ai_failed = True
     else:
         style_name, ai_result = call_ai_analysis(clean_items)
@@ -187,7 +193,7 @@ def main():
                 detail = ""
                 if skip_count:
                     detail = f" (跳过 {skip_count} 条无法解析)"
-                print(f"\n  AI 筛选后: {ok_count} 条{detail}")
+                log.info("  AI 筛选后: %d 条%s", ok_count, detail)
             elif "items" in ai_result:
                 items_ok = items_skip = 0
                 for it in ai_result["items"]:
@@ -208,7 +214,7 @@ def main():
                 detail = ""
                 if items_skip:
                     detail = f" (跳过 {items_skip} 条无法解析)"
-                print(f"\n  AI 筛选后: {items_ok} 条{detail}")
+                log.info("  AI 筛选后: %d 条%s", items_ok, detail)
         else:
             if ai_result and ("international" in ai_result or "china" in ai_result):
                 fallback_items = []
@@ -221,11 +227,11 @@ def main():
                         fallback_items.append({
                             "title": parsed.get("title", ""),
                             "summary": summary,
-                            "link": _extract_link(parsed, summary),
+                            "link": _extract_link(parsed, summary, {}, {}),
                             "source": parsed.get("source", "AI"),
                         })
                 if fallback_items:
-                    print(f"  [降级] 使用旧格式 international/china，解析 {len(fallback_items)} 条")
+                    log.info("  降级: 使用旧格式 international/china，解析 %d 条", len(fallback_items))
                     final_items = fallback_items
                 else:
                     ai_failed = True
@@ -238,52 +244,71 @@ def main():
         final_items = _translate_english_titles(final_items)
 
     # ---- 按评分排序（高到低） ----
-    print(f"\n  -- 按评分排序（高到低） --")
+    log.info("")
+    log.info("  -- 按评分排序（高到低） --")
     final_items.sort(key=lambda x: x.get("score", 0) or 0, reverse=True)
     scored = sum(1 for it in final_items if it.get("score", 0) > 0)
-    print(f"  评分分布: {scored}/{len(final_items)} 条有评分")
+    log.info("  评分分布: %d/%d 条有评分", scored, len(final_items))
 
     # ---- GitHub Trending ----
-    print(f"\n  -- 抓取 GitHub Trending 项目 --")
+    log.info("")
+    log.info("  -- 抓取 GitHub Trending 项目 --")
     trending_projects = fetch_github_trending()
     if trending_projects:
-        print(f"  本周热门学习项目: {len(trending_projects)} 个")
+        log.info("  本周热门学习项目: %d 个", len(trending_projects))
         for p in trending_projects:
-            print(f"    {p['name']} ({p['tag']})")
+            log.info("    %s (%s)", p["name"], p["tag"])
     else:
-        print("  [信息] 今日暂无合适的 Trending 项目推荐")
+        log.info("  今日暂无合适的 Trending 项目推荐")
 
     # ---- 写入网页 HTML ----
-    print(f"\n  -- 写入网页 HTML --")
+    log.info("")
+    log.info("  -- 写入网页 HTML --")
     write_html(final_items, daily_analysis, trending_projects)
 
-    # ---- 生成邮件 HTML ----
-    print(f"\n  -- 生成邮件 HTML --")
+    # ---- 生成邮件 HTML（分类版） + RSS Feed ----
+    log.info("")
+    log.info("  -- 生成邮件（分类版）+ RSS Feed --")
     if ai_failed and not final_items:
-        generate_email_html(
+        make_email_with_categories(
             [], f"今日无可用新闻。过滤报告：采集 {report.total_input} 条 -> "
                 f"过滤后 {report.total_output} 条。",
             trending_projects, filter_report=report,
             style_name="", trivia=trivia,
         )
     else:
-        generate_email_html(
+        make_email_with_categories(
             final_items, daily_analysis, trending_projects,
             filter_report=report,
             style_name=style_name if not ai_failed else "降级",
             trivia=trivia,
         )
+    generate_rss_feed(final_items, daily_analysis)
 
     # ---- 邮件已生成，由 workflow 步骤发送 ----
-    print(f"\n  -- 邮件已生成，由 workflow 步骤发送 --")
+    log.info("")
+    log.info("  -- 邮件已生成，由 workflow 步骤发送 --")
 
     if daily_analysis:
-        print(f"\n  今日深度分析:")
-        print(f"     {daily_analysis[:200]}...")
+        log.info("")
+        log.info("  今日深度分析:")
+        log.info("     %s...", daily_analysis[:200])
 
-    print(f"\n  简报生成完毕 | {len(final_items)} 条新闻 | {len(trending_projects)} 个项目")
-    print(f"     邮件: {config.EMAIL_OUTPUT}")
-    print(f"     过滤前: {report.total_input} 条 -> 过滤后: {report.total_output} 条")
+    log.info("")
+    log.info("  简报生成完毕 | %d 条新闻 | %d 个项目", len(final_items), len(trending_projects))
+    log.info("     邮件: %s", config.EMAIL_OUTPUT)
+    log.info("     过滤前: %d 条 -> 过滤后: %d 条", report.total_input, report.total_output)
+
+    # 结构化日志（写入文件）
+    log_structured(
+        log, logging.INFO, "briefing_complete",
+        news_count=len(final_items),
+        projects_count=len(trending_projects),
+        total_input=report.total_input,
+        total_output=report.total_output,
+        ai_failed=ai_failed,
+        style=style_name if not ai_failed else "降级",
+    )
 
 
 if __name__ == "__main__":

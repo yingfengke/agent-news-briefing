@@ -9,9 +9,12 @@ collector.py — 多模态数据采集层
 数据流向：采集层 → 过滤层 → 分析层
 """
 
+import concurrent.futures
 import hashlib
 import json
+import logging
 import os
+import random
 import re
 import time
 from datetime import datetime
@@ -22,6 +25,9 @@ import feedparser
 
 from src import config
 from src.models import NewsItem
+from src.logger import get_logger, log_structured
+
+log = get_logger("collector")
 
 
 # ============================================================
@@ -60,13 +66,26 @@ def _build_item(title, content, url, source, lang, source_type,
 # ============================================================
 
 RSS_TIMEOUT = 15
+RSS_RETRIES = 2                    # 指数退避重试次数
+RSS_BACKOFF_BASE = 2               # 初始退避秒数
+CONCURRENT_WORKERS = 8             # 并行采集并发数
 RSS_USER_AGENT = "Mozilla/5.0 (compatible; BriefingBot/2.0)"
 
 
 def _fetch(url: str) -> bytes:
-    req = Request(url, headers={"User-Agent": RSS_USER_AGENT})
-    with urlopen(req, timeout=RSS_TIMEOUT) as resp:
-        return resp.read()
+    """带指数退避重试的 HTTP GET 请求"""
+    last_exc = None
+    for attempt in range(1 + RSS_RETRIES):
+        try:
+            req = Request(url, headers={"User-Agent": RSS_USER_AGENT})
+            with urlopen(req, timeout=RSS_TIMEOUT) as resp:
+                return resp.read()
+        except Exception as e:
+            last_exc = e
+            if attempt < RSS_RETRIES:
+                delay = RSS_BACKOFF_BASE * (2 ** attempt) + random.uniform(0, 0.5)
+                time.sleep(delay)
+    raise last_exc  # type: ignore[misc]
 
 
 def _parse_rss(raw: bytes, source_name: str) -> list[NewsItem]:
@@ -83,8 +102,8 @@ def _parse_rss(raw: bytes, source_name: str) -> list[NewsItem]:
     feed = feedparser.parse(raw)
 
     if feed.bozo and not feed.entries:
-        # bozo=1 且无条目 → 真实解析失败（如返回的是 HTML 不是 XML）
-        print(f"  ⚠ feedparser 解析失败 (bozo): {feed.bozo_exception}")
+        # bozo=1 且无条目 -> 真实解析失败（如返回的是 HTML 不是 XML）
+        log.warning("feedparser 解析失败 (bozo): %s", feed.bozo_exception)
         return items
 
     for entry in feed.entries:
@@ -104,13 +123,12 @@ def _parse_rss(raw: bytes, source_name: str) -> list[NewsItem]:
 
         # 清理 HTML 标签
         content_clean = re.sub(r"<[^>]+>", " ", content_raw)
-        content_clean = re.sub(r"\s+", " ", content_clean).strip()[:200]
+        content_clean = re.sub(r"\s+", " ", content_clean).strip()[:config.SUMMARY_MAX_LENGTH]
 
         # 发布时间
         published = ""
         if hasattr(entry, "published_parsed") and entry.published_parsed:
-            from time import mktime
-            published = datetime.fromtimestamp(mktime(entry.published_parsed)).isoformat()
+            published = datetime.fromtimestamp(time.mktime(entry.published_parsed)).isoformat()
         elif hasattr(entry, "published"):
             published = entry.published
 
@@ -132,48 +150,76 @@ def _detect_lang(source_name: str) -> str:
     return "zh" if source_name in config.CHINESE_SOURCE_NAMES else "en"
 
 
+def _collect_single_source(name: str, url: str, lang: str) -> dict:
+    """采集单个 RSS 源（可被 ThreadPoolExecutor 并行调用）"""
+    limit = config.MAX_PER_SOURCE.get(name, 3)
+    result = {"name": name, "items": [], "status": "fail", "count": 0, "error": ""}
+
+    try:
+        raw = _fetch(url)
+        items = _parse_rss(raw, name)[:limit]
+        if items:
+            result["items"] = items
+            result["status"] = "success"
+            result["count"] = len(items)
+            return result
+        raise ValueError("0 条")
+    except Exception as e:
+        # 尝试 RSSHub 备用 URL
+        fallback_url = config.RSS_FALLBACKS.get(name)
+        if fallback_url:
+            try:
+                raw = _fetch(fallback_url)
+                items = _parse_rss(raw, name)[:limit]
+                if items:
+                    result["items"] = items
+                    result["status"] = "success(fallback)"
+                    result["count"] = len(items)
+                    return result
+                result["error"] = "备用RSS无数据"
+            except Exception as e2:
+                result["error"] = str(e2)[:50]
+        else:
+            result["error"] = str(e)[:50]
+        return result
+
+
 def collect_rss() -> list[NewsItem]:
     """
-    抓取所有 RSS 源，返回 NewsItem 列表。
+    并发抓取所有 RSS 源（ThreadPoolExecutor），返回 NewsItem 列表。
     单个源失败不影响整体。
-    使用 source_status 字典精确跟踪每个源的状态（不再依赖 except 副作用）。
     """
     all_items = []
-    source_status = {}  # name -> {"status": str, "count": int, "error": str}
+    source_status = {}
 
-    print(f"\n  ── RSS 采集 [{len(config.RSS_SOURCES)} 个源] ──")
+    log.info("")
+    log.info("  RSS 采集 [%d 个源，并发数 %d]", len(config.RSS_SOURCES), CONCURRENT_WORKERS)
 
-    for name, url, lang in config.RSS_SOURCES:
-        try:
-            print(f"  → {name} ({lang}) ... ", end="", flush=True)
-            limit = config.MAX_PER_SOURCE.get(name, 3)
-            items = _parse_rss(_fetch(url), name)[:limit]
-            if items:
-                print(f"✔ {len(items)} 条")
-                source_status[name] = {"status": "success", "count": len(items)}
-                all_items.extend(items)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=CONCURRENT_WORKERS) as executor:
+        futures = {
+            executor.submit(_collect_single_source, name, url, lang): name
+            for name, url, lang in config.RSS_SOURCES
+        }
+
+        for future in concurrent.futures.as_completed(futures):
+            result = future.result()
+            name = result["name"]
+            status = result["status"]
+            count = result["count"]
+
+            if status == "success":
+                log.info("  -> %s: %d 条", name, count)
+            elif status == "success(fallback)":
+                log.info("  -> %s: %d 条 (备用)", name, count)
             else:
-                raise ValueError("0 条，尝试备用 RSS")
-        except Exception as e:
-            # 尝试 RSSHub 备用 URL
-            fallback_url = config.RSS_FALLBACKS.get(name)
-            if fallback_url:
-                try:
-                    print(f"⚠ 主RSS失败，尝试备用 ... ", end="", flush=True)
-                    items = _parse_rss(_fetch(fallback_url), name)[:config.MAX_PER_SOURCE.get(name, 3)]
-                    if items:
-                        print(f"✔ {len(items)} 条 (备用)")
-                        source_status[name] = {"status": "success(fallback)", "count": len(items)}
-                        all_items.extend(items)
-                    else:
-                        print(f"✘ 备用也无数据")
-                        source_status[name] = {"status": "fail", "count": 0, "error": "备用RSS无数据"}
-                except Exception as e2:
-                    print(f"✘ 备用也失败: {str(e2)[:40]}")
-                    source_status[name] = {"status": "fail", "count": 0, "error": str(e2)[:50]}
-            else:
-                print(f"✘ {str(e)[:60]}")
-                source_status[name] = {"status": "fail", "count": 0, "error": str(e)[:50]}
+                log.warning("  -> %s: 失败 %s", name, result["error"])
+
+            source_status[name] = {
+                "status": status,
+                "count": count,
+                "error": result.get("error", ""),
+            }
+            all_items.extend(result["items"])
 
     # 清晰汇总：成功源与失败源分开统计
     success_items = [(k, v) for k, v in source_status.items()
@@ -181,16 +227,23 @@ def collect_rss() -> list[NewsItem]:
     failed_items = [(k, v) for k, v in source_status.items()
                     if v["status"] == "fail"]
 
-    print(f"  RSS 共获取 {len(all_items)} 条")
+    log.info("  RSS 共获取 %d 条", len(all_items))
     if success_items:
-        print(f"  ✅ 成功源 ({len(success_items)} 个):")
-        for k, v in success_items:
+        log.info("  成功 %d 个源:", len(success_items))
+        for k, v in sorted(success_items):
             tag = " (备用)" if v["status"] == "success(fallback)" else ""
-            print(f"     {k}: {v['count']}条{tag}")
+            log.info("     %s: %d条%s", k, v["count"], tag)
     if failed_items:
-        print(f"  ❌ 失败源 ({len(failed_items)} 个):")
-        for k, v in failed_items:
-            print(f"     {k}: {v['error']}")
+        log.warning("  失败 %d 个源:", len(failed_items))
+        for k, v in sorted(failed_items):
+            log.warning("     %s: %s", k, v["error"])
+
+    log_structured(
+        log, logging.INFO, "rss_collect_complete",
+        total_items=len(all_items),
+        success_sources=len(success_items),
+        failed_sources=len(failed_items),
+    )
     return all_items
 
 
@@ -205,9 +258,10 @@ def collect_all() -> list[NewsItem]:
     # RSS
     pool.extend(collect_rss())
 
-    print(f"\n  📦 数据池总计: {len(pool)} 条新闻")
+    log.info("")
+    log.info("  数据池总计: %d 条新闻", len(pool))
     if pool:
-        print(f"     来源: {len(set(it.source for it in pool))} 个不同源")
+        log.info("     来源: %d 个不同源", len(set(it.source for it in pool)))
     return pool
 
 

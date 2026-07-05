@@ -6,6 +6,7 @@ ai_analyzer.py — AI 分析、来源配额、Token 估算与上下文截断
 import json
 import os
 import re
+import time
 from collections import defaultdict
 from difflib import SequenceMatcher
 from urllib.request import Request, urlopen
@@ -13,6 +14,11 @@ from urllib.request import Request, urlopen
 from src import config
 from src.config import get_random_style
 from src.models import NewsItem
+from src.logger import get_logger
+
+import tiktoken
+
+log = get_logger("ai")
 
 # tiktoken 编码器（cl100k_base 兼容主流模型）
 import tiktoken
@@ -25,9 +31,10 @@ _tk_encoding = tiktoken.get_encoding("cl100k_base")
 
 def load_history_titles():
     """
-    从 tech-briefing.html 中读取 __NEWS_DATA__ 数组并提取标题，
+    从 tech-briefing.html 和 .aihot_history.json 中读取已发送标题，
     用于 AI 排重（避免每日重复报道相似内容）。
     """
+    titles = []
     try:
         with open(config.HTML_FILE, "r", encoding="utf-8") as f:
             content = f.read()
@@ -36,13 +43,74 @@ def load_history_titles():
             return []
         data = json.loads(m.group(1))
         titles = [item.get("title", "") for item in data if item.get("title")]
-        return titles
     except Exception as e:
-        print(f"  [警告] 读取历史简报用于排重时出错: {e}")
+        log.warning("读取历史简报用于排重时出错: %s", e)
         return []
 
+    # 追加 AIHOT 补推历史（避免第二天重复选到同一内容）
+    try:
+        if os.path.exists(config.AIHOT_HISTORY_FILE):
+            with open(config.AIHOT_HISTORY_FILE, "r", encoding="utf-8") as f:
+                aihot_data = json.load(f)
+            aihot_titles = aihot_data.get("items", [])
+            titles.extend(aihot_titles)
+            log.info("  AIHOT 补推历史: %d 条", len(aihot_titles))
+    except Exception as e:
+        log.warning("读取 AIHOT 补推历史失败: %s", e)
 
-def _balance_sources(items: list, max_total: int = 30, min_per_source: int = 2, min_sources: int = 5) -> list:
+    return titles
+
+
+def _prescreen_items(items: list[NewsItem]) -> list[NewsItem]:
+    """
+    规则预筛：在配额制之前执行，零成本过滤低质量内容。
+
+    规则：
+    1. 正文 < 10 字 → 丢弃（空/垃圾内容）
+    2. Twitter 间去重：不同 Twitter 源但标题相似的推文，只留 1 条
+    3. 来源类型标记（用于后续的按类配额）
+    """
+    if not items:
+        return items
+
+    # 规则 1: 过滤过短内容
+    filtered = [it for it in items if len(it.content or "") >= 10]
+    removed_short = len(items) - len(filtered)
+    if removed_short:
+        log.info("  -> 预筛: 过滤 %d 条过短内容（正文 < 10 字）", removed_short)
+
+    # 规则 2: Twitter 源间去重
+    twitter_items = []
+    non_twitter = []
+    for it in filtered:
+        if "twitter" in it.source.lower():
+            twitter_items.append(it)
+        else:
+            non_twitter.append(it)
+
+    if twitter_items:
+        unique_tweets = []
+        seen_titles = set()
+        # 按正文长度排序，保留最长的（信息量最大的）
+        twitter_items.sort(key=lambda x: len(x.content or ""), reverse=True)
+        for it in twitter_items:
+            # 取标题前 30 字作为去重键
+            key = (it.title or "").strip()[:30].lower()
+            if key and key not in seen_titles:
+                seen_titles.add(key)
+                unique_tweets.append(it)
+            else:
+                log.debug("  -> 预筛: Twitter 去重移除 %s: %s", it.source, (it.title or "")[:30])
+
+        if len(unique_tweets) < len(twitter_items):
+            log.info("  -> 预筛: Twitter %d 条 -> 去重后 %d 条",
+                     len(twitter_items), len(unique_tweets))
+        filtered = non_twitter + unique_tweets
+
+    return filtered
+
+
+def _balance_sources(items: list, max_total: int = 40, min_per_source: int = 2, min_sources: int = 5) -> list:
     """
     来源配额制：先按来源分桶，每源保底 2 条，
     再从剩余池中补满到 max_total 条，确保覆盖至少 min_sources 个源。
@@ -64,7 +132,7 @@ def _balance_sources(items: list, max_total: int = 30, min_per_source: int = 2, 
         selected.extend(remaining[:needed])
 
     source_count = len(set(it.source for it in selected))
-    print(f"  -> 配额后: {len(selected)} 条（覆盖 {source_count} 个来源）")
+    log.info("  -> 配额后: %d 条（覆盖 %d 个来源）", len(selected), source_count)
     return selected
 
 
@@ -138,7 +206,7 @@ def _filter_history_duplicates(items: list[NewsItem]) -> list[NewsItem]:
             kept.append(it)
 
     if removed:
-        print(f"  -> 历史排重: 过滤 {removed} 条已报道过的新闻")
+        log.info("  -> 历史排重: 过滤 %d 条已报道过的新闻", removed)
     return kept
 
 
@@ -210,19 +278,19 @@ def _truncate_context(items_for_ai: list[NewsItem], system_prompt: str,
         if content_limit > 50:
             old = content_limit
             content_limit = 50
-            print(f"  -> 上下文超限 ({ctx['total_tokens']} > {token_budget})，"
-                  f"content 缩短 {old}->{content_limit} 字")
+            log.info("  -> 上下文超限 (%d > %d)，content 缩短 %d->%d 字",
+                      ctx["total_tokens"], token_budget, old, content_limit)
             continue
         if max_items > 25:
             max_items = 25
-            print(f"  -> 上下文仍超限，总条数缩至 {max_items}")
+            log.info("  -> 上下文仍超限，总条数缩至 %d", max_items)
             continue
         if max_items > 20:
             max_items = 20
-            print(f"  -> 上下文仍超限，总条数缩至 {max_items}")
+            log.info("  -> 上下文仍超限，总条数缩至 %d", max_items)
             continue
 
-        print(f"  [注意] 已达最大截断仍超限 ({ctx['total_tokens']} > {token_budget})，继续发送")
+        log.warning("已达最大截断仍超限 (%d > %d)，继续发送", ctx["total_tokens"], token_budget)
         break
 
     return _build_context(items_for_ai, system_prompt,
@@ -299,7 +367,8 @@ def _translate_english_titles(items: list[dict]) -> list[dict]:
             need.append((i, title))
     if not need:
         return items
-    print(f"\n  [翻译兜底] {len(need)} 条纯英文标题，正在翻译...")
+    log.info("")
+    log.info("  翻译兜底: %d 条纯英文标题，正在翻译...", len(need))
     lines = "\n".join(f"{j+1}. {t}" for j, (_, t) in enumerate(need))
     prompt = f"将以下英文标题翻译成自然中文，技术名词（GPT-5O、Agent、RAG、MoE等）保留英文：\n{lines}"
     payload = json.dumps({"model": config.MODEL_NAME, "messages": [
@@ -330,12 +399,12 @@ def _translate_english_titles(items: list[dict]) -> list[dict]:
                     oi = need[idx][0]
                     old = items[oi]["title"]
                     items[oi]["title"] = translated
-                    print(f"    {old[:35]}... -> {translated[:35]}")
+                    log.info("    %s... -> %s", old[:35], translated[:35])
             except (ValueError, IndexError):
                 continue
-        print(f"  [翻译兜底] 完成 {len(need)} 条")
+        log.info("  翻译兜底完成 %d 条", len(need))
     except Exception as e:
-        print(f"  [翻译兜底] 失败: {str(e)[:60]}")
+        log.warning("  翻译兜底失败: %s", str(e)[:60])
     return items
 
 
@@ -353,6 +422,100 @@ def reset_parse_stats():
     _json_parse_stats["failed"] = 0
 
 
+def _filter_twitter_items(twitter_items: list[NewsItem], model: str = "THUDM/GLM-Z1-9B-0414",
+                          max_chars: int = 10000) -> list[NewsItem]:
+    """
+    用免费模型筛选 Twitter 内容，精选最有价值的 3-5 条。
+
+    如果推文总字数超过 max_chars，自动拆分为两次请求，
+    防止免费模型 context window 超限。
+    """
+    if not twitter_items or not config.API_KEY:
+        return twitter_items[:3]
+
+    lines = []
+    for i, it in enumerate(twitter_items, 1):
+        lines.append(f"{i}. [{it.source}] {it.title}\n   简介: {(it.content or '无描述')[:150]}")
+
+    prompt_template = (
+        "从以下 AI 推文中选出最有价值的 3-5 条。\n"
+        "【优先保留】模型发布、技术突破、工具推荐、论文解读\n"
+        "【过滤】纯个人观点、转发无评论、营销内容、无信息量的日常动态\n"
+        "【去重】同一话题只保留信息量最丰富的一条\n"
+        "只输出编号，用逗号分隔，如：1,3,5\n\n"
+    )
+
+    def _call_model(prompt_text: str, offset: int = 0) -> list[int]:
+        """调用免费模型，返回选中编号（相对 offset 的原始索引）"""
+        payload = json.dumps({
+            "model": model,
+            "messages": [
+                {"role": "system", "content": "你是一个 AI 资讯筛选助手，从推文中选出最有价值的几条。"},
+                {"role": "user", "content": prompt_text},
+            ],
+            "temperature": 0.1,
+            "max_tokens": 128,
+        }).encode("utf-8")
+
+        url = f"{config.API_BASE_URL.rstrip('/')}/v1/chat/completions"
+        req = Request(url, data=payload, headers={
+            "Authorization": f"Bearer {config.API_KEY}",
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (compatible; BriefingBot/2.0)",
+        })
+
+        with urlopen(req, timeout=30) as resp:
+            result = json.loads(resp.read().decode("utf-8"))
+        raw = result["choices"][0]["message"]["content"]
+        nums = [int(n.strip()) for n in re.split(r'[,，\s]+', raw) if n.strip().isdigit()]
+        return [offset + n - 1 for n in nums if 1 <= n <= len(twitter_items[offset:])]
+
+    # 估算输入总字符数，超限则分批
+    total_chars = len(prompt_template) + sum(len(l) for l in lines)
+    all_selected_indices = []
+
+    try:
+        from urllib.error import HTTPError
+
+        if total_chars <= max_chars:
+            prompt = prompt_template + "\n".join(lines)
+            all_selected_indices = _call_model(prompt)
+        else:
+            # 分批：每批最大字符数为 max_chars 的一半（留余量）
+            batch_size = max_chars // 2
+            batches = []
+            current_batch = []
+            current_size = 0
+            for l in lines:
+                if current_size + len(l) > batch_size and current_batch:
+                    batches.append(current_batch)
+                    current_batch = []
+                    current_size = 0
+                current_batch.append(l)
+                current_size += len(l)
+            if current_batch:
+                batches.append(current_batch)
+
+            log.info("  -> Twitter 推文 %d 条 (%d 字符)，拆为 %d 批筛选",
+                     len(twitter_items), total_chars, len(batches))
+
+            offset = 0
+            for batch_lines in batches:
+                prompt = prompt_template + "\n".join(batch_lines)
+                indices = _call_model(prompt, offset)
+                all_selected_indices.extend(indices)
+                offset += len(batch_lines)
+
+        selected = [twitter_items[i] for i in all_selected_indices if 0 <= i < len(twitter_items)]
+        if not selected:
+            selected = twitter_items[:3]
+        log.info("  -> Twitter 精选: %d 条 -> %d 条 (%s)", len(twitter_items), len(selected), model)
+        return selected
+    except Exception as e:
+        log.warning("Twitter 精选失败 (%s)，保留前 3 条", str(e)[:50])
+        return twitter_items[:3]
+
+
 def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
     """
     将过滤后的干净新闻发给大模型。
@@ -362,31 +525,45 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
       (style_name, None)          全部失败
     """
     if not config.API_KEY:
-        print("[警告] 未配置 API_KEY，跳过 AI 分析")
+        log.warning("未配置 API_KEY，跳过 AI 分析")
         return ("", None)
 
     style_name, system_prompt = get_random_style()
-    print(f"\n  -> 今日风格: [{style_name}]")
+    log.info("")
+    log.info("  -> 今日风格: [%s]", style_name)
 
     balanced = _balance_sources(items)
     zh_items = [it for it in balanced if it.lang == "zh"]
     en_items = [it for it in balanced if it.lang == "en"]
     items_for_ai = en_items + zh_items
-    print(f"  -> 喂给 AI: 英文 {len(en_items)} 条 + 中文 {len(zh_items)} 条 = {len(items_for_ai)} 条")
+    log.info("  -> 配额后: 英文 %d 条 + 中文 %d 条 = %d 条", len(en_items), len(zh_items), len(items_for_ai))
+
+    # 规则预筛（零成本，在 AI 分析之前过滤低质量内容）
+    items_for_ai = _prescreen_items(items_for_ai)
+
+    # Twitter 用免费模型精选（不占用 V4-Flash 配额）
+    twitter_items = [it for it in items_for_ai if "twitter" in it.source.lower()]
+    non_twitter_items = [it for it in items_for_ai if "twitter" not in it.source.lower()]
+    if twitter_items:
+        twitter_items = _filter_twitter_items(twitter_items)
+        items_for_ai = non_twitter_items + twitter_items
+        log.info("  -> 合并后: %d 条（非Twitter %d + Twitter精选 %d）",
+                 len(items_for_ai), len(non_twitter_items), len(twitter_items))
 
     items_for_ai = _filter_history_duplicates(items_for_ai)
     if not items_for_ai:
-        print("  [警告] 所有新闻均已被历史报道过滤，将继续使用 AI 判断")
+        log.warning("所有新闻均已被历史报道过滤，将继续使用 AI 判断")
 
     ctx = _truncate_context(items_for_ai, system_prompt)
     user_content = ctx["user_content"]
-    print(f"  -> 最终输入: {ctx['content_limit']}字摘要 x {ctx['item_count']}条 "
-          f"(预估 {ctx['total_tokens']} tokens, 系统 {ctx['system_tokens']} tokens)")
+    log.info("  -> 最终输入: %d字摘要 x %d条 (预估 %d tokens, 系统 %d tokens)",
+             ctx["content_limit"], ctx["item_count"], ctx["total_tokens"], ctx["system_tokens"])
 
     url = f"{config.API_BASE_URL.rstrip('/')}/v1/chat/completions"
 
     for attempt in range(1, max_retries + 1):
-        print(f"\n  -> 调用 AI 分析 ({config.MODEL_NAME}) ... ", end="", flush=True)
+        log.info("")
+        log.info("  -> 调用 AI 分析 (%s) ...", config.MODEL_NAME)
 
         payload = json.dumps({
             "model": config.MODEL_NAME,
@@ -412,7 +589,7 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
                 raise ValueError(f"API 返回异常: {str(result)[:200]}")
 
             content = result["choices"][0]["message"]["content"]
-            print(f"成功 ({len(content)} 字符)")
+            log.info("成功 (%d 字符)", len(content))
 
             # Token 监控：记录实际消耗 vs 预估
             actual_usage = result.get("usage", {})
@@ -422,9 +599,10 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
                 est = ctx["total_tokens"]
                 dev = abs(est - actual_prompt) / actual_prompt
                 status = "正常" if dev < 0.15 else "偏差过大"
-                print(f"  Token 监控: {status} | 预估={est} | 实际={actual_prompt} | 输出={actual_completion} | 偏差={dev:.1%}")
+                log.info("  Token 监控: %s | 预估=%d | 实际=%d | 输出=%d | 偏差=%.1f%%",
+                         status, est, actual_prompt, actual_completion, dev * 100)
             else:
-                print(f"  Token 监控: API 未返回 usage 数据")
+                log.info("  Token 监控: API 未返回 usage 数据")
 
             parsed = _safe_parse_json(content)
             if not parsed:
@@ -433,23 +611,23 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
             news_count = len(parsed.get("news", [])) if "news" in parsed else 0
             if not news_count:
                 news_count = len(parsed.get("international", [])) + len(parsed.get("china", []))
-            print(f"  -> AI 筛选: {news_count} 条新闻")
+            log.info("  -> AI 筛选: %d 条新闻", news_count)
             stats = _json_parse_stats
             if stats["total"] > 0:
                 direct_pct = stats["direct_ok"] / stats["total"] * 100
                 comma_pct = stats["fallback_comma"] / stats["total"] * 100
                 quote_pct = stats["fallback_quotes"] / stats["total"] * 100
                 fail_pct = stats["failed"] / stats["total"] * 100
-                print(f"  JSON 质量: 直接通过 {direct_pct:.0f}% | 逗号修复 {comma_pct:.0f}% | 引号修复 {quote_pct:.0f}% | 失败 {fail_pct:.0f}%")
+                log.info("  JSON 质量: 直接通过 %.0f%% | 逗号修复 %.0f%% | 引号修复 %.0f%% | 失败 %.0f%%",
+                         direct_pct, comma_pct, quote_pct, fail_pct)
                 if fail_pct > 5:
-                    print(f"  [WARNING] JSON 解析失败率 {fail_pct:.0f}% 超过 5% 阈值，建议检查 Prompt 效果")
+                    log.warning("JSON 解析失败率 %.0f%% 超过 5%% 阈值，建议检查 Prompt 效果", fail_pct)
             return (style_name, parsed)
 
         except Exception as e:
             if attempt < max_retries:
-                print(f"第{attempt}次失败 ({str(e)[:60]})，5秒后重试...")
-                import time
+                log.warning("第%d次失败 (%s)，5秒后重试...", attempt, str(e)[:60])
                 time.sleep(5)
             else:
-                print(f"全部 {max_retries} 次重试均失败: {str(e)[:80]}")
+                log.error("全部 %d 次重试均失败: %s", max_retries, str(e)[:80])
                 return (style_name, None)
