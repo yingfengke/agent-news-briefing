@@ -28,7 +28,7 @@ import logging
 
 log = get_logger("aihot")
 
-AIHOT_API = "https://aihot.virxact.com/api/curated"
+AIHOT_API = os.getenv("AIHOT_API", "https://aihot.virxact.com/api/curated")
 SIMILARITY_THRESHOLD = 0.7  # 标题相似度超过此值视为重复
 
 

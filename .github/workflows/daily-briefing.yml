@@ -26,6 +26,7 @@ jobs:
       RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
       SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
       SMTP_PORT: ${{ secrets.SMTP_PORT }}
+      AIHOT_API: ${{ secrets.AIHOT_API || 'https://aihot.virxact.com/api/curated' }}
 
     steps:
       - name: 检出代码
@@ -44,7 +45,7 @@ jobs:
       - name: 依赖安全审计
         run: |
           pip install pip-audit
-          pip-audit --desc on -r requirements.txt || echo "存在已知漏洞依赖，建议及时更新"
+          pip-audit --desc on -r requirements.txt || (echo "::warning::存在已知漏洞依赖，建议及时更新" && exit 1)
 
       # ============================================================
       # 以下关键步骤使用 retry 机制：
@@ -87,6 +88,7 @@ jobs:
       RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
       SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
       SMTP_PORT: ${{ secrets.SMTP_PORT }}
+      AIHOT_API: ${{ secrets.AIHOT_API || 'https://aihot.virxact.com/api/curated' }}
 
     steps:
       - name: 检出代码
