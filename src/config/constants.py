@@ -28,7 +28,11 @@ EMAIL_OUTPUT = os.path.join(BASE_DIR, "web", "email_content.html")
 CRAWL_LOG_FILE = os.path.join(BASE_DIR, ".crawl_log.json")
 
 # 内容截断
-SUMMARY_MAX_LENGTH = 300  # content 字段最大长度（字符）
+SUMMARY_MAX_LENGTH = 500  # content 字段最大长度（字符）
+
+# RSS 源健康跟踪
+SOURCE_HEALTH_FILE = os.path.join(BASE_DIR, ".source_health.json")
+SOURCE_HEALTH_MAX_FAILURES = 7  # 连续失败超过此次数则自动跳过
 
 # 过滤层阈值
 DEDUP_MINHASH_THRESHOLD = 0.8       # MinHash Jaccard 相似度阈值
