@@ -72,6 +72,45 @@ CONCURRENT_WORKERS = 8             # 并行采集并发数
 RSS_USER_AGENT = "Mozilla/5.0 (compatible; BriefingBot/2.0)"
 
 
+# ============================================================
+# RSS 源健康跟踪
+# ============================================================
+
+def _load_source_health() -> dict[str, int]:
+    """读取源连续失败次数记录"""
+    if os.path.exists(config.SOURCE_HEALTH_FILE):
+        try:
+            with open(config.SOURCE_HEALTH_FILE, "r") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, OSError):
+            pass
+    return {}
+
+
+def _save_source_health(health: dict[str, int]) -> None:
+    """保存源连续失败次数记录"""
+    try:
+        with open(config.SOURCE_HEALTH_FILE, "w") as f:
+            json.dump(health, f)
+    except OSError:
+        pass
+
+
+def _update_source_health(name: str, success: bool) -> dict[str, int]:
+    """
+    更新单个源的连续失败计数并保存。
+    success=True → 重置为 0；success=False → 递增。
+    返回更新后的全量健康数据。
+    """
+    health = _load_source_health()
+    if success:
+        health[name] = 0
+    else:
+        health[name] = health.get(name, 0) + 1
+    _save_source_health(health)
+    return health
+
+
 def _fetch(url: str) -> bytes:
     """带指数退避重试的 HTTP GET 请求"""
     last_exc = None
@@ -125,29 +164,42 @@ def _parse_rss(raw: bytes, source_name: str) -> list[NewsItem]:
         content_clean = re.sub(r"<[^>]+>", " ", content_raw)
         content_clean = re.sub(r"\s+", " ", content_clean).strip()[:config.SUMMARY_MAX_LENGTH]
 
-        # 发布时间
+        # 发布时间：优先 published_parsed，再 published，再 updated_parsed，再 updated
         published = ""
         if hasattr(entry, "published_parsed") and entry.published_parsed:
             published = datetime.fromtimestamp(time.mktime(entry.published_parsed)).isoformat()
         elif hasattr(entry, "published"):
             published = entry.published
+        elif hasattr(entry, "updated_parsed") and entry.updated_parsed:
+            published = datetime.fromtimestamp(time.mktime(entry.updated_parsed)).isoformat()
+        elif hasattr(entry, "updated"):
+            published = entry.updated
 
         items.append(_build_item(
             title, content_clean, link, source_name,
-            _detect_lang(source_name), "rss",
+            _detect_lang(source_name, title), "rss",
             published_at=published,
         ))
 
     return items
 
 
-def _detect_lang(source_name: str) -> str:
-    """根据来源名判断语言"""
+def _detect_lang(source_name: str, title_or_content: str = "") -> str:
+    """
+    判断新闻语言。
+    优先查 RSS_SOURCES 配置表；
+    次优查 CHINESE_SOURCE_NAMES 集合；
+    最后尝试基于内容检测（包含中文字符则判定为中文）。
+    """
     for name, _, lang in config.RSS_SOURCES:
         if name == source_name:
             return lang
-    # 不在 RSS 配置中（爬虫来源），看中文源集合
-    return "zh" if source_name in config.CHINESE_SOURCE_NAMES else "en"
+    if source_name in config.CHINESE_SOURCE_NAMES:
+        return "zh"
+    # 内容回退检测：包含中文字符 → 中文
+    if title_or_content and re.search(r"[\u4e00-\u9fff]", title_or_content):
+        return "zh"
+    return "en"
 
 
 def _collect_single_source(name: str, url: str, lang: str) -> dict:
@@ -187,7 +239,7 @@ def _collect_single_source(name: str, url: str, lang: str) -> dict:
 def collect_rss() -> list[NewsItem]:
     """
     并发抓取所有 RSS 源（ThreadPoolExecutor），返回 NewsItem 列表。
-    单个源失败不影响整体。
+    单个源失败不影响整体。连续失败超过 SOURCE_HEALTH_MAX_FAILURES 次的源自动跳过。
     """
     all_items = []
     source_status = {}
@@ -195,10 +247,27 @@ def collect_rss() -> list[NewsItem]:
     log.info("")
     log.info("  RSS 采集 [%d 个源，并发数 %d]", len(config.RSS_SOURCES), CONCURRENT_WORKERS)
 
+    # 读取源健康状态，跳过连续失败过多的源
+    health = _load_source_health()
+    max_fail = config.SOURCE_HEALTH_MAX_FAILURES
+    skipped_sources = []
+    active_sources = []
+    for name, url, lang in config.RSS_SOURCES:
+        fail_count = health.get(name, 0)
+        if fail_count >= max_fail:
+            skipped_sources.append((name, fail_count))
+        else:
+            active_sources.append((name, url, lang))
+
+    if skipped_sources:
+        log.warning("  跳过 %d 个连续失败源:", len(skipped_sources))
+        for name, cnt in sorted(skipped_sources):
+            log.warning("      %s (%d 次)", name, cnt)
+
     with concurrent.futures.ThreadPoolExecutor(max_workers=CONCURRENT_WORKERS) as executor:
         futures = {
             executor.submit(_collect_single_source, name, url, lang): name
-            for name, url, lang in config.RSS_SOURCES
+            for name, url, lang in active_sources
         }
 
         for future in concurrent.futures.as_completed(futures):
@@ -213,6 +282,9 @@ def collect_rss() -> list[NewsItem]:
                 log.info("  -> %s: %d 条 (备用)", name, count)
             else:
                 log.warning("  -> %s: 失败 %s", name, result["error"])
+
+            # 更新源健康状态
+            _update_source_health(name, status.startswith("success"))
 
             source_status[name] = {
                 "status": status,
