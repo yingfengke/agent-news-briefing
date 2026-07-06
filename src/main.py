@@ -85,6 +85,21 @@ def _extract_link(it: dict, summary: str, title_exact_map: dict, source_title_ma
     return link
 
 
+def _normalize_score(raw_score) -> float:
+    """将 AI 返回的 score 规范化，处理字符串/None/数字等异常情况。"""
+    if raw_score is None:
+        return 0
+    if isinstance(raw_score, (int, float)):
+        return float(raw_score)
+    if isinstance(raw_score, str):
+        raw_score = raw_score.strip()
+        try:
+            return float(raw_score)
+        except (ValueError, TypeError):
+            return 0
+    return 0
+
+
 def _try_parse_item(it):
     """尝试将 AI 输出条目解析为字典。"""
     if isinstance(it, dict):
@@ -106,6 +121,46 @@ def _try_parse_item(it):
             pass
     log.warning("无法解析的条目: %s", str(it)[:80])
     return None, False
+
+
+def _apply_fallback_scores(items: list[dict]) -> None:
+    """
+    规则补分：当 AI 返回的 score 全为 0 时，用规则自动打分。
+
+    评分维度（满分 5.0）：
+    - 基础分 2.0
+    - 来源在可信度白名单 +1.0
+    - 多家来源报道 +0.5
+    - 有 tags +0.3
+    - 标题含重要关键词 +0.5
+    """
+    from src.config.sources import CREDIBILITY_WHITELIST
+
+    keywords = ["发布", "开源", "突破", "重大", "首发", "独家", "正式", "上线", "推出", "实测"]
+    whitelist_lower = [w.lower() for w in CREDIBILITY_WHITELIST]
+
+    for item in items:
+        score = 2.0
+
+        link = (item.get("link") or "").lower()
+        source = (item.get("source") or "").lower()
+        if any(w in link or w in source for w in whitelist_lower):
+            score += 1.0
+
+        summary = item.get("summary") or ""
+        if any(kw in summary for kw in ["多家", "N家", "交叉验证", "多家来源", "多家都在报"]):
+            score += 0.5
+
+        if item.get("tags"):
+            score += 0.3
+
+        title = item.get("title") or ""
+        if any(kw in title for kw in keywords):
+            score += 0.5
+
+        item["score"] = round(min(score, 5.0), 1)
+
+    log.info("  -> 规则补分完成: %d 条新闻已自动评分", len(items))
 
 
 # ============================================================
@@ -197,7 +252,7 @@ def main():
                         "summary": summary,
                         "link": _extract_link(parsed, summary, title_exact_map, source_title_map),
                         "source": parsed.get("source", "AI"),
-                        "score": parsed.get("score", 0),
+                        "score": _normalize_score(parsed.get("score")),
                         "tags": parsed.get("tags", []),
                     })
                 detail = ""
@@ -218,7 +273,7 @@ def main():
                         "summary": summary,
                         "link": _extract_link(parsed, summary, title_exact_map, source_title_map),
                         "source": parsed.get("source", "AI"),
-                        "score": parsed.get("score", 0),
+                        "score": _normalize_score(parsed.get("score")),
                         "tags": parsed.get("tags", []),
                     })
                 detail = ""
@@ -256,6 +311,13 @@ def main():
     # ---- 按评分排序（高到低） ----
     log.info("")
     log.info("  -- 按评分排序（高到低） --")
+
+    # AI 未给分时规则补分
+    scored = sum(1 for it in final_items if (it.get("score") or 0) > 0)
+    if scored == 0 and final_items:
+        log.warning("  AI 未返回评分，启用规则补分")
+        _apply_fallback_scores(final_items)
+
     final_items.sort(key=lambda x: x.get("score", 0) or 0, reverse=True)
     scored = sum(1 for it in final_items if it.get("score", 0) > 0)
     log.info("  评分分布: %d/%d 条有评分", scored, len(final_items))

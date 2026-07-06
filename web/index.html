@@ -67,11 +67,23 @@
     .news-card .card-index { font-size: 0.72rem; font-weight: 700; color: #ccc; letter-spacing: 0.1em; }
     .news-card .source-tag { font-size: 0.68rem; color: #888; background: #f0f0ee; padding: 2px 10px; border-radius: 20px; }
     .news-card .tag-tag { font-size: 0.68rem; color: #534AB7; background: #EEEDFE; padding: 2px 10px; border-radius: 20px; margin-left: 4px; }
-    .news-card .score-stars { font-size: 0.68rem; margin-left: 4px; }
+    .news-card .score-badge.high { color: #2e7d32; background: #e8f5e9; }
+    .news-card .score-badge.mid { color: #e65100; background: #fff3e0; }
+    .news-card .score-badge.low { color: #757575; background: #f5f5f5; }
     .news-card .card-title { font-size: 1rem; font-weight: 700; line-height: 1.5; color: #111; margin-bottom: 10px; }
     .news-card .card-summary { font-size: 0.85rem; color: #555; line-height: 1.75; margin-bottom: 14px; }
     .news-card .card-link { font-size: 0.8rem; font-weight: 600; color: #1a1a1a; text-decoration: none; border-bottom: 1.5px solid #1a1a1a; padding-bottom: 1px; transition: opacity 0.2s; }
     .news-card .card-link:hover { opacity: 0.5; }
+    .news-card .card-bottom { display: flex; align-items: center; justify-content: space-between; }
+    .news-card .score-badge { font-size: 0.68rem; font-weight: 600; padding: 2px 10px; border-radius: 10px; }
+
+    .category-header {
+      width: 100%; max-width: 720px;
+      font-size: 0.9rem; font-weight: 700; color: #1a1a1a;
+      letter-spacing: 0.5px; padding-bottom: 6px;
+      border-bottom: 2px solid #1a1a1a; margin: 24px 0 16px 0;
+    }
+    .category-header:first-of-type { margin-top: 0; }
 
     /* 深度分析卡片 */
     .analysis-card {
@@ -347,21 +359,68 @@
           return;
         }
 
-        __NEWS_DATA__.forEach((item, i) => {
-          const card = document.createElement('div');
-          card.className = 'news-card';
-          card.innerHTML = `
+        // 按分类分组（tag 作为分类键）
+        const groups = {};
+        const CATEGORY_ORDER = ['大模型', 'Agent框架', '开发工具', '开源项目', '其他'];
+        __NEWS_DATA__.forEach(item => {
+          const cat = item.tag || '其他';
+          if (!groups[cat]) groups[cat] = [];
+          groups[cat].push(item);
+        });
+
+        // 按固定顺序渲染分类区块
+        let globalIndex = 0;
+        CATEGORY_ORDER.forEach(cat => {
+          if (!groups[cat]) return;
+          const header = document.createElement('div');
+          header.className = 'category-header';
+          header.textContent = `${cat}（${groups[cat].length}条）`;
+          list.appendChild(header);
+
+          groups[cat].forEach((item) => {
+            const card = document.createElement('div');
+            card.className = 'news-card';
+            card.innerHTML = `
             <div class="card-meta">
-              <span class="card-index">No.${String(i + 1).padStart(2, '0')}</span>
+              <span class="card-index">No.${String(++globalIndex).padStart(2, '0')}</span>
               ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}
-              ${item.tag ? `<span class="tag-tag">${item.tag}</span>` : ''}
-              ${item.score ? `<span class="score-stars">${'⭐'.repeat(item.score)}</span>` : ''}
             </div>
             <div class="card-title">${item.title}</div>
             <div class="card-summary">${item.summary}</div>
-            <a class="card-link" href="${item.link}" target="_blank">阅读原文 →</a>
+            <div class="card-bottom">
+              <a class="card-link" href="${item.link}" target="_blank">阅读原文 →</a>
+              ${item.score > 0 ? `<span class="score-badge ${item.score >= 4 ? 'high' : item.score >= 3 ? 'mid' : 'low'}">${Number(item.score).toFixed(1)}</span>` : ''}
+            </div>
           `;
-          list.appendChild(card);
+            list.appendChild(card);
+          });
+        });
+
+        // 处理不在 CATEGORY_ORDER 中的分类
+        Object.keys(groups).forEach(cat => {
+          if (CATEGORY_ORDER.includes(cat)) return;
+          const header = document.createElement('div');
+          header.className = 'category-header';
+          header.textContent = `${cat}（${groups[cat].length}条）`;
+          list.appendChild(header);
+
+          groups[cat].forEach((item) => {
+            const card = document.createElement('div');
+            card.className = 'news-card';
+            card.innerHTML = `
+            <div class="card-meta">
+              <span class="card-index">No.${String(++globalIndex).padStart(2, '0')}</span>
+              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}
+            </div>
+            <div class="card-title">${item.title}</div>
+            <div class="card-summary">${item.summary}</div>
+            <div class="card-bottom">
+              <a class="card-link" href="${item.link}" target="_blank">阅读原文 →</a>
+              ${item.score > 0 ? `<span class="score-badge ${item.score >= 4 ? 'high' : item.score >= 3 ? 'mid' : 'low'}">${Number(item.score).toFixed(1)}</span>` : ''}
+            </div>
+          `;
+            list.appendChild(card);
+          });
         });
 
         list.classList.add('visible');

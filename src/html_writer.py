@@ -146,12 +146,13 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
                           ) if item.get("source") else ""
             score = item.get("score", 0)
             tag = item.get("tag", "")
-            stars = "star" * score if score else ""
+            score_val = float(score) if isinstance(score, (int, float)) else 0
             tag_html = (f'<span style="font-size:10px;color:#555;background:#f0f0ee;'
                         f'padding:2px 10px;border-radius:20px;margin-left:4px;">{tag}</span>'
                         ) if tag else ''
-            score_html = (f'<span style="font-size:10px;color:#e67e22;margin-left:4px;">{stars}</span>'
-                         ) if stars else ''
+            score_html = (f'<span style="font-size:10px;font-weight:600;color:#e67e22;'
+                          f'margin-left:4px;">{score_val:.1f}</span>'
+                         ) if score_val > 0 else ''
             html.append(f"""
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;margin-bottom:16px;">
           <tr>
@@ -160,8 +161,8 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
                 <span style="font-size:11px;font-weight:700;color:#ccc;letter-spacing:1px;">No.{i:02d}</span>
                 {' ' + source_tag if source_tag else ''}{tag_html}{score_html}
               </div>
-              <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 10px 0;line-height:1.5;">{item["title"]}</h2>
-              <p style="font-size:13px;color:#555;margin:0 0 14px 0;line-height:1.7;">{clean_links(item["summary"])}</p>
+              <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 8px 0;line-height:1.5;">{item["title"]}</h2>
+              <p style="font-size:13px;color:#555;margin:0 0 10px 0;line-height:1.7;">{clean_links(item["summary"])}</p>
             </td>
           </tr>
         </table>""")
@@ -185,15 +186,15 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
         proj_cards = []
         for p in projects:
             proj_cards.append(f"""
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;margin-bottom:14px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;margin-bottom:10px;">
           <tr>
-            <td style="padding:16px 20px;">
-              <div style="font-size:14px;font-weight:700;color:#111;margin-bottom:4px;">
-                <a href="{p.get("link","#")}" target="_blank" style="color:#1a1a1a;text-decoration:none;">{p.get("name","")}</a>
-                <span style="font-size:12px;color:#888;margin-left:8px;">{p.get("stars","")}</span>
+            <td style="padding:20px 24px;">
+              <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:6px;">
+                <span style="color:#1a1a1a;">{p.get("name","")}</span>
+                <span style="font-size:12px;color:#888;margin-left:8px;font-weight:400;">{p.get("stars","")}</span>
               </div>
-              <p style="font-size:13px;color:#555;margin:4px 0 0 0;line-height:1.6;">{p.get("desc","")}</p>
-              <span style="font-size:11px;color:#888;background:#f0f0ee;padding:2px 10px;border-radius:20px;display:inline-block;margin-top:8px;">{p.get("tag","")}</span>
+              <p style="font-size:13px;color:#555;margin:8px 0 0 0;line-height:1.7;">{p.get("desc","")}</p>
+              <span style="font-size:11px;color:#888;background:#f0f0ee;padding:2px 10px;border-radius:20px;display:inline-block;margin-top:10px;">{p.get("tag","")}</span>
             </td>
           </tr>
         </table>""")
@@ -250,7 +251,6 @@ def generate_email_html(news_items, daily_analysis="", projects=None,
         "projects_section": projects_section,
         "filter_report_section": filter_report_section,
         "trivia_section": trivia_section,
-        "link_list_section": web_link_section,
         "style_tag": style_tag,
         "repo_url": "GitHub: yingfengke/agent-news-briefing",
     }
@@ -332,7 +332,7 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
             score = item.get("score", 0)
             tag = item.get("tag", "")
             score_val = float(score) if isinstance(score, (int, float)) else 0
-            score_display = f"{score_val:.1f}"
+            score_text = f"{score_val:.1f}分"
             # 颜色按分数高低：高(绿) > 中(橙) > 低(灰)
             if score_val >= 4.0:
                 score_color = "#2e7d32"
@@ -343,21 +343,21 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
             else:
                 score_color = "#757575"
                 score_bg = "#f5f5f5"
-            score_html = (
-                f'<span style="font-size:10px;font-weight:600;color:{score_color};'
-                f'background:{score_bg};padding:1px 8px;border-radius:10px;'
-                f'margin-left:4px;">{score_display}</span>'
-            ) if score_val > 0 else ''
+            score_html = (f'<span style="font-size:10px;font-weight:600;color:{score_color};'
+                          f'background:{score_bg};padding:1px 8px;border-radius:10px;'
+                          f'margin-left:4px;">{score_text}</span>'
+                         ) if score_val > 0 else ''
             html.append(f"""
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;margin-bottom:16px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;margin-bottom:10px;">
           <tr>
             <td style="padding:20px 24px;">
               <div style="margin-bottom:10px;">
                 <span style="font-size:11px;font-weight:700;color:#ccc;letter-spacing:1px;">No.</span>
                 {' ' + source_tag if source_tag else ''}{score_html}
               </div>
-              <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 10px 0;line-height:1.5;">{item["title"]}</h2>
-              <p style="font-size:13px;color:#555;margin:0 0 14px 0;line-height:1.7;">{clean_links(item["summary"])}</p>
+              <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 8px 0;line-height:1.5;">{item["title"]}</h2>
+              <p style="font-size:13px;color:#555;margin:0 0 10px 0;line-height:1.7;">{clean_links(item["summary"])}</p>
+              <div style="font-size:12px;font-weight:600;color:#1a1a1a;">&#9654; 阅读原文</div>
             </td>
           </tr>
         </table>""")
@@ -370,11 +370,13 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
             items_html = make_card_html(groups[cat])
             section_parts.append(f"""
         <tr>
-          <td style="padding:16px 0 8px 0;">
-            <div style="font-size:13px;font-weight:700;color:#1a1a1a;background:#f0f0ee;padding:8px 16px;border-radius:20px;display:inline-block;">{cat} ({len(groups[cat])}条)</div>
+          <td style="padding:16px 0 10px 0;">
+            <div style="font-size:14px;font-weight:700;color:#1a1a1a;letter-spacing:0.5px;padding-bottom:6px;border-bottom:2px solid #1a1a1a;display:inline-block;">{cat}（{len(groups[cat])}条）</div>
           </td>
         </tr>
-        {items_html}""")
+        <tr>
+          <td style="padding-bottom:10px;">{items_html}</td>
+        </tr>""")
 
     # 未归类的
     for cat in groups:
@@ -382,11 +384,13 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
             items_html = make_card_html(groups[cat])
             section_parts.append(f"""
         <tr>
-          <td style="padding:16px 0 8px 0;">
-            <div style="font-size:13px;font-weight:700;color:#1a1a1a;background:#f0f0ee;padding:8px 16px;border-radius:20px;display:inline-block;">{cat} ({len(groups[cat])}条)</div>
+          <td style="padding:16px 0 10px 0;">
+            <div style="font-size:14px;font-weight:700;color:#1a1a1a;letter-spacing:0.5px;padding-bottom:6px;border-bottom:2px solid #1a1a1a;display:inline-block;">{cat}（{len(groups[cat])}条）</div>
           </td>
         </tr>
-        {items_html}""")
+        <tr>
+          <td style="padding-bottom:16px;">{items_html}</td>
+        </tr>""")
 
     news_sections = "\n".join(section_parts)
 
@@ -405,15 +409,15 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
         proj_cards = []
         for p in projects:
             proj_cards.append(f"""
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #e0e0e0;border-radius:10px;margin-bottom:14px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;margin-bottom:10px;">
           <tr>
-            <td style="padding:16px 20px;">
-              <div style="font-size:14px;font-weight:700;color:#111;margin-bottom:4px;">
-                <a href="{p.get("link","#")}" target="_blank" style="color:#1a1a1a;text-decoration:none;">{p.get("name","")}</a>
-                <span style="font-size:12px;color:#888;margin-left:8px;">{p.get("stars","")}</span>
+            <td style="padding:20px 24px;">
+              <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:6px;">
+                <span style="color:#1a1a1a;">{p.get("name","")}</span>
+                <span style="font-size:12px;color:#888;margin-left:8px;font-weight:400;">{p.get("stars","")}</span>
               </div>
-              <p style="font-size:13px;color:#555;margin:4px 0 0 0;line-height:1.6;">{p.get("desc","")}</p>
-              <span style="font-size:11px;color:#888;background:#f0f0ee;padding:2px 10px;border-radius:20px;display:inline-block;margin-top:8px;">{p.get("tag","")}</span>
+              <p style="font-size:13px;color:#555;margin:8px 0 0 0;line-height:1.7;">{p.get("desc","")}</p>
+              <span style="font-size:11px;color:#888;background:#f0f0ee;padding:2px 10px;border-radius:20px;display:inline-block;margin-top:10px;">{p.get("tag","")}</span>
             </td>
           </tr>
         </table>""")
@@ -469,7 +473,6 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
         "projects_section": projects_section,
         "filter_report_section": filter_report_section,
         "trivia_section": trivia_section,
-        "link_list_section": web_link_section,
         "style_tag": style_tag,
         "repo_url": "GitHub: yingfengke/agent-news-briefing",
     }
