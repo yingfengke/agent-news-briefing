@@ -35,7 +35,7 @@ jobs:
       - name: 设置 Python 环境
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: 安装依赖
         run: |
@@ -49,7 +49,7 @@ jobs:
 
       # 恢复 URL 去重缓存（状态文件不推送至仓库，通过 Actions Cache 持久化）
       - name: 恢复 URL 去重缓存
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: url-dedup-cache
         with:
           path: .url_dedup_db.json
@@ -91,7 +91,7 @@ jobs:
 
       # 保存 URL 去重缓存供下次运行使用
       - name: 保存 URL 去重缓存
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v6
         with:
           path: .url_dedup_db.json
           key: url-dedup-db-${{ github.run_id }}
@@ -118,7 +118,7 @@ jobs:
       - name: 设置 Python 环境
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: 安装依赖
         run: |
@@ -126,7 +126,7 @@ jobs:
 
       # 恢复 URL 去重缓存（aihot_pusher 需要读取排重历史）
       - name: 恢复 URL 去重缓存
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         id: url-dedup-cache-aihot
         with:
           path: .url_dedup_db.json

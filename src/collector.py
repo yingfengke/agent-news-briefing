@@ -319,11 +319,52 @@ def collect_rss() -> list[NewsItem]:
     return all_items
 
 
+def collect_aihot() -> list[NewsItem]:
+    """
+    从 AIHOT API 获取当日精选，转为 NewsItem 格式。
+
+    AIHOT 提供人工筛选的 AI 领域热点，作为 RSS 的补充数据源，
+    与 RSS 采集的新闻合并后统一进入去重和 AI 分析流程。
+    """
+    aihot_api = os.getenv("AIHOT_API", "https://aihot.virxact.com/api/curated")
+    req = Request(aihot_api, headers={
+        "User-Agent": RSS_USER_AGENT,
+        "Accept": "application/json",
+    })
+    try:
+        with urlopen(req, timeout=15) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        items = data.get("items") or data.get("data", {}).get("items") or []
+        log.info("  AIHOT API 返回 %d 条", len(items))
+    except Exception as e:
+        log.warning("  AIHOT API 请求失败: %s", str(e)[:60])
+        return []
+
+    news_items = []
+    for item in items:
+        title = (item.get("title") or item.get("name") or "").strip()
+        if not title:
+            continue
+        url = item.get("url") or item.get("link") or ""
+        if not url:
+            url = "https://aihot.virxact.com"
+        content = (item.get("summary") or item.get("description") or "").strip()
+        source_name = item.get("source") or "AIHOT"
+        news_items.append(_build_item(
+            title, content, url, f"AIHOT-{source_name}",
+            _detect_lang(source_name, title), "api",
+        ))
+
+    log.info("  AIHOT 转换 %d 条 NewsItem", len(news_items))
+    return news_items
+
+
 def collect_all() -> list[NewsItem]:
     """
     运行所有采集器，返回合并后的统一数据池。
 
     采集：RSS 源（21 个）
+    AIHOT 精选由 main.py 在异常补救模式下按需调用 collect_aihot() 合并。
     """
     pool = []
 
