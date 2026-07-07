@@ -1,6 +1,6 @@
 # AI & Agent 开发者晨报
 
-每天早 6:00 自动推送 AI/Agent 领域最新技术动态，08:30 补充 AIHOT 精选（排重后推送）。由 **GitHub Actions** 定时触发。
+每天早 6:00 自动推送 AI/Agent 领域最新技术动态。由 **GitHub Actions** 定时触发。
 
 三层架构：**多模态采集 → 智能去重过滤 → 规则预筛 → AI 分析与简报生成**，全自动 serverless 运行。
 
@@ -91,12 +91,11 @@ python -m src.send_email
 
 ## 数据源阵容
 
-### 中文媒体（5 个）
+### 中文媒体（4 个）
 | 源 | RSS |
 |:---|:---|
 | 量子位 | qbitai.com/feed |
 | InfoQ 中文 | infoq.cn/feed |
-| 稀土掘金 AI | juejin.cn/rss |
 | 少数派 | sspai.com/feed |
 | **36氪** | 36kr.com/feed |
 
@@ -200,11 +199,10 @@ python -m src.send_email
 ## 触发机制
 
 ```
-GitHub Actions (schedule 06:00 BJT + 08:30 BJT + 手动触发)
+GitHub Actions (schedule 06:00 BJT + 手动触发)
   ├─ 06:00 步骤①: python -m src.main → 采集 → 过滤 → 规则预筛 → AI分析 → 生成 HTML
   ├─ 06:00 步骤②: python -m src.send_email → multipart 邮件
-  ├─ 06:00 步骤③: python scripts/github_api_push.py → API 更新网页文件
-  ├─ 08:30 步骤④: python -m src.aihot_pusher → 抓取 AIHOT → 排重 → 有新增才补推
+  ├─ 06:00 步骤③: git push → 提交并推送网页文件（贡献图计数）
   └─ GitHub Pages 自动从 main branch 部署
 ```
 
@@ -219,7 +217,6 @@ GitHub Actions (schedule 06:00 BJT + 08:30 BJT + 手动触发)
 | AI 语气 | `src/config/prompts.py` → `SYSTEM_PROMPT_*` |
 | 彩蛋内容 | `src/config/trivia.json` |
 | 推送时间 | `.github/workflows/daily-briefing.yml` → `cron` |
-| AIHOT 补推配置 | `src/aihot_pusher.py` → `AIHOT_API` / `SIMILARITY_THRESHOLD` |
 | 安全钩子 | `.githooks/` → 克隆后执行 `git config core.hooksPath .githooks` 启用 |
 
 ---

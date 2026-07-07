@@ -10,8 +10,6 @@ RSS_SOURCES = [
     # ("阿里云开发者", "https://developer.aliyun.com/feed",                   "zh"),
     # 腾讯云开发者 — 永久 404 已于 2026-05 确认
     # ("腾讯云开发者", "https://cloud.tencent.com/developer/feed",            "zh"),
-    # 稀土掘金AI — 原 JSON API 非 RSS，改用 juejin.cn/rss
-    ("稀土掘金AI",   "https://juejin.cn/rss",                              "zh"),
     ("少数派",       "https://sspai.com/feed",                              "zh"),
     # 新增中文源：极客公园、爱范儿（弥补阿里云/腾讯云删除后的空缺）
     # ("极客公园",     "https://www.geekpark.net/rss",                        "zh"),  # 2026-06 临时不可用，保留备用
@@ -73,7 +71,7 @@ RSS_SOURCES = [
 MAX_PER_SOURCE = {
     # 中文媒体（放宽到 5 条保证素材）
     "量子位": 3, "InfoQ中文": 3,
-    "稀土掘金AI": 3, "少数派": 3,
+    "少数派": 3,
     # "极客公园": 5, "爱范儿": 5,  # 已注释
     # 前沿论文
     "ArXiv AI": 3, "ArXiv CL": 3, "ArXiv LG": 3, "ArXiv CV": 3,
@@ -108,7 +106,7 @@ RSS_FALLBACKS = {
 # 中文来源名称集合（用于 AI 喂入前的分桶）
 CHINESE_SOURCE_NAMES = {
     "量子位", "InfoQ中文",
-    "稀土掘金AI", "少数派", "极客公园", "爱范儿", "36氪",
+    "少数派", "极客公园", "爱范儿", "36氪",
     # 爬虫来源
     "量子位爬虫", "魔搭社区爬虫", "腾讯云开发者爬虫",
     # 旧版降级回退

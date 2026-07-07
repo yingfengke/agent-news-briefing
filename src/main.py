@@ -23,8 +23,6 @@ import logging
 import os
 import re
 import sys
-from datetime import datetime
-from zoneinfo import ZoneInfo
 from urllib.request import Request, urlopen
 
 from src import config
@@ -182,15 +180,6 @@ def main():
     log.info("  第 1 层：多模态数据采集")
     log.info("%s", "=" * 40)
     raw_pool = collect_all()
-
-    # 异常补救模式：当前时间 >= 09:00 说明 06:00 主简报和 08:30 补推均未成功，
-    # 将 AIHOT 精选合并到数据池一起送入 AI 分析，不再依赖单独补推
-    now = datetime.now(ZoneInfo("Asia/Shanghai"))
-    if now.hour >= 9:
-        from src.collector import collect_aihot
-        log.info("")
-        log.info("  补救模式（当前 %s），合并 AIHOT 精选数据", now.strftime("%H:%M"))
-        raw_pool.extend(collect_aihot())
 
     # ---- 2. 过滤层 ----
     log.info("")

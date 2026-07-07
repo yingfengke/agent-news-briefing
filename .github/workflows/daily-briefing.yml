@@ -1,10 +1,9 @@
 name: AI Agent 开发者晨报
 
 on:
-  # 每天早上 6:00 北京时间 (22:00 UTC) + AIHOT 补推 08:30 (00:30 UTC)
+  # 每天早上 6:00 北京时间 (22:00 UTC)
   schedule:
     - cron: '0 22 * * *'
-    - cron: '30 0 * * *'
   # 支持手动触发
   workflow_dispatch:
 
@@ -26,7 +25,6 @@ jobs:
       RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
       SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
       SMTP_PORT: ${{ secrets.SMTP_PORT }}
-      AIHOT_API: ${{ secrets.AIHOT_API }}
 
     steps:
       - name: 检出代码
@@ -95,49 +93,3 @@ jobs:
         with:
           path: .url_dedup_db.json
           key: url-dedup-db-${{ github.run_id }}
-
-  aihot-supplement:
-    if: github.event.schedule == '30 0 * * *'
-    runs-on: ubuntu-latest
-
-    env:
-      API_BASE_URL: ${{ secrets.API_BASE_URL }}
-      API_KEY: ${{ secrets.API_KEY }}
-      MODEL_NAME: ${{ secrets.MODEL_NAME }}
-      SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
-      AUTH_CODE: ${{ secrets.AUTH_CODE }}
-      RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
-      SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
-      SMTP_PORT: ${{ secrets.SMTP_PORT }}
-      AIHOT_API: ${{ secrets.AIHOT_API }}
-
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
-
-      - name: 设置 Python 环境
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: 安装依赖
-        run: |
-          pip install -r requirements.txt
-
-      # 恢复 URL 去重缓存（aihot_pusher 需要读取排重历史）
-      - name: 恢复 URL 去重缓存
-        uses: actions/cache@v6
-        id: url-dedup-cache-aihot
-        with:
-          path: .url_dedup_db.json
-          key: url-dedup-db-aihot-${{ github.run_id }}
-          restore-keys: |
-            url-dedup-db-
-
-      - name: ④ AIHOT 补推（与早间简报排重，有新内容才发）
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 5
-          max_attempts: 2
-          retry_wait_seconds: 300
-          command: python -m src.aihot_pusher

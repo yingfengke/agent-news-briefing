@@ -31,7 +31,7 @@ _tk_encoding = tiktoken.get_encoding("cl100k_base")
 
 def load_history_titles():
     """
-    从 tech-briefing.html 和 .aihot_history.json 中读取已发送标题，
+    从 tech-briefing.html 中读取已发送标题，
     用于 AI 排重（避免每日重复报道相似内容）。
     """
     titles = []
@@ -46,17 +46,6 @@ def load_history_titles():
     except Exception as e:
         log.warning("读取历史简报用于排重时出错: %s", e)
         return []
-
-    # 追加 AIHOT 补推历史（避免第二天重复选到同一内容）
-    try:
-        if os.path.exists(config.AIHOT_HISTORY_FILE):
-            with open(config.AIHOT_HISTORY_FILE, "r", encoding="utf-8") as f:
-                aihot_data = json.load(f)
-            aihot_titles = aihot_data.get("items", [])
-            titles.extend(aihot_titles)
-            log.info("  AIHOT 补推历史: %d 条", len(aihot_titles))
-    except Exception as e:
-        log.warning("读取 AIHOT 补推历史失败: %s", e)
 
     return titles
 
