@@ -326,7 +326,7 @@ def collect_aihot() -> list[NewsItem]:
     AIHOT 提供人工筛选的 AI 领域热点，作为 RSS 的补充数据源，
     与 RSS 采集的新闻合并后统一进入去重和 AI 分析流程。
     """
-    aihot_api = os.getenv("AIHOT_API", "https://aihot.virxact.com/api/curated")
+    aihot_api = os.getenv("AIHOT_API") or "https://aihot.virxact.com/api/curated"
     req = Request(aihot_api, headers={
         "User-Agent": RSS_USER_AGENT,
         "Accept": "application/json",

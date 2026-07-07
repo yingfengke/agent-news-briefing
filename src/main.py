@@ -24,6 +24,7 @@ import os
 import re
 import sys
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from urllib.request import Request, urlopen
 
 from src import config
@@ -184,7 +185,7 @@ def main():
 
     # 异常补救模式：当前时间 >= 09:00 说明 06:00 主简报和 08:30 补推均未成功，
     # 将 AIHOT 精选合并到数据池一起送入 AI 分析，不再依赖单独补推
-    now = datetime.now()
+    now = datetime.now(ZoneInfo("Asia/Shanghai"))
     if now.hour >= 9:
         from src.collector import collect_aihot
         log.info("")
