@@ -154,182 +154,236 @@
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
+    const __NEWS_DATA__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
             {
-                "title": "百度“无限OCR”通过模拟人类遗忘机制一次性处理数十页文档",
-                "summary": "百度推出“无限OCR”技术，通过模拟人类遗忘机制，一次性处理数十页文档，解决了长文档OCR的上下文限制问题。用户价值：真需求，大幅提升长文档处理效率。商业模式：可集成到百度云或文档产品中收费。竞争格局：与Adobe、ABBYY等竞品比，技术差异化明显。标签：真需求（来源：The Decoder）",
-                "link": "",
+                "title": "沸#GPT-Realtime-2.1 语音模型发布#",
+                "summary": "OpenAI 在API中推出 GPT-Realtime-2.1 和 mini 版本，专为低延迟语音代理优化，推理能力更强，响应更快。网友A：语音交互要起飞了！网友B：mini版真香，成本更低。（来源：MarkTechPost）",
+                "link": "https://www.marktechpost.com/2026/07/06/openai-gpt-realtime-2-1-mini-reasoning-realtime-api/",
                 "source": "AI",
-                "score": 0,
-                "tags": []
+                "score": 4.5,
+                "tags": [
+                    "大模型",
+                    "语音AI"
+                ]
             },
             {
-                "title": "GitHub 如何用秘密扫描实现收件箱清零",
-                "summary": "GitHub Security 团队通过改进秘密扫描流程，成功将安全告警收件箱清零。用户价值：真需求，帮助开发者减少安全噪音。商业模式：作为GitHub企业版功能，提升平台粘性。竞争格局：与GitLab等竞品比，安全能力是差异化优势。标签：真需求（来源：GitHub Blog）",
-                "link": "https://github.blog/security/application-security/how-github-used-secret-scanning-to-reach-inbox-zero/",
+                "title": "沸#微软裁员4800人#",
+                "summary": "微软宣布裁员4800人，主要涉及销售和Xbox部门。AI转型加速，传统岗位受冲击。网友A：AI没取代人类，先取代了同事。网友B：微软这波操作，Xbox玩家慌了。（来源：The Verge）",
+                "link": "https://www.theverge.com/news/961528/microsoft-layoffs-july-2026-sales-xbox",
                 "source": "AI",
-                "score": 0,
-                "tags": []
+                "score": 4.3,
+                "tags": [
+                    "行业动态",
+                    "裁员"
+                ]
             },
             {
-                "title": "每个 GitHub 维护者本周应启用的 6 个安全设置",
-                "summary": "GitHub Security Lab 为维护者推荐了6个关键安全设置，包括分支保护、Dependabot等。用户价值：真需求，降低开源项目安全风险。商业模式：免费指南，增强社区信任。竞争格局：提升GitHub生态安全性。标签：真需求（来源：GitHub Blog）",
-                "link": "",
+                "title": "热#AI 勒索软件首次实战#",
+                "summary": "安全公司披露首个由AI代理独立执行技术环节的勒索软件攻击，但最终部署仍需人类确认。网友A：AI犯罪时代来了？网友B：还好需要人类背锅。（来源：TechCrunch）",
+                "link": "https://techcrunch.com/2026/07/06/the-first-ai-run-ransomware-attack-still-needed-a-human/",
                 "source": "AI",
-                "score": 0,
-                "tags": []
+                "score": 4.0,
+                "tags": [
+                    "AI安全",
+                    "网络安全"
+                ]
             },
             {
-                "title": "Meta 分享构建和测试最先进 AI 的规模化方法",
-                "summary": "Meta 博客介绍了如何规模化构建和测试更强大、个性化的AI，强调可靠性、安全性和用户保护。用户价值：真需求，为AI开发提供最佳实践。商业模式：开源分享，提升Meta技术影响力。竞争格局：与Google、OpenAI等竞品比，Meta在开源和规模化方面有优势。标签：真需求（来源：AI at Meta）",
-                "link": "https://tldr.tech/ai/2026-07-02",
+                "title": "热#GLM 5.2 引发利润率恐慌#",
+                "summary": "GLM 5.2 模型性能提升但推理成本骤降，分析称AI行业利润率将面临崩溃。网友A：价格战要来了。网友B：利好消费者，利空投资者。（来源：HackerNews）",
+                "link": "https://martinalderson.com/posts/the-upcoming-ai-margin-collapse-part-1-glm-5-2/",
                 "source": "AI",
-                "score": 0,
-                "tags": []
+                "score": 3.9,
+                "tags": [
+                    "大模型",
+                    "行业分析"
+                ]
             },
             {
-                "title": "Amazon Bedrock 如何捕获 AI 生成的钓鱼攻击",
-                "summary": "AWS 博客介绍Amazon Bedrock如何利用AI检测AI生成的钓鱼邮件，提升安全防护能力。用户价值：真需求，解决AI钓鱼这一新兴威胁。商业模式：作为Bedrock增值功能，吸引企业客户。竞争格局：与微软、Google云的安全方案竞争。标签：真需求（来源：AWS ML Blog）",
-                "link": "https://aws.amazon.com/blogs/machine-learning/how-amazon-bedrock-catches-ai-generated-phishing/",
+                "title": "热#Cloudflare 精准拦截 AI 爬虫#",
+                "summary": "Cloudflare 取消全面拦截，改为让网站所有者精细控制AI搜索、训练和代理爬虫。网友A：终于不用一刀切了。网友B：AI公司要哭了。（来源：The Decoder）",
+                "link": "https://the-decoder.com/cloudflare-replaces-its-blanket-ai-bot-block-with-granular-controls-for-search-training-and-agent-crawlers/",
                 "source": "AI",
-                "score": 0,
-                "tags": []
+                "score": 3.8,
+                "tags": [
+                    "AI治理",
+                    "网络"
+                ]
             },
             {
-                "title": "Amazon SageMaker AI 多轮强化学习最佳实践",
-                "summary": "AWS 分享在SageMaker AI中训练多轮强化学习代理的最佳实践，用于解决工单或对话任务。用户价值：真需求，降低RL应用门槛。商业模式：作为SageMaker功能，增加云服务收入。竞争格局：与Google Vertex AI等竞品比，AWS在RL工具链上更完善。标签：真需求（来源：AWS ML Blog）",
-                "link": "",
+                "title": "热#小模型逆袭：弱网地区首选#",
+                "summary": "IEEE Spectrum报道，小型语言模型在制药和网络不稳定地区获得青睐，低功耗、离线可用成优势。网友A：大模型卷不动了？网友B：小模型才是普惠AI。（来源：HackerNews/IEEE Spectrum）",
+                "link": "https://spectrum.ieee.org/small-language-models-ai-pharmaceuticals",
                 "source": "AI",
-                "score": 0,
-                "tags": []
+                "score": 3.7,
+                "tags": [
+                    "大模型",
+                    "边缘AI"
+                ]
             },
             {
-                "title": "复活死者眼球的新设备或使眼球移植成为可能",
-                "summary": "MIT Tech Review报道一种设备能复活死者眼球，有望实现全眼球移植。用户价值：真需求，解决失明问题。商业模式：医疗设备销售，但商业化路径长。竞争格局：与人工视网膜等方案竞争。标签：真需求（来源：MIT Tech Review）",
-                "link": "",
+                "title": "热#讯飞具身全模态 AI 亮相#",
+                "summary": "iFLYTEK-Embodied-Omni 技术报告发布，提出通用具身智能体框架，融合视觉、语言、触觉等多模态。网友A：国产具身智能雄起。网友B：机器人要成精了。（来源：ArXiv）",
+                "link": "https://arxiv.org/abs/2607.02542",
                 "source": "AI",
-                "score": 0,
-                "tags": []
+                "score": 3.6,
+                "tags": [
+                    "具身智能",
+                    "多模态"
+                ]
             },
             {
-                "title": "Anthropic 公布 Claude Fable 5 网络安全防护和越狱框架详情",
-                "summary": "Anthropic 详细介绍了Claude Fable 5的网络安全防护措施和越狱框架，模型已重新部署全球可用。用户价值：真需求，增强模型安全性。商业模式：作为企业级安全卖点。竞争格局：与OpenAI、Google比，Anthropic在安全透明度上领先。标签：真需求（来源：Anthropic News）",
-                "link": "https://tldr.tech/ai/2026-07-01",
+                "title": "热#Qwen 新模型思考效率翻倍#",
+                "summary": "bottlecapai 发布 ThinkingCap-Qwen3.6-27B，在保持能力的同时平均减少50%思考token，推理更高效。网友A：推理成本又降了。网友B：开源社区太卷了。（来源：Twitter @_akhaliq）",
+                "link": "https://x.com/_akhaliq/status/2074195249732128870",
                 "source": "AI",
-                "score": 0,
-                "tags": []
+                "score": 3.6,
+                "tags": [
+                    "大模型",
+                    "推理优化"
+                ]
             },
             {
-                "title": "美国富人开始让 AI 教育孩子",
-                "summary": "The Verge报道部分富裕家庭使用AI辅导孩子学习，尽管多数美国人不信任AI。用户价值：真需求，个性化教育。商业模式：订阅制AI教育服务。竞争格局：与Khan Academy等竞品比，AI tutor更个性化。标签：真需求（来源：The Verge AI）",
-                "link": "",
+                "title": "热#AI 虚拟细胞获千万融资#",
+                "summary": "华源智因完成千万级种子轮融资，用AI复刻人类细胞预测药效，水木创投领投。网友A：数字孪生细胞，药物研发要加速。网友B：AI制药终于落地了。（来源：36氪）",
+                "link": "https://36kr.com/p/3883943959621634?f=rss",
                 "source": "AI",
-                "score": 0,
-                "tags": []
+                "score": 3.5,
+                "tags": [
+                    "AI制药",
+                    "生物科技"
+                ]
             },
             {
-                "title": "谷歌新广告设想开国元勋使用AI起草独立宣言引发争议",
-                "summary": "谷歌发布广告想象美国开国元勋用AI起草独立宣言，被批评为不尊重历史。用户价值：伪需求，营销噱头。商业模式：品牌宣传。竞争格局：与微软、苹果的广告竞争。标签：伪需求（来源：The Verge AI，TechCrunch AI）",
-                "link": "",
+                "title": "热#AI 岗位要求越来越离谱#",
+                "summary": "Reddit ML板块热议：机器学习岗位要求从短视变成不可能，需要全栈+研究+工程+产品能力。网友A：招的是一个人还是一个团队？网友B：AI没取代人类，先逼疯求职者。（来源：Reddit）",
+                "link": "https://www.reddit.com/r/MachineLearning/comments/1uov7or/machine_learning_industry_job_requirements_used/",
                 "source": "AI",
-                "score": 0,
-                "tags": []
+                "score": 3.5,
+                "tags": [
+                    "就业",
+                    "行业观察"
+                ]
             },
             {
-                "title": "Google 25年来首次重新设计搜索框，意义重大",
-                "summary": "VentureBeat报道Google搜索框25年来首次改版，引入AI功能。用户价值：真需求，提升搜索体验。商业模式：通过AI增强广告收入。竞争格局：与Perplexity等AI搜索竞品竞争。标签：真需求（来源：VentureBeat AI）",
-                "link": "",
+                "title": "热#智能眼镜成隐私噩梦#",
+                "summary": "The Verge 专栏作者体验智能眼镜后感叹：AI可穿戴设备让监控无处不在，持有他人隐私的感觉很糟糕。网友A：科技便利 vs 隐私，老话题了。网友B：Meta眼镜要凉？（来源：The Verge）",
+                "link": "https://www.theverge.com/column/961707/smart-glasses-ai-wearables-meta-surveillance-privacy",
                 "source": "AI",
-                "score": 0,
-                "tags": []
+                "score": 3.4,
+                "tags": [
+                    "隐私",
+                    "可穿戴"
+                ]
             },
             {
-                "title": "Railway 获1亿美元融资，挑战AWS的AI原生云基础设施",
-                "summary": "云平台Railway获得1亿美元融资，旨在以AI原生基础设施挑战AWS。用户价值：真需求，简化AI部署。商业模式：按使用量收费。竞争格局：与AWS、Vercel等竞品比，Railway更专注AI原生。标签：真需求（来源：VentureBeat AI）",
-                "link": "",
+                "title": "#OpenAI 修复 18 年核心转储 bug#",
+                "summary": "OpenAI 工程师通过大规模核心转储分析，修复了一个存在18年的罕见基础设施bug，Karpathy 称赞其工程魔法。网友A：18年的bug，代码考古学。网友B：这才是真正的技术实力。（来源：OpenAI）",
+                "link": "https://openai.com/index/core-dump-epidemiology-data-infrastructure-bug",
                 "source": "AI",
-                "score": 0,
-                "tags": []
+                "score": 3.3,
+                "tags": [
+                    "工程",
+                    "基础设施"
+                ]
             },
             {
-                "title": "WorkBuddy：AI专家团队助你更快产出精准结果",
-                "summary": "Product Hunt上的WorkBuddy产品，提供AI专家团队服务以加速工作。用户价值：商业模式存疑，依赖人工专家。商业模式：按项目收费。竞争格局：与Upwork等平台竞争。标签：商业模式存疑（来源：Product Hunt）",
-                "link": "https://www.producthunt.com/products/workbuddy-2",
+                "title": "#验证器-生成器对齐改进 LLM#",
+                "summary": "新研究提出Validator-to-Generator Alignment方法，通过验证器反馈优化生成器，提升LLM输出一致性和可靠性。网友A：RLHF的进化版？网友B：对齐问题有新解法了。（来源：ArXiv）",
+                "link": "https://arxiv.org/abs/2607.02668",
                 "source": "AI",
-                "score": 0,
-                "tags": []
+                "score": 3.2,
+                "tags": [
+                    "大模型",
+                    "对齐"
+                ]
             },
             {
-                "title": "Pennen：每天一页手写，无信息流无AI",
-                "summary": "Product Hunt上的Pennen产品，倡导每天手写一页，远离AI和信息流。用户价值：真需求，满足数字排毒需求。商业模式：付费应用。竞争格局：与日记类应用竞争。标签：真需求（来源：Product Hunt）",
-                "link": "https://www.producthunt.com/products/pennen",
+                "title": "#AI 预警假新闻与暴力活动#",
+                "summary": "新研究提出多模态NLP框架Echoes of Unrest，利用社交媒体文本和图像早期预警假新闻和群体暴力。网友A：社交媒体监控利器。网友B：隐私问题又来了。（来源：ArXiv）",
+                "link": "https://arxiv.org/abs/2607.02734",
                 "source": "AI",
-                "score": 0,
-                "tags": []
+                "score": 3.1,
+                "tags": [
+                    "AI安全",
+                    "NLP"
+                ]
             },
             {
-                "title": "加拿大AI战略不应包含秘密Palantir法案",
-                "summary": "HackerNews文章批评加拿大AI战略中与Palantir的秘密合作。用户价值：伪需求，政治争议。商业模式：无。竞争格局：无。标签：伪需求（来源：HackerNews AI）",
-                "link": "",
+                "title": "#AI 基准审计的五大坑#",
+                "summary": "研究揭示基准有效性审计的五种常见失败模式，提醒AI治理不能盲目依赖审计结果。网友A：审计本身也需要被审计。网友B：治理框架要迭代了。（来源：ArXiv）",
+                "link": "https://arxiv.org/abs/2607.02586",
                 "source": "AI",
-                "score": 0,
-                "tags": []
+                "score": 3.0,
+                "tags": [
+                    "AI治理",
+                    "评估"
+                ]
             },
             {
-                "title": "新AI导师在达特茅斯课程中实现0.71-1.30标准差效应量",
-                "summary": "一篇论文显示AI导师在达特茅斯课程中取得显著学习效果，效应量达0.71-1.30 SD。用户价值：真需求，证明AI教育有效性。商业模式：可商业化AI辅导产品。竞争格局：与Khanmigo等竞品比，效果数据亮眼。标签：真需求（来源：HackerNews AI）",
-                "link": "",
+                "title": "#你家人在 OpenAI 有 300 美元#",
+                "summary": "MIT Tech Review 分析OpenAI股权结构，指出每个美国家庭平均持有约300美元OpenAI股份（通过养老金等）。网友A：原来我也是OpenAI股东。网友B：这波不亏。（来源：MIT Tech Review）",
+                "link": "https://www.technologyreview.com/2026/07/06/1140176/your-familys-300-stake-in-openai/",
                 "source": "AI",
-                "score": 0,
-                "tags": []
+                "score": 3.0,
+                "tags": [
+                    "行业分析",
+                    "经济"
+                ]
             },
             {
-                "title": "Amazon 将停止接受 Mechanical Turk 新客户",
-                "summary": "TechCrunch报道Amazon将停止Mechanical Turk新客户注册，标志众包平台终结。用户价值：伪需求，平台衰退。商业模式：已无增长。竞争格局：被AI数据标注平台取代。标签：卷但没用（来源：TechCrunch AI）",
-                "link": "",
+                "title": "#时间序列模型预测电价风险#",
+                "summary": "评估时间序列基础模型在电价预测中的表现，发现数据污染和分布偏移是主要挑战。网友A：AI炒股也要小心过拟合。网友B：能源AI的坑不少。（来源：ArXiv）",
+                "link": "https://arxiv.org/abs/2607.02623",
                 "source": "AI",
-                "score": 0,
-                "tags": []
+                "score": 2.8,
+                "tags": [
+                    "时间序列",
+                    "能源AI"
+                ]
             },
             {
-                "title": "Vercel Sandbox 现支持 FUSE 文件系统",
-                "summary": "Vercel Sandbox新增FUSE支持，可挂载远程存储和自定义文件系统。用户价值：真需求，提升开发灵活性。商业模式：作为Vercel平台功能，增加付费用户。竞争格局：与Netlify等竞品比，FUSE支持是差异化。标签：真需求（来源：Vercel News）",
-                "link": "https://vercel.com/changelog/vercel-sandbox-now-supports-fuse-based-filesystems",
+                "title": "#视频AI 细粒度感知新方法#",
+                "summary": "DELTAVID 通过跨视频差异学习增强视频多模态大模型的细粒度时空感知能力。网友A：视频理解又进一步。网友B：监控摄像头要更聪明了。（来源：ArXiv）",
+                "link": "https://arxiv.org/abs/2607.02551",
                 "source": "AI",
-                "score": 0,
-                "tags": []
+                "score": 2.7,
+                "tags": [
+                    "视频理解",
+                    "多模态"
+                ]
             }
         ];
 
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日AI教育方向PMF潜力最大。AI导师在达特茅斯课程中实现0.71-1.30 SD效应量，证明AI辅导效果显著；同时美国富人已开始使用AI教育孩子。这表明AI在教育领域有真实用户需求和可验证效果，商业模式清晰（订阅制），且竞争格局尚未固化，值得产品经理重点关注。";
+    const __DAILY_ANALYSIS__ = "今日AI圈最热当属OpenAI语音模型发布和微软裁员，AI安全与隐私问题持续升温，小模型和推理优化成为新趋势，具身智能和AI制药稳步推进。网友：AI发展太快，打工人的饭碗和隐私都岌岌可危。";
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 [
+    const __PROJECTS__ =                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         [
             {
-                "name": "anthropics/claude-code",
-                "desc": "Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and he",
-                "stars": "star+13637721914 today",
-                "link": "https://github.com/anthropics/claude-code",
+                "name": "addyosmani/agent-skills",
+                "desc": "Production-grade engineering skills for AI coding agents.",
+                "stars": "star+710787694 today",
+                "link": "https://github.com/addyosmani/agent-skills",
                 "tag": "Agent 框架"
-            },
-            {
-                "name": "JuliusBrussee/caveman",
-                "desc": "🪨 why use many token when few token do trick — Claude Code skill that cuts 65% of tokens by talking ",
-                "stars": "star+850894736 today",
-                "link": "https://github.com/JuliusBrussee/caveman",
-                "tag": "多模态与前沿"
             },
             {
                 "name": "asgeirtj/system_prompts_leaks",
                 "desc": "Extracted system prompts from Anthropic - Claude Fable 5, Opus 4.8, Claude Code, Claude Design. Open",
-                "stars": "star+502818218 today",
+                "stars": "star+518688457 today",
                 "link": "https://github.com/asgeirtj/system_prompts_leaks",
                 "tag": "提示工程"
+            },
+            {
+                "name": "mvanhorn/last30days-skill",
+                "desc": "AI agent skill that researches any topic across Reddit, X, YouTube, HN, Polymarket, and the web - th",
+                "stars": "star+499154160 today",
+                "link": "https://github.com/mvanhorn/last30days-skill",
+                "tag": "Agent 框架"
             }
         ];
 
