@@ -8,6 +8,7 @@ import os
 import re
 import time
 from collections import defaultdict
+from functools import lru_cache
 from difflib import SequenceMatcher
 from urllib.request import Request, urlopen
 
@@ -21,7 +22,6 @@ import tiktoken
 log = get_logger("ai")
 
 # tiktoken 编码器（cl100k_base 兼容主流模型）
-import tiktoken
 _tk_encoding = tiktoken.get_encoding("cl100k_base")
 
 
@@ -29,10 +29,14 @@ _tk_encoding = tiktoken.get_encoding("cl100k_base")
 # Markdown 链接清洗（用于邮件安全嵌入）
 # ============================================================
 
+@lru_cache(maxsize=1)
 def load_history_titles():
     """
     从 tech-briefing.html 中读取已发送标题，
     用于 AI 排重（避免每日重复报道相似内容）。
+
+    单次运行内 HTML 文件不会变更，故加 lru_cache 避免
+    _filter_history_duplicates 与 _build_context 各自重复读文件。
     """
     titles = []
     try:
@@ -268,39 +272,36 @@ def _truncate_context(items_for_ai: list[NewsItem], system_prompt: str,
                       max_output: int = 4096,
                       safety_margin: int = 800):
     """
-    渐进式截断。
+    渐进式截断：先缩每条简介字数，再砍总条数，保证最终一定收敛在预算内。
     """
     token_budget = max_context - max_output - safety_margin
 
     content_limit = 80
     max_items = len(items_for_ai)
 
-    for step in range(10):
+    # 简介字数档位（逐步收紧）
+    content_steps = [80, 60, 50, 40, 30]
+    item_floor = 12  # 条数硬下限，避免砍到空
+
+    for cl in content_steps:
+        content_limit = cl
         ctx = _build_context(items_for_ai, system_prompt,
                              content_limit=content_limit, max_items=max_items)
         if ctx["total_tokens"] <= token_budget:
             return ctx
+        log.info("  -> 上下文超限 (%d > %d)，content 缩短至 %d 字",
+                 ctx["total_tokens"], token_budget, cl)
 
-        if content_limit > 50:
-            old = content_limit
-            content_limit = 50
-            log.info("  -> 上下文超限 (%d > %d)，content 缩短 %d->%d 字",
-                      ctx["total_tokens"], token_budget, old, content_limit)
-            continue
-        if max_items > 25:
-            max_items = 25
-            log.info("  -> 上下文仍超限，总条数缩至 %d", max_items)
-            continue
-        if max_items > 20:
-            max_items = 20
-            log.info("  -> 上下文仍超限，总条数缩至 %d", max_items)
-            continue
+    # 简介已到下限仍超限：继续砍条数到 item_floor
+    for mi in range(max_items - 1, item_floor - 1, -1):
+        ctx = _build_context(items_for_ai, system_prompt,
+                             content_limit=content_limit, max_items=mi)
+        if ctx["total_tokens"] <= token_budget:
+            log.info("  -> 上下文仍超限，总条数缩至 %d", mi)
+            return ctx
 
-        log.warning("已达最大截断仍超限 (%d > %d)，继续发送", ctx["total_tokens"], token_budget)
-        break
-
-    return _build_context(items_for_ai, system_prompt,
-                          content_limit=content_limit, max_items=max_items)
+    log.warning("已达最大截断仍超限 (%d > %d)，继续发送", ctx["total_tokens"], token_budget)
+    return ctx
 
 
 # JSON 解析质量监控

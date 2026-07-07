@@ -17,10 +17,9 @@ agent_news_briefing/.idea/
 web/email_content.html
 email_content.txt
 
-# 忽略所有 JSON 状态文件，仅保留 .last_style.json
+# 忽略所有 JSON 状态文件（含运行时生成的 .last_style.json）
 *.json
 !src/config/trivia.json
-!.last_style.json
 
 # 忽略 JS 文件（仅用于旧邮件检查，已弃用）
 *.js

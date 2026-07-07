@@ -147,18 +147,19 @@ CREDIBILITY_BLACKLIST = [
     "bilibili.com",  # 视频平台，非文字新闻源
 ]
 
-# 新闻分类顺序（用于邮件板块渲染）
-CATEGORY_ORDER = ["大模型", "Agent框架", "产品发布", "推理与部署",
-                  "论文与研究", "开源/仓库", "安全/对齐", "行业动态", "其他动态"]
+# 新闻分类顺序（用于邮件/网页板块渲染，固定 6 类）
+# 注意：这是 AI 输出 tags[0] 与关键词 fallback 的唯一合法枚举，
+# 任何不在其中的分类都会被归并到「其他动态」。
+CATEGORY_ORDER = ["大模型", "Agent框架", "产品与发布", "论文与研究", "行业动态", "其他动态"]
 
-# 标题关键词 → 分类映射（tags 为空时的 fallback）
+# 标题关键词 → 分类映射（tags 为空时的 fallback；仅扫描标题，不扫摘要）
+# 顺序即优先级，命中第一个即返回。
 TITLE_CATEGORY_MAP = [
     (r"gpt|o1|o3|claude|gemini|llama|deepseek|qwen|kimi|glm|moonshot|phi|mistral", "大模型"),
     (r"agent|mcp|function.call|tool.use|autonomous|workflow|langgraph|autogen|crewai", "Agent框架"),
-    (r"发布|上线|推出|release|launch|beta|preview|公测", "产品发布"),
-    (r"推理|部署|inference|serve|vllm|triton|tensorrt|onnx|量化|压缩", "推理与部署"),
-    (r"论文|arxiv|研究|research|paper|benchmark|sota", "论文与研究"),
-    (r"开源|open.source|github|gitlab|huggingface|pypi|npm", "开源/仓库"),
-    (r"安全|对齐|safety|alignment|guardrail|red.team|jailbreak", "安全/对齐"),
+    (r"发布|上线|推出|release|launch|beta|preview|公测|开源|open.source|github|gitlab|"
+     r"huggingface|pypi|npm|推理|部署|inference|serve|vllm|triton|tensorrt|onnx|"
+     r"量化|压缩|工具|tool|framework|sdk|库", "产品与发布"),
+    (r"论文|arxiv|研究|research|paper|benchmark|sota|数据集|dataset", "论文与研究"),
     (r"融资|收购|投资|财报|估值|ipo|上市|监管|政策|竞争", "行业动态"),
 ]

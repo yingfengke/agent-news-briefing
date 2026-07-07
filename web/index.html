@@ -359,13 +359,22 @@
           return;
         }
 
-        // 按分类分组（tag 作为分类键）
+        // 按分类分组（category 字段为分类键，回退到 tags[0]）
         const groups = {};
-        const CATEGORY_ORDER = ['大模型', 'Agent框架', '开发工具', '开源项目', '其他'];
+        const CATEGORY_ORDER = ['大模型', 'Agent框架', '产品与发布', '论文与研究', '行业动态', '其他动态'];
         __NEWS_DATA__.forEach(item => {
-          const cat = item.tag || '其他';
+          const cat = (item.category) || (item.tags && item.tags[0]) || '其他动态';
           if (!groups[cat]) groups[cat] = [];
           groups[cat].push(item);
+        });
+
+        // 合并条目 < 2 的零散分类到「其他动态」，避免板块过于分散
+        Object.keys(groups).forEach(cat => {
+          if (cat === '其他动态') return;
+          if (groups[cat].length < 2) {
+            groups['其他动态'] = (groups['其他动态'] || []).concat(groups[cat]);
+            delete groups[cat];
+          }
         });
 
         // 按固定顺序渲染分类区块
@@ -383,12 +392,12 @@
             card.innerHTML = `
             <div class="card-meta">
               <span class="card-index">No.${String(++globalIndex).padStart(2, '0')}</span>
-              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}
+              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}${item.tags && item.tags.length ? item.tags.map(t => `<span class="tag-tag">${t}</span>`).join('') : ''}
             </div>
             <div class="card-title">${item.title}</div>
             <div class="card-summary">${item.summary}</div>
             <div class="card-bottom">
-              <a class="card-link" href="${item.link}" target="_blank">阅读原文 →</a>
+              <a class="card-link" href="${item.link}" target="_blank">阅读原文</a>
               ${item.score > 0 ? `<span class="score-badge ${item.score >= 4 ? 'high' : item.score >= 3 ? 'mid' : 'low'}">${Number(item.score).toFixed(1)}</span>` : ''}
             </div>
           `;
@@ -410,12 +419,12 @@
             card.innerHTML = `
             <div class="card-meta">
               <span class="card-index">No.${String(++globalIndex).padStart(2, '0')}</span>
-              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}
+              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}${item.tags && item.tags.length ? item.tags.map(t => `<span class="tag-tag">${t}</span>`).join('') : ''}
             </div>
             <div class="card-title">${item.title}</div>
             <div class="card-summary">${item.summary}</div>
             <div class="card-bottom">
-              <a class="card-link" href="${item.link}" target="_blank">阅读原文 →</a>
+              <a class="card-link" href="${item.link}" target="_blank">阅读原文</a>
               ${item.score > 0 ? `<span class="score-badge ${item.score >= 4 ? 'high' : item.score >= 3 ? 'mid' : 'low'}">${Number(item.score).toFixed(1)}</span>` : ''}
             </div>
           `;

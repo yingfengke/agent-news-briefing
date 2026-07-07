@@ -50,6 +50,23 @@ def test_base_dir():
     assert os.path.exists(os.path.join(config.BASE_DIR, "src"))
 
 
+def test_category_order_is_six_class_enum():
+    """分类体系已收敛为固定 6 类枚举（P1-3 / D1）。"""
+    from src.config.sources import CATEGORY_ORDER
+    assert CATEGORY_ORDER == [
+        "大模型", "Agent框架", "产品与发布", "论文与研究", "行业动态", "其他动态"
+    ]
+
+
+def test_prompt_enum_matches_category_order():
+    """AI 输出约束的类别枚举必须与 CATEGORY_ORDER 完全一致（D1）。"""
+    from src.config.sources import CATEGORY_ORDER
+    from src.config.prompts import SYSTEM_PROMPTS
+    enum_text = SYSTEM_PROMPTS[0][1]
+    for cat in CATEGORY_ORDER:
+        assert cat in enum_text, f"prompt 中缺少类别枚举: {cat}"
+
+
 if __name__ == "__main__":
     import os
     test_config_has_required_exports()
@@ -60,4 +77,6 @@ if __name__ == "__main__":
     test_ai_trivia_count()
     test_trending_tags_count()
     test_base_dir()
+    test_category_order_is_six_class_enum()
+    test_prompt_enum_matches_category_order()
     print("All config tests passed!")

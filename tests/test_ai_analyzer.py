@@ -4,7 +4,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from src.ai_analyzer import (
     _estimate_tokens, _safe_parse_json, get_parse_stats, reset_parse_stats,
-    _balance_sources, _filter_history_duplicates,
+    _balance_sources, _filter_history_duplicates, _truncate_context,
 )
 from src.models import NewsItem
 
@@ -98,6 +98,29 @@ def test_filter_history_duplicates_no_history():
     assert len(result) == 2
 
 
+def test_truncate_context_converges_within_budget():
+    """_truncate_context 必须真正收敛在 token 预算内，不再发超长上下文（P3-3）。"""
+    items = [
+        NewsItem(
+            id=f"id{i:02d}",
+            title=f"这是一条非常长的测试新闻标题编号{i:02d}关于大模型的重大发布",
+            content="内容" * 200,
+            url=f"https://example.com/{i}",
+            source="测试源", lang="zh", source_type="rss",
+            crawled_at="2026-07-07T00:00:00+00:00",
+            published_at="2026-07-07T00:00:00+00:00",
+        )
+        for i in range(40)
+    ]
+    system_prompt = "你是一个测试 system prompt " * 50
+    max_context, max_output, safety = 4000, 1024, 200
+    ctx = _truncate_context(items, system_prompt, max_context=max_context,
+                            max_output=max_output, safety_margin=safety)
+    budget = max_context - max_output - safety
+    assert ctx["total_tokens"] <= budget, f"仍超预算: {ctx['total_tokens']} > {budget}"
+    assert ctx["content_limit"] <= 30, f"content 未收敛: {ctx['content_limit']}"
+
+
 if __name__ == "__main__":
     test_estimate_tokens_empty()
     test_estimate_tokens_basic()
@@ -111,4 +134,5 @@ if __name__ == "__main__":
     test_parse_stats()
     test_balance_sources()
     test_filter_history_duplicates_no_history()
+    test_truncate_context_converges_within_budget()
     print("All ai_analyzer tests passed!")

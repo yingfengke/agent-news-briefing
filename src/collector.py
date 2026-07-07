@@ -3,7 +3,7 @@
 collector.py — 多模态数据采集层
 
 职责：
-  - RSS 源抓取与解析（21 个源，4 大类）
+  - RSS 源抓取与解析（35 个源）
   - 输出统一数据池（list[NewsItem]）
 
 数据流向：采集层 → 过滤层 → 分析层
@@ -17,7 +17,7 @@ import os
 import random
 import re
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from urllib.parse import urljoin, urlparse
 from urllib.request import Request, urlopen
 
@@ -165,13 +165,15 @@ def _parse_rss(raw: bytes, source_name: str) -> list[NewsItem]:
         content_clean = re.sub(r"\s+", " ", content_clean).strip()[:config.SUMMARY_MAX_LENGTH]
 
         # 发布时间：优先 published_parsed，再 published，再 updated_parsed，再 updated
+        # 注意：feedparser 的 *_parsed 是 UTC 时间（struct_time）。
+        # 用 time.mktime 会按本地时区解释，导致 +8h 偏移；这里直接按 UTC 构造。
         published = ""
         if hasattr(entry, "published_parsed") and entry.published_parsed:
-            published = datetime.fromtimestamp(time.mktime(entry.published_parsed)).isoformat()
+            published = datetime(*entry.published_parsed[:6], tzinfo=timezone.utc).isoformat()
         elif hasattr(entry, "published"):
             published = entry.published
         elif hasattr(entry, "updated_parsed") and entry.updated_parsed:
-            published = datetime.fromtimestamp(time.mktime(entry.updated_parsed)).isoformat()
+            published = datetime(*entry.updated_parsed[:6], tzinfo=timezone.utc).isoformat()
         elif hasattr(entry, "updated"):
             published = entry.updated
 

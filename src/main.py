@@ -27,6 +27,7 @@ from urllib.request import Request, urlopen
 
 from src import config
 from src.config import get_random_style, get_random_trivia
+from src.config.sources import CATEGORY_ORDER, TITLE_CATEGORY_MAP
 from src.models import NewsItem, FilterReport
 from src.collector import collect_all
 from src.deduplicator import run_pipeline
@@ -120,6 +121,96 @@ def _try_parse_item(it):
             pass
     log.warning("无法解析的条目: %s", str(it)[:80])
     return None, False
+
+
+def _resolve_source(parsed: dict, clean_items: list[NewsItem]) -> str:
+    """
+    解析新闻来源：优先使用 AI 返回的源名，
+    若为空或 'AI' 则回溯到原始 RSS 采集的真实源名（如 ArXiv / TechCrunch）。
+    """
+    ai_src = (parsed.get("source") or "").strip()
+    if ai_src and ai_src.lower() != "ai":
+        return ai_src
+
+    # 回溯：通过标题匹配找到原始 clean_items 的真实 source
+    title = (parsed.get("title", "") or "").strip().lower()
+
+    # 精确匹配（前 50 字符）
+    for ci in clean_items:
+        if ci.title.strip().lower()[:50] == title[:50]:
+            return ci.source or "AI"
+
+    # 短精确匹配（前 30 字符）
+    for ci in clean_items:
+        if ci.title.strip().lower()[:30] == title[:30]:
+            return ci.source or "AI"
+
+    # 模糊词重叠兜底（与 _extract_link 同逻辑）
+    title_words = set(w for w in re.split(r'[\s：:，,、()（）\[\]【】]', title) if len(w) > 1)
+    best_source = ""
+    best_score = 0
+    for ci in clean_items:
+        orig_words = set(
+            w for w in re.split(r'[\s：:，,、()（）\[\]【】]', ci.title.lower()) if len(w) > 1
+        )
+        if not title_words or not orig_words:
+            continue
+        overlap = len(title_words & orig_words)
+        score = overlap / min(len(title_words), len(orig_words))
+        if score > best_score:
+            best_score = score
+            best_source = ci.source or "AI"
+
+    return best_source if best_score >= 0.4 else "AI"
+
+
+def _resolve_category(parsed: dict) -> str:
+    """
+    解析新闻分类，结果必为 CATEGORY_ORDER 中的一员。
+
+    优先级：
+      1. AI 返回的 tags[0]，且属于合法枚举 → 直接用
+      2. 否则按「标题」关键词匹配 TITLE_CATEGORY_MAP（不扫摘要，避免把
+         "其他动态" 二次拆出，导致分类散乱）
+      3. 兜底 → 其他动态
+    """
+    tags = parsed.get("tags") or []
+    if tags and isinstance(tags, list) and tags[0] in CATEGORY_ORDER:
+        return tags[0]
+
+    title = (parsed.get("title") or "").lower()
+    for pattern, category in TITLE_CATEGORY_MAP:
+        if re.search(pattern, title):
+            return category
+    return "其他动态"
+
+
+def _append_parsed_items(parsed_list: list, final_items: list,
+                         title_exact_map: dict, source_title_map: dict,
+                         clean_items: list) -> tuple[int, int]:
+    """
+    把 AI 返回的 news/items 列表逐条解析并追加到 final_items。
+    返回 (成功数, 跳过数)。news / items / international·china 三分支共用此函数，
+    避免重复构造 final_item 字典。
+    """
+    ok = skip = 0
+    for it in parsed_list:
+        parsed, valid = _try_parse_item(it)
+        if not valid:
+            skip += 1
+            continue
+        ok += 1
+        summary = parsed.get("summary", "")
+        final_items.append({
+            "title": parsed.get("title", ""),
+            "summary": summary,
+            "link": _extract_link(parsed, summary, title_exact_map, source_title_map),
+            "source": _resolve_source(parsed, clean_items),
+            "score": _normalize_score(parsed.get("score")),
+            "tags": parsed.get("tags", []),
+            "category": _resolve_category(parsed),
+        })
+    return ok, skip
 
 
 def _apply_fallback_scores(items: list[dict]) -> None:
@@ -227,45 +318,18 @@ def main():
                         title_exact_map[key_short] = ci.url
 
             # 使用模块级辅助函数处理 AI 输出
-            ok_count = skip_count = 0
-
             if "news" in ai_result:
-                for it in ai_result.get("news", []):
-                    parsed, ok = _try_parse_item(it)
-                    if not ok:
-                        skip_count += 1
-                        continue
-                    ok_count += 1
-                    summary = parsed.get("summary", "")
-                    final_items.append({
-                        "title": parsed.get("title", ""),
-                        "summary": summary,
-                        "link": _extract_link(parsed, summary, title_exact_map, source_title_map),
-                        "source": parsed.get("source", "AI"),
-                        "score": _normalize_score(parsed.get("score")),
-                        "tags": parsed.get("tags", []),
-                    })
+                ok_count, skip_count = _append_parsed_items(
+                    ai_result.get("news", []), final_items,
+                    title_exact_map, source_title_map, clean_items)
                 detail = ""
                 if skip_count:
                     detail = f" (跳过 {skip_count} 条无法解析)"
                 log.info("  AI 筛选后: %d 条%s", ok_count, detail)
             elif "items" in ai_result:
-                items_ok = items_skip = 0
-                for it in ai_result["items"]:
-                    parsed, ok = _try_parse_item(it)
-                    if not ok:
-                        items_skip += 1
-                        continue
-                    items_ok += 1
-                    summary = parsed.get("summary", "")
-                    final_items.append({
-                        "title": parsed.get("title", ""),
-                        "summary": summary,
-                        "link": _extract_link(parsed, summary, title_exact_map, source_title_map),
-                        "source": parsed.get("source", "AI"),
-                        "score": _normalize_score(parsed.get("score")),
-                        "tags": parsed.get("tags", []),
-                    })
+                items_ok, items_skip = _append_parsed_items(
+                    ai_result["items"], final_items,
+                    title_exact_map, source_title_map, clean_items)
                 detail = ""
                 if items_skip:
                     detail = f" (跳过 {items_skip} 条无法解析)"
@@ -274,17 +338,8 @@ def main():
             if ai_result and ("international" in ai_result or "china" in ai_result):
                 fallback_items = []
                 for key in ("international", "china"):
-                    for it in ai_result.get(key, []):
-                        parsed, ok = _try_parse_item(it)
-                        if not ok:
-                            continue
-                        summary = parsed.get("summary", "")
-                        fallback_items.append({
-                            "title": parsed.get("title", ""),
-                            "summary": summary,
-                            "link": _extract_link(parsed, summary, {}, {}),
-                            "source": parsed.get("source", "AI"),
-                        })
+                    _append_parsed_items(
+                        ai_result.get(key, []), fallback_items, {}, {}, clean_items)
                 if fallback_items:
                     log.info("  降级: 使用旧格式 international/china，解析 %d 条", len(fallback_items))
                     final_items = fallback_items
