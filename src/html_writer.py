@@ -311,12 +311,17 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
     if projects:
         proj_cards = []
         for p in projects:
+            name_html = (
+                f'<a href="{p.get("link","")}" target="_blank" '
+                f'style="color:#1a1a1a;text-decoration:none;'
+                f'border-bottom:1px solid #1a1a1a;">{p.get("name","")}</a>'
+            ) if p.get("link") else f'<span style="color:#1a1a1a;">{p.get("name","")}</span>'
             proj_cards.append(f"""
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #e5e5e5;border-radius:12px;margin-bottom:10px;">
           <tr>
             <td style="padding:20px 24px;">
               <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:6px;">
-                <span style="color:#1a1a1a;">{p.get("name","")}</span>
+                {name_html}
                 <span style="font-size:12px;color:#888;margin-left:8px;font-weight:400;">{p.get("stars","")}</span>
               </div>
               <p style="font-size:13px;color:#555;margin:8px 0 0 0;line-height:1.7;">{p.get("desc","")}</p>

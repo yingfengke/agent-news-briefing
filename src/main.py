@@ -23,6 +23,7 @@ import logging
 import os
 import re
 import sys
+from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 from src import config
@@ -161,7 +162,57 @@ def _resolve_source(parsed: dict, clean_items: list[NewsItem]) -> str:
             best_score = score
             best_source = ci.source or "AI"
 
+    # URL 域名兜底：AI 改写标题导致上面匹配失败时的最后手段
+    url = parsed.get("url") or ""
+    if url:
+        domain = urlparse(url).netloc.lower()
+        if domain.startswith("www."):
+            domain = domain[4:]
+        if domain:
+            dom_map = {}
+            for ci in clean_items:
+                if not ci.url:
+                    continue
+                d = urlparse(ci.url).netloc.lower()
+                if d.startswith("www."):
+                    d = d[4:]
+                if d and ci.source:
+                    dom_map.setdefault(d, ci.source)
+            if domain in dom_map:
+                return dom_map[domain]
+
     return best_source if best_score >= 0.4 else "AI"
+
+
+# 标签清洗：丢弃这些无意义词（LLM 常把来源/分类误填为标签）
+_INVALID_TAG_TOKENS = {
+    "ai", "其他", "其他动态", "无", "none", "null", "n/a", "未知",
+    "general", "综合", "资讯", "新闻", "动态", "daily", "今日",
+}
+
+
+def _sanitize_tags(tags) -> list:
+    """
+    清洗 AI 返回的标签数组：去掉空值、无意义词（如 'AI'）、重复项。
+    返回干净、可用于前端 chip 渲染的标签列表。
+    """
+    if not isinstance(tags, list):
+        return []
+    out, seen = [], set()
+    for t in tags:
+        if not isinstance(t, str):
+            continue
+        s = t.strip()
+        if not s:
+            continue
+        low = s.lower()
+        if low in _INVALID_TAG_TOKENS:
+            continue
+        if low in seen:
+            continue
+        seen.add(low)
+        out.append(s)
+    return out
 
 
 def _resolve_category(parsed: dict) -> str:
@@ -169,14 +220,17 @@ def _resolve_category(parsed: dict) -> str:
     解析新闻分类，结果必为 CATEGORY_ORDER 中的一员。
 
     优先级：
-      1. AI 返回的 tags[0]，且属于合法枚举 → 直接用
+      1. AI 返回的 tags 中首个属于合法枚举的值 → 直接用
+         （扫描全部 tags 而非只看 tags[0]，避免 LLM 把分类放在后面）
       2. 否则按「标题」关键词匹配 TITLE_CATEGORY_MAP（不扫摘要，避免把
          "其他动态" 二次拆出，导致分类散乱）
       3. 兜底 → 其他动态
     """
     tags = parsed.get("tags") or []
-    if tags and isinstance(tags, list) and tags[0] in CATEGORY_ORDER:
-        return tags[0]
+    if isinstance(tags, list):
+        for t in tags:
+            if t in CATEGORY_ORDER:
+                return t
 
     title = (parsed.get("title") or "").lower()
     for pattern, category in TITLE_CATEGORY_MAP:
@@ -207,7 +261,7 @@ def _append_parsed_items(parsed_list: list, final_items: list,
             "link": _extract_link(parsed, summary, title_exact_map, source_title_map),
             "source": _resolve_source(parsed, clean_items),
             "score": _normalize_score(parsed.get("score")),
-            "tags": parsed.get("tags", []),
+            "tags": _sanitize_tags(parsed.get("tags", [])),
             "category": _resolve_category(parsed),
         })
     return ok, skip

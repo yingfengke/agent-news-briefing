@@ -113,6 +113,34 @@ def test_email_render_resolved_categories_and_links():
     assert "其他动态（3条）" in html
 
 
+def test_email_render_project_links():
+    """项目推荐区块：项目名应渲染为指向 GitHub 仓库的可点击超链接。
+
+    修复点：数据源 trending_fetcher 已产出 link 字段，但渲染端此前从未将其接成
+    超链接（邮件端是纯文本 span，web 端 __PROJECTS__ 从未渲染），导致项目推荐无法点击。
+    """
+    original_out = config.EMAIL_OUTPUT
+    tmp_out = os.path.join(tempfile.gettempdir(), "email_project_test.html")
+    config.EMAIL_OUTPUT = tmp_out
+    try:
+        projects = [
+            {"name": "addyosmani/agent-skills", "desc": "生产级 Agent 技能。",
+             "stars": "star 710", "link": "https://github.com/addyosmani/agent-skills",
+             "tag": "Agent 框架"},
+        ]
+        make_email_with_categories([], "", projects)
+        html = open(tmp_out, encoding="utf-8").read()
+    finally:
+        config.EMAIL_OUTPUT = original_out
+
+    assert "本周热门学习项目" in html
+    # 项目名是可点击链接，指向其 GitHub 仓库
+    assert 'href="https://github.com/addyosmani/agent-skills"' in html
+    assert "addyosmani/agent-skills" in html
+    # 无 link 时回落为纯文本（不出现空 href）
+    assert 'href=""' not in html
+
+
 if __name__ == "__main__":
     test_clean_links_empty()
     test_clean_links_no_links()
@@ -125,4 +153,5 @@ if __name__ == "__main__":
     test_get_category_no_summary_scan()
     test_merge_small_categories()
     test_email_render_resolved_categories_and_links()
+    test_email_render_project_links()
     print("All html_writer tests passed!")

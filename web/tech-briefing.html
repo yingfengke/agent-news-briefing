@@ -134,6 +134,8 @@
 
   <div class="news-list" id="news-list"></div>
 
+  <div class="news-list" id="projects-card"></div>
+
   <div class="analysis-card" id="analysis-card">
     <div class="label">📊 今日深度分析</div>
     <div class="content" id="analysis-content"></div>
@@ -446,7 +448,7 @@
             card.innerHTML = `
             <div class="card-meta">
               <span class="card-index">No.${String(++globalIndex).padStart(2, '0')}</span>
-              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}${item.tags && item.tags.length ? item.tags.map(t => `<span class="tag-tag">${t}</span>`).join('') : ''}
+              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}${item.tags && item.tags.length ? item.tags.filter(t => t !== item.category).map(t => `<span class="tag-tag">${t}</span>`).join('') : ''}
             </div>
             <div class="card-title">${item.title}</div>
             <div class="card-summary">${item.summary}</div>
@@ -473,7 +475,7 @@
             card.innerHTML = `
             <div class="card-meta">
               <span class="card-index">No.${String(++globalIndex).padStart(2, '0')}</span>
-              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}${item.tags && item.tags.length ? item.tags.map(t => `<span class="tag-tag">${t}</span>`).join('') : ''}
+              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}${item.tags && item.tags.length ? item.tags.filter(t => t !== item.category).map(t => `<span class="tag-tag">${t}</span>`).join('') : ''}
             </div>
             <div class="card-title">${item.title}</div>
             <div class="card-summary">${item.summary}</div>
@@ -487,6 +489,29 @@
         });
 
         list.classList.add('visible');
+
+        // 项目推荐（本周热门学习项目）
+        const projCard = document.getElementById('projects-card');
+        if (projCard && __PROJECTS__ && __PROJECTS__.length) {
+          const pHeader = document.createElement('div');
+          pHeader.className = 'category-header';
+          pHeader.textContent = `本周热门学习项目（${__PROJECTS__.length}条）`;
+          projCard.appendChild(pHeader);
+          __PROJECTS__.forEach(p => {
+            const pc = document.createElement('div');
+            pc.className = 'news-card';
+            pc.innerHTML = `
+              <div class="card-title"><a href="${p.link}" target="_blank" style="color:inherit;text-decoration:none;border-bottom:1px solid #1a1a1a;">${p.name}</a></div>
+              <div class="card-summary">${p.desc || ''}</div>
+              <div class="card-meta">
+                ${p.tag ? `<span class="tag-tag">${p.tag}</span>` : ''}
+                ${p.stars ? `<span class="source-tag">${p.stars}</span>` : ''}
+              </div>
+            `;
+            projCard.appendChild(pc);
+          });
+          projCard.classList.add('visible');
+        }
 
         // 深度分析
         if (__DAILY_ANALYSIS__) {

@@ -21,6 +21,22 @@ from src.logger import get_logger
 log = get_logger("trending")
 
 
+def _extract_stars_today(article) -> int:
+    """
+    从 trending 文章块提取「今日新增 star 数」。
+
+    关键修正：GitHub 把「总 star 数」链接与「stars today」文本放在同一父 <div> 下，
+    若直接对该父容器 get_text() 会拼出 "456782,514 stars today"，导致取到累计总数而非日增。
+    这里只取「自身直接文本节点包含 'stars today'」的元素（即最内层 span），
+    用 recursive=False 排除子元素（如总 star 数链接）的干扰。
+    """
+    for tag in article.find_all(["span", "div", "a"]):
+        direct = "".join(tag.find_all(text=True, recursive=False)).strip()
+        if "stars today" in direct.lower():
+            return _try_parse_int(direct)
+    return 0
+
+
 def _try_parse_int(text: str) -> int:
     """尝试从文本中提取整数（如 '1,234 stars today' -> 1234）"""
     nums = re.findall(r'[\d,]+', text)
@@ -78,18 +94,9 @@ def fetch_github_trending():
                     if p_tag:
                         desc = p_tag.get_text(strip=True)
 
-                # 今日星标
-                stars_str = ""
-                stars_n = 0
-                # 查找包含 "stars today" 的标签
-                for tag in article.find_all(["span", "div", "a"]):
-                    text = tag.get_text(strip=True)
-                    if "stars today" in text.lower():
-                        stars_n = _try_parse_int(text)
-                        stars_str = f"star+{stars_n} today"
-                        break
-                if not stars_str:
-                    stars_str = "star N/A"
+                # 今日星标（只取直接文本，避免父容器把累计总数拼进来）
+                stars_n = _extract_stars_today(article)
+                stars_str = f"star+{stars_n} today" if stars_n else "star N/A"
 
                 # 标签匹配
                 combined = f"{full_name} {desc}".lower()
