@@ -244,7 +244,7 @@ def _append_parsed_items(parsed_list: list, final_items: list,
                          clean_items: list) -> tuple[int, int]:
     """
     把 AI 返回的 news/items 列表逐条解析并追加到 final_items。
-    返回 (成功数, 跳过数)。news / items / international·china 三分支共用此函数，
+    返回 (成功数, 跳过数)。news / items 两分支共用此函数，
     避免重复构造 final_item 字典。
     """
     ok = skip = 0
@@ -387,18 +387,7 @@ def _run_main():
                     detail = f" (跳过 {items_skip} 条无法解析)"
                 log.info("  AI 筛选后: %d 条%s", items_ok, detail)
         else:
-            if ai_result and ("international" in ai_result or "china" in ai_result):
-                fallback_items = []
-                for key in ("international", "china"):
-                    _append_parsed_items(
-                        ai_result.get(key, []), fallback_items, {}, {}, clean_items)
-                if fallback_items:
-                    log.info("  降级: 使用旧格式 international/china，解析 %d 条", len(fallback_items))
-                    final_items = fallback_items
-                else:
-                    ai_failed = True
-            else:
-                ai_failed = True
+            ai_failed = True
 
     # ---- 英文标题翻译兜底 ----
     if final_items and not ai_failed:

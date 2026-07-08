@@ -614,9 +614,7 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
             if not parsed:
                 raise ValueError("AI 返回内容无法解析为 JSON")
 
-            news_count = len(parsed.get("news", [])) if "news" in parsed else 0
-            if not news_count:
-                news_count = len(parsed.get("international", [])) + len(parsed.get("china", []))
+            news_count = len(parsed.get("news", []))
             log.info("  -> AI 筛选: %d 条新闻", news_count)
             stats = _json_parse_stats
             if stats["total"] > 0:

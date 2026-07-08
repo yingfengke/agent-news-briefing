@@ -357,17 +357,6 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
           </td>
         </tr>"""
 
-    web_link_section = f"""
-        <tr>
-          <td style="padding:24px 20px;border-top:2px dashed #ddd;border-bottom:2px dashed #ddd;">
-            <div style="font-size:12px;color:#888;line-height:1.8;text-align:center;">
-              <span style="font-size:14px;font-weight:700;color:#555;">查看原文链接</span><br/>
-              请在浏览器中打开网页版查看所有新闻原文链接及项目详情<br/>
-              <span style="color:#999;font-size:11px;">yingfengke.github.io/agent-news-briefing</span>
-            </div>
-          </td>
-        </tr>"""
-
     today = datetime.now()
     date_str = f"{today.year}年{today.month:02d}月{today.day:02d}日"
     style_tag = f" · 今日风格：{style_name}" if style_name else ""
@@ -405,7 +394,7 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
     return True
 
 
-def generate_rss_feed(news_items, daily_analysis="", site_url="https://yingfengke.github.io/agent-news-briefing"):
+def generate_rss_feed(news_items, daily_analysis="", site_url=config.SITE_URL):
     """
     生成 RSS 2.0 Feed 文件（web/rss.xml），供阅读器订阅。
     """

@@ -27,6 +27,9 @@ EMAIL_TEMPLATE = os.path.join(BASE_DIR, "web", "email_template.html")
 EMAIL_OUTPUT = os.path.join(BASE_DIR, "web", "email_content.html")
 CRAWL_LOG_FILE = os.path.join(BASE_DIR, ".crawl_log.json")
 
+# 站点地址（GitHub Pages）
+SITE_URL = "https://yingfengke.github.io/agent-news-briefing"
+
 # 内容截断
 SUMMARY_MAX_LENGTH = 500  # content 字段最大长度（字符）
 
