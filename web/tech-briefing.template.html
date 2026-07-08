@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI &amp; Agent 开发者晨报</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+      background-color: #f5f4f0; color: #1a1a1a;
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; padding: 60px 20px 80px;
+    }
+    .header {
+      text-align: left; width: 100%; max-width: 720px;
+      margin-bottom: 40px; padding-left: 20px; border-left: 4px solid #1a1a1a;
+    }
+    .header .subtitle { font-size: 0.75rem; color: #aaa; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 6px; }
+    .header h1 { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2; }
+    .header p { margin-top: 8px; font-size: 0.88rem; color: #888; }
+
+    .btn-generate {
+      display: inline-flex; align-items: center; gap: 10px;
+      background-color: #1a1a1a; color: #fff;
+      font-size: 0.95rem; font-weight: 600; padding: 13px 30px;
+      border: 2px solid #1a1a1a; border-radius: 50px; cursor: pointer;
+      transition: all 0.2s; letter-spacing: 0.03em;
+    }
+    .btn-generate:hover { background-color: #fff; color: #1a1a1a; transform: translateY(-2px); }
+    .btn-generate:active { transform: translateY(0); }
+    .btn-generate:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+    .loading {
+      margin-top: 32px; font-size: 0.9rem; color: #888;
+      display: none; align-items: center; gap: 10px;
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    .loading.visible { display: flex; }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .loading .dots { display: flex; gap: 5px; }
+    .loading .dot { width: 6px; height: 6px; background: #aaa; border-radius: 50%; animation: bounce 1.2s ease-in-out infinite; }
+    .loading .dot:nth-child(2) { animation-delay: 0.2s; }
+    .loading .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+    .news-list {
+      margin-top: 36px; width: 100%; max-width: 720px;
+      display: none; flex-direction: column; gap: 18px;
+    }
+    .news-list.visible { display: flex; }
+
+    .news-card {
+      background: #fff; border: 1px solid #e5e5e5; border-radius: 14px;
+      padding: 22px 26px; transition: transform 0.2s, box-shadow 0.2s;
+      animation: fadeUp 0.4s ease both;
+    }
+    .news-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(0,0,0,0.07); }
+    .news-card:nth-child(1) { animation-delay: 0.05s; }
+    .news-card:nth-child(2) { animation-delay: 0.1s; }
+    .news-card:nth-child(3) { animation-delay: 0.15s; }
+    .news-card:nth-child(4) { animation-delay: 0.2s; }
+    .news-card:nth-child(5) { animation-delay: 0.25s; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .news-card .card-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .news-card .card-index { font-size: 0.72rem; font-weight: 700; color: #ccc; letter-spacing: 0.1em; }
+    .news-card .source-tag { font-size: 0.68rem; color: #888; background: #f0f0ee; padding: 2px 10px; border-radius: 20px; }
+    .news-card .tag-tag { font-size: 0.68rem; color: #534AB7; background: #EEEDFE; padding: 2px 10px; border-radius: 20px; margin-left: 4px; }
+    .news-card .score-badge.high { color: #2e7d32; background: #e8f5e9; }
+    .news-card .score-badge.mid { color: #e65100; background: #fff3e0; }
+    .news-card .score-badge.low { color: #757575; background: #f5f5f5; }
+    .news-card .card-title { font-size: 1rem; font-weight: 700; line-height: 1.5; color: #111; margin-bottom: 10px; }
+    .news-card .card-summary { font-size: 0.85rem; color: #555; line-height: 1.75; margin-bottom: 14px; }
+    .news-card .card-link { font-size: 0.8rem; font-weight: 600; color: #1a1a1a; text-decoration: none; border-bottom: 1.5px solid #1a1a1a; padding-bottom: 1px; transition: opacity 0.2s; }
+    .news-card .card-link:hover { opacity: 0.5; }
+    .news-card .card-bottom { display: flex; align-items: center; justify-content: space-between; }
+    .news-card .score-badge { font-size: 0.68rem; font-weight: 600; padding: 2px 10px; border-radius: 10px; }
+
+    .category-header {
+      width: 100%; max-width: 720px;
+      font-size: 0.9rem; font-weight: 700; color: #1a1a1a;
+      letter-spacing: 0.5px; padding-bottom: 6px;
+      border-bottom: 2px solid #1a1a1a; margin: 24px 0 16px 0;
+    }
+    .category-header:first-of-type { margin-top: 0; }
+
+    /* 深度分析卡片 */
+    .analysis-card {
+      background: #1a1a1a; color: #e8e8e8; border-radius: 14px;
+      padding: 26px 28px; margin-top: 20px; width: 100%; max-width: 720px;
+      display: none; animation: fadeUp 0.5s ease both;
+    }
+    .analysis-card.visible { display: block; }
+    .analysis-card .label { font-size: 0.72rem; color: #888; letter-spacing: 0.12em; margin-bottom: 12px; text-transform: uppercase; }
+    .analysis-card .content { font-size: 0.88rem; line-height: 1.8; color: #ccc; }
+
+    .empty-state {
+      margin-top: 40px; text-align: center; color: #bbb; display: none;
+    }
+    .empty-state.visible { display: block; }
+    .empty-state .icon-big { font-size: 2.8rem; margin-bottom: 14px; }
+    .empty-state p { font-size: 0.88rem; line-height: 1.8; }
+    .empty-state .hint { margin-top: 6px; font-size: 0.8rem; color: #ccc; }
+
+    .timestamp { margin-top: 16px; font-size: 0.75rem; color: #bbb; text-align: right; width: 100%; max-width: 720px; display: none; }
+    .timestamp.visible { display: block; }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="subtitle">☕ 每日推送 · AI 开发者专属</div>
+    <h1>AI &amp; Agent 开发者晨报</h1>
+    <p id="today-date">Loading date…</p>
+  </header>
+
+  <button class="btn-generate" onclick="generateBriefing()">
+    生成今日简报
+  </button>
+
+  <div class="loading" id="loading">
+    <div class="dots">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+    <span>正在分析今日 AI 动态……</span>
+  </div>
+
+  <div class="empty-state" id="empty-state">
+    <div class="icon-big">📭</div>
+    <p>今日晨报尚未生成</p>
+    <p class="hint">每天早上 9:00 自动抓取 AI 领域最新动态<br>届时刷新页面即可查看</p>
+  </div>
+
+  <div class="news-list" id="news-list"></div>
+
+  <div class="news-list" id="projects-card"></div>
+
+  <div class="analysis-card" id="analysis-card">
+    <div class="label">📊 今日深度分析</div>
+    <div class="content" id="analysis-content"></div>
+  </div>
+
+  <div class="timestamp" id="timestamp"></div>
+
+  <script>
+    // 初始化日期
+    (function initDate() {
+      const now = new Date();
+      const opts = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+      document.getElementById('today-date').textContent =
+        now.toLocaleDateString('zh-CN', opts);
+    })();
+
+    // ========================================================
+    // 新闻数据 — 由 generate_briefing.py 自动替换
+    // [{title, summary, link, source}]
+    // ========================================================
+    const __NEWS_DATA__ = {{ news_data_json | safe }};;
+
+    // ========================================================
+    // 深度分析 — 由 generate_briefing.py 自动替换
+    // ========================================================
+    const __DAILY_ANALYSIS__ = {{ daily_analysis_json | safe }};;
+
+    // ========================================================
+    // 项目推荐 — 由 generate_briefing.py 自动替换
+    // ========================================================
+    const __PROJECTS__ = {{ projects_json | safe }};;
+
+    // 渲染简报
+    function generateBriefing() {
+      const btn     = document.querySelector('.btn-generate');
+      const loading = document.getElementById('loading');
+      const list    = document.getElementById('news-list');
+      const empty   = document.getElementById('empty-state');
+      const ts      = document.getElementById('timestamp');
+      const ac      = document.getElementById('analysis-card');
+
+      btn.disabled = true;
+      list.innerHTML = '';
+      list.classList.remove('visible');
+      ac.classList.remove('visible');
+      empty.classList.remove('visible');
+      ts.classList.remove('visible');
+      loading.classList.add('visible');
+
+      setTimeout(() => {
+        loading.classList.remove('visible');
+
+        if (!__NEWS_DATA__ || __NEWS_DATA__.length === 0) {
+          empty.classList.add('visible');
+          btn.disabled = false;
+          return;
+        }
+
+        // 按分类分组（category 字段为分类键，回退到 tags[0]）
+        const groups = {};
+        const CATEGORY_ORDER = ['大模型', 'Agent框架', '产品与发布', '论文与研究', '行业动态', '其他动态'];
+        __NEWS_DATA__.forEach(item => {
+          const cat = (item.category) || (item.tags && item.tags[0]) || '其他动态';
+          if (!groups[cat]) groups[cat] = [];
+          groups[cat].push(item);
+        });
+
+        // 合并条目 < 2 的零散分类到「其他动态」，避免板块过于分散
+        Object.keys(groups).forEach(cat => {
+          if (cat === '其他动态') return;
+          if (groups[cat].length < 2) {
+            groups['其他动态'] = (groups['其他动态'] || []).concat(groups[cat]);
+            delete groups[cat];
+          }
+        });
+
+        // 按固定顺序渲染分类区块
+        let globalIndex = 0;
+        CATEGORY_ORDER.forEach(cat => {
+          if (!groups[cat]) return;
+          const header = document.createElement('div');
+          header.className = 'category-header';
+          header.textContent = `${cat}（${groups[cat].length}条）`;
+          list.appendChild(header);
+
+          groups[cat].forEach((item) => {
+            const card = document.createElement('div');
+            card.className = 'news-card';
+            card.innerHTML = `
+            <div class="card-meta">
+              <span class="card-index">No.${String(++globalIndex).padStart(2, '0')}</span>
+              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}${item.tags && item.tags.length ? item.tags.filter(t => t !== item.category).map(t => `<span class="tag-tag">${t}</span>`).join('') : ''}
+            </div>
+            <div class="card-title">${item.title}</div>
+            <div class="card-summary">${item.summary}</div>
+            <div class="card-bottom">
+              <a class="card-link" href="${item.link}" target="_blank">阅读原文</a>
+              ${item.score > 0 ? `<span class="score-badge ${item.score >= 4 ? 'high' : item.score >= 3 ? 'mid' : 'low'}">${Number(item.score).toFixed(1)}</span>` : ''}
+            </div>
+          `;
+            list.appendChild(card);
+          });
+        });
+
+        // 处理不在 CATEGORY_ORDER 中的分类
+        Object.keys(groups).forEach(cat => {
+          if (CATEGORY_ORDER.includes(cat)) return;
+          const header = document.createElement('div');
+          header.className = 'category-header';
+          header.textContent = `${cat}（${groups[cat].length}条）`;
+          list.appendChild(header);
+
+          groups[cat].forEach((item) => {
+            const card = document.createElement('div');
+            card.className = 'news-card';
+            card.innerHTML = `
+            <div class="card-meta">
+              <span class="card-index">No.${String(++globalIndex).padStart(2, '0')}</span>
+              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}${item.tags && item.tags.length ? item.tags.filter(t => t !== item.category).map(t => `<span class="tag-tag">${t}</span>`).join('') : ''}
+            </div>
+            <div class="card-title">${item.title}</div>
+            <div class="card-summary">${item.summary}</div>
+            <div class="card-bottom">
+              <a class="card-link" href="${item.link}" target="_blank">阅读原文</a>
+              ${item.score > 0 ? `<span class="score-badge ${item.score >= 4 ? 'high' : item.score >= 3 ? 'mid' : 'low'}">${Number(item.score).toFixed(1)}</span>` : ''}
+            </div>
+          `;
+            list.appendChild(card);
+          });
+        });
+
+        list.classList.add('visible');
+
+        // 项目推荐（本周热门学习项目）
+        const projCard = document.getElementById('projects-card');
+        if (projCard && __PROJECTS__ && __PROJECTS__.length) {
+          const pHeader = document.createElement('div');
+          pHeader.className = 'category-header';
+          pHeader.textContent = `本周热门学习项目（${__PROJECTS__.length}条）`;
+          projCard.appendChild(pHeader);
+          __PROJECTS__.forEach(p => {
+            const pc = document.createElement('div');
+            pc.className = 'news-card';
+            pc.innerHTML = `
+              <div class="card-title"><a href="${p.link}" target="_blank" style="color:inherit;text-decoration:none;border-bottom:1px solid #1a1a1a;">${p.name}</a></div>
+              <div class="card-summary">${p.desc || ''}</div>
+              <div class="card-meta">
+                ${p.tag ? `<span class="tag-tag">${p.tag}</span>` : ''}
+                ${p.stars ? `<span class="source-tag">${p.stars}</span>` : ''}
+              </div>
+            `;
+            projCard.appendChild(pc);
+          });
+          projCard.classList.add('visible');
+        }
+
+        // 深度分析
+        if (__DAILY_ANALYSIS__) {
+          document.getElementById('analysis-content').textContent = __DAILY_ANALYSIS__;
+          ac.classList.add('visible');
+        }
+
+        const now = new Date();
+        ts.textContent = `生成于 ${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        ts.classList.add('visible');
+
+        btn.disabled = false;
+        btn.textContent = '🔄 刷新';
+      }, 800);
+    }
+
+    window.addEventListener('DOMContentLoaded', generateBriefing);
+  </script>
+
+</body>
+</html>

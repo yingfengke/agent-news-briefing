@@ -43,26 +43,12 @@ def clean_links(text: str) -> str:
     return cleaned
 
 
-def _replace_array_var(content: str, var_name: str, new_json_str: str) -> str:
-    """替换 HTML 中 JavaScript 数组变量的内容。"""
-    key = f"const {var_name} ="
-    start = content.find(key)
-    if start < 0:
-        log.warning("未找到 %s", key)
-        return content
+def _json_to_js(data) -> str:
+    """将 Python 对象序列化为可安全嵌入 <script> 的 JSON 字符串。
 
-    search_from = start + len(key)
-    bracket_pos = content.find("[", search_from)
-    if bracket_pos < 0:
-        log.warning("未找到 [")
-        return content
-
-    array_end = content.find("];", bracket_pos)
-    if array_end < 0:
-        log.warning("未找到数组结束 ];")
-        return content
-
-    return content[:bracket_pos] + new_json_str + ";" + content[array_end + 2:]
+    把 '<' 转义为 '\\u003c'，防止新闻内容中的 '</script>' 提前闭合脚本标签。
+    """
+    return json.dumps(data, ensure_ascii=False).replace("<", "\\u003c")
 
 
 def _render_index_redirect() -> str:
@@ -93,32 +79,29 @@ def _render_index_redirect() -> str:
 def write_html(news_items, daily_analysis="", projects=None):
     if not projects:
         projects = []
-    if not os.path.exists(config.HTML_FILE):
-        log.error("HTML 文件不存在: %s", config.HTML_FILE)
+    if not os.path.exists(config.HTML_TEMPLATE):
+        log.error("网页模板不存在: %s", config.HTML_TEMPLATE)
         return False
 
-    with open(config.HTML_FILE, "r", encoding="utf-8") as f:
-        content = f.read()
+    template_dir = os.path.dirname(config.HTML_TEMPLATE)
+    template_file = os.path.basename(config.HTML_TEMPLATE)
+    env = Environment(loader=FileSystemLoader(template_dir), autoescape=False)
+    try:
+        template = env.get_template(template_file)
+    except TemplateError as e:
+        log.error("网页模板加载失败: %s", e)
+        return False
 
-    json_str = json.dumps(news_items, ensure_ascii=False, indent=4)
-    lines = json_str.split("\n")
-    indented = "\n".join("        " + line if line.strip() else line for line in lines)
-    content = _replace_array_var(content, "__NEWS_DATA__", indented)
-
-    if daily_analysis:
-        escaped = json.dumps(daily_analysis, ensure_ascii=False)
-        key = 'const __DAILY_ANALYSIS__ = "'
-        da_start = content.find(key)
-        if da_start >= 0:
-            val_start = da_start + len(key)
-            val_end = content.find('"', val_start)
-            if val_end > val_start:
-                content = content[:val_start] + escaped.strip('"') + content[val_end:]
-
-    projects_json = json.dumps(projects, ensure_ascii=False, indent=4)
-    plines = projects_json.split("\n")
-    pindented = "\n".join("        " + line if line.strip() else line for line in plines)
-    content = _replace_array_var(content, "__PROJECTS__", pindented)
+    context = {
+        "news_data_json": _json_to_js(news_items),
+        "daily_analysis_json": _json_to_js(daily_analysis),
+        "projects_json": _json_to_js(projects),
+    }
+    try:
+        content = template.render(**context)
+    except TemplateError as e:
+        log.error("网页模板渲染失败: %s", e)
+        return False
 
     with open(config.HTML_FILE, "w", encoding="utf-8") as f:
         f.write(content)
@@ -131,19 +114,8 @@ def write_html(news_items, daily_analysis="", projects=None):
         f.write(_render_index_redirect())
     log.info("已写入 index.html 重定向占位 -> tech-briefing.html")
 
-    _find = content.find("__NEWS_DATA__")
-    if _find >= 0:
-        _b = content.find("[", _find)
-        _e = content.find("];", _b)
-        if _e > _b:
-            try:
-                _data = json.loads(content[_b:_e + 1])
-                log.info("  新闻条数: %d 条", len(_data))
-                if _data:
-                    log.info("    第一条: %s", _data[0].get("title","")[:50])
-            except Exception as e:
-                log.warning("  JSON 解析失败: %s", e)
-
+    if news_items:
+        log.info("  第一条: %s", news_items[0].get("title", "")[:50])
     return True
 
 def _get_category(item: dict) -> str:

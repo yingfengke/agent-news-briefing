@@ -309,7 +309,7 @@ def _apply_fallback_scores(items: list[dict]) -> None:
 # 主流程
 # ============================================================
 
-def main():
+def _run_main():
     reset_parse_stats()
     log.info("=" * 60)
     log.info("  AI & Agent 开发者晨报 - 三层架构 v2.0")
@@ -477,6 +477,26 @@ def main():
         ai_failed=ai_failed,
         style=style_name if not ai_failed else "降级",
     )
+
+
+def main():
+    """入口：运行主流程；任意异常时发送失败告警（best-effort），随后按原样抛出。"""
+    try:
+        _run_main()
+    except Exception as e:
+        log.error("简报生成失败: %s", e, exc_info=True)
+        try:
+            from src.send_email import send_failure_alert
+            send_failure_alert(e, phase="生成")
+        except Exception as alert_err:
+            log.error("发送失败告警时出错: %s", alert_err)
+        try:
+            from src.logger import log_structured
+            log_structured(log, logging.ERROR, "briefing_failed",
+                           error=f"{type(e).__name__}: {e}")
+        except Exception:
+            pass
+        raise
 
 
 if __name__ == "__main__":

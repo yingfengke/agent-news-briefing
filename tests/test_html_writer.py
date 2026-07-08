@@ -152,16 +152,24 @@ def test_index_redirect_placeholder():
 
 
 def test_write_html_index_is_redirect_not_duplicate():
-    """write_html 后 index.html 为重定向占位，tech-briefing.html 承载真实数据（13.12）。"""
+    """write_html 后 index.html 为重定向占位，tech-briefing.html 承载真实数据（13.12 / ④）。"""
+    original_tmpl = config.HTML_TEMPLATE
     original_html = config.HTML_FILE
     original_base = config.BASE_DIR
     d = tempfile.mkdtemp()
     webd = os.path.join(d, "web")
     os.makedirs(webd, exist_ok=True)
     try:
+        # 复制真实模板到临时 web 目录，作为渲染源
+        tmpl_src = os.path.join(os.path.dirname(__file__), "..", "web",
+                                "tech-briefing.template.html")
+        tmpl = os.path.join(webd, "tech-briefing.template.html")
+        with open(tmpl_src, encoding="utf-8") as f:
+            tpl = f.read()
+        with open(tmpl, "w", encoding="utf-8") as f:
+            f.write(tpl)
         tf = os.path.join(webd, "tech-briefing.html")
-        with open(tf, "w", encoding="utf-8") as f:
-            f.write('const __NEWS_DATA__ = [];\nconst __PROJECTS__ = [];\n')
+        config.HTML_TEMPLATE = tmpl
         config.HTML_FILE = tf
         config.BASE_DIR = d
         write_html(
@@ -176,12 +184,14 @@ def test_write_html_index_is_redirect_not_duplicate():
         with open(os.path.join(webd, "index.html"), encoding="utf-8") as f:
             idx = f.read()
     finally:
+        config.HTML_TEMPLATE = original_tmpl
         config.HTML_FILE = original_html
         config.BASE_DIR = original_base
 
-    # tech-briefing.html 承载真实新闻数据
+    # tech-briefing.html 承载真实新闻数据，且经 Jinja2 渲染无残留 {{ }}
     assert "__NEWS_DATA__" in tb
     assert "T1" in tb
+    assert "{{" not in tb and "}}" not in tb
     # index.html 只是重定向占位，不重复完整内容
     assert "__NEWS_DATA__" not in idx
     assert "tech-briefing.html" in idx

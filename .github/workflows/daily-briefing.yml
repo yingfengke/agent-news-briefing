@@ -83,7 +83,7 @@ jobs:
         run: |
           git config user.name "yingfengke"
           git config user.email "2718611871@qq.com"
-          git add web/index.html web/tech-briefing.html web/rss.xml
+          git add web/index.html web/tech-briefing.html web/tech-briefing.template.html web/rss.xml
           git diff --cached --quiet || git commit -m "每日简报自动更新"
           git push origin main
 

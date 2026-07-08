@@ -18,7 +18,7 @@ from email.header import Header
 from email.utils import formataddr
 
 from src import config
-from src.logger import get_logger, log_structured
+from src.logger import get_logger, log_structured, LOGS_DIR
 import logging
 
 log = get_logger("email")
@@ -135,6 +135,63 @@ def send():
         return False
     except Exception as e:
         log.error("发送失败: %s", e)
+        return False
+
+
+def _strip_urls(text: str) -> str:
+    """去掉 http(s) 链接，避免 QQ 邮箱因可点击链接屏蔽告警邮件。"""
+    return re.sub(r'https?://\S+', '(链接已省略)', text)
+
+
+def send_failure_alert(error: Exception, phase: str = "") -> bool:
+    """
+    简报生成失败时的主动告警（best-effort，纯文本）。
+
+    - 不发 HTML、不附链接，规避 QQ 邮箱对可点击 URL 的屏蔽
+    - 当日 marker 文件去重，避免 workflow retry 重复发信
+    - 任何异常都吞掉，绝不影响主流程退出码
+    """
+    if not all([SENDER_EMAIL, AUTH_CODE, RECEIVER_EMAIL]):
+        log.warning("邮箱配置不完整，跳过失败告警")
+        return False
+
+    today = datetime.now()
+    os.makedirs(LOGS_DIR, exist_ok=True)
+    marker = os.path.join(LOGS_DIR, f"alert-{today.strftime('%Y%m%d')}.sent")
+    if os.path.exists(marker):
+        log.info("今日失败告警已发送过，跳过重复发送")
+        return False
+
+    subject = f"【告警】AI Agent 晨报生成失败 {today.strftime('%Y-%m-%d')}"
+    lines = [
+        "AI Agent 开发者晨报生成失败",
+        f"时间: {today.strftime('%Y-%m-%d %H:%M:%S')}",
+    ]
+    if phase:
+        lines.append(f"失败阶段: {phase}")
+    err_text = f"{type(error).__name__}: {error}"
+    lines.append(f"错误信息: {err_text}")
+    lines.append("")
+    lines.append("请到 GitHub Actions 运行日志查看完整堆栈。")
+    plain = _strip_urls("\n".join(lines))
+
+    msg = MIMEText(plain, "plain", "utf-8")
+    msg["From"] = formataddr(("AI Agent 开发者晨报", SENDER_EMAIL))
+    msg["To"] = RECEIVER_EMAIL
+    msg["Subject"] = Header(subject, "utf-8")
+
+    try:
+        with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, timeout=30) as server:
+            server.login(SENDER_EMAIL, AUTH_CODE)
+            server.sendmail(SENDER_EMAIL, [RECEIVER_EMAIL], msg.as_string())
+        # 仅发送成功后才写 marker，避免发信失败却误判为已告警
+        with open(marker, "w", encoding="utf-8") as f:
+            f.write(today.strftime("%Y-%m-%d %H:%M:%S"))
+        log.info("已发送失败告警邮件")
+        log_structured(log, logging.INFO, "failure_alert_sent", error=err_text)
+        return True
+    except Exception as e:
+        log.error("失败告警邮件发送失败: %s", e)
         return False
 
 
