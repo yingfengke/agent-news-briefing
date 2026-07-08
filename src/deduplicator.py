@@ -19,6 +19,7 @@ import json
 import logging
 import os
 import re
+import tempfile
 import time
 from collections import defaultdict
 from datetime import datetime
@@ -70,8 +71,17 @@ class UrlDeduper:
             data = {"urls": [], "updated": datetime.now().isoformat()}
         data["urls"] = list(self._seen)
         data["updated"] = datetime.now().isoformat()
-        with open(self.db_path, "w") as f:
-            json.dump(data, f, ensure_ascii=False)
+        # 原子写入：先写临时文件再 os.replace 替换目标，避免中途崩溃丢失去重库
+        dir_name = os.path.dirname(self.db_path) or "."
+        fd, tmp_path = tempfile.mkstemp(dir=dir_name, suffix=".tmp")
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False)
+            os.replace(tmp_path, self.db_path)
+        except BaseException:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
+            raise
 
     def is_duplicate(self, item: NewsItem) -> bool:
         url_hash = hashlib.sha256(item.url.encode("utf-8")).hexdigest()
@@ -544,42 +554,38 @@ def run_pipeline(items: list[NewsItem]) -> FilterReport:
     url_deduper.flush()
     log.info("  %d -> %d (去重 %d 条)", len(items), len(after_a), report.url_removed)
 
-    if not after_a:
-        return report
+    # B/C/D 阶段用 guard 包裹：某阶段结果为空时不提前返回，
+    # 始终走到函数末尾统一填充 report 并返回（避免提前 return 跳过后续统计）。
+    after_b = after_a
+    if after_a:
+        log.info("")
+        log.info("  -- B. 内容指纹去重 (MinHash+LSH) --")
+        mh_deduper = MinhashDeduper()
+        after_b = []
+        for it in after_a:
+            if not mh_deduper.is_duplicate(it):
+                after_b.append(it)
+            else:
+                report.minhash_removed += 1
+        log.info("  %d -> %d (去重 %d 条)", len(after_a), len(after_b), report.minhash_removed)
 
-    # ---- B: MinHash + LSH 内容指纹去重 ----
-    log.info("")
-    log.info("  -- B. 内容指纹去重 (MinHash+LSH) --")
-    mh_deduper = MinhashDeduper()
-    after_b = []
-    for it in after_a:
-        if not mh_deduper.is_duplicate(it):
-            after_b.append(it)
-        else:
-            report.minhash_removed += 1
-    log.info("  %d -> %d (去重 %d 条)", len(after_a), len(after_b), report.minhash_removed)
+    after_c = after_b
+    if after_b:
+        log.info("")
+        log.info("  -- C. 语义去重 (Embedding+聚类) --")
+        semanticer = SemanticDeduper()
+        after_c = semanticer.deduplicate(after_b)
+        report.semantic_removed = len(after_b) - len(after_c)
+        log.info("  %d -> %d (去重 %d 条，含聚类标注)", len(after_b), len(after_c), report.semantic_removed)
 
-    if not after_b:
-        return report
-
-    # ---- C: 语义去重 (Embedding + Union-Find) ----
-    log.info("")
-    log.info("  -- C. 语义去重 (Embedding+聚类) --")
-    semanticer = SemanticDeduper()
-    after_c = semanticer.deduplicate(after_b)
-    report.semantic_removed = len(after_b) - len(after_c)
-    log.info("  %d -> %d (去重 %d 条，含聚类标注)", len(after_b), len(after_c), report.semantic_removed)
-
-    if not after_c:
-        return report
-
-    # ---- D: 可信度过滤 ----
-    log.info("")
-    log.info("  -- D. 来源可信度过滤 --")
-    filter_d = CredibilityFilter()
-    after_d = [it for it in after_c if not filter_d.should_filter(it)]
-    report.credibility_removed = len(after_c) - len(after_d)
-    log.info("  %d -> %d (过滤 %d 条)", len(after_c), len(after_d), report.credibility_removed)
+    after_d = after_c
+    if after_c:
+        log.info("")
+        log.info("  -- D. 来源可信度过滤 --")
+        filter_d = CredibilityFilter()
+        after_d = [it for it in after_c if not filter_d.should_filter(it)]
+        report.credibility_removed = len(after_c) - len(after_d)
+        log.info("  %d -> %d (过滤 %d 条)", len(after_c), len(after_d), report.credibility_removed)
 
     report.total_output = len(after_d)
     report.remaining_items = after_d

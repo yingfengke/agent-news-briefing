@@ -7,6 +7,7 @@ import os
 import random
 
 from src.config.constants import BASE_DIR
+from src.config.trivia import AI_TRIVIA
 
 # ============================================================
 # AI System Prompt — 极简资讯
@@ -333,5 +334,4 @@ def get_random_style():
 
 def get_random_trivia():
     """随机返回一条 AI 冷知识/编程笑话"""
-    from src.config.trivia import AI_TRIVIA
     return random.choice(AI_TRIVIA)

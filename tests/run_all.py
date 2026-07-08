@@ -13,6 +13,7 @@ test_modules = [
     "tests.test_ai_analyzer",
     "tests.test_main",
     "tests.test_trending_fetcher",
+    "tests.test_deduplicator",
 ]
 
 for mod_name in test_modules:

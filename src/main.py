@@ -28,11 +28,11 @@ from urllib.request import Request, urlopen
 
 from src import config
 from src.config import get_random_style, get_random_trivia
-from src.config.sources import CATEGORY_ORDER, TITLE_CATEGORY_MAP
+from src.config.sources import CATEGORY_ORDER, CREDIBILITY_WHITELIST, TITLE_CATEGORY_MAP
 from src.models import NewsItem, FilterReport
 from src.collector import collect_all
 from src.deduplicator import run_pipeline
-from src.ai_analyzer import call_ai_analysis, reset_parse_stats
+from src.ai_analyzer import call_ai_analysis, reset_parse_stats, _translate_english_titles
 from src.html_writer import write_html, make_email_with_categories, generate_rss_feed
 from src.trending_fetcher import fetch_github_trending
 from src.logger import get_logger, log_structured
@@ -278,8 +278,6 @@ def _apply_fallback_scores(items: list[dict]) -> None:
     - 有 tags +0.3
     - 标题含重要关键词 +0.5
     """
-    from src.config.sources import CREDIBILITY_WHITELIST
-
     keywords = ["发布", "开源", "突破", "重大", "首发", "独家", "正式", "上线", "推出", "实测"]
     whitelist_lower = [w.lower() for w in CREDIBILITY_WHITELIST]
 
@@ -404,7 +402,6 @@ def main():
 
     # ---- 英文标题翻译兜底 ----
     if final_items and not ai_failed:
-        from src.ai_analyzer import _translate_english_titles
         final_items = _translate_english_titles(final_items)
 
     # ---- 按评分排序（高到低） ----

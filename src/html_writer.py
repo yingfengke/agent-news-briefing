@@ -65,6 +65,31 @@ def _replace_array_var(content: str, var_name: str, new_json_str: str) -> str:
     return content[:bracket_pos] + new_json_str + ";" + content[array_end + 2:]
 
 
+def _render_index_redirect() -> str:
+    """
+    生成 web/index.html 的占位内容：仅做 0 秒重定向到 tech-briefing.html。
+
+    真实新闻数据只写一份到 tech-briefing.html（ai_analyzer 也从中读历史标题），
+    index.html 只作为 GitHub Pages 默认入口的跳转页，避免两份大段 HTML 重复维护。
+    """
+    return (
+        "<!DOCTYPE html>\n"
+        '<html lang="zh-CN">\n'
+        "<head>\n"
+        '  <meta charset="utf-8">\n'
+        '  <meta http-equiv="refresh" content="0; url=tech-briefing.html">\n'
+        "  <title>AI &amp; Agent 开发者晨报</title>\n"
+        "</head>\n"
+        "<body>\n"
+        '  <p style="font-family:sans-serif;text-align:center;margin-top:48px;color:#555;">\n'
+        '    正在加载今日简报… 若未自动跳转，请\n'
+        '    <a href="tech-briefing.html">点击此处查看</a>。\n'
+        "  </p>\n"
+        "</body>\n"
+        "</html>\n"
+    )
+
+
 def write_html(news_items, daily_analysis="", projects=None):
     if not projects:
         projects = []
@@ -97,12 +122,14 @@ def write_html(news_items, daily_analysis="", projects=None):
 
     with open(config.HTML_FILE, "w", encoding="utf-8") as f:
         f.write(content)
-    log.info("已更新 %d 条新闻 + %d 个项目到 HTML", len(news_items), len(projects))
+    log.info("已更新 %d 条新闻 + %d 个项目到 %s", len(news_items), len(projects),
+             os.path.basename(config.HTML_FILE))
 
+    # index.html 只写固定重定向占位，不再重复写入完整新闻内容
     index_path = os.path.join(config.BASE_DIR, "web", "index.html")
     with open(index_path, "w", encoding="utf-8") as f:
-        f.write(content)
-    log.info("已同步更新 index.html")
+        f.write(_render_index_redirect())
+    log.info("已写入 index.html 重定向占位 -> tech-briefing.html")
 
     _find = content.find("__NEWS_DATA__")
     if _find >= 0:
@@ -111,7 +138,7 @@ def write_html(news_items, daily_analysis="", projects=None):
         if _e > _b:
             try:
                 _data = json.loads(content[_b:_e + 1])
-                log.info("  index.html 已更新，新闻条数: %d 条", len(_data))
+                log.info("  新闻条数: %d 条", len(_data))
                 if _data:
                     log.info("    第一条: %s", _data[0].get("title","")[:50])
             except Exception as e:

@@ -10,6 +10,7 @@ import time
 from collections import defaultdict
 from functools import lru_cache
 from difflib import SequenceMatcher
+from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from src import config
@@ -482,8 +483,6 @@ def _filter_twitter_items(twitter_items: list[NewsItem], model: str = "THUDM/GLM
     all_selected_indices = []
 
     try:
-        from urllib.error import HTTPError
-
         if total_chars <= max_chars:
             prompt = prompt_template + "\n".join(lines)
             all_selected_indices = _call_model(prompt)

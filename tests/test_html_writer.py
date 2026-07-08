@@ -4,7 +4,7 @@ import tempfile
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from src import config
-from src.html_writer import clean_links, _get_category, _merge_small_categories, make_email_with_categories
+from src.html_writer import clean_links, _get_category, _merge_small_categories, make_email_with_categories, write_html
 
 
 def test_clean_links_empty():
@@ -139,6 +139,52 @@ def test_email_render_project_links():
     assert "addyosmani/agent-skills" in html
     # 无 link 时回落为纯文本（不出现空 href）
     assert 'href=""' not in html
+
+
+def test_index_redirect_placeholder():
+    """web/index.html 应为固定重定向占位，不重复完整新闻内容（13.12）。"""
+    from src.html_writer import _render_index_redirect
+    html = _render_index_redirect()
+    assert "tech-briefing.html" in html
+    assert "http-equiv=\"refresh\"" in html
+    # 重定向占位不应包含新闻数据占位，证明它不承载完整内容
+    assert "__NEWS_DATA__" not in html
+
+
+def test_write_html_index_is_redirect_not_duplicate():
+    """write_html 后 index.html 为重定向占位，tech-briefing.html 承载真实数据（13.12）。"""
+    original_html = config.HTML_FILE
+    original_base = config.BASE_DIR
+    d = tempfile.mkdtemp()
+    webd = os.path.join(d, "web")
+    os.makedirs(webd, exist_ok=True)
+    try:
+        tf = os.path.join(webd, "tech-briefing.html")
+        with open(tf, "w", encoding="utf-8") as f:
+            f.write('const __NEWS_DATA__ = [];\nconst __PROJECTS__ = [];\n')
+        config.HTML_FILE = tf
+        config.BASE_DIR = d
+        write_html(
+            [{"title": "T1", "summary": "s", "link": "https://x.com",
+              "source": "S", "tags": [], "category": "其他动态"}],
+            "分析",
+            [{"name": "p", "link": "https://github.com/p", "stars": "star 1",
+              "desc": "d", "tag": "t"}],
+        )
+        with open(tf, encoding="utf-8") as f:
+            tb = f.read()
+        with open(os.path.join(webd, "index.html"), encoding="utf-8") as f:
+            idx = f.read()
+    finally:
+        config.HTML_FILE = original_html
+        config.BASE_DIR = original_base
+
+    # tech-briefing.html 承载真实新闻数据
+    assert "__NEWS_DATA__" in tb
+    assert "T1" in tb
+    # index.html 只是重定向占位，不重复完整内容
+    assert "__NEWS_DATA__" not in idx
+    assert "tech-briefing.html" in idx
 
 
 if __name__ == "__main__":
