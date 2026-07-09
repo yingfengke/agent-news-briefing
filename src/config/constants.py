@@ -5,6 +5,8 @@
 """
 
 import os
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 # API 配置
 API_BASE_URL = os.getenv("API_BASE_URL", "https://api.siliconflow.cn")
@@ -48,3 +50,9 @@ EMBEDDING_CACHE_FILE = os.path.join(BASE_DIR, ".embedding_cache.json")
 
 # 可信度过滤
 CREDIBILITY_SCORE_THRESHOLD = 0.40  # 低于此阈值直接丢弃
+
+# 时区：北京时间（UTC+8）。统一用此函数取"当前时间"，
+# 避免 GitHub Actions runner（默认 UTC）上 datetime.now() 导致日期偏移一天。
+def now_bjt():
+    """返回北京时间（UTC+8）的当前时刻，供日期标签与生成时间戳使用。"""
+    return datetime.now(ZoneInfo("Asia/Shanghai"))

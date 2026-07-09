@@ -15,6 +15,7 @@ test_modules = [
     "tests.test_trending_fetcher",
     "tests.test_deduplicator",
     "tests.test_send_email",
+    "tests.test_timestamps",
 ]
 
 for mod_name in test_modules:

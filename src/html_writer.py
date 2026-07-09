@@ -7,7 +7,8 @@ import json
 import os
 import re
 import xml.etree.ElementTree as ET
-from datetime import datetime
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 from jinja2 import Environment, FileSystemLoader, TemplateError
 
@@ -16,6 +17,12 @@ from src.config.sources import CATEGORY_ORDER, TITLE_CATEGORY_MAP
 from src.logger import get_logger
 
 log = get_logger("html")
+
+# 时间换算免责声明：摘要括号内日期由 AI 按发布日推算，可能不准，原文才是基准
+TIME_DISCLAIMER = (
+    "注：摘要中括号内的日期由 AI 按发布日推算，仅供参考、可能不准，"
+    "请以每条「发布于」时间为准。"
+)
 
 
 def clean_links(text: str) -> str:
@@ -76,12 +83,16 @@ def _render_index_redirect() -> str:
     )
 
 
-def write_html(news_items, daily_analysis="", projects=None):
+def write_html(news_items, daily_analysis="", projects=None, generated_at=None):
     if not projects:
         projects = []
     if not os.path.exists(config.HTML_TEMPLATE):
         log.error("网页模板不存在: %s", config.HTML_TEMPLATE)
         return False
+
+    if generated_at is None:
+        generated_at = config.now_bjt().strftime("%Y-%m-%d %H:%M（北京时间）")
+    briefing_date = config.now_bjt().strftime("%Y年%m月%d日")
 
     template_dir = os.path.dirname(config.HTML_TEMPLATE)
     template_file = os.path.basename(config.HTML_TEMPLATE)
@@ -96,6 +107,9 @@ def write_html(news_items, daily_analysis="", projects=None):
         "news_data_json": _json_to_js(news_items),
         "daily_analysis_json": _json_to_js(daily_analysis),
         "projects_json": _json_to_js(projects),
+        "generated_at": generated_at,
+        "briefing_date": briefing_date,
+        "time_disclaimer": TIME_DISCLAIMER,
     }
     try:
         content = template.render(**context)
@@ -198,7 +212,8 @@ def _group_by_category(items: list) -> dict[str, list]:
 
 
 def make_email_with_categories(news_items, daily_analysis="", projects=None,
-                                filter_report=None, style_name="", trivia=""):
+                                filter_report=None, style_name="", trivia="",
+                                generated_at=None):
     """
     生成带分类分组的邮件 HTML（新闻按板块渲染）。
     """
@@ -228,6 +243,10 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
             source_tag = (f'<span style="font-size:10px;color:#888;background:#f0f0ee;'
                           f'padding:2px 10px;border-radius:20px;">{item["source"]}</span>'
                           ) if item.get("source") else ""
+            pub_disp = item.get("published_at_disp")
+            pub_tag = (f'<span style="font-size:10px;color:#aaa;background:#f0f0ee;'
+                       f'padding:2px 10px;border-radius:20px;">发布于 {pub_disp}</span>'
+                       ) if pub_disp else ""
             score = item.get("score", 0)
             score_val = float(score) if isinstance(score, (int, float)) else 0
             tag_html = _render_email_tag_chips(item)
@@ -252,7 +271,7 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
             <td style="padding:20px 24px;">
               <div style="margin-bottom:10px;">
                 <span style="font-size:11px;font-weight:700;color:#ccc;letter-spacing:1px;">No.{i:02d}</span>
-                {' ' + source_tag if source_tag else ''}{tag_html}{score_html}
+                {' ' + source_tag if source_tag else ''}{pub_tag}{tag_html}{score_html}
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 8px 0;line-height:1.5;">{item["title"]}</h2>
               <p style="font-size:13px;color:#555;margin:0 0 10px 0;line-height:1.7;">{clean_links(item["summary"])}</p>
@@ -357,8 +376,10 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
           </td>
         </tr>"""
 
-    today = datetime.now()
+    today = config.now_bjt()
     date_str = f"{today.year}年{today.month:02d}月{today.day:02d}日"
+    if generated_at is None:
+        generated_at = today.strftime("%Y-%m-%d %H:%M（北京时间）")
     style_tag = f" · 今日风格：{style_name}" if style_name else ""
 
     context = {
@@ -370,7 +391,9 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
         "filter_report_section": filter_report_section,
         "trivia_section": trivia_section,
         "style_tag": style_tag,
+        "generated_at": generated_at,
         "repo_url": "GitHub: yingfengke/agent-news-briefing",
+        "time_disclaimer": TIME_DISCLAIMER,
     }
 
     try:
@@ -394,11 +417,12 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
     return True
 
 
-def generate_rss_feed(news_items, daily_analysis="", site_url=config.SITE_URL):
+def generate_rss_feed(news_items, daily_analysis="", site_url=config.SITE_URL,
+                      generated_at=None):
     """
     生成 RSS 2.0 Feed 文件（web/rss.xml），供阅读器订阅。
     """
-    today = datetime.now()
+    today = config.now_bjt()
     feed_path = os.path.join(config.BASE_DIR, "web", "rss.xml")
 
     rss = ET.Element("rss", version="2.0",
@@ -420,6 +444,7 @@ def generate_rss_feed(news_items, daily_analysis="", site_url=config.SITE_URL):
         link = item.get("link", site_url)
         source = item.get("source", "")
         tags = item.get("tags") or []
+        pub_iso = item.get("published_at", "")
 
         if not title:
             continue
@@ -431,6 +456,17 @@ def generate_rss_feed(news_items, daily_analysis="", site_url=config.SITE_URL):
         ET.SubElement(news_item, "guid").text = link
         if source:
             ET.SubElement(news_item, "source").text = source
+        # 发布时间：采集层 UTC ISO -> 北京时间 RFC822
+        if pub_iso:
+            try:
+                dt = datetime.fromisoformat(pub_iso)
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                dt_bjt = dt.astimezone(ZoneInfo("Asia/Shanghai"))
+                ET.SubElement(news_item, "pubDate").text = \
+                    dt_bjt.strftime("%a, %d %b %Y %H:%M:%S +0800")
+            except Exception:
+                pass
         for tag in tags:
             if tag:
                 ET.SubElement(news_item, "category").text = tag

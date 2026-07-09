@@ -112,7 +112,7 @@
   <header class="header">
     <div class="subtitle">☕ 每日推送 · AI 开发者专属</div>
     <h1>AI &amp; Agent 开发者晨报</h1>
-    <p id="today-date">Loading date…</p>
+    <p id="today-date">{{ briefing_date }}</p>
   </header>
 
   <button class="btn-generate" onclick="generateBriefing()">
@@ -141,16 +141,11 @@
     <div class="content" id="analysis-content"></div>
   </div>
 
-  <div class="timestamp" id="timestamp"></div>
+  <div class="timestamp visible" id="timestamp">{{ generated_at }}</div>
+  <div style="margin-top:8px;font-size:0.7rem;color:#bbb;text-align:right;width:100%;max-width:720px;">{{ time_disclaimer }}</div>
 
   <script>
-    // 初始化日期
-    (function initDate() {
-      const now = new Date();
-      const opts = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-      document.getElementById('today-date').textContent =
-        now.toLocaleDateString('zh-CN', opts);
-    })();
+    // 初始化日期（服务端注入北京时间，见上方 {{ briefing_date }}）
 
     // ========================================================
     // 新闻数据 — 由 generate_briefing.py 自动替换
@@ -174,7 +169,6 @@
       const loading = document.getElementById('loading');
       const list    = document.getElementById('news-list');
       const empty   = document.getElementById('empty-state');
-      const ts      = document.getElementById('timestamp');
       const ac      = document.getElementById('analysis-card');
 
       btn.disabled = true;
@@ -182,7 +176,6 @@
       list.classList.remove('visible');
       ac.classList.remove('visible');
       empty.classList.remove('visible');
-      ts.classList.remove('visible');
       loading.classList.add('visible');
 
       setTimeout(() => {
@@ -227,7 +220,7 @@
             card.innerHTML = `
             <div class="card-meta">
               <span class="card-index">No.${String(++globalIndex).padStart(2, '0')}</span>
-              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}${item.tags && item.tags.length ? item.tags.filter(t => t !== item.category).map(t => `<span class="tag-tag">${t}</span>`).join('') : ''}
+              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}${item.published_at_disp ? `<span class="source-tag" style="color:#aaa;background:#f0f0ee;">发布于 ${item.published_at_disp}</span>` : ''}${item.tags && item.tags.length ? item.tags.filter(t => t !== item.category).map(t => `<span class="tag-tag">${t}</span>`).join('') : ''}
             </div>
             <div class="card-title">${item.title}</div>
             <div class="card-summary">${item.summary}</div>
@@ -254,7 +247,7 @@
             card.innerHTML = `
             <div class="card-meta">
               <span class="card-index">No.${String(++globalIndex).padStart(2, '0')}</span>
-              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}${item.tags && item.tags.length ? item.tags.filter(t => t !== item.category).map(t => `<span class="tag-tag">${t}</span>`).join('') : ''}
+              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}${item.published_at_disp ? `<span class="source-tag" style="color:#aaa;background:#f0f0ee;">发布于 ${item.published_at_disp}</span>` : ''}${item.tags && item.tags.length ? item.tags.filter(t => t !== item.category).map(t => `<span class="tag-tag">${t}</span>`).join('') : ''}
             </div>
             <div class="card-title">${item.title}</div>
             <div class="card-summary">${item.summary}</div>
@@ -297,10 +290,6 @@
           document.getElementById('analysis-content').textContent = __DAILY_ANALYSIS__;
           ac.classList.add('visible');
         }
-
-        const now = new Date();
-        ts.textContent = `生成于 ${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-        ts.classList.add('visible');
 
         btn.disabled = false;
         btn.textContent = '🔄 刷新';

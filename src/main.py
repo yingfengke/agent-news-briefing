@@ -23,8 +23,10 @@ import logging
 import os
 import re
 import sys
+from datetime import datetime, timezone
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
+from zoneinfo import ZoneInfo
 
 from src import config
 from src.config import get_random_style, get_random_trivia
@@ -305,6 +307,51 @@ def _apply_fallback_scores(items: list[dict]) -> None:
     log.info("  -> 规则补分完成: %d 条新闻已自动评分", len(items))
 
 
+def _fmt_published(iso: str) -> str:
+    """把采集层抓到的 UTC ISO 发布时间转换为北京时间显示串（月-日 或 月-日 时:分）。"""
+    if not iso:
+        return ""
+    try:
+        dt = datetime.fromisoformat(iso)
+    except Exception:
+        return ""
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    bjt = dt.astimezone(ZoneInfo("Asia/Shanghai"))
+    if bjt.hour == 0 and bjt.minute == 0:
+        return f"{bjt.month:02d}-{bjt.day:02d}"
+    return f"{bjt.month:02d}-{bjt.day:02d} {bjt.hour:02d}:{bjt.minute:02d}"
+
+
+def _attach_published_at(final_items: list[dict], clean_items: list[NewsItem]) -> None:
+    """
+    采集层已抓取每条新闻的发布时间（NewsItem.published_at，UTC ISO），
+    但 AI 输出 JSON 不含该字段，这里按 URL / 标题回关联到最终新闻条目，
+    供网页卡片与邮件卡片展示"发布于 …"。
+    """
+    url_pub: dict[str, str] = {}
+    title_pub: dict[str, str] = {}
+    for ci in clean_items:
+        if not ci.published_at:
+            continue
+        if ci.url:
+            u = ci.url.strip()
+            url_pub[u] = ci.published_at
+            url_pub[u.rstrip("/").lower()] = ci.published_at
+        title_pub[ci.title.strip()[:50].lower()] = ci.published_at
+
+    for it in final_items:
+        iso = ""
+        u = (it.get("link") or "").strip()
+        if u:
+            iso = url_pub.get(u) or url_pub.get(u.rstrip("/").lower())
+        if not iso:
+            iso = title_pub.get((it.get("title") or "").strip()[:50].lower())
+        if iso:
+            it["published_at"] = iso
+            it["published_at_disp"] = _fmt_published(iso)
+
+
 # ============================================================
 # 主流程
 # ============================================================
@@ -407,6 +454,12 @@ def _run_main():
     scored = sum(1 for it in final_items if it.get("score", 0) > 0)
     log.info("  评分分布: %d/%d 条有评分", scored, len(final_items))
 
+    # ---- 回填发布时间（采集层 published_at，按 URL / 标题回关联） ----
+    _attach_published_at(final_items, clean_items)
+
+    # ---- 统一生成时间戳（北京时间），网页 / 邮件 / RSS 共用同一时刻 ----
+    generated_at = config.now_bjt().strftime("%Y-%m-%d %H:%M（北京时间）")
+
     # ---- GitHub Trending ----
     log.info("")
     log.info("  -- 抓取 GitHub Trending 项目 --")
@@ -421,7 +474,7 @@ def _run_main():
     # ---- 写入网页 HTML ----
     log.info("")
     log.info("  -- 写入网页 HTML --")
-    write_html(final_items, daily_analysis, trending_projects)
+    write_html(final_items, daily_analysis, trending_projects, generated_at=generated_at)
 
     # ---- 生成邮件 HTML（分类版） + RSS Feed ----
     log.info("")
@@ -431,16 +484,16 @@ def _run_main():
             [], f"今日无可用新闻。过滤报告：采集 {report.total_input} 条 -> "
                 f"过滤后 {report.total_output} 条。",
             trending_projects, filter_report=report,
-            style_name="", trivia=trivia,
+            style_name="", trivia=trivia, generated_at=generated_at,
         )
     else:
         make_email_with_categories(
             final_items, daily_analysis, trending_projects,
             filter_report=report,
             style_name=style_name if not ai_failed else "降级",
-            trivia=trivia,
+            trivia=trivia, generated_at=generated_at,
         )
-    generate_rss_feed(final_items, daily_analysis)
+    generate_rss_feed(final_items, daily_analysis, generated_at=generated_at)
 
     # ---- 邮件已生成，由 workflow 步骤发送 ----
     log.info("")
