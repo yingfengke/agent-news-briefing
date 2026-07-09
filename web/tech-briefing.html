@@ -112,7 +112,7 @@
   <header class="header">
     <div class="subtitle">☕ 每日推送 · AI 开发者专属</div>
     <h1>AI &amp; Agent 开发者晨报</h1>
-    <p id="today-date">Loading date…</p>
+    <p id="today-date">2026年07月10日</p>
   </header>
 
   <button class="btn-generate" onclick="generateBriefing()">
@@ -141,32 +141,27 @@
     <div class="content" id="analysis-content"></div>
   </div>
 
-  <div class="timestamp" id="timestamp"></div>
+  <div class="timestamp visible" id="timestamp">2026-07-10 07:02（北京时间）</div>
+  <div style="margin-top:8px;font-size:0.7rem;color:#bbb;text-align:right;width:100%;max-width:720px;">注：摘要中括号内的日期由 AI 按发布日推算，仅供参考、可能不准，请以每条「发布于」时间为准。</div>
 
   <script>
-    // 初始化日期
-    (function initDate() {
-      const now = new Date();
-      const opts = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-      document.getElementById('today-date').textContent =
-        now.toLocaleDateString('zh-CN', opts);
-    })();
+    // 初始化日期（服务端注入北京时间，见上方 2026年07月10日）
 
     // ========================================================
     // 新闻数据 — 由 generate_briefing.py 自动替换
     // [{title, summary, link, source}]
     // ========================================================
-    const __NEWS_DATA__ = [{"title": "Grok 4.5 正式发布，定价极低引发市场关注", "summary": "xAI 发布 Grok 4.5，基于数万块 Nvidia GB300 GPU 训练。在编码和知识基准上接近 GPT 5.5 和 Fable 5，但 API 定价仅为竞品的几分之一，使得性能差距不再关键。Vercel AI Gateway 已同步支持该模型。该消息经2家媒体交叉验证", "link": "https://the-decoder.com/grok-4-5-is-so-cheap-compared-to-fable-5-and-gpt-5-5-that-benchmark-gaps-may-not-matter-much/", "source": "The Decoder", "score": 4.8, "tags": ["大模型", "模型发布", "定价策略"], "category": "大模型"}, {"title": "OpenAI 预告 GPT 5.6 主题演讲，明日发布", "summary": "OpenAI 官方账号预告将于明日举行 GPT 5.6 发布主题演讲。该版本预计在推理、多模态和 Agent 能力上有重大升级，开发者需关注 API 变更与新功能适配。", "link": "https://x.com/aiDotEngineer/status/2074953593854255458", "source": "Twitter @_akhaliq", "score": 4.7, "tags": ["大模型", "产品发布"], "category": "大模型"}, {"title": "OpenAI 揭示 SWE-Bench Pro 编码评估中的噪声问题", "summary": "OpenAI 发布分析报告，指出流行编码基准 SWE-Bench Pro 存在信号噪声问题，部分测试用例无法有效区分模型真实能力。建议社区采用更严谨的评估方法论，对模型选型和工程实践有重要警示。", "link": "https://openai.com/index/separating-signal-from-noise-coding-evaluations", "source": "OpenAI", "score": 4.5, "tags": ["论文与研究", "基准测试", "评估方法论"], "category": "论文与研究"}, {"title": "KV-Cache 优化基准测试：长上下文服务中的质量与性能权衡", "summary": "arXiv 新论文系统评估了多种 KV-Cache 优化技术（如量化、稀疏化、剪枝）在长上下文推理中的任务质量与系统性能。实验表明，不同优化方法对下游任务准确率影响差异显著，为工程选型提供了量化参考。", "link": "https://arxiv.org/abs/2607.05399", "source": "ArXiv CL", "score": 4.3, "tags": ["大模型", "推理优化", "KV Cache"], "category": "大模型"}, {"title": "AWS 推出 Claude Apps Gateway，简化企业级 Claude 部署", "summary": "AWS 发布 Claude Apps Gateway，为企业在开发团队中部署 Claude Code 和 Claude Desktop 提供统一网关。支持身份认证、用量监控和策略管理，解决了多用户场景下的安全与治理痛点。", "link": "https://aws.amazon.com/blogs/machine-learning/introducing-claude-apps-gateway-for-aws/", "source": "AWS ML Blog", "score": 4.2, "tags": ["Agent框架", "企业部署", "Claude"], "category": "Agent框架"}, {"title": "LingBot-World 2.0 (Infinity) 发布：可交互世界模型支持小时级生成", "summary": "LingBot-World 2.0 (Infinity) 在 Hugging Face 开源，是一个交互式世界模型，支持长达一小时的连续场景生成。基于扩散 Transformer 架构，在物理一致性和可控性上取得突破，为具身智能仿真提供新工具。", "link": "https://x.com/_akhaliq/status/2074936755296641520", "source": "Twitter @_akhaliq", "score": 4.1, "tags": ["大模型", "世界模型", "开源"], "category": "大模型"}, {"title": "具身智能新基准 RoboDojo 发布，人类满分 100 最强模型仅 12.8", "summary": "RoboDojo 被称作具身智能领域的“高考”，包含复杂操作与导航任务。当前最强模型得分仅 12.8（人类 100），揭示出现有模型在物理交互与泛化能力上的巨大差距，为研究方向提供明确指引。", "link": "https://www.qbitai.com/2026/07/446363.html", "source": "量子位", "score": 4.1, "tags": ["论文与研究", "基准测试", "具身智能"], "category": "论文与研究"}, {"title": "AWS 发布 BYOKG 与 GraphRAG 方案，赋能智能制药研究", "summary": "AWS 提出结合自有知识图谱（BYOKG）与 GraphRAG 的检索增强生成架构，用于制药研发中的文献挖掘与知识推理。该方案通过图结构增强检索相关性，显著提升药物发现中的问答准确率。", "link": "https://aws.amazon.com/blogs/machine-learning/powering-scientific-discovery-byokg-and-graphrag-for-intelligent-pharmaceutical-research/", "source": "AWS ML Blog", "score": 4.0, "tags": ["论文与研究", "RAG", "知识图谱"], "category": "论文与研究"}, {"title": "Onboard-CLI：基于 LLM 与 AST 的代码库可视化工具", "summary": "开发者开源 Onboard-CLI，利用大语言模型结合抽象语法树（AST）分析，自动生成代码库结构图与依赖关系。降低新成员上手成本，对大型项目维护和重构有实用价值。", "link": "https://github.com/animesh-94/Onboard-CLI", "source": "HackerNews AI", "score": 3.8, "tags": ["产品与发布", "开发工具", "代码分析"], "category": "产品与发布"}, {"title": "Netflix AI 团队将 Cassandra 宽分区读取延迟从秒级降至毫秒级", "summary": "Netflix 工程团队提出按 ID 拆分 Cassandra 宽分区的方法，结合 AI 负载预测，将读取延迟从数秒降至毫秒。该方案对大规模 AI 特征存储和实时推理系统的数据层设计有重要参考价值。", "link": "https://www.marktechpost.com/2026/07/08/netflix-ai-team-cuts-wide-partition-read-latency-from-seconds-to-milliseconds-by-splitting-cassandra-partitions-per-id/", "source": "MarkTechPost", "score": 3.7, "tags": ["工程实践", "数据存储"], "category": "其他动态"}, {"title": "OpenAI 公布政府与国家安全合作方针", "summary": "OpenAI 发布官方博客，阐述其与政府及国家安全机构的合作原则，包括模型安全评估、红队测试和负责任的部署。此举标志着 AI 厂商在政策合规与公共安全领域进入制度化阶段。", "link": "https://openai.com/index/government-national-security-partnerships", "source": "OpenAI", "score": 3.5, "tags": ["行业动态", "政策", "安全"], "category": "行业动态"}, {"title": "AI 编码助手 Lovable 估值或翻倍至 132 亿美元", "summary": "据 Sifted 报道，Lovable 正与 Menlo Ventures 洽谈 3 亿美元融资，估值达 132 亿美元。该工具基于 LLM 实现代码生成与调试，高估值反映市场对 AI 编码助手赛道的强烈信心。", "link": "https://techcrunch.com/2026/07/08/lovable-reportedly-in-talks-to-double-its-valuation-to-13-2b/", "source": "TechCrunch AI", "score": 3.4, "tags": ["行业动态", "融资", "AI编码"], "category": "行业动态"}, {"title": "COLM 2026 会议录用结果即将公布，社区热议", "summary": "COLM（Conference on Language Modeling）2026 的录用决策即将发布，Reddit 机器学习板块已开启讨论帖。该会议聚焦语言模型理论与应用，录用结果将反映近期研究热点。", "link": "https://www.reddit.com/r/MachineLearning/comments/1uqr2ev/colm_2026_decision_discussion_r/", "source": "Reddit ML", "score": 2.8, "tags": ["行业动态", "学术会议"], "category": "行业动态"}];;
+    const __NEWS_DATA__ = [{"title": "GPT-5.6 成为 Microsoft 365 Copilot 首选模型", "summary": "OpenAI 宣布 GPT-5.6 现为 Microsoft 365 Copilot 默认模型，推理与代码生成能力显著提升，具体参数量和 benchmark 未披露。极客视角：快速落地企业市场，但缺乏独立评测，实际提升幅度存疑。（来源：OpenAI）", "link": "https://openai.com/index/gpt-5-6-preferred-model-microsoft-365-copilot", "source": "OpenAI", "score": 4.5, "tags": ["大模型", "企业应用"], "category": "大模型", "published_at": "2026-07-09T13:00:00+00:00", "published_at_disp": "07-09 21:00"}, {"title": "ChatGPT Work 发布：跨应用操作的 Agent 能力", "summary": "OpenAI 推出 ChatGPT Work，一个能跨应用和文件操作的 Agent，可保持工作状态并执行复杂任务，支持日历、邮件、代码编辑器集成。目前早期访问。极客视角：OpenAI 向 Agent 平台转型的关键一步，但跨应用操作的可靠性和安全性仍是挑战。（来源：OpenAI）", "link": "https://openai.com/index/chatgpt-for-your-most-ambitious-work", "source": "OpenAI", "score": 4.3, "tags": ["Agent框架", "产品发布"], "category": "Agent框架", "published_at": "2026-07-09T10:00:00+00:00", "published_at_disp": "07-09 18:00"}, {"title": "Meta 发布 Muse Spark 1.1：面向 Agent 任务的多模态推理模型", "summary": "Meta Superintelligence Labs 发布 Muse Spark 1.1，专为 Agent 任务设计的多模态推理模型，支持图像与文本混合输入，通过 Meta Model API 提供。具体参数量和 benchmark 未完全披露。极客视角：Meta 在 Agent 赛道加速追赶，定位类似 GPT-4O，生态整合是关键。（来源：MarkTechPost）", "link": "https://www.marktechpost.com/2026/07/09/meta-superintelligence-labs-releases-muse-spark-1-1/", "source": "MarkTechPost", "score": 4.2, "tags": ["大模型", "多模态推理"], "category": "大模型", "published_at": "2026-07-09T22:26:16+00:00", "published_at_disp": "07-10 06:26"}, {"title": "AI Agent 初创公司 Lyzr 让自家 Agent 主导 1 亿美元融资", "summary": "Lyzr 使用其企业 AI Agent 自动完成整个融资流程，包括投资者沟通、尽职调查和文件处理，最终完成 1 亿美元融资。创始人称 Agent 处理了 90% 的工作。极客视角：Agent 能力的极限测试，但法律和财务风险不容忽视，可能更多是营销噱头。（来源：TechCrunch）", "link": "https://techcrunch.com/2026/07/09/an-ai-agent-startup-just-let-its-agent-run-its-100-million-fundraise/", "source": "TechCrunch AI", "score": 4.1, "tags": ["Agent框架", "行业动态"], "category": "Agent框架", "published_at": "2026-07-09T22:08:58+00:00", "published_at_disp": "07-10 06:08"}, {"title": "AWS 发布 MCP 工具设计实践：权衡与建议", "summary": "AWS 博客发布 MCP 工具设计实践指南，涵盖工具粒度、错误处理、状态管理等权衡，基于内部经验总结。极客视角：MCP 正成为 Agent 工具标准，AWS 指南填补设计空白，值得所有 Agent 开发者参考。（来源：AWS ML Blog）", "link": "https://aws.amazon.com/blogs/machine-learning/mcp-tool-design-practical-approaches-and-tradeoffs/", "source": "AWS ML Blog", "score": 4.0, "tags": ["Agent框架", "工具设计"], "category": "Agent框架", "published_at": "2026-07-09T16:40:16+00:00", "published_at_disp": "07-10 00:40"}, {"title": "AgentLens：基于生产轨迹的编码 Agent 评估框架", "summary": "新论文提出 AgentLens，利用生产轨迹数据评估编码 Agent 性能，而非仅依赖静态 benchmark，提供更贴近实际的指标。极客视角：现有 SWE-Bench 与生产差距大，AgentLens 方向正确，但数据隐私和泛化性是挑战。（来源：ArXiv AI）", "link": "https://arxiv.org/abs/2607.06624", "source": "ArXiv CL", "score": 3.9, "tags": ["论文与研究", "Agent评估"], "category": "论文与研究", "published_at": "2026-07-09T04:00:00+00:00", "published_at_disp": "07-09 12:00"}, {"title": "OpenAI 关闭 ChatGPT Atlas 浏览器：项目已终止", "summary": "OpenAI 关闭 ChatGPT Atlas 浏览器，该浏览器原计划实现网页自动化，从发布到关闭仅数月。官方未说明原因。极客视角：浏览器赛道竞争激烈，OpenAI 可能认为独立浏览器不如将 Agent 能力嵌入现有生态，及时止损明智。（来源：The Verge）", "link": "https://www.theverge.com/ai-artificial-intelligence/963654/openai-chatgpt-atlas-ai-browser-shut-down-sunset", "source": "The Verge AI", "score": 3.8, "tags": ["产品与发布", "浏览器"], "category": "产品与发布", "published_at": "2026-07-09T20:34:05+00:00", "published_at_disp": "07-10 04:34"}, {"title": "AWS 增强 SageMaker HyperPod 推理：集成数据捕获、Hugging Face、NVMe", "summary": "AWS 增强 SageMaker HyperPod 推理能力，集成数据捕获、Hugging Face 部署、NVMe 本地缓存和 Route 53，旨在降低推理延迟和成本。极客视角：HyperPod 转向推理优化，NVMe 缓存对 KV-Cache 加速有意义，但企业部署复杂性仍是门槛。（来源：AWS ML Blog）", "link": "https://aws.amazon.com/blogs/machine-learning/enhancing-enterprise-inference-on-amazon-sagemaker-hyperpod-with-data-capture-hugging-face-nvme-and-route-53-integration/", "source": "AWS ML Blog", "score": 3.7, "tags": ["产品与发布", "推理优化"], "category": "产品与发布", "published_at": "2026-07-09T16:38:11+00:00", "published_at_disp": "07-10 00:38"}, {"title": "原力灵机 DM0.5 登场：15 万小时数据训练，Zero-Shot 提升 31%", "summary": "原力灵机发布 DM0.5 模型，基于 15 万小时数据训练，Zero-Shot 任务提升 31%，展现泛化涌现。具体参数量和架构未完全公开。极客视角：国内模型特定场景突破值得关注，但数据来源和评测透明度需加强。（来源：量子位）", "link": "https://www.qbitai.com/2026/07/447508.html", "source": "量子位", "score": 3.6, "tags": ["大模型", "Zero-Shot"], "category": "大模型", "published_at": "2026-07-09T12:18:17+00:00", "published_at_disp": "07-09 20:18"}, {"title": "Google 将标注 AI 生成广告：透明度新举措", "summary": "Google 宣布将在搜索、Discover 和 YouTube 上标注 AI 生成或编辑的广告，广告商需声明是否使用 AI 工具。极客视角：监管压力下平台自监管，但标签系统能否有效防止误导取决于执行力度。（来源：The Verge）", "link": "https://www.theverge.com/ai-artificial-intelligence/963628/google-ai-generated-ads-label", "source": "The Verge AI", "score": 3.5, "tags": ["行业动态", "广告透明度"], "category": "行业动态", "published_at": "2026-07-09T20:11:38+00:00", "published_at_disp": "07-10 04:11"}, {"title": "前美联储主席 Ben Bernanke 加入 Anthropic 长期利益信托", "summary": "Anthropic 任命前美联储主席 Ben Bernanke 进入长期利益信托，负责监督公司治理和 AI 安全方向，提供经济和政策视角。极客视角：引入外部权威强化治理，但信托的实际权力边界是关键。（来源：Anthropic）", "link": "https://www.anthropic.com/news/ben-bernanke", "source": "Anthropic News", "score": 3.4, "tags": ["行业动态", "治理"], "category": "行业动态", "published_at": "2026-07-08T16:00:00+00:00", "published_at_disp": "07-09"}, {"title": "Coasty 发布：Computer-Use-Agent 运行遗留软件", "summary": "Product Hunt 上出现 Coasty，一个 Computer-Use-Agent，能像人类一样操作遗留软件界面，实现 GUI 交互和脚本执行自动化。极客视角：Computer-Use 是热点，但遗留软件兼容性和稳定性是痛点，实用性待验证。（来源：Product Hunt）", "link": "https://www.producthunt.com/products/coasty", "source": "Product Hunt", "score": 3.2, "tags": ["Agent框架", "Computer-Use"], "category": "Agent框架", "published_at": "2026-07-08T18:52:30+00:00", "published_at_disp": "07-09 02:52"}, {"title": "GitHub 内部实践：为每个仓库分配持久所有者", "summary": "GitHub 工程团队分享为内部 14000+ 仓库实现持久所有者机制，通过自动化分配和所有权追踪提升安全性和责任归属。极客视角：大型组织代码所有权管理痛点，GitHub 方案可借鉴，但外部用户直接受益有限。（来源：GitHub Blog）", "link": "https://github.blog/security/application-security/how-github-gave-every-repository-a-durable-owner/", "source": "GitHub Blog", "score": 3.0, "tags": ["代码管理"], "category": "其他动态", "published_at": "2026-07-09T16:29:37+00:00", "published_at_disp": "07-10 00:29"}, {"title": "ClaudeDevs 重置速率限制：5 小时和每周限制恢复", "summary": "ClaudeDevs 宣布重置 5 小时和每周速率限制，此前因高负载限制使用，现已恢复。极客视角：Claude API 流行导致资源紧张，重置表明 Anthropic 在扩容，但长期稳定性仍需关注。（by @AlexAlbert__）", "link": "https://x.com/alexalbert__/status/2075285305096343583", "source": "Twitter @AndrewYNg", "score": 2.8, "tags": ["API"], "category": "其他动态", "published_at": "2026-07-09T18:25:48+00:00", "published_at_disp": "07-10 02:25"}];;
 
     // ========================================================
     // 深度分析 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __DAILY_ANALYSIS__ = "今日核心动态围绕模型发布与评估方法论展开。Grok 4.5 以极低定价冲击市场，预示价格战将加速推理成本下降，推动更多应用落地。OpenAI 对 SWE-Bench Pro 的噪声分析提醒社区需建立更严谨的评估体系，未来6个月可能出现新一代标准化基准。同时，KV-Cache 优化基准测试和世界模型开源表明长上下文与仿真能力成为竞争焦点。具身智能基准 RoboDojo 的低分暴露了当前模型在物理交互上的短板，将刺激更多研究投入。企业级部署工具（Claude Apps Gateway、GraphRAG）的成熟意味着 AI 工程化进入深水区，开发者应关注安全治理与知识增强架构的融合。";;
+    const __DAILY_ANALYSIS__ = "今日新闻显示 Agent 赛道全面爆发：OpenAI 推出 ChatGPT Work，Meta 发布 Muse Spark 1.1，AWS 发布 MCP 设计指南，Lyzr 用 Agent 完成融资。模型层（GPT-5.6、DM0.5）持续迭代，但 Agent 工具和 MCP 生态的标准化竞争将率先卷起来，谁定义 Agent 交互标准谁就掌握生态入口。同时，AI 透明度（广告标签）和治理（Anthropic 信托）成为合规热点。";;
 
     // ========================================================
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
-    const __PROJECTS__ = [{"name": "iOfficeAI/OfficeCLI", "desc": "OfficeCLI is the first and best Office suite purpose-built for AI agents to read, edit, and automate", "stars": "star+1712 today", "link": "https://github.com/iOfficeAI/OfficeCLI", "tag": "Agent 框架"}, {"name": "addyosmani/agent-skills", "desc": "Production-grade engineering skills for AI coding agents.", "stars": "star+1322 today", "link": "https://github.com/addyosmani/agent-skills", "tag": "Agent 框架"}, {"name": "asgeirtj/system_prompts_leaks", "desc": "Extracted system prompts from Anthropic - Claude Fable 5, Opus 4.8, Claude Code, Claude Design. Open", "stars": "star+1226 today", "link": "https://github.com/asgeirtj/system_prompts_leaks", "tag": "提示工程"}];;
+    const __PROJECTS__ = [{"name": "MadsLorentzen/ai-job-search", "desc": "AI-powered job application framework built on Claude Code. Fork it, fill in your profile, and let Cl", "stars": "star+3728 today", "link": "https://github.com/MadsLorentzen/ai-job-search", "tag": "多模态与前沿"}, {"name": "addyosmani/agent-skills", "desc": "Production-grade engineering skills for AI coding agents.", "stars": "star+2582 today", "link": "https://github.com/addyosmani/agent-skills", "tag": "Agent 框架"}, {"name": "iOfficeAI/OfficeCLI", "desc": "OfficeCLI is the first and best Office suite purpose-built for AI agents to read, edit, and automate", "stars": "star+1923 today", "link": "https://github.com/iOfficeAI/OfficeCLI", "tag": "Agent 框架"}];;
 
     // 渲染简报
     function generateBriefing() {
@@ -174,7 +169,6 @@
       const loading = document.getElementById('loading');
       const list    = document.getElementById('news-list');
       const empty   = document.getElementById('empty-state');
-      const ts      = document.getElementById('timestamp');
       const ac      = document.getElementById('analysis-card');
 
       btn.disabled = true;
@@ -182,7 +176,6 @@
       list.classList.remove('visible');
       ac.classList.remove('visible');
       empty.classList.remove('visible');
-      ts.classList.remove('visible');
       loading.classList.add('visible');
 
       setTimeout(() => {
@@ -227,7 +220,7 @@
             card.innerHTML = `
             <div class="card-meta">
               <span class="card-index">No.${String(++globalIndex).padStart(2, '0')}</span>
-              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}${item.tags && item.tags.length ? item.tags.filter(t => t !== item.category).map(t => `<span class="tag-tag">${t}</span>`).join('') : ''}
+              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}${item.published_at_disp ? `<span class="source-tag" style="color:#aaa;background:#f0f0ee;">发布于 ${item.published_at_disp}</span>` : ''}${item.tags && item.tags.length ? item.tags.filter(t => t !== item.category).map(t => `<span class="tag-tag">${t}</span>`).join('') : ''}
             </div>
             <div class="card-title">${item.title}</div>
             <div class="card-summary">${item.summary}</div>
@@ -254,7 +247,7 @@
             card.innerHTML = `
             <div class="card-meta">
               <span class="card-index">No.${String(++globalIndex).padStart(2, '0')}</span>
-              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}${item.tags && item.tags.length ? item.tags.filter(t => t !== item.category).map(t => `<span class="tag-tag">${t}</span>`).join('') : ''}
+              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}${item.published_at_disp ? `<span class="source-tag" style="color:#aaa;background:#f0f0ee;">发布于 ${item.published_at_disp}</span>` : ''}${item.tags && item.tags.length ? item.tags.filter(t => t !== item.category).map(t => `<span class="tag-tag">${t}</span>`).join('') : ''}
             </div>
             <div class="card-title">${item.title}</div>
             <div class="card-summary">${item.summary}</div>
@@ -297,10 +290,6 @@
           document.getElementById('analysis-content').textContent = __DAILY_ANALYSIS__;
           ac.classList.add('visible');
         }
-
-        const now = new Date();
-        ts.textContent = `生成于 ${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-        ts.classList.add('visible');
 
         btn.disabled = false;
         btn.textContent = '🔄 刷新';
