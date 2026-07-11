@@ -12,7 +12,6 @@ def test_config_has_required_exports():
     assert hasattr(config, 'RSS_SOURCES')
     assert hasattr(config, 'SYSTEM_PROMPTS')
     assert hasattr(config, 'AI_TRIVIA')
-    assert hasattr(config, 'TRENDING_TAG_MAP')
     assert hasattr(config, 'CREDIBILITY_WHITELIST')
     assert hasattr(config, 'CREDIBILITY_BLACKLIST')
 
@@ -41,8 +40,27 @@ def test_ai_trivia_count():
     assert len(config.AI_TRIVIA) == 40
 
 
-def test_trending_tags_count():
-    assert len(config.TRENDING_TAG_MAP) > 50
+def test_trending_module_exports():
+    assert hasattr(config, 'PROJECT_CATEGORY_ORDER')
+    assert hasattr(config, 'TOPIC_TO_CATEGORY')
+    assert hasattr(config, 'KNOWN_REPOS')
+    assert hasattr(config, 'DESC_KEYWORD_WEIGHTS')
+    assert hasattr(config, 'classify_repo')
+    assert isinstance(config.PROJECT_CATEGORY_ORDER, list)
+    assert "其他" in config.PROJECT_CATEGORY_ORDER
+
+
+def test_trending_classify_four_layers():
+    cr = config.classify_repo
+    # L1 topics 投票
+    assert cr(["agent", "mcp"], "x/y", "") == "Agent 与智能体"
+    # L2 知名仓库（topics 空，大小写不敏感）
+    assert cr([], "vllm-project/vllm", "") == "推理与部署"
+    assert cr([], "LangChain-AI/LangChain", "") == "Agent 与智能体"
+    # L3 description 加权（泛词 agent 不压过具体词 vllm）
+    assert cr([], "foo/bar", "vllm high-throughput inference engine") == "推理与部署"
+    # L4 兜底
+    assert cr([], "foo/bar", "a random side project") == "其他"
 
 
 def test_base_dir():
@@ -75,7 +93,8 @@ if __name__ == "__main__":
     test_get_random_style()
     test_get_random_trivia()
     test_ai_trivia_count()
-    test_trending_tags_count()
+    test_trending_module_exports()
+    test_trending_classify_four_layers()
     test_base_dir()
     test_category_order_is_six_class_enum()
     test_prompt_enum_matches_category_order()

@@ -28,5 +28,8 @@ from src.config.prompts import (
     SYSTEM_PROMPTS,
     get_random_style, get_random_trivia,
 )
-from src.config.trending_tags import TRENDING_TAG_MAP
+from src.config.trending_tags import (
+    PROJECT_CATEGORY_ORDER, TOPIC_TO_CATEGORY, KNOWN_REPOS,
+    DESC_KEYWORD_WEIGHTS, classify_repo,
+)
 from src.config.trivia import AI_TRIVIA

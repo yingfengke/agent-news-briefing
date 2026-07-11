@@ -13,6 +13,7 @@ test_modules = [
     "tests.test_ai_analyzer",
     "tests.test_main",
     "tests.test_trending_fetcher",
+    "tests.test_trending_classify",
     "tests.test_deduplicator",
     "tests.test_send_email",
     "tests.test_timestamps",
