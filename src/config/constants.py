@@ -12,6 +12,9 @@ from zoneinfo import ZoneInfo
 API_BASE_URL = os.getenv("API_BASE_URL", "https://api.siliconflow.cn")
 API_KEY = os.getenv("API_KEY", "")
 MODEL_NAME = os.getenv("MODEL_NAME", "deepseek-ai/DeepSeek-V4-Flash")
+# 兜底模型：主模型（DeepSeek-V4-Flash）连续超时/失败时启用，避免单模型过载导致整期 0 新闻。
+# 默认选非 DeepSeek 系列以真正分散风险，可在 Secrets 用 FALLBACK_MODEL_NAME 覆盖。
+FALLBACK_MODEL_NAME = os.getenv("FALLBACK_MODEL_NAME", "meituan-longcat/LongCat-2.0")
 EMBEDDING_MODEL = "Qwen/Qwen3-Embedding-4B"  # 语义去重，1024维，中英双语优化
 
 # 邮件配置

@@ -307,6 +307,46 @@ def _apply_fallback_scores(items: list[dict]) -> None:
     log.info("  -> 规则补分完成: %d 条新闻已自动评分", len(items))
 
 
+def _fallback_category(ci: NewsItem) -> str:
+    """
+    AI 失败兜底时，用标题 + tags 粗分新闻板块。
+    只映射到已有的新闻板块，避免产生未知分类。
+    """
+    text = (ci.title or "") + " " + " ".join(ci.tags or [])
+    t = text.lower()
+    if any(k in t for k in ["agent", "智能体", "多智能"]):
+        return "Agent框架"
+    if any(k in t for k in ["论文", "paper", "arxiv", "研究", "测评", "评测"]):
+        return "论文与研究"
+    if any(k in t for k in ["发布", "开源", "上线", "推出", "首发", "正式"]):
+        return "产品与发布"
+    if any(k in t for k in ["行业", "融资", "收购", "政策", "监管", "合作", "上市"]):
+        return "行业动态"
+    return "其他动态"
+
+def _build_fallback_items(clean_items: list[NewsItem]) -> list[dict]:
+    """
+    AI 分析失败时的降级兜底：直接用原始采集数据构造 final_items，
+    保证简报至少有内容（未经 AI 润色、无深度分析、无英文翻译）。
+    字段结构与正常路径一致，score 留 0 以触发 _apply_fallback_scores 规则补分。
+    """
+    items = []
+    for ci in clean_items:
+        content = ci.content or ""
+        if len(content) > 200:
+            content = content[:200].rstrip() + "…"
+        items.append({
+            "title": ci.title or "",
+            "summary": content,
+            "link": ci.url or "",
+            "source": ci.source or "",
+            "score": 0,
+            "tags": list(ci.tags or []),
+            "category": _fallback_category(ci),
+        })
+    return items
+
+
 def _fmt_published(iso: str) -> str:
     """把采集层抓到的 UTC ISO 发布时间转换为北京时间显示串（月-日 或 月-日 时:分）。"""
     if not iso:
@@ -435,6 +475,15 @@ def _run_main():
                 log.info("  AI 筛选后: %d 条%s", items_ok, detail)
         else:
             ai_failed = True
+
+    # ---- AI 失败兜底：用原始采集数据直接拼简报，保证有内容 ----
+    if ai_failed and not final_items and clean_items:
+        log.warning(
+            "  AI 分析失败（已过滤 %d 条新闻），启用降级兜底："
+            "直接使用原始新闻生成简报（未经润色、无深度分析）",
+            len(clean_items),
+        )
+        final_items = _build_fallback_items(clean_items)
 
     # ---- 英文标题翻译兜底 ----
     if final_items and not ai_failed:

@@ -578,13 +578,38 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
              ctx["content_limit"], ctx["item_count"], ctx["total_tokens"], ctx["system_tokens"])
 
     url = f"{config.API_BASE_URL.rstrip('/')}/v1/chat/completions"
+    est_tokens = ctx["total_tokens"]
 
+    # 主模型：连续重试
+    parsed = _try_model(url, system_prompt, user_content,
+                        config.MODEL_NAME, max_retries, est_tokens)
+    if parsed is not None:
+        return (style_name, parsed)
+
+    # 兜底模型：主模型全部失败时使用，避免单模型过载导致整期 0 新闻
+    fb = getattr(config, "FALLBACK_MODEL_NAME", "")
+    if fb and fb != config.MODEL_NAME:
+        log.warning("  主模型 %s 全部失败，改用兜底模型 %s", config.MODEL_NAME, fb)
+        parsed = _try_model(url, system_prompt, user_content,
+                            fb, max(1, max_retries - 1), est_tokens)
+        if parsed is not None:
+            return (style_name, parsed)
+
+    return (style_name, None)
+
+
+def _try_model(url: str, system_prompt: str, user_content: str,
+               model_name: str, max_retries: int, est_tokens: int):
+    """
+    对单个模型发起最多 max_retries 次对话调用。
+    成功返回解析后的 dict，全部失败返回 None。
+    """
     for attempt in range(1, max_retries + 1):
         log.info("")
-        log.info("  -> 调用 AI 分析 (%s) ...", config.MODEL_NAME)
+        log.info("  -> 调用 AI 分析 (%s) ...", model_name)
 
         payload = json.dumps({
-            "model": config.MODEL_NAME,
+            "model": model_name,
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user",   "content": user_content},
@@ -614,11 +639,10 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
             actual_prompt = actual_usage.get("prompt_tokens", 0)
             actual_completion = actual_usage.get("completion_tokens", 0)
             if actual_prompt > 0:
-                est = ctx["total_tokens"]
-                dev = abs(est - actual_prompt) / actual_prompt
+                dev = abs(est_tokens - actual_prompt) / actual_prompt
                 status = "正常" if dev < 0.15 else "偏差过大"
                 log.info("  Token 监控: %s | 预估=%d | 实际=%d | 输出=%d | 偏差=%.1f%%",
-                         status, est, actual_prompt, actual_completion, dev * 100)
+                         status, est_tokens, actual_prompt, actual_completion, dev * 100)
             else:
                 log.info("  Token 监控: API 未返回 usage 数据")
 
@@ -638,7 +662,7 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
                          direct_pct, comma_pct, quote_pct, fail_pct)
                 if fail_pct > 5:
                     log.warning("JSON 解析失败率 %.0f%% 超过 5%% 阈值，建议检查 Prompt 效果", fail_pct)
-            return (style_name, parsed)
+            return parsed
 
         except Exception as e:
             if attempt < max_retries:
@@ -646,4 +670,5 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
                 time.sleep(5)
             else:
                 log.error("全部 %d 次重试均失败: %s", max_retries, str(e)[:80])
-                return (style_name, None)
+                return None
+    return None

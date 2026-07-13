@@ -1,12 +1,15 @@
 """测试 AI 分析层核心函数"""
-import sys, os
+import sys, os, json
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+from unittest.mock import patch
 from src.ai_analyzer import (
     _estimate_tokens, _safe_parse_json, get_parse_stats, reset_parse_stats,
     _balance_sources, _filter_history_duplicates, _truncate_context,
+    call_ai_analysis,
 )
 from src.models import NewsItem
+import src.config as config
 
 
 def test_estimate_tokens_empty():
@@ -136,3 +139,57 @@ if __name__ == "__main__":
     test_filter_history_duplicates_no_history()
     test_truncate_context_converges_within_budget()
     print("All ai_analyzer tests passed!")
+
+
+_VALID = {"choices": [{"message": {"content": '{"news":[{"title":"T1","summary":"S1","score":3,"category":"其他动态","tags":[]}]}'}}]}
+
+
+class _FakeResp:
+    def __init__(self, obj):
+        self._b = json.dumps(obj).encode("utf-8")
+    def read(self):
+        return self._b
+    def __enter__(self):
+        return self
+    def __exit__(self, *a):
+        return False
+
+
+def _mk_items(n=2):
+    return [
+        NewsItem(id=f"i{i}", title=f"新闻{i} 发布", content="摘要内容",
+                  url=f"https://e.com/{i}", source="量子位", lang="zh",
+                  source_type="rss", crawled_at="2026-07-13T00:00:00Z")
+        for i in range(n)
+    ]
+
+
+def test_call_ai_fallback_to_second_model():
+    # 主模型失败，兜底模型成功 -> 返回解析结果（非 None），且两个模型都被调用
+    calls = []
+    def fake_urlopen(req, timeout=180):
+        model = json.loads(req.data.decode())["model"]
+        calls.append(model)
+        if model == "primary/fail":
+            raise TimeoutError("read operation timed out")
+        return _FakeResp(_VALID)
+    with patch("src.ai_analyzer.urlopen", fake_urlopen), \
+         patch.object(config, "API_KEY", "x"), \
+         patch.object(config, "MODEL_NAME", "primary/fail"), \
+         patch.object(config, "FALLBACK_MODEL_NAME", "fallback/ok"):
+        style, parsed = call_ai_analysis(_mk_items(), max_retries=1)
+    assert parsed is not None
+    assert parsed["news"][0]["title"] == "T1"
+    assert "primary/fail" in calls and "fallback/ok" in calls
+
+
+def test_call_ai_both_fail_returns_none():
+    # 主模型与兜底模型都失败 -> 返回 (style, None)
+    def fake_urlopen(req, timeout=180):
+        raise TimeoutError("read operation timed out")
+    with patch("src.ai_analyzer.urlopen", fake_urlopen), \
+         patch.object(config, "API_KEY", "x"), \
+         patch.object(config, "MODEL_NAME", "primary/fail"), \
+         patch.object(config, "FALLBACK_MODEL_NAME", "fallback/ok"):
+        style, parsed = call_ai_analysis(_mk_items(), max_retries=1)
+    assert parsed is None
