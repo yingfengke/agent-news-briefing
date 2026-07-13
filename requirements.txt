@@ -11,7 +11,7 @@ MarkupSafe==3.0.3
 narwhals==2.23.0
 numpy==2.4.6
 python-dotenv==1.2.2
-regex==2026.6.28
+regex==2026.7.10
 requests==2.34.2
 scikit-learn==1.9.0
 scipy==1.18.0
