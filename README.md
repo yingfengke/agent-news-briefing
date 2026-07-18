@@ -77,6 +77,8 @@ GitHub: yingfengke/agent-news-briefing
 | `SMTP_SERVER` | SMTP 服务器 | 默认 `smtp.qq.com` |
 | `SMTP_PORT` | SMTP 端口 | 默认 `465` |
 
+> **注**：`SENDER_EMAIL` 同时作为步骤③的 Git 提交作者邮箱。若希望贡献图绿点计入，须为你 GitHub 账号**已绑定**的邮箱；该邮箱每人不同，fork 后请在自己仓库的 Secrets 中配置。
+
 ### 3. 启用 Actions
 
 进入 **Actions** 标签页，启用工作流。工作流在每天 **北京时间 06:00** 自动运行。
