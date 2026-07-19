@@ -77,7 +77,7 @@ GitHub: yingfengke/agent-news-briefing
 | `SMTP_SERVER` | SMTP 服务器 | 默认 `smtp.qq.com` |
 | `SMTP_PORT` | SMTP 端口 | 默认 `465` |
 
-> **注**：`SENDER_EMAIL` 同时作为步骤③的 Git 提交作者邮箱。若希望贡献图绿点计入，须为你 GitHub 账号**已绑定**的邮箱；该邮箱每人不同，fork 后请在自己仓库的 Secrets 中配置。
+> **注**：步骤③的 Git 提交作者邮箱使用 GitHub 官方 no-reply 地址（`<id>+<username>@users.noreply.github.com`），自动计入贡献图且不含真实邮箱，无需任何配置；`SENDER_EMAIL` 仅用于 SMTP 发邮件，不再兼作提交邮箱。
 
 ### 3. 启用 Actions
 

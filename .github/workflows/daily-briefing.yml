@@ -80,12 +80,11 @@ jobs:
       - name: ③ 提交并推送网页文件（标准 git push，贡献图计数）
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # 提交作者邮箱：复用项目发件邮箱 secret（须为 GitHub 账号已绑定邮箱，贡献图绿点才会计入）。
-          # 此邮箱每人不同，fork 后请在自己仓库的 Secrets 中配置 SENDER_EMAIL。
-          SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
         run: |
+          # Git 提交作者使用 GitHub 官方 no-reply 地址（<id>+<username>@users.noreply.github.com），
+          # 自动计入贡献图且不含真实邮箱；schedule 下 repository_owner 恒等于仓库拥有者本人。
           git config user.name "${{ github.repository_owner }}"
-          git config user.email "${{ env.SENDER_EMAIL }}"
+          git config user.email "${{ github.repository_owner_id }}+${{ github.repository_owner }}@users.noreply.github.com"
           git add web/index.html web/tech-briefing.html web/tech-briefing.template.html web/rss.xml
           git diff --cached --quiet || git commit -m "每日简报自动更新"
           git push origin main
