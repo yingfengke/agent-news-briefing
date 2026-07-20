@@ -81,10 +81,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Git 提交作者使用 GitHub 官方 no-reply 地址（<id>+<username>@users.noreply.github.com），
-          # 自动计入贡献图且不含真实邮箱；schedule 下 repository_owner 恒等于仓库拥有者本人。
-          git config user.name "${{ github.repository_owner }}"
-          git config user.email "${{ github.repository_owner_id }}+${{ github.repository_owner }}@users.noreply.github.com"
+          git config user.name "yingfengke"
+          git config user.email "2718611871@qq.com"
           git add web/index.html web/tech-briefing.html web/tech-briefing.template.html web/rss.xml
           git diff --cached --quiet || git commit -m "每日简报自动更新"
           git push origin main

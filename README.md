@@ -77,7 +77,7 @@ GitHub: yingfengke/agent-news-briefing
 | `SMTP_SERVER` | SMTP 服务器 | 默认 `smtp.qq.com` |
 | `SMTP_PORT` | SMTP 端口 | 默认 `465` |
 
-> **注**：步骤③的 Git 提交作者邮箱使用 GitHub 官方 no-reply 地址（`<id>+<username>@users.noreply.github.com`），自动计入贡献图且不含真实邮箱，无需任何配置；`SENDER_EMAIL` 仅用于 SMTP 发邮件，不再兼作提交邮箱。
+> **注**：步骤③的 Git 提交作者邮箱硬编码为项目发件邮箱 `2718611871@qq.com`（与 `SENDER_EMAIL` 同值，须为 GitHub 账号已验证且用于贡献的邮箱，贡献图绿点才会计入）；`SENDER_EMAIL` 同时仍用于 SMTP 发邮件。
 
 ### 3. 启用 Actions
 
@@ -93,12 +93,11 @@ python -m src.send_email
 
 ## 数据源阵容
 
-### 中文媒体（4 个）
+### 中文媒体（3 个）
 | 源 | RSS |
 |:---|:---|
 | 量子位 | qbitai.com/feed |
 | InfoQ 中文 | infoq.cn/feed |
-| 少数派 | sspai.com/feed |
 | **36氪** | 36kr.com/feed |
 
 ### 前沿论文与 AI 媒体（9 个）
@@ -110,6 +109,13 @@ python -m src.send_email
 | **MarkTechPost** | marktechpost.com/feed |
 | **TLDR AI** | tldr.tech/api/rss/ai |
 | **Last Week in AI** | lastweekin.ai/feed |
+| Import AI | importai.net/feed.xml |
+| Simon Willison | simonwillison.net/atom/everything/ |
+| BAIR Blog | bair.berkeley.edu/blog/feed.xml |
+| Ahead of AI | magazine.sebastianraschka.com/feed |
+| The Gradient | thegradient.pub/rss/ |
+| Latent Space | latent.space/feed |
+| Interconnects | interconnects.ai/feed |
 
 ### 核心框架 & 大厂博客（11 个）
 | 源 | RSS |

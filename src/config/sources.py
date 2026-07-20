@@ -10,7 +10,8 @@ RSS_SOURCES = [
     # ("阿里云开发者", "https://developer.aliyun.com/feed",                   "zh"),
     # 腾讯云开发者 — 永久 404 已于 2026-05 确认
     # ("腾讯云开发者", "https://cloud.tencent.com/developer/feed",            "zh"),
-    ("少数派",       "https://sspai.com/feed",                              "zh"),
+    # 少数派 — 2026-07-20 移除：sspai.com/feed 为全站通用 feed，消费电子/数码评测（如耳机）混入，
+    #   AI 信号极低（长期零产出，仅 07-20 一次入选即"耳机"雷），已无保留价值。
     # 新增中文源：极客公园、爱范儿（弥补阿里云/腾讯云删除后的空缺）
     # ("极客公园",     "https://www.geekpark.net/rss",                        "zh"),  # 2026-06 临时不可用，保留备用
     # ("爱范儿",       "https://www.ifanr.com/feed",                          "zh"),  # 内容偏消费电子，保留备用
@@ -31,6 +32,15 @@ RSS_SOURCES = [
     ("MarkTechPost",     "https://www.marktechpost.com/feed/",            "en"),
     ("TLDR AI",          "https://tldr.tech/api/rss/ai",                  "en"),
     ("Last Week in AI",  "https://lastweekin.ai/feed",                    "en"),
+    # 新增高质量英文源（2026-07-20 实测可用 + 严选榜背书）：
+    ("Import AI",        "https://importai.net/feed.xml",                  "en"),  # Jack Clark 每周 AI 政策/研究通讯
+    ("Simon Willison",   "https://simonwillison.net/atom/everything/",    "en"),  # LLM 工程/工具实战
+    ("BAIR Blog",        "https://bair.berkeley.edu/blog/feed.xml",        "en"),  # 伯克利 AI 研究
+    # 新增深度/研究综述档（补日报之外的每周深度，2026-07-20 实测可用 + 多榜共推）：
+    ("Ahead of AI",     "https://magazine.sebastianraschka.com/feed",   "en"),  # Sebastian Raschka LLM 架构/训练技术深潜
+    ("The Gradient",     "https://thegradient.pub/rss/",                  "en"),  # 研究综述周更
+    ("Latent Space",     "https://www.latent.space/feed",               "en"),  # AI 工程学科定义级刊物
+    ("Interconnects",    "https://www.interconnects.ai/feed",            "en"),  # 开源权重分析最可信源(Nathan Lambert)
 
     # ==================== 核心框架与开发者博客 ====================
     # ("LangChain",  "https://langchain-blog.ghost.io/rss/",                 "en"),  # 域名迁移后不稳定，保留备用
@@ -71,7 +81,6 @@ RSS_SOURCES = [
 MAX_PER_SOURCE = {
     # 中文媒体（放宽到 5 条保证素材）
     "量子位": 3, "InfoQ中文": 3,
-    "少数派": 3,
     # "极客公园": 5, "爱范儿": 5,  # 已注释
     # 前沿论文
     "ArXiv AI": 3, "ArXiv CL": 3, "ArXiv LG": 3, "ArXiv CV": 3,
@@ -86,6 +95,10 @@ MAX_PER_SOURCE = {
     # AI 媒体与深度分析
     "The Decoder": 3, "MarkTechPost": 3,
     "TLDR AI": 3, "Last Week in AI": 3,
+    # 新增高质量英文源
+    "Import AI": 2, "Simon Willison": 2, "BAIR Blog": 2,
+    # 新增深度/研究综述档
+    "Ahead of AI": 2, "The Gradient": 2, "Latent Space": 2, "Interconnects": 2,
     # Twitter 大佬（调高配额，xgo.ing 稳定性好）
     "Twitter @karpathy": 4, "Twitter @_akhaliq": 4,
     "Twitter @AndrewYNg": 4, "Twitter @AlexAlbert__": 4, "Twitter @AIatMeta": 4,
@@ -106,7 +119,7 @@ RSS_FALLBACKS = {
 # 中文来源名称集合（用于 AI 喂入前的分桶）
 CHINESE_SOURCE_NAMES = {
     "量子位", "InfoQ中文",
-    "少数派", "极客公园", "爱范儿", "36氪",
+    "极客公园", "爱范儿", "36氪",
     # 爬虫来源
     "量子位爬虫", "魔搭社区爬虫", "腾讯云开发者爬虫",
     # 旧版降级回退
@@ -130,13 +143,15 @@ CREDIBILITY_WHITELIST = [
     "openai.com", "anthropic.com", "ai.meta.com",
     "blog.google", "blog.langchain.dev", "llamaindex.ai",
     "github.blog", "pytorch.org", "dev.to",
-    "36kr.com", "sspai.com", "ifanr.com", "geekpark.net",
+    "36kr.com", "ifanr.com", "geekpark.net",
     "solidot.org", "ithome.com", "oschina.net", "modelscope.cn",
     "cloud.tencent.com", "developer.aliyun.com",
     "github.com", "techcrunch.com", "venturebeat.com",
     "wired.com", "technologyreview.com",
     "theverge.com",
     "the-decoder.com", "marktechpost.com", "tldr.tech", "lastweekin.ai",
+    "importai.net", "simonwillison.net", "bair.berkeley.edu",
+    "magazine.sebastianraschka.com", "thegradient.pub", "latent.space", "interconnects.ai",
     "v2ex.com", "hnrss.org", "api.xgo.ing",
 ]
 
