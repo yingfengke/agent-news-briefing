@@ -10,7 +10,8 @@ import time
 from collections import defaultdict
 from functools import lru_cache
 from difflib import SequenceMatcher
-from urllib.error import HTTPError
+import socket
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from src import config
@@ -24,6 +25,10 @@ log = get_logger("ai")
 
 # tiktoken 编码器（cl100k_base 兼容主流模型）
 _tk_encoding = tiktoken.get_encoding("cl100k_base")
+
+# AI 输出 token 上限。4096 对 30 条摘要偏紧（LongCat 等模型易触顶被截断，
+# 导致 JSON 尾部残缺无法解析），放宽到 8192 给足输出空间。
+_MAX_OUTPUT_TOKENS = 8192
 
 
 # ============================================================
@@ -282,7 +287,7 @@ def _build_context(items_for_ai: list[NewsItem], system_prompt: str,
 
 def _truncate_context(items_for_ai: list[NewsItem], system_prompt: str,
                       max_context: int = 32000,
-                      max_output: int = 4096,
+                      max_output: int = _MAX_OUTPUT_TOKENS,
                       safety_margin: int = 800):
     """
     渐进式截断：先缩每条简介字数，再砍总条数，保证最终一定收敛在预算内。
@@ -318,12 +323,93 @@ def _truncate_context(items_for_ai: list[NewsItem], system_prompt: str,
 
 
 # JSON 解析质量监控
-_json_parse_stats = {"total": 0, "direct_ok": 0, "fallback_comma": 0, "fallback_quotes": 0, "failed": 0}
+_json_parse_stats = {"total": 0, "direct_ok": 0, "fallback_comma": 0,
+                     "fallback_quotes": 0, "fallback_salvage": 0, "failed": 0}
+
+
+def _salvage_truncated_json(text: str) -> dict:
+    """
+    从截断/不完整的 JSON 中抢救出完整的新闻条目。
+
+    当 max_tokens 耗尽导致 AI 输出的 JSON 尾部残缺（缺 } 或 ]）时，
+    整体 json.loads 必然失败。这里定位 news / items 数组起点，
+    用括号平衡扫描逐条抽取【已完整闭合】的对象，丢弃末尾残缺的一条，
+    最大限度救回已生成的内容，避免整期简报因一条截断而全盘降级。
+
+    返回 {"news": [...]}（键名与调用方一致），无可救则返回 {}。
+    """
+    # 定位数组键：优先 news，其次 items；再兜底任何顶层数组（模型偶发换键名）
+    key = None
+    arr_start = -1
+    for k in ("news", "items"):
+        m = re.search(r'"' + k + r'"\s*:\s*\[', text)
+        if m:
+            key = k
+            arr_start = m.end()  # 指向 [ 之后第一个字符
+            break
+    if key is None:
+        m = re.search(r'"[A-Za-z_][A-Za-z0-9_]*"\s*:\s*\[', text)
+        if m:
+            arr_start = m.end()
+        else:
+            return {}
+
+    objects = []
+    i = arr_start
+    n = len(text)
+    while i < n:
+        # 跳到下一个对象起点
+        while i < n and text[i] != "{":
+            if text[i] == "]":  # 数组正常结束
+                i = n
+                break
+            i += 1
+        if i >= n:
+            break
+        # 括号平衡扫描单个对象（考虑字符串内的括号与转义）
+        depth = 0
+        in_str = False
+        esc = False
+        obj_start = i
+        while i < n:
+            ch = text[i]
+            if in_str:
+                if esc:
+                    esc = False
+                elif ch == "\\":
+                    esc = True
+                elif ch == '"':
+                    in_str = False
+            else:
+                if ch == '"':
+                    in_str = True
+                elif ch == "{":
+                    depth += 1
+                elif ch == "}":
+                    depth -= 1
+                    if depth == 0:
+                        candidate = text[obj_start:i + 1]
+                        try:
+                            objects.append(json.loads(candidate))
+                        except json.JSONDecodeError:
+                            pass
+                        i += 1
+                        break
+            i += 1
+        else:
+            # 扫到结尾仍未闭合 → 末尾残缺对象，丢弃
+            break
+
+    if objects:
+        return {"news": objects}
+    return {}
 
 
 def _safe_parse_json(text: str) -> dict:
     """
     健壮的 JSON 解析，兜底处理 AI 输出的各种不规范格式。
+
+    兜底顺序：直接解析 → 去尾逗号 → 单引号转双引号 → 截断抢救。
     """
     _json_parse_stats["total"] += 1
     text = text.strip()
@@ -341,6 +427,8 @@ def _safe_parse_json(text: str) -> dict:
         if text.startswith("json"):
             text = text[4:].strip()
 
+    # 保留清洗后的原文，供截断抢救使用（抽 {} 会丢掉截断场景的有效内容）
+    cleaned = text
     m = re.search(r"(\{[\s\S]*\})", text)
     if m:
         text = m.group(1)
@@ -369,8 +457,18 @@ def _safe_parse_json(text: str) -> dict:
         _json_parse_stats["fallback_quotes"] += 1
         return result
     except json.JSONDecodeError:
-        _json_parse_stats["failed"] += 1
-        return {}
+        pass
+
+    # 第 5 层：截断抢救（针对 max_tokens 触顶导致的尾部残缺）
+    salvaged = _salvage_truncated_json(cleaned)
+    if salvaged:
+        _json_parse_stats["fallback_salvage"] += 1
+        log.warning("  JSON 截断抢救: 从残缺输出中救回 %d 条完整条目",
+                    len(salvaged.get("news") or salvaged.get("items") or []))
+        return salvaged
+
+    _json_parse_stats["failed"] += 1
+    return {}
 
 
 def _translate_english_titles(items: list[dict]) -> list[dict]:
@@ -439,6 +537,7 @@ def reset_parse_stats():
     _json_parse_stats["direct_ok"] = 0
     _json_parse_stats["fallback_comma"] = 0
     _json_parse_stats["fallback_quotes"] = 0
+    _json_parse_stats["fallback_salvage"] = 0
     _json_parse_stats["failed"] = 0
 
 
@@ -456,6 +555,11 @@ def _filter_twitter_items(twitter_items: list[NewsItem], model: str = "THUDM/GLM
     lines = []
     for i, it in enumerate(twitter_items, 1):
         lines.append(f"{i}. [{it.source}] {it.title}\n   简介: {(it.content or '无描述')[:150]}")
+
+    # 精选前：打印原始待筛推特清单，便于回溯智谱模型的取舍
+    log.info("  -> Twitter 原始 %d 条待精选（%s 筛选）:", len(twitter_items), model)
+    for i, it in enumerate(twitter_items, 1):
+        log.info("       %2d. [%s] %s", i, it.source, (it.title or "")[:50])
 
     prompt_template = (
         "从以下 AI 推文中选出最有价值的 3-5 条。\n"
@@ -487,6 +591,7 @@ def _filter_twitter_items(twitter_items: list[NewsItem], model: str = "THUDM/GLM
         with urlopen(req, timeout=30) as resp:
             result = json.loads(resp.read().decode("utf-8"))
         raw = result["choices"][0]["message"]["content"]
+        log.info("       模型返回编号: %s", raw.strip()[:80] or "(空)")
         nums = [int(n.strip()) for n in re.split(r'[,，\s]+', raw) if n.strip().isdigit()]
         return [offset + n - 1 for n in nums if 1 <= n <= len(twitter_items[offset:])]
 
@@ -526,15 +631,18 @@ def _filter_twitter_items(twitter_items: list[NewsItem], model: str = "THUDM/GLM
 
         selected = [twitter_items[i] for i in all_selected_indices if 0 <= i < len(twitter_items)]
         if not selected:
+            log.warning("  -> Twitter 精选: 模型未返回有效编号，回退保留前 3 条")
             selected = twitter_items[:3]
         log.info("  -> Twitter 精选: %d 条 -> %d 条 (%s)", len(twitter_items), len(selected), model)
+        for it in selected:
+            log.info("       选中 [%s] %s", it.source, (it.title or "")[:50])
         return selected
     except Exception as e:
-        log.warning("Twitter 精选失败 (%s)，保留前 3 条", str(e)[:50])
+        log.warning("Twitter 精选失败 (%s)，回退保留前 3 条", str(e)[:50])
         return twitter_items[:3]
 
 
-def call_ai_analysis(items: list[NewsItem], max_retries: int = 3):
+def call_ai_analysis(items: list[NewsItem], max_retries: int = 2):
     """
     将过滤后的干净新闻发给大模型。
 
@@ -606,7 +714,7 @@ def _try_model(url: str, system_prompt: str, user_content: str,
     """
     for attempt in range(1, max_retries + 1):
         log.info("")
-        log.info("  -> 调用 AI 分析 (%s) ...", model_name)
+        log.info("  -> 调用 AI 分析 (%s) 第 %d/%d 次 ...", model_name, attempt, max_retries)
 
         payload = json.dumps({
             "model": model_name,
@@ -615,7 +723,7 @@ def _try_model(url: str, system_prompt: str, user_content: str,
                 {"role": "user",   "content": user_content},
             ],
             "temperature": 0.3,
-            "max_tokens": 4096,
+            "max_tokens": _MAX_OUTPUT_TOKENS,
         }).encode("utf-8")
 
         req = Request(url, data=payload, headers={
@@ -624,6 +732,7 @@ def _try_model(url: str, system_prompt: str, user_content: str,
             "User-Agent": "Mozilla/5.0 (compatible; BriefingBot/2.0)",
         })
 
+        content = ""  # 失败时用于诊断原始响应，避免下一次故障靠猜
         try:
             with urlopen(req, timeout=180) as resp:
                 body = resp.read().decode("utf-8")
@@ -631,8 +740,8 @@ def _try_model(url: str, system_prompt: str, user_content: str,
             if "choices" not in result or len(result["choices"]) == 0:
                 raise ValueError(f"API 返回异常: {str(result)[:200]}")
 
-            content = result["choices"][0]["message"]["content"]
-            log.info("成功 (%d 字符)", len(content))
+            content = (result["choices"][0]["message"].get("content") or "")
+            log.info("模型返回响应 (%d 字符)", len(content))
 
             # Token 监控：记录实际消耗 vs 预估
             actual_usage = result.get("usage", {})
@@ -644,7 +753,16 @@ def _try_model(url: str, system_prompt: str, user_content: str,
                 log.info("  Token 监控: %s | 预估=%d | 实际=%d | 输出=%d | 偏差=%.1f%%",
                          status, est_tokens, actual_prompt, actual_completion, dev * 100)
             else:
-                log.info("  Token 监控: API 未返回 usage 数据")
+                log.info("  Token 监控: API 未返回 usage 数据（截断检测将失效，依赖解析兜底）")
+
+            # 截断检测：输出触顶 max_tokens 说明 JSON 大概率被硬切，尾部残缺
+            if actual_completion >= _MAX_OUTPUT_TOKENS:
+                log.warning("  输出触顶 %d tokens，JSON 可能被截断，将尝试截断抢救",
+                            _MAX_OUTPUT_TOKENS)
+
+            # 空响应显式识别：部分模型限流/过载会返回 200 但空 content
+            if not content.strip():
+                raise ValueError("模型返回空内容（可能限流/过载）")
 
             parsed = _safe_parse_json(content)
             if not parsed:
@@ -657,14 +775,34 @@ def _try_model(url: str, system_prompt: str, user_content: str,
                 direct_pct = stats["direct_ok"] / stats["total"] * 100
                 comma_pct = stats["fallback_comma"] / stats["total"] * 100
                 quote_pct = stats["fallback_quotes"] / stats["total"] * 100
+                salvage_pct = stats["fallback_salvage"] / stats["total"] * 100
                 fail_pct = stats["failed"] / stats["total"] * 100
-                log.info("  JSON 质量: 直接通过 %.0f%% | 逗号修复 %.0f%% | 引号修复 %.0f%% | 失败 %.0f%%",
-                         direct_pct, comma_pct, quote_pct, fail_pct)
+                log.info("  JSON 质量: 直接通过 %.0f%% | 逗号修复 %.0f%% | 引号修复 %.0f%% | 截断抢救 %.0f%% | 失败 %.0f%%",
+                         direct_pct, comma_pct, quote_pct, salvage_pct, fail_pct)
                 if fail_pct > 5:
                     log.warning("JSON 解析失败率 %.0f%% 超过 5%% 阈值，建议检查 Prompt 效果", fail_pct)
             return parsed
 
         except Exception as e:
+            # 异常分类：超时/限流/格式错 在日志里一眼区分，不再混为一谈
+            if isinstance(e, HTTPError):
+                exc_kind = f"HTTP错误 {e.code}"
+            elif isinstance(e, (URLError, socket.timeout, TimeoutError)):
+                exc_kind = "超时/网络"
+            else:
+                exc_kind = "其他异常"
+            # 原始响应诊断：把模型到底回了什么打出来，
+            # 这样下一次再出截断/空响应/拒答，不用误打误撞也能从日志定位
+            if content:
+                tail = content.rstrip()[-80:]
+                head = content.lstrip()[:120]
+                ends_ok = content.rstrip().endswith(("}", "]"))
+                log.error("   失败诊断 [%s]: 原始响应 %d 字符 | 结尾闭合=%s",
+                          exc_kind, len(content), ends_ok)
+                log.error("     首120字: %s", head)
+                log.error("     尾 80字: %s", tail)
+            else:
+                log.error("   失败诊断 [%s]: 无响应内容（请求阶段即失败，非模型输出问题）", exc_kind)
             if attempt < max_retries:
                 log.warning("第%d次失败 (%s)，5秒后重试...", attempt, str(e)[:60])
                 time.sleep(5)
