@@ -2,8 +2,8 @@
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.models import NewsItem
-from src.main import _build_fallback_items, _fallback_category
+from src.core.models import NewsItem
+from src.analysis.postprocess import _build_fallback_items, _fallback_category
 
 
 def _mk(title, tags=None, content="摘要内容", source="量子位",

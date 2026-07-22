@@ -2,7 +2,7 @@
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from src.collector import _detect_lang, _make_id
+from src.collect.collector import _detect_lang, _make_id
 
 
 def test_detect_lang_known_source():

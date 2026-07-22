@@ -4,7 +4,11 @@ import tempfile
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from src import config
-from src.html_writer import clean_links, _get_category, _merge_small_categories, make_email_with_categories, write_html
+from src.delivery.html_gen import write_html
+from src.delivery.email_gen import (
+    clean_links, _get_category, _merge_small_categories,
+    make_email_with_categories,
+)
 
 
 def test_clean_links_empty():
@@ -143,7 +147,7 @@ def test_email_render_project_links():
 
 def test_index_redirect_placeholder():
     """web/index.html 应为固定重定向占位，不重复完整新闻内容（13.12）。"""
-    from src.html_writer import _render_index_redirect
+    from src.delivery.html_gen import _render_index_redirect
     html = _render_index_redirect()
     assert "tech-briefing.html" in html
     assert "http-equiv=\"refresh\"" in html

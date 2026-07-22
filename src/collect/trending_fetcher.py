@@ -20,7 +20,7 @@ from bs4 import BeautifulSoup
 
 from src import config
 from src.config import trending_tags as tt
-from src.logger import get_logger
+from src.core.logger import get_logger
 
 log = get_logger("trending")
 

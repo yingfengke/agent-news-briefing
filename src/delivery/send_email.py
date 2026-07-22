@@ -18,7 +18,7 @@ from email.header import Header
 from email.utils import formataddr
 
 from src import config
-from src.logger import get_logger, log_structured, LOGS_DIR
+from src.core.logger import get_logger, log_structured, LOGS_DIR
 import logging
 
 log = get_logger("email")

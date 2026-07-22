@@ -3,12 +3,12 @@ import sys, os, json
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from unittest.mock import patch
-from src.ai_analyzer import (
+from src.analysis import (
     _estimate_tokens, _safe_parse_json, get_parse_stats, reset_parse_stats,
     _balance_sources, _filter_history_duplicates, _truncate_context,
     call_ai_analysis,
 )
-from src.models import NewsItem
+from src.core.models import NewsItem
 import src.config as config
 
 
@@ -96,8 +96,9 @@ def test_filter_history_duplicates_no_history():
         NewsItem(id="1", title="ZZZZ_UNIQUE_TEST_TITLE_12345", content="", url="", source="SrcA", lang="en", source_type="rss", crawled_at=""),
         NewsItem(id="2", title="YYYY_ANOTHER_UNIQUE_TEST_67890", content="", url="", source="SrcB", lang="en", source_type="rss", crawled_at=""),
     ]
-    # Mock that HTML_FILE doesn't exist or is empty
-    result = _filter_history_duplicates(items)
+    # 隔离历史加载：本单测只验证去重逻辑，不依赖外部 html 状态
+    with patch("src.analysis.context.load_history_titles", return_value=[]):
+        result = _filter_history_duplicates(items)
     assert len(result) == 2
 
 
@@ -117,8 +118,10 @@ def test_truncate_context_converges_within_budget():
     ]
     system_prompt = "你是一个测试 system prompt " * 50
     max_context, max_output, safety = 4000, 1024, 200
-    ctx = _truncate_context(items, system_prompt, max_context=max_context,
-                            max_output=max_output, safety_margin=safety)
+    # 隔离历史加载：本单测只验证截断收敛，不依赖外部 html 历史条数
+    with patch("src.analysis.context.load_history_titles", return_value=[]):
+        ctx = _truncate_context(items, system_prompt, max_context=max_context,
+                                max_output=max_output, safety_margin=safety)
     budget = max_context - max_output - safety
     assert ctx["total_tokens"] <= budget, f"仍超预算: {ctx['total_tokens']} > {budget}"
     assert ctx["content_limit"] <= 30, f"content 未收敛: {ctx['content_limit']}"
@@ -173,7 +176,7 @@ def test_call_ai_fallback_to_second_model():
         if model == "primary/fail":
             raise TimeoutError("read operation timed out")
         return _FakeResp(_VALID)
-    with patch("src.ai_analyzer.urlopen", fake_urlopen), \
+    with patch("src.analysis.invoke.urlopen", fake_urlopen), \
          patch.object(config, "API_KEY", "x"), \
          patch.object(config, "MODEL_NAME", "primary/fail"), \
          patch.object(config, "FALLBACK_MODEL_NAME", "fallback/ok"):
@@ -187,7 +190,7 @@ def test_call_ai_both_fail_returns_none():
     # 主模型与兜底模型都失败 -> 返回 (style, None)
     def fake_urlopen(req, timeout=180):
         raise TimeoutError("read operation timed out")
-    with patch("src.ai_analyzer.urlopen", fake_urlopen), \
+    with patch("src.analysis.invoke.urlopen", fake_urlopen), \
          patch.object(config, "API_KEY", "x"), \
          patch.object(config, "MODEL_NAME", "primary/fail"), \
          patch.object(config, "FALLBACK_MODEL_NAME", "fallback/ok"):

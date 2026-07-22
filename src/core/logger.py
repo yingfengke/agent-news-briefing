@@ -7,7 +7,7 @@ logger.py — 集中式日志系统
   - 结构化日志记录（JSON 格式 key=value 行）
 
 用法:
-  from src.logger import get_logger
+  from src.core.logger import get_logger
   log = get_logger(__name__)
   log.info("采集完成: %d 条", count)
   log.warning("API 调用失败: %s", err)

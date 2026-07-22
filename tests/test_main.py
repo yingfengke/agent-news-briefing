@@ -2,11 +2,11 @@
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from src.main import (
+from src.analysis.postprocess import (
     _resolve_category, _resolve_source, _sanitize_tags, _append_parsed_items,
 )
 from src.config.sources import CATEGORY_ORDER
-from src.models import NewsItem
+from src.core.models import NewsItem
 
 
 def test_resolve_category_valid_tag_passthrough():

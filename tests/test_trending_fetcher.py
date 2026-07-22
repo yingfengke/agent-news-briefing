@@ -2,7 +2,7 @@
 """trending_fetcher 解析测试：确保「今日新增 star」取的是日增而非累计总数。"""
 from bs4 import BeautifulSoup
 
-from src.trending_fetcher import _extract_stars_today
+from src.collect.trending_fetcher import _extract_stars_today
 
 
 def _make_article(total_stars: str, today_stars: str):

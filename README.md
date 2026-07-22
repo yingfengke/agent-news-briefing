@@ -9,25 +9,25 @@
 ## 架构一览
 
 ```
-多模态数据采集层 (src/collector.py)
+多模态数据采集层 (src/collect/collector.py)
   └─ RSS 源 36 个（并发 8 线程 + 指数退避重试）
        ↓ 原始数据池
-智能过滤与去重层 (src/deduplicator.py)
+智能过滤与去重层 (src/dedupe/)
   ├─ URL 去重（SHA256 数据库，当日）
   ├─ 内容指纹去重（datasketch MinHash+LSH + jieba 分词，阈值 0.8）
   ├─ 语义去重（Qwen/Qwen3-Embedding-4B + numpy 矩阵批量计算，阈值 0.92）
   └─ 来源可信度过滤（白名单 40 个域名 + 信号评分，阈值 0.40）
        ↓ 干净数据
-规则预筛层 (src/ai_analyzer.py)
+规则预筛层 (src/analysis/orchestrator.py)
   ├─ 过滤正文 < 10 字的垃圾内容
   └─ Twitter 源间去重（同标题推文保留最完整的一条）
        ↓ 配额制选 40 条（每源保底 2 条，覆盖 >=5 个源）
-AI 分析层 (src/ai_analyzer.py)
+AI 分析层 (src/analysis/orchestrator.py)
   ├─ Twitter 专用精选：免费 9B 模型（GLM-Z1）筛选最佳推文
   ├─ 跨天历史排重（SequenceMatcher + 关键词模糊匹配，基于已发布简报）
   ├─ 精确 tiktoken 估算 + 安全系数（防 400 错误）
   ├─ 随机六套语气：极简资讯 / 毒舌辣评 / 深度解读 / 极客观点 / 微博热搜 / 产品经理
-  ├─ 失败自动重试 3 次
+  ├─ 失败自动重试 2 次
   ├─ AI 主分析直接输出新闻评分（1-5 分，综合信源权威度 + 新颖度 + 影响度 + 实用价值）
   └─ 生成 HTML + 分类邮件 + RSS Feed + GitHub API 推送网页
        ↓ 写入 web/tech-briefing.html → 历史闭环，供次日排重使用
@@ -154,15 +154,33 @@ python -m src.send_email
 ```
 ├── src/                    # 源代码包
 │   ├── __init__.py
-│   ├── main.py             # 主流程编排
-│   ├── collector.py        # 采集层（RSS → 数据池，并发 8 线程）
-│   ├── deduplicator.py     # 过滤层（4 阶段串联去重）
-│   ├── ai_analyzer.py      # AI 分析 + 规则预筛 + Twitter精选 + Token估算
-│   ├── html_writer.py      # HTML / 分类邮件 / RSS Feed 生成
-│   ├── trending_fetcher.py # GitHub Trending 抓取（BeautifulSoup）
-│   ├── send_email.py       # 邮件发送（multipart/alternative）
-│   ├── models.py           # 统一数据模型
-│   ├── logger.py           # 集中式日志系统
+│   ├── main.py             # 主流程编排（唯一入口，python -m src.main）
+│   ├── core/               # 共享基建包
+│   │   ├── models.py       # 统一数据模型
+│   │   └── logger.py       # 集中式日志系统
+│   ├── collect/            # 采集层包
+│   │   ├── collector.py    # 采集层（RSS → 数据池，并发 8 线程）
+│   │   └── trending_fetcher.py # GitHub Trending 抓取（BeautifulSoup）
+│   ├── dedupe/             # 独立去重/过滤层包（4 阶段串联）
+│   │   ├── pipeline.py     # 编排：run_pipeline 四阶段串联
+│   │   ├── url_dedup.py   # 阶段 A：URL 去重（SHA256 库）
+│   │   ├── minhash_dedup.py # 阶段 B：MinHash+LSH 内容指纹
+│   │   ├── semantic_dedup.py # 阶段 C：Embedding 语义去重
+│   │   └── credibility.py  # 阶段 D：来源可信度过滤
+│   ├── analysis/           # AI 分析域包
+│   │   ├── orchestrator.py # 编排 facade（重导出公共 API）
+│   │   ├── context.py     # 上下文预组装：历史排重/预筛/配额/截断
+│   │   ├── invoke.py       # 模型调用与重试（主模型+兜底）
+│   │   ├── postprocess.py  # AI 输出后处理 + 降级兜底
+│   │   ├── json_parse.py   # JSON 解析（5 层兜底 + 截断抢救）
+│   │   ├── twitter_filter.py # Twitter 精选（GLM-Z1 免费模型）
+│   │   └── translate.py    # 英文标题翻译兜底
+│   ├── delivery/           # 输出/邮件层包
+│   │   ├── html_gen.py    # 网页 HTML 生成（tech-briefing.html）
+│   │   ├── email_gen.py   # 分类邮件 HTML 生成
+│   │   ├── rss_gen.py     # RSS 2.0 Feed 生成
+│   │   ├── send_email.py   # 邮件发送（multipart/alternative）
+│   │   └── timefmt.py     # 发布时间格式化（UTC → 北京时间）
 │   └── config/             # 配置子包
 │       ├── __init__.py
 │       ├── constants.py    # API/邮件/阈值常量

@@ -5,10 +5,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from src import config
 from src.config.constants import now_bjt
-from src.html_writer import write_html, make_email_with_categories, generate_rss_feed
-from src.ai_analyzer import _build_context
-from src.main import _fmt_published, _attach_published_at
-from src.models import NewsItem
+from src.delivery.html_gen import write_html
+from src.delivery.email_gen import make_email_with_categories
+from src.delivery.rss_gen import generate_rss_feed
+from src.analysis import _build_context
+from src.delivery.timefmt import _fmt_published, _attach_published_at
+from src.core.models import NewsItem
 
 
 def test_now_bjt_is_beijing():

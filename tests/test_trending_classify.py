@@ -3,7 +3,7 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from src.config import trending_tags as tt
-from src.trending_fetcher import fetch_topics
+from src.collect.trending_fetcher import fetch_topics
 
 
 def test_classify_l1_topics_voting():

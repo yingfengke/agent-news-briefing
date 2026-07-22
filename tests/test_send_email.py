@@ -5,7 +5,7 @@ from unittest.mock import patch, MagicMock
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from src import config
-from src.send_email import send_failure_alert, _strip_urls
+from src.delivery.send_email import send_failure_alert, _strip_urls
 
 
 def test_strip_urls_removes_links():
@@ -21,10 +21,10 @@ def test_send_failure_alert_plain_text_no_html():
     """告警邮件为纯文本、无 HTML、发信成功并返回 True（⑤）。"""
     from email import message_from_string
     fake_server = MagicMock()
-    with patch("src.send_email.smtplib.SMTP_SSL", return_value=fake_server), \
-         patch("src.send_email.os.path.exists", return_value=False), \
-         patch("src.send_email.os.makedirs"), \
-         patch("src.send_email.open", create=True):
+    with patch("src.delivery.send_email.smtplib.SMTP_SSL", return_value=fake_server), \
+         patch("src.delivery.send_email.os.path.exists", return_value=False), \
+         patch("src.delivery.send_email.os.makedirs"), \
+         patch("src.delivery.send_email.open", create=True):
         sent = {}
         def fake_sendmail(frm, to, msg_str):
             sent["msg"] = msg_str
@@ -53,21 +53,21 @@ def test_send_failure_alert_marker_dedup():
     marker_path = os.path.join(tmp_marker_dir, "alert-20260708.sent")
 
     # 第一次：marker 不存在 -> 发信
-    with patch("src.send_email.smtplib.SMTP_SSL", return_value=fake_server), \
-         patch("src.send_email.LOGS_DIR", tmp_marker_dir), \
-         patch("src.send_email.os.path.exists", return_value=False), \
-         patch("src.send_email.os.makedirs"), \
-         patch("src.send_email.open", create=True):
+    with patch("src.delivery.send_email.smtplib.SMTP_SSL", return_value=fake_server), \
+         patch("src.delivery.send_email.LOGS_DIR", tmp_marker_dir), \
+         patch("src.delivery.send_email.os.path.exists", return_value=False), \
+         patch("src.delivery.send_email.os.makedirs"), \
+         patch("src.delivery.send_email.open", create=True):
         ok1 = send_failure_alert(RuntimeError("x"))
     assert ok1 is True
     assert calls["n"] == 1
 
     # 第二次：marker 已存在 -> 跳过，不再发信
-    with patch("src.send_email.smtplib.SMTP_SSL", return_value=fake_server), \
-         patch("src.send_email.LOGS_DIR", tmp_marker_dir), \
-         patch("src.send_email.os.path.exists", return_value=True), \
-         patch("src.send_email.os.makedirs"), \
-         patch("src.send_email.open", create=True):
+    with patch("src.delivery.send_email.smtplib.SMTP_SSL", return_value=fake_server), \
+         patch("src.delivery.send_email.LOGS_DIR", tmp_marker_dir), \
+         patch("src.delivery.send_email.os.path.exists", return_value=True), \
+         patch("src.delivery.send_email.os.makedirs"), \
+         patch("src.delivery.send_email.open", create=True):
         ok2 = send_failure_alert(RuntimeError("x"))
     assert ok2 is False
     assert calls["n"] == 1  # 仍是 1 次

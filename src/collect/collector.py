@@ -24,8 +24,8 @@ from urllib.request import Request, urlopen
 import feedparser
 
 from src import config
-from src.models import NewsItem
-from src.logger import get_logger, log_structured
+from src.core.models import NewsItem
+from src.core.logger import get_logger, log_structured
 
 log = get_logger("collector")
 

@@ -2,7 +2,7 @@
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from src.models import NewsItem, FilterReport
+from src.core.models import NewsItem, FilterReport
 
 
 def test_news_item_defaults():

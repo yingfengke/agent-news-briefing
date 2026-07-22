@@ -4,8 +4,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from unittest.mock import patch
 from src import config
-from src.models import NewsItem, FilterReport
-from src.deduplicator import UrlDeduper, run_pipeline
+from src.core.models import NewsItem, FilterReport
+from src.dedupe import UrlDeduper, run_pipeline
 
 
 def _make_item(url, title="标题", content="这是一段足够长的正文内容用于通过可信度门槛。"):
