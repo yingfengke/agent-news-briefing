@@ -1,6 +1,7 @@
 """email_gen.py - 分类邮件 HTML 生成。"""
 
 import os
+import re
 
 from jinja2 import Environment, FileSystemLoader, TemplateError
 

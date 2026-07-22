@@ -50,6 +50,9 @@ DEDUP_EMBEDDING_BATCH = 10          # 批量 Embedding 大小
 # 文件路径（去重相关）
 URL_DB_FILE = os.path.join(BASE_DIR, ".url_dedup_db.json")
 EMBEDDING_CACHE_FILE = os.path.join(BASE_DIR, ".embedding_cache.json")
+# 同日重跑复用缓存：保存「已去重、未过 AI」的原始数据池，
+# 重跑时直接加载并跳过采集+去重（位于 web/ 下，被 *.json gitignore 忽略）。
+RAW_CACHE_FILE = os.path.join(BASE_DIR, "web", ".raw_pool_cache.json")
 
 # 可信度过滤
 CREDIBILITY_SCORE_THRESHOLD = 0.40  # 低于此阈值直接丢弃

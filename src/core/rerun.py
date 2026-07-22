@@ -1,4 +1,4 @@
-"""rerun.py - 同日重跑判断与去重库清理。
+"""rerun.py - 同日重跑判断与原始数据复用。
 
 问题背景（2026-07-22 实战）：
   主模型连续超时 -> 兜底模型 LongCat-2.0 回垃圾 -> 触发内容降级
@@ -9,14 +9,18 @@
   导致新抓取的同日新闻相似度≈1.0 被历史排重 / URL 去重全部吃掉，
   重跑反而比首跑更空。
 
-修复：在 _run_main 最开始检测「同日重跑」，命中即清空两个去重库，
-使重跑能重新抓取并正常发布当天新闻。
+修复策略（复用优先、清空仅兜底）：每次正常跑把「已去重、未过 AI」的
+clean_items 落盘到 RAW_CACHE_FILE；同日重跑时若有缓存则直接加载、
+跳过采集+去重（仅重置历史标题排重），无缓存才退回清空去重库后重抓。
 """
+import json
 import os
 import re
+import tempfile
 
 from src import config
 from src.core.logger import get_logger
+from src.core.models import NewsItem
 
 log = get_logger("rerun")
 
@@ -86,7 +90,8 @@ def _reset_html_news_data() -> None:
 
 def clear_dedup_for_rerun() -> None:
     """
-    同日重跑时清空两个去重库（在 _run_main 最开始、任何抓取/分析之前调用）：
+    同日重跑「无复用缓存」时的兜底：清空两个去重库，改走正常重新抓取。
+    （有缓存时走 load_cached_clean_items 复用路径，不会调用本函数）
       1. .url_dedup_db.json：URL 跨天去重，无逐条时间戳，整体删除
       2. web/tech-briefing.html 的 __NEWS_DATA__：历史标题排重数据源，重置为 []
     """
@@ -100,3 +105,40 @@ def clear_dedup_for_rerun() -> None:
 
     # 2) 历史标题排重数据源
     _reset_html_news_data()
+
+
+def save_clean_items(items: list[NewsItem]) -> None:
+    """把「已去重、未过 AI」的 clean_items 落盘，供同日重跑复用（跳过采集+去重）。"""
+    try:
+        data = [vars(it) for it in items]
+        dir_name = os.path.dirname(config.RAW_CACHE_FILE) or "."
+        fd, tmp_path = tempfile.mkstemp(dir=dir_name, suffix=".tmp")
+        try:
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False)
+            os.replace(tmp_path, config.RAW_CACHE_FILE)
+        except BaseException:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
+            raise
+        log.info("  已缓存 %d 条去重后原始数据到 %s（供同日重跑复用）",
+                 len(items), os.path.basename(config.RAW_CACHE_FILE))
+    except Exception as e:
+        log.warning("  缓存原始数据失败（继续）: %s", e)
+
+
+def load_cached_clean_items():
+    """同日重跑时加载上次落盘的去重后原始数据；无缓存或损坏则返回 None（调用方改走正常采集）。"""
+    try:
+        if not os.path.exists(config.RAW_CACHE_FILE):
+            return None
+        with open(config.RAW_CACHE_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if not isinstance(data, list) or not data:
+            return None
+        items = [NewsItem(**d) for d in data]
+        log.info("  已加载缓存的原始数据 %d 条（跳过采集与去重）", len(items))
+        return items
+    except Exception as e:
+        log.warning("  加载缓存原始数据失败（改用重新采集）: %s", e)
+        return None

@@ -61,7 +61,7 @@ def _filter_twitter_items(twitter_items: list[NewsItem], model: str = "THUDM/GLM
             "User-Agent": "Mozilla/5.0 (compatible; BriefingBot/2.0)",
         })
 
-        with urlopen(req, timeout=30) as resp:
+        with urlopen(req, timeout=60) as resp:
             result = json.loads(resp.read().decode("utf-8"))
         raw = result["choices"][0]["message"]["content"]
         log.info("       模型返回编号: %s", raw.strip()[:80] or "(空)")

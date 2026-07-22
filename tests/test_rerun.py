@@ -9,8 +9,10 @@ import pytest
 
 from src import config
 from src.core import rerun
+from src.core.models import NewsItem
 from src.core.rerun import (
     is_rerun, clear_dedup_for_rerun, _html_published_today,
+    save_clean_items, load_cached_clean_items,
 )
 
 
@@ -116,3 +118,43 @@ def test_clear_dedup_idempotent_on_empty(tmp_path, monkeypatch):
     clear_dedup_for_rerun()
     content = html_p.read_text(encoding="utf-8")
     assert "__NEWS_DATA__" in content
+
+
+def _make_items():
+    return [
+        NewsItem(id="a1", title="T1", content="C1", url="http://x/1",
+                  source="S1", lang="zh", source_type="rss",
+                  crawled_at="2026-07-22T10:00:00", published_at="2026-07-22T09:00:00",
+                  tags=["Agent"], summary="s1"),
+        NewsItem(id="a2", title="T2", content="C2", url="http://x/2",
+                  source="S2", lang="en", source_type="rss",
+                  crawled_at="2026-07-22T10:01:00"),  # tags/summary 走默认
+    ]
+
+
+def test_save_then_load_roundtrip(tmp_path, monkeypatch):
+    cache = tmp_path / ".raw_pool_cache.json"
+    monkeypatch.setattr(config, "RAW_CACHE_FILE", str(cache))
+    assert load_cached_clean_items() is None  # 初始无缓存
+
+    items = _make_items()
+    save_clean_items(items)
+
+    loaded = load_cached_clean_items()
+    assert loaded is not None and len(loaded) == 2
+    assert isinstance(loaded[0], NewsItem)
+    assert loaded[0].title == "T1" and loaded[0].tags == ["Agent"]
+    # 默认值分支应保留
+    assert loaded[1].summary == "" and loaded[1].tags == []
+
+
+def test_load_returns_none_when_missing(tmp_path, monkeypatch):
+    monkeypatch.setattr(config, "RAW_CACHE_FILE", str(tmp_path / "nope.json"))
+    assert load_cached_clean_items() is None
+
+
+def test_load_returns_none_when_corrupt(tmp_path, monkeypatch):
+    cache = tmp_path / ".raw_pool_cache.json"
+    cache.write_text("{ not valid json", encoding="utf-8")
+    monkeypatch.setattr(config, "RAW_CACHE_FILE", str(cache))
+    assert load_cached_clean_items() is None

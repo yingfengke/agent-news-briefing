@@ -22,7 +22,7 @@ import logging
 
 from src import config
 from src.config import get_random_trivia
-from src.core.models import FilterReport
+from src.core.models import FilterReport, NewsItem
 from src.collect.collector import collect_all
 from src.dedupe import run_pipeline
 from src.analysis import call_ai_analysis, reset_parse_stats, _translate_english_titles
@@ -35,40 +35,60 @@ from src.delivery.rss_gen import generate_rss_feed
 from src.delivery.timefmt import _attach_published_at
 from src.collect.trending_fetcher import fetch_github_trending
 from src.core.logger import get_logger, log_structured
-from src.core.rerun import is_rerun, clear_dedup_for_rerun
+from src.core.rerun import (
+    is_rerun, clear_dedup_for_rerun,
+    load_cached_clean_items, save_clean_items, _reset_html_news_data,
+)
 
 log = get_logger(__name__)
 
 
 def _run_main():
     reset_parse_stats()
-    # 同日重跑检测：重跑则清空去重库，避免新抓取被旧去重吃掉
+    # 同日重跑检测：有缓存则直接复用去重后原始数据（跳过采集+去重）；
+    # 无缓存（如首跑失败、被旧逻辑清空）则清空去重库后正常重抓。
+    reused = False
     if is_rerun():
-        clear_dedup_for_rerun()
+        cached = load_cached_clean_items()
+        if cached is not None:
+            reused = True
+            clean_items = cached
+            report = FilterReport(
+                total_input=len(clean_items),
+                total_output=len(clean_items),
+                remaining_items=clean_items,
+            )
+            _reset_html_news_data()  # 复用时不让历史标题去重吃掉同日数据
+            log.info("  同日重跑：复用已缓存原始数据 %d 条（跳过采集与去重）",
+                     len(clean_items))
+        else:
+            clear_dedup_for_rerun()
     log.info("=" * 60)
     log.info("  AI & Agent 开发者晨报 - 三层架构 v2.0")
     log.info("  采集: %d 个 RSS 源", len(config.RSS_SOURCES))
     log.info("  模型: %s", config.MODEL_NAME)
     log.info("=" * 60)
 
-    # ---- 1. 采集层 ----
-    log.info("")
-    log.info("%s", "=" * 40)
-    log.info("  第 1 层：多模态数据采集")
-    log.info("%s", "=" * 40)
-    raw_pool = collect_all()
+    # ---- 1. 采集层 + 2. 过滤层（仅非复用路径执行） ----
+    if not reused:
+        log.info("")
+        log.info("%s", "=" * 40)
+        log.info("  第 1 层：多模态数据采集")
+        log.info("%s", "=" * 40)
+        raw_pool = collect_all()
 
-    # ---- 2. 过滤层 ----
-    log.info("")
-    log.info("%s", "=" * 40)
-    log.info("  第 2 层：智能过滤与去重")
-    log.info("%s", "=" * 40)
-    if raw_pool:
-        report = run_pipeline(raw_pool)
-    else:
-        report = FilterReport(total_input=0)
-    report.print_report()
-    clean_items = report.remaining_items
+        log.info("")
+        log.info("%s", "=" * 40)
+        log.info("  第 2 层：智能过滤与去重")
+        log.info("%s", "=" * 40)
+        if raw_pool:
+            report = run_pipeline(raw_pool)
+        else:
+            report = FilterReport(total_input=0)
+        report.print_report()
+        clean_items = report.remaining_items
+        # 落盘去重后原始数据，供本次之后的同日重跑复用
+        save_clean_items(clean_items)
 
     # ---- 3. AI 分析层 ----
     log.info("")
