@@ -5,6 +5,7 @@ import time
 from typing import Optional
 from datetime import datetime
 from urllib.request import Request, urlopen
+from collections import defaultdict
 
 import numpy as np
 
