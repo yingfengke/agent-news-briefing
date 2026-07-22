@@ -35,9 +35,16 @@ from src.delivery.rss_gen import generate_rss_feed
 from src.delivery.timefmt import _attach_published_at
 from src.collect.trending_fetcher import fetch_github_trending
 from src.core.logger import get_logger, log_structured
+from src.core.rerun import is_rerun, clear_dedup_for_rerun
+
+log = get_logger(__name__)
+
 
 def _run_main():
     reset_parse_stats()
+    # 同日重跑检测：重跑则清空去重库，避免新抓取被旧去重吃掉
+    if is_rerun():
+        clear_dedup_for_rerun()
     log.info("=" * 60)
     log.info("  AI & Agent 开发者晨报 - 三层架构 v2.0")
     log.info("  采集: %d 个 RSS 源", len(config.RSS_SOURCES))
