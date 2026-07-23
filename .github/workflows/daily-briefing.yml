@@ -75,7 +75,7 @@ jobs:
           timeout_minutes: 5
           max_attempts: 3
           retry_wait_seconds: 300
-          command: python -m src.send_email
+          command: python -m src.delivery.send_email
 
       - name: ③ 提交并推送网页文件（标准 git push，贡献图计数）
         env:

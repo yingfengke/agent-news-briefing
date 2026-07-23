@@ -19,9 +19,12 @@ from src.analysis.twitter_filter import _filter_twitter_items
 
 log = get_logger("ai")
 
-def call_ai_analysis(items: list[NewsItem], max_retries: int = 2):
+def call_ai_analysis(items: list[NewsItem], max_retries: int = 1):
     """
     将过滤后的干净新闻发给大模型。
+
+    max_retries=1：超时一次后重试大概率也超时，不浪费第二次的金钱与时间，
+    直接切兜底模型（配置见 FALLBACK_MODEL_NAME）。
 
     返回:
       (style_name, parsed_json)  成功

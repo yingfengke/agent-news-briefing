@@ -88,7 +88,7 @@ GitHub: yingfengke/agent-news-briefing
 ```bash
 pip install -r requirements.txt
 python -m src.main
-python -m src.send_email
+python -m src.delivery.send_email
 ```
 
 ## 数据源阵容
@@ -227,7 +227,7 @@ python -m src.send_email
 ```
 GitHub Actions (schedule 06:00 BJT + 手动触发)
   ├─ 06:00 步骤①: python -m src.main → 采集 → 过滤 → 规则预筛 → AI分析 → 生成 HTML
-  ├─ 06:00 步骤②: python -m src.send_email → multipart 邮件
+  ├─ 06:00 步骤②: python -m src.delivery.send_email → multipart 邮件
   ├─ 06:00 步骤③: git push → 提交并推送网页文件（贡献图计数）
   └─ GitHub Pages 自动从 main branch 部署
 ```
