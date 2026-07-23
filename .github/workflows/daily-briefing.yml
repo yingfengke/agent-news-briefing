@@ -55,17 +55,27 @@ jobs:
           restore-keys: |
             url-dedup-db-
 
+      # 恢复同日重跑 raw 缓存（复用当日已去重原始数据，避免重跑时重抓新闻）
+      - name: 恢复 Raw 缓存
+        uses: actions/cache@v6
+        id: raw-cache
+        with:
+          path: web/.raw_pool_cache.json
+          key: raw-cache-${{ github.run_id }}
+          restore-keys: |
+            raw-cache-
+
       # ============================================================
       # 以下关键步骤使用 retry 机制：
-      #   失败后每隔 5 分钟自动重试，最多 3 次
-      #   覆盖网络超时、API 限流、SMTP 临时故障等场景
+      #   失败后重试，覆盖网络超时、API 限流、SMTP 临时故障等场景
+      #   max_attempts=1：不反复重跑整个 main.py，模型层已有 max_retries=1 兜底
       # ============================================================
 
       - name: ① 抓取新闻 + AI 分析 + 生成 HTML（失败自动重试）
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 15
-          max_attempts: 3
+          max_attempts: 1
           retry_wait_seconds: 300
           command: python -m src.main
 
@@ -73,7 +83,7 @@ jobs:
         uses: nick-fields/retry@v3
         with:
           timeout_minutes: 5
-          max_attempts: 3
+          max_attempts: 1
           retry_wait_seconds: 300
           command: python -m src.delivery.send_email
 
@@ -93,3 +103,10 @@ jobs:
         with:
           path: .url_dedup_db.json
           key: url-dedup-db-${{ github.run_id }}
+
+      # 保存 Raw 缓存供同日重跑复用
+      - name: 保存 Raw 缓存
+        uses: actions/cache/save@v6
+        with:
+          path: web/.raw_pool_cache.json
+          key: raw-cache-${{ github.run_id }}

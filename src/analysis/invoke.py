@@ -115,7 +115,7 @@ def _try_model(url: str, system_prompt: str, user_content: str,
 
         content = ""  # 失败时用于诊断原始响应，避免下一次故障靠猜
         try:
-            with urlopen(req, timeout=180) as resp:
+            with urlopen(req, timeout=360) as resp:
                 body = resp.read().decode("utf-8")
                 result = json.loads(body)
             if "choices" not in result or len(result["choices"]) == 0:

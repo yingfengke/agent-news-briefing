@@ -17,12 +17,12 @@ _json_parse_stats = {"total": 0, "direct_ok": 0, "fallback_comma": 0,
 
 def _salvage_truncated_json(text: str) -> dict:
     """
-    从截断/不完整的 JSON 中抢救出完整的新闻条目。
+    从格式不完整/结构残缺的 JSON 中抢救出完整的新闻条目。
 
-    当 max_tokens 耗尽导致 AI 输出的 JSON 尾部残缺（缺 } 或 ]）时，
-    整体 json.loads 必然失败。这里定位 news / items 数组起点，
+    当模型输出的 JSON 尾部残缺（缺 } 或 ]）、或夹杂非结构化文本导致
+    整体 json.loads 失败时，定位 news / items 数组起点，
     用括号平衡扫描逐条抽取【已完整闭合】的对象，丢弃末尾残缺的一条，
-    最大限度救回已生成的内容，避免整期简报因一条截断而全盘降级。
+    最大限度救回已生成的内容，避免整期简报因输出格式问题而全盘降级。
 
     返回 {"news": [...]}（键名与调用方一致），无可救则返回 {}。
     """
@@ -147,11 +147,11 @@ def _safe_parse_json(text: str) -> dict:
     except json.JSONDecodeError:
         pass
 
-    # 第 5 层：截断抢救（针对 max_tokens 触顶导致的尾部残缺）
+    # 第 5 层：残缺解析兜底（JSON 尾部残缺或夹杂非结构化文本时逐条抽取）
     salvaged = _salvage_truncated_json(cleaned)
     if salvaged:
         _json_parse_stats["fallback_salvage"] += 1
-        log.warning("  JSON 截断抢救: 从残缺输出中救回 %d 条完整条目",
+        log.warning("  JSON 残缺解析: 从非完整输出中救回 %d 条完整条目",
                     len(salvaged.get("news") or salvaged.get("items") or []))
         return salvaged
 
