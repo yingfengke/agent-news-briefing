@@ -77,7 +77,7 @@ GitHub: yingfengke/agent-news-briefing
 | `SMTP_SERVER` | SMTP 服务器 | 默认 `smtp.qq.com` |
 | `SMTP_PORT` | SMTP 端口 | 默认 `465` |
 
-> **注**：步骤③的 Git 提交作者邮箱硬编码为项目发件邮箱 `2718611871@qq.com`（与 `SENDER_EMAIL` 同值，须为 GitHub 账号已验证且用于贡献的邮箱，贡献图绿点才会计入）；`SENDER_EMAIL` 同时仍用于 SMTP 发邮件。
+> **注**：步骤③的 Git 提交作者邮箱由 `SENDER_EMAIL` secret 注入（非硬编码，须为 GitHub 账号已验证且用于贡献的邮箱，贡献图绿点才会计入），作者名取 `github.repository_owner`。该步骤显式设置 `TZ: Asia/Shanghai`，使北京时间 06:00 的提交时间戳为 `+0800` 并正确计入当天绿点（否则 Actions 服务器的 UTC 时间会将绿点记到前一天）。`SENDER_EMAIL` 同时仍用于 SMTP 发邮件。
 
 ### 3. 启用 Actions
 
