@@ -88,13 +88,12 @@ jobs:
           command: python -m src.delivery.send_email
 
       - name: ③ 提交并推送网页文件（标准 git push，贡献图计数）
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "yingfengke"
           git config user.email "2718611871@qq.com"
           git add web/index.html web/tech-briefing.html web/tech-briefing.template.html web/rss.xml
           git diff --cached --quiet || git commit -m "每日简报自动更新"
+          git remote set-url origin https://${{ secrets.PAT }}@github.com/yingfengke/agent-news-briefing.git
           git push origin main
 
       # 保存 URL 去重缓存供下次运行使用
