@@ -15,6 +15,27 @@ _INVALID_TAG_TOKENS = {
     "general", "综合", "资讯", "新闻", "动态", "daily", "今日",
 }
 
+
+def _fix_twitter_source_mismatch(item: dict) -> None:
+    """Twitter/X 来源串号校验：source 的 @handle 与链接路径 handle 不一致时修正。
+
+    AI 有时会编错 source 或链接错配（如 source=@_akhaliq 但链接是 @aiDotEngineer 的推文），
+    导致卡片"显示 A 账号、点开是 B 账号"。此函数以链接路径中的真实 handle 为准覆盖 source。
+    """
+    src = item.get("source") or ""
+    link = item.get("link") or ""
+    if "@" not in src or not link:
+        return
+    m = re.search(r"(?:x\.com|twitter\.com)/([^/]+)/status", link)
+    if not m:
+        return
+    handle = m.group(1).lower()
+    if handle in src.lower():
+        return
+    new_src = "Twitter @" + m.group(1)
+    log.warning("来源串号修正: %s -> %s（链接 %s）", src, new_src, link[:60])
+    item["source"] = new_src
+
 def _extract_link(it: dict, summary: str, title_exact_map: dict, source_title_map: dict) -> str:
     """从 AI 输出条目中提取原文链接（多层兜底）。"""
     link = it.get("link") or it.get("url") or ""
@@ -239,6 +260,8 @@ def _append_parsed_items(parsed_list: list, final_items: list,
             "tags": _sanitize_tags(parsed.get("tags", [])),
             "category": _resolve_category(parsed),
         })
+        # Twitter/X 串号校验：以链接中的真实账号为准修正 source
+        _fix_twitter_source_mismatch(final_items[-1])
     return ok, skip
 
 

@@ -14,6 +14,19 @@ from src.core.models import NewsItem
 from src.core.logger import get_logger
 
 log = get_logger("dedup.semantic")
+
+
+def _build_multi_source_note(sources: list[str]) -> str:
+    """生成多源报道标注（带具体来源名单，方便读者判断可信度）：
+    [该消息被 2 家来源报道：36氪、量子位]
+    来源全部为空时退化为仅数量（"多家"），不编造名单。
+    """
+    names = sorted({s.strip() for s in sources if s and s.strip()})
+    if not names:
+        return " [该消息被多家来源报道]"
+    return f" [该消息被 {len(names)} 家来源报道：{'、'.join(names)}]"
+
+
 class SemanticDeduper:
     """
     语义去重：
@@ -223,8 +236,9 @@ class SemanticDeduper:
         for i, it in enumerate(items):
             if i in kept_indices:
                 if i in multi_source_map:
-                    count = multi_source_map[i]
-                    it.content = it.content + f" [该消息被 {count} 家来源报道]"
+                    # 收集簇内所有成员的真实来源名，随数量一起写入 content
+                    member_sources = [items[valid_indices[m]].source for m in members]
+                    it.content = it.content + _build_multi_source_note(member_sources)
                 result.append(it)
 
         self._save_cache()
