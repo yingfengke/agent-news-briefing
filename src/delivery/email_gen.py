@@ -37,6 +37,35 @@ def clean_links(text: str) -> str:
     return cleaned
 
 
+def _render_summary_html(summary: str) -> str:
+    """渲染新闻摘要为邮件 HTML：先转换链接，再将摘要中的「附加片段」独立成行（灰色小字）。
+
+    附加片段包括：网友评论（微博热搜）、用户价值/商业模式等小标题（产品经理）、
+    【落地要点】（工程实战派）、作者注记与多源注记（各风格通用）。
+    避免它们与正文糊在一起。
+    """
+    html = clean_links(summary)
+    # 1) 网友评论 / PM 小标题前缀：如 "网友A：" "用户价值："
+    html = re.sub(
+        r'((?:网友[^：:]{0,10}?|用户价值|商业模式|竞争格局)[：:])',
+        r'<br/><span style="color:#888;font-size:12px;line-height:1.7;">\1</span>',
+        html,
+    )
+    # 2) 方括号块前缀：如 【落地要点】
+    html = re.sub(
+        r'(【[^】]{1,12}】)',
+        r'<br/><span style="color:#888;font-size:12px;line-height:1.7;">\1</span>',
+        html,
+    )
+    # 3) 括号注记：作者 / 多源标注（带关键词才匹配，避免误伤技术缩写括号如 (MoE)）
+    html = re.sub(
+        r'(（[^（）]{0,40}?(?:来源报道|交叉验证|作者|by)[^（）]{0,40}）)',
+        r'<br/><span style="color:#888;font-size:12px;line-height:1.7;">\1</span>',
+        html,
+    )
+    return html
+
+
 
 def _get_category(item: dict) -> str:
     """
@@ -185,7 +214,7 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
                 {' ' + source_tag if source_tag else ''}{pub_tag}{tag_html}{score_html}
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 8px 0;line-height:1.5;">{item["title"]}</h2>
-              <p style="font-size:13px;color:#555;margin:0 0 10px 0;line-height:1.7;">{clean_links(item["summary"])}</p>
+              <p style="font-size:13px;color:#555;margin:0 0 10px 0;line-height:1.7;">{_render_summary_html(item["summary"])}</p>
               {f'<a href="{item["link"]}" style="font-size:12px;font-weight:600;color:#1a1a1a;text-decoration:none;border-bottom:1.5px solid #1a1a1a;padding-bottom:1px;" target="_blank">阅读原文</a>' if item.get("link") else ''}
             </td>
           </tr>
