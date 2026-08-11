@@ -7,7 +7,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from src import config
-from src.config import get_random_style
+from src.config import get_today_style
 from src.core.models import NewsItem
 from src.core.logger import get_logger
 from src.analysis.context import (
@@ -34,7 +34,7 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 1):
         log.warning("未配置 API_KEY，跳过 AI 分析")
         return ("", None)
 
-    style_name, system_prompt = get_random_style()
+    style_name, system_prompt = get_today_style()
     log.info("")
     log.info("  -> 今日风格: [%s]", style_name)
 

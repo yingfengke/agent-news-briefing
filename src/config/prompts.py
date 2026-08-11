@@ -1,12 +1,10 @@
 """
-AI System Prompt — 6 套随机语气 + 冷知识
+AI System Prompt — 6 套轮换语气 + 冷知识
 """
 
-import json
-import os
 import random
 
-from src.config.constants import BASE_DIR
+from src.config.constants import BASE_DIR, now_bjt
 from src.config.trivia import AI_TRIVIA
 
 # ============================================================
@@ -328,34 +326,15 @@ SYSTEM_PROMPTS = [
     ("产品经理", _inject_topic_filter(SYSTEM_PROMPT_PM)),
 ]
 
-LAST_STYLE_FILE = os.path.join(BASE_DIR, ".last_style.json")
+def get_today_style():
+    """按北京时间日期序数确定性轮换风格（6 天一轮），保证相邻两天风格必不同。
 
-
-def get_random_style():
-    """随机返回 (风格名, prompt文本)，禁止连续两天使用同一风格"""
-    last = ""
-    if os.path.exists(LAST_STYLE_FILE):
-        try:
-            with open(LAST_STYLE_FILE, "r", encoding="utf-8") as f:
-                last = json.load(f).get("last", "")
-        except Exception:
-            last = ""
-
-    # 过滤掉上次用的风格，除非只有一个风格可选
-    candidates = [s for s in SYSTEM_PROMPTS if s[0] != last]
-    if not candidates:
-        candidates = SYSTEM_PROMPTS  # 兜底
-
-    chosen = random.choice(candidates)
-
-    # 记录本次选择
-    try:
-        with open(LAST_STYLE_FILE, "w", encoding="utf-8") as f:
-            json.dump({"last": chosen[0]}, f, ensure_ascii=False)
-    except Exception:
-        pass
-
-    return chosen
+    替代原"随机 + 排除上次"方案：原方案依赖 .last_style.json 状态文件，
+    而 CI 每次全新 checkout 读不到历史，导致每天纯随机、可能连续撞同风格
+    （曾出现 2026-08-02 ~ 08-04 连续三天微博热搜）。按日期取模零状态、零依赖。
+    """
+    day_ordinal = now_bjt().date().toordinal()
+    return SYSTEM_PROMPTS[day_ordinal % len(SYSTEM_PROMPTS)]
 
 
 def get_random_trivia():
