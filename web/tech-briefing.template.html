@@ -172,13 +172,12 @@
       const empty   = document.getElementById('empty-state');
       const ac      = document.getElementById('analysis-card');
 
-      // 摘要中的「附加片段」（网友评论/PM 小标题/【落地要点】/作者与多源注记）独立成行灰色小字
+      // 摘要中的「附加片段」（网友评论/PM 小标题/落地要点/作者与多源注记）独立成行灰色小字
       // 先 HTML 转义再切片，防 AI 输出注入脚本（XSS）
       function renderSummary(s) {
         const esc = (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         return esc
-          .replace(/((?:网友[A-Za-z一二三四五六七八九十]{0,2}?|用户价值|商业模式|竞争格局)[：:])/g, '<br/><span class="meta-frag">$1</span>')
-          .replace(/(【[^】]{1,12}】)/g, '<br/><span class="meta-frag">$1</span>')
+          .replace(/((?:网友[A-Za-z一二三四五六七八九十]{0,2}?|用户价值|商业模式|竞争格局|落地要点)[：:])/g, '<br/><span class="meta-frag">$1</span>')
           .replace(/(（[^（）]{0,40}?(?:来源报道|交叉验证|作者|by)[^（）]{0,40}）)/g, '<br/><span class="meta-frag">$1</span>');
       }
 
