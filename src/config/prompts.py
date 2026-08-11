@@ -313,7 +313,7 @@ def _inject_topic_filter(prompt: str) -> str:
     block = "\n\n" + TOPIC_FILTER_RULE + "\n\n" + SUMMARY_QUALITY_RULE + "\n\n" + SUMMARY_ANALYSIS_RULE
     if _SAFETY_ANCHOR in prompt:
         return prompt.replace(_SAFETY_ANCHOR, _SAFETY_ANCHOR + block, 1)
-    return prompt + block
+    return block + "\n" + prompt
 
 
 # 所有语气列表用于随机选择（构建时统一注入主题过滤规则）
@@ -333,6 +333,8 @@ def get_today_style():
     而 CI 每次全新 checkout 读不到历史，导致每天纯随机、可能连续撞同风格
     （曾出现 2026-08-02 ~ 08-04 连续三天微博热搜）。按日期取模零状态、零依赖。
     """
+    if not SYSTEM_PROMPTS:  # 防御性守卫：常量非空，避免取模除零
+        return ("极简资讯", SYSTEM_PROMPT_MINIMAL)
     day_ordinal = now_bjt().date().toordinal()
     return SYSTEM_PROMPTS[day_ordinal % len(SYSTEM_PROMPTS)]
 

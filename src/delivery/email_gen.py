@@ -1,5 +1,6 @@
 """email_gen.py - 分类邮件 HTML 生成。"""
 
+import html
 import os
 import re
 
@@ -38,32 +39,36 @@ def clean_links(text: str) -> str:
 
 
 def _render_summary_html(summary: str) -> str:
-    """渲染新闻摘要为邮件 HTML：先转换链接，再将摘要中的「附加片段」独立成行（灰色小字）。
+    """渲染新闻摘要为邮件 HTML：先转义 AI 输出（防 XSS），再转换链接，
+    最后将摘要中的「附加片段」独立成行（灰色小字）。
 
     附加片段包括：网友评论（微博热搜）、用户价值/商业模式等小标题（产品经理）、
     【落地要点】（工程实战派）、作者注记与多源注记（各风格通用）。
     避免它们与正文糊在一起。
     """
-    html = clean_links(summary)
-    # 1) 网友评论 / PM 小标题前缀：如 "网友A：" "用户价值："
-    html = re.sub(
-        r'((?:网友[^：:]{0,10}?|用户价值|商业模式|竞争格局)[：:])',
+    # 顺序必须：先 html.escape 原始文本，再做链接转换与片段分割，
+    # 否则 clean_links 生成的 <a> 与片段 span 会被二次转义。
+    safe = html.escape(summary) if summary else ""
+    html_text = clean_links(safe)
+    # 1) 网友评论 / PM 小标题前缀：如 "网友A：" "用户价值："（网友后仅限短标签，避免误匹配正文）
+    html_text = re.sub(
+        r'((?:网友[A-Za-z一二三四五六七八九十]{0,2}?|用户价值|商业模式|竞争格局)[：:])',
         r'<br/><span style="color:#888;font-size:12px;line-height:1.7;">\1</span>',
-        html,
+        html_text,
     )
     # 2) 方括号块前缀：如 【落地要点】
-    html = re.sub(
+    html_text = re.sub(
         r'(【[^】]{1,12}】)',
         r'<br/><span style="color:#888;font-size:12px;line-height:1.7;">\1</span>',
-        html,
+        html_text,
     )
     # 3) 括号注记：作者 / 多源标注（带关键词才匹配，避免误伤技术缩写括号如 (MoE)）
-    html = re.sub(
+    html_text = re.sub(
         r'(（[^（）]{0,40}?(?:来源报道|交叉验证|作者|by)[^（）]{0,40}）)',
         r'<br/><span style="color:#888;font-size:12px;line-height:1.7;">\1</span>',
-        html,
+        html_text,
     )
-    return html
+    return html_text
 
 
 
