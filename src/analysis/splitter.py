@@ -51,7 +51,7 @@ def _call_model(text: str) -> dict:
             {"role": "user", "content": _PROMPT_TEMPLATE.format(text=text[:2000])},
         ],
         "temperature": 0.1,
-        "max_tokens": 512,
+        "max_tokens": 1024,
     }).encode("utf-8")
 
     url = f"{config.API_BASE_URL.rstrip('/')}/v1/chat/completions"
@@ -63,43 +63,53 @@ def _call_model(text: str) -> dict:
 
     with urlopen(req, timeout=_TIMEOUT) as resp:
         result = json.loads(resp.read().decode("utf-8"))
-    raw = result["choices"][0]["message"]["content"]
-    parsed = json.loads(raw.strip())
+    raw = result["choices"][0]["message"]["content"].strip()
+    # 剥掉模型偶发的 ```json 围栏，避免 json.loads 失败整条回退
+    if raw.startswith("```"):
+        raw = raw.strip("`").strip()
+        if raw.startswith("json"):
+            raw = raw[4:].strip()
+    parsed = json.loads(raw)
     return {"summary": (parsed.get("summary") or "").strip(),
             "analysis": (parsed.get("analysis") or "").strip()}
 
 
-def split_analysis(summary: str) -> tuple[str, str]:
-    """把一条混排文本分割为 (摘要, 分析)。失败时返回 (原样, "")。"""
+def split_analysis(summary: str) -> tuple[str, str, bool]:
+    """把一条混排文本分割为 (摘要, 分析, 调用是否成功)。
+
+    调用成功（含合法空分析）时 ok=True；API 异常/解析失败时 ok=False，
+    返回 (原样, "")。调用方用 ok 区分「该条失败」与「该条无分析」，
+    避免把纯事实条目计入熔断计数。
+    """
     if not summary:
-        return summary, ""
+        return summary, "", True
     try:
         parts = _call_model(summary)
     except Exception as e:
         log.warning("分割失败（该条跳过）: %s | %s", str(e)[:100], summary[:50])
-        return summary, ""
+        return summary, "", False
     head, tail = parts.get("summary"), parts.get("analysis")
     if not head:  # 模型把全部内容当分析 → 回退原样
-        return summary, ""
-    return head, tail
+        return summary, "", False
+    return head, tail, True
 
 
 def split_items(items: list[dict]) -> None:
     """为每条 item 增加 analysis 字段（分割自 summary），summary 同步缩减。
 
-    连续失败超过阈值整体放弃（避免逐条超时拖垮 CI），不抛异常。
+    仅 API 异常计入失败计数，连续失败超过阈值整体放弃
+    （避免逐条超时拖垮 CI）；合法空分析（纯事实条目）不计。不抛异常。
     """
     consecutive_fail = 0
     for it in items:
         s = it.get("summary") or ""
         if not s:
             continue
-        head, tail = split_analysis(s)
+        head, tail, ok = split_analysis(s)
         if tail:
             it["analysis"] = tail
             it["summary"] = head
-            consecutive_fail = 0
-        else:
+        if not ok:
             consecutive_fail += 1
             if consecutive_fail >= _MAX_CONSECUTIVE_FAIL:
                 log.warning("分割器连续失败 %d 次，放弃本次分割", consecutive_fail)

@@ -203,7 +203,7 @@
         const head = parts[0].trim();
         const tail = parts.slice(1).map(p => p.trim()).filter(Boolean).join('<br/>');
         if (!tail) return renderDefault(s);
-        return renderDefault(head) + '<br/><span class="meta-frag">' + tail + '</span>';
+        return renderDefault(head) + '<br/><span class="meta-frag">' + renderDefault(tail) + '</span>';
       }
       // 深度解读/极客观点为段落式风格：分割器产出 analysis 字段，灰字独立成段展示
       const STYLE_RENDERERS = { '产品经理': renderPM, '微博热搜': renderWeibo, '工程实战派': renderPractical, '深度解读': renderParagraph, '极客观点': renderParagraph };

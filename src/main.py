@@ -103,6 +103,7 @@ def _run_main():
     final_items = []
     daily_analysis = ""
     ai_failed = False
+    style_name = ""  # 空数据路径不经过 call_ai_analysis，预置防止 NameError
 
     if not clean_items:
         log.info("  过滤后无可用数据，发送空报告邮件")
@@ -177,7 +178,8 @@ def _run_main():
     # ---- 段落式风格：免费小模型分割「摘要 + 分析」 ----
     # 深度解读 / 极客观点的分析与摘要混在同一段、无冒号前缀，正则无法可靠区分；
     # 由免费模型逐条分割（主模型提示词零改动），失败自动跳过，不阻塞流水线。
-    if style_name in splitter.SPLIT_STYLES and final_items:
+    # not ai_failed 守卫：AI 失败走兜底时 style_name 非空，禁止对兜底原始摘要调分割器。
+    if not ai_failed and style_name in splitter.SPLIT_STYLES and final_items:
         log.info("  -- 段落式风格 [%s]：分割摘要与分析（%s） --", style_name, splitter._SPLIT_MODEL)
         splitter.split_items(final_items)
 
