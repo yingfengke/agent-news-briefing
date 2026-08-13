@@ -50,15 +50,15 @@ def _render_summary_html(summary: str) -> str:
     # 否则 clean_links 生成的 <a> 与片段 span 会被二次转义。
     safe = html.escape(summary) if summary else ""
     html_text = clean_links(safe)
-    # 1) 冒号小标题前缀：网友评论 / PM 视角 / 落地要点，如 "网友A：" "用户价值：" "落地要点："
+    # 1) 冒号小标题前缀：网友评论 / PM 视角与判断标签 / 落地要点，如 "网友A：" "真需求：" "落地要点："
     html_text = re.sub(
-        r'((?:网友[A-Za-z一二三四五六七八九十]{0,2}?|用户价值|商业模式|竞争格局|落地要点)[：:])',
+        r'((?:网友[A-Za-z一二三四五六七八九十]{0,2}?|用户价值|商业模式|竞争格局|落地要点|真需求|伪需求|商业模式存疑|卷但没用|值得抄)[：:])',
         r'<br/><span style="color:#888;font-size:12px;line-height:1.7;">\1</span>',
         html_text,
     )
-    # 2) 括号注记：作者 / 多源标注（带关键词才匹配，避免误伤技术缩写括号如 (MoE)）
+    # 2) 括号注记：PM 判断标签 / 来源 / 作者 / 多源标注（带关键词才匹配，避免误伤技术缩写括号如 (MoE)）
     html_text = re.sub(
-        r'(（[^（）]{0,40}?(?:来源报道|交叉验证|作者|by)[^（）]{0,40}）)',
+        r'(（[^（）]{0,40}?(?:真需求|伪需求|商业模式存疑|卷但没用|值得抄|来源|报道|交叉验证|作者|by)[^（）]{0,40}）)',
         r'<br/><span style="color:#888;font-size:12px;line-height:1.7;">\1</span>',
         html_text,
     )
