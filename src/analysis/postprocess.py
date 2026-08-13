@@ -235,6 +235,39 @@ def _resolve_category(parsed: dict) -> str:
     return "其他动态"
 
 
+# 注记括号：多源报道 / 多源来源列表 / 作者（从摘要剥离，放卡片底部右对齐展示）。
+# 单源"（来源：xxx）"不提取——卡片 meta 已有来源标签，属冗余；
+# 多源"（来源：A、B）"含顿号/逗号，是有价值的补充信息，保留。
+_FOOTNOTE_PATTERNS = [
+    re.compile(r'（[^（）]{0,60}?(?:报道|交叉验证|作者|by)[^（）]{0,40}）'),
+    re.compile(r'（来源：[^（）]{0,60}?(?:、|,|，)[^（）]{0,40}）'),
+]
+
+
+def _extract_footnote(item: dict) -> None:
+    """从 summary 中提取多源报道/多源来源列表/作者等括号注记，放入 item['footnote']。
+
+    注记独立成行会显得头重脚轻（正文一大段 + 底部孤零零几个字），
+    改为在卡片底行右对齐展示；摘要保持干净。
+    """
+    s = item.get("summary") or ""
+    notes = []
+    for pat in _FOOTNOTE_PATTERNS:
+        notes.extend(pat.findall(s))
+    if not notes:
+        return
+    # 去重且保持出现顺序
+    seen, ordered = set(), []
+    for n in notes:
+        if n not in seen:
+            seen.add(n)
+            ordered.append(n)
+    item["footnote"] = " ".join(ordered)
+    item["summary"] = s
+    for pat in _FOOTNOTE_PATTERNS:
+        item["summary"] = pat.sub("", item["summary"]).strip()
+
+
 def _append_parsed_items(parsed_list: list, final_items: list,
                          title_exact_map: dict, source_title_map: dict,
                          clean_items: list) -> tuple[int, int]:
@@ -262,6 +295,8 @@ def _append_parsed_items(parsed_list: list, final_items: list,
         })
         # Twitter/X 串号校验：以链接中的真实账号为准修正 source
         _fix_twitter_source_mismatch(final_items[-1])
+        # 多源/来源/作者注记剥离到 footnote（卡片底部右对齐）
+        _extract_footnote(final_items[-1])
     return ok, skip
 
 
