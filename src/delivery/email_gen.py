@@ -38,31 +38,141 @@ def clean_links(text: str) -> str:
     return cleaned
 
 
-def _render_summary_html(summary: str) -> str:
-    """渲染新闻摘要为邮件 HTML：先转义 AI 输出（防 XSS），再转换链接，
-    最后将摘要中的「附加片段」独立成行（灰色小字）。
+def _render_card_footer(item: dict) -> str:
+    """卡片底部：左侧「阅读原文」，右侧灰色小字注记（多源/来源/作者）。
 
-    附加片段包括：网友评论（微博热搜）、用户价值/商业模式等小标题（产品经理）、
-    落地要点：（工程实战派）、作者注记与多源注记（各风格通用）。
-    避免它们与正文糊在一起。
+    注记不随摘要正文展示（避免头重脚轻），右对齐放在底行。
     """
-    # 顺序必须：先 html.escape 原始文本，再做链接转换与片段分割，
-    # 否则 clean_links 生成的 <a> 与片段 span 会被二次转义。
+    link = item.get("link") or ""
+    foot = html.escape(item.get("footnote") or "")
+    link_html = (f'<a href="{link}" style="font-size:12px;font-weight:600;color:#1a1a1a;'
+                 f'text-decoration:none;border-bottom:1.5px solid #1a1a1a;padding-bottom:1px;" '
+                 f'target="_blank">阅读原文</a>') if link else ""
+    if not link_html and not foot:
+        return ""
+    return (f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>'
+            f'<td style="padding-top:10px;">{link_html}</td>'
+            f'<td style="text-align:right;padding-top:10px;">'
+            f'<span style="font-size:11px;color:#888;">{foot}</span></td>'
+            f'</tr></table>')
+
+
+_FRAG_STYLE = 'color:#888;font-size:12px;line-height:1.7;'
+
+# 段落式风格的分析段前缀（与其他风格的附加片段视觉一致）
+_ANALYSIS_LABELS = {
+    "深度解读": "解读：",
+    "极客观点": "点评：",
+}
+
+
+def _meta_span(match) -> str:
+    """把匹配到的附加片段前缀/注记替换为 换行 + 灰色小字 span。"""
+    return f'<br/><span style="{_FRAG_STYLE}">' + match.group(1) + '</span>'
+
+
+def _render_default_summary(html_text: str) -> str:
+    """通用渲染：仅处理各风格通用的括号注记（多源/作者），不做风格专属分行。"""
+    return re.sub(
+        r'(（[^（）]{0,40}?(?:报道|交叉验证|作者|by)[^（）]{0,40}）)',
+        _meta_span,
+        html_text,
+    )
+
+
+def _render_pm_summary(html_text: str) -> str:
+    """产品经理：用户价值/商业模式/竞争格局 三小标题分行（整体判断随竞争格局一段）。"""
+    html_text = re.sub(
+        r'((?:用户价值|商业模式|竞争格局)[：:])',
+        _meta_span,
+        html_text,
+    )
+    return _render_default_summary(html_text)
+
+
+def _render_weibo_summary(html_text: str) -> str:
+    """微博热搜：网友A/网友B 评论分行。"""
+    html_text = re.sub(
+        r'((?:网友[A-Za-z一二三四五六七八九十]{0,2}?)[：:])',
+        _meta_span,
+        html_text,
+    )
+    return _render_default_summary(html_text)
+
+
+def _render_practical_summary(html_text: str) -> str:
+    """工程实战派：落地要点：分行。"""
+    html_text = re.sub(
+        r'((?:落地要点)[：:])',
+        _meta_span,
+        html_text,
+    )
+    return _render_default_summary(html_text)
+
+
+def _render_paragraph_summary(html_text: str) -> str:
+    """段落式风格（深度解读/极客观点）：摘要与分析段按换行分隔。
+
+    AI 按提示词在摘要后空一行写连贯分析段（不拆小标题）。
+    渲染时摘要正常显示，分析段独立成段灰字展示。
+    模型未输出换行时退化为通用渲染（不分段，不报错）。
+    """
+    parts = re.split(r"\n+", html_text)
+    if len(parts) <= 1:
+        return _render_default_summary(html_text)
+    head = parts[0].strip()
+    tail = "<br/>".join(p.strip() for p in parts[1:] if p.strip())
+    if not tail:
+        return _render_default_summary(html_text)
+    head_html = _render_default_summary(head)
+    tail_html = _render_default_summary(tail)
+    return head_html + f'<br/><span style="{_FRAG_STYLE}">' + tail_html + '</span>'
+
+
+# 各风格专属渲染分发（未列出的风格走通用渲染）
+_STYLE_RENDERERS = {
+    "产品经理": _render_pm_summary,
+    "微博热搜": _render_weibo_summary,
+    "工程实战派": _render_practical_summary,
+    "深度解读": _render_paragraph_summary,
+    "极客观点": _render_paragraph_summary,
+}
+
+
+def _render_analysis_html(analysis: str, label: str = "") -> str:
+    """渲染独立 analysis 字段（深度解读/极客观点的分析段，由分割器产出）：
+    灰字小号独立成段，展示在摘要下方；label 为风格前缀（解读：/点评：），
+    与其他风格的附加片段（用户价值：/网友A：）视觉一致。
+    """
+    if not analysis:
+        return ""
+    body = _render_summary_html(analysis, "")
+    return (f'<p style="font-size:12px;color:#888;line-height:1.7;margin:0 0 10px 0;">'
+            f'{html.escape(label)}{body}</p>')
+
+
+def _render_summary_html(summary: str, style_name: str = "") -> str:
+    """渲染新闻摘要为邮件 HTML：先转义（防 XSS）→ 链接转换 → 删冗余注记 →
+    按当日风格分发给专属渲染函数（各风格只处理自己的分析结构，避免统一正则漏词）。
+
+    顺序必须：先 html.escape 原始文本，再做链接转换与片段分割，
+    否则 clean_links 生成的 <a> 与片段 span 会被二次转义。
+    """
     safe = html.escape(summary) if summary else ""
     html_text = clean_links(safe)
-    # 1) 冒号小标题前缀：网友评论 / PM 视角与判断标签 / 落地要点，如 "网友A：" "真需求：" "落地要点："
+    # 公共清理：PM 判断标签残留 + 单源"（来源：OpenAI）"（无顿号/逗号，卡片 meta 已有来源）
     html_text = re.sub(
-        r'((?:网友[A-Za-z一二三四五六七八九十]{0,2}?|用户价值|商业模式|竞争格局|落地要点|真需求|伪需求|商业模式存疑|卷但没用|值得抄)[：:])',
-        r'<br/><span style="color:#888;font-size:12px;line-height:1.7;">\1</span>',
+        r'（(?:真需求|伪需求|商业模式存疑|卷但没用|值得抄)）',
+        '',
         html_text,
     )
-    # 2) 括号注记：PM 判断标签 / 来源 / 作者 / 多源标注（带关键词才匹配，避免误伤技术缩写括号如 (MoE)）
     html_text = re.sub(
-        r'(（[^（）]{0,40}?(?:真需求|伪需求|商业模式存疑|卷但没用|值得抄|来源|报道|交叉验证|作者|by)[^（）]{0,40}）)',
-        r'<br/><span style="color:#888;font-size:12px;line-height:1.7;">\1</span>',
+        r'（来源：[^（）、,，]{1,40}）',
+        '',
         html_text,
     )
-    return html_text
+    renderer = _STYLE_RENDERERS.get(style_name, _render_default_summary)
+    return renderer(html_text)
 
 
 
@@ -213,8 +323,9 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
                 {' ' + source_tag if source_tag else ''}{pub_tag}{tag_html}{score_html}
               </div>
               <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 8px 0;line-height:1.5;">{item["title"]}</h2>
-              <p style="font-size:13px;color:#555;margin:0 0 10px 0;line-height:1.7;">{_render_summary_html(item["summary"])}</p>
-              {f'<a href="{item["link"]}" style="font-size:12px;font-weight:600;color:#1a1a1a;text-decoration:none;border-bottom:1.5px solid #1a1a1a;padding-bottom:1px;" target="_blank">阅读原文</a>' if item.get("link") else ''}
+              <p style="font-size:13px;color:#555;margin:0 0 10px 0;line-height:1.7;">{_render_summary_html(item["summary"], style_name)}</p>
+              {_render_analysis_html(item.get("analysis") or "", _ANALYSIS_LABELS.get(style_name, ""))}
+              {_render_card_footer(item)}
             </td>
           </tr>
         </table>""")

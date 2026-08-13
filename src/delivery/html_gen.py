@@ -52,7 +52,7 @@ def _render_index_redirect() -> str:
 
 
 
-def write_html(news_items, daily_analysis="", projects=None, generated_at=None):
+def write_html(news_items, daily_analysis="", projects=None, generated_at=None, style_name=""):
     if not projects:
         projects = []
     if not os.path.exists(config.HTML_TEMPLATE):
@@ -79,6 +79,7 @@ def write_html(news_items, daily_analysis="", projects=None, generated_at=None):
         "generated_at": generated_at,
         "briefing_date": briefing_date,
         "time_disclaimer": TIME_DISCLAIMER,
+        "style_name": style_name,
     }
     try:
         content = template.render(**context)

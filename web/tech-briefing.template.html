@@ -63,9 +63,9 @@
     .news-card:nth-child(5) { animation-delay: 0.25s; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-    .news-card .card-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .news-card .card-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
     .news-card .card-index { font-size: 0.72rem; font-weight: 700; color: #ccc; letter-spacing: 0.1em; }
-    .news-card .source-tag { font-size: 0.68rem; color: #888; background: #f0f0ee; padding: 2px 10px; border-radius: 20px; }
+    .news-card .source-tag { font-size: 0.68rem; font-weight: 600; color: #1a1a1a; background: #e8e6e3; padding: 2px 10px; border-radius: 20px; }
     .news-card .tag-tag { font-size: 0.68rem; color: #534AB7; background: #EEEDFE; padding: 2px 10px; border-radius: 20px; margin-left: 4px; }
     .news-card .score-badge.high { color: #2e7d32; background: #e8f5e9; }
     .news-card .score-badge.mid { color: #e65100; background: #fff3e0; }
@@ -73,9 +73,12 @@
     .news-card .card-title { font-size: 1rem; font-weight: 700; line-height: 1.5; color: #111; margin-bottom: 10px; }
     .news-card .card-summary { font-size: 0.85rem; color: #555; line-height: 1.75; margin-bottom: 14px; }
     .news-card .card-summary .meta-frag { color: #888; font-size: 0.75rem; display: inline-block; margin-top: 2px; }
+    .news-card .card-analysis { font-size: 0.75rem; color: #888; line-height: 1.75; margin: -2px 0 12px 0; }
     .news-card .card-link { font-size: 0.8rem; font-weight: 600; color: #1a1a1a; text-decoration: none; border-bottom: 1.5px solid #1a1a1a; padding-bottom: 1px; transition: opacity 0.2s; }
     .news-card .card-link:hover { opacity: 0.5; }
-    .news-card .card-bottom { display: flex; align-items: center; justify-content: space-between; }
+    .news-card .card-bottom { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .news-card .card-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .news-card .footnote { font-size: 0.68rem; color: #999; max-width: 60%; text-align: right; }
     .news-card .score-badge { font-size: 0.68rem; font-weight: 600; padding: 2px 10px; border-radius: 10px; }
 
     .category-header {
@@ -95,6 +98,7 @@
     .analysis-card.visible { display: block; }
     .analysis-card .label { font-size: 0.72rem; color: #888; letter-spacing: 0.12em; margin-bottom: 12px; text-transform: uppercase; }
     .analysis-card .content { font-size: 0.88rem; line-height: 1.8; color: #ccc; }
+    .analysis-card .content .meta-frag { color: #a8a29e; font-size: 0.8rem; }
 
     .empty-state {
       margin-top: 40px; text-align: center; color: #bbb; display: none;
@@ -164,6 +168,9 @@
     // ========================================================
     const __PROJECTS__ = {{ projects_json | safe }};;
 
+    // 当日风格名（由 generate_briefing.py 注入，用于按风格渲染摘要）
+    const __STYLE_NAME__ = {{ style_name | tojson }};
+
     // 渲染简报
     function generateBriefing() {
       const btn     = document.querySelector('.btn-generate');
@@ -172,14 +179,49 @@
       const empty   = document.getElementById('empty-state');
       const ac      = document.getElementById('analysis-card');
 
-      // 摘要中的「附加片段」（网友评论/PM 小标题/落地要点/标签与来源等括号注记）独立成行灰色小字
-      // 先 HTML 转义再切片，防 AI 输出注入脚本（XSS）
+      // 摘要渲染：先 HTML 转义（防 XSS），删冗余注记，再按当日风格分发给专属渲染函数
+      // （各风格只处理自己的分析结构，避免统一正则漏词）
+      function metaFrag() { return '<br/><span class="meta-frag">'; }
+      function renderDefault(s) {
+        return s.replace(/(（[^（）]{0,40}?(?:报道|交叉验证|作者|by)[^（）]{0,40}）)/g, metaFrag() + '$1</span>');
+      }
+      function renderPM(s) {
+        s = s.replace(/((?:用户价值|商业模式|竞争格局)[：:])/g, metaFrag() + '$1</span>');
+        return renderDefault(s);
+      }
+      function renderWeibo(s) {
+        s = s.replace(/((?:网友[A-Za-z一二三四五六七八九十]{0,2}?)[：:])/g, metaFrag() + '$1</span>');
+        return renderDefault(s);
+      }
+      function renderPractical(s) {
+        s = s.replace(/((?:落地要点)[：:])/g, metaFrag() + '$1</span>');
+        return renderDefault(s);
+      }
+      function renderParagraph(s) {
+        const parts = s.split(/\n+/);
+        if (parts.length <= 1) return renderDefault(s);
+        const head = parts[0].trim();
+        const tail = parts.slice(1).map(p => p.trim()).filter(Boolean).join('<br/>');
+        if (!tail) return renderDefault(s);
+        return renderDefault(head) + '<br/><span class="meta-frag">' + tail + '</span>';
+      }
+      // 深度解读/极客观点为段落式风格：分割器产出 analysis 字段，灰字独立成段展示
+      const STYLE_RENDERERS = { '产品经理': renderPM, '微博热搜': renderWeibo, '工程实战派': renderPractical, '深度解读': renderParagraph, '极客观点': renderParagraph };
       function renderSummary(s) {
         const esc = (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        return esc
-          .replace(/((?:网友[A-Za-z一二三四五六七八九十]{0,2}?|用户价值|商业模式|竞争格局|落地要点|真需求|伪需求|商业模式存疑|卷但没用|值得抄)[：:])/g, '<br/><span class="meta-frag">$1</span>')
-          .replace(/(（[^（）]{0,40}?(?:真需求|伪需求|商业模式存疑|卷但没用|值得抄|来源|报道|交叉验证|作者|by)[^（）]{0,40}）)/g, '<br/><span class="meta-frag">$1</span>');
+        const cleaned = esc
+          .replace(/（(?:真需求|伪需求|商业模式存疑|卷但没用|值得抄)）/g, '')
+          .replace(/（来源：[^（）、,，]{1,40}）/g, '');
+        const renderer = STYLE_RENDERERS[__STYLE_NAME__] || renderDefault;
+        return renderer(cleaned);
       }
+      function renderAnalysis(s, label) {
+        if (!s) return '';
+        const esc = (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const lab = (label || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return '<div class="card-analysis">' + lab + renderDefault(esc) + '</div>';
+      }
+      const ANALYSIS_LABELS = { '深度解读': '解读：', '极客观点': '点评：' };
 
       btn.disabled = true;
       list.innerHTML = '';
@@ -234,9 +276,13 @@
             </div>
             <div class="card-title">${item.title}</div>
             <div class="card-summary">${renderSummary(item.summary)}</div>
+            ${item.analysis ? renderAnalysis(item.analysis, ANALYSIS_LABELS[__STYLE_NAME__]) : ''}
             <div class="card-bottom">
               <a class="card-link" href="${item.link}" target="_blank">阅读原文</a>
-              ${item.score > 0 ? `<span class="score-badge ${item.score >= 4 ? 'high' : item.score >= 3 ? 'mid' : 'low'}">${Number(item.score).toFixed(1)}</span>` : ''}
+              <div class="card-right">
+                ${item.footnote ? `<span class="footnote">${item.footnote.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>` : ''}
+                ${item.score > 0 ? `<span class="score-badge ${item.score >= 4 ? 'high' : item.score >= 3 ? 'mid' : 'low'}">${Number(item.score).toFixed(1)}</span>` : ''}
+              </div>
             </div>
           `;
             list.appendChild(card);
@@ -261,9 +307,13 @@
             </div>
             <div class="card-title">${item.title}</div>
             <div class="card-summary">${renderSummary(item.summary)}</div>
+            ${item.analysis ? renderAnalysis(item.analysis, ANALYSIS_LABELS[__STYLE_NAME__]) : ''}
             <div class="card-bottom">
               <a class="card-link" href="${item.link}" target="_blank">阅读原文</a>
-              ${item.score > 0 ? `<span class="score-badge ${item.score >= 4 ? 'high' : item.score >= 3 ? 'mid' : 'low'}">${Number(item.score).toFixed(1)}</span>` : ''}
+              <div class="card-right">
+                ${item.footnote ? `<span class="footnote">${item.footnote.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>` : ''}
+                ${item.score > 0 ? `<span class="score-badge ${item.score >= 4 ? 'high' : item.score >= 3 ? 'mid' : 'low'}">${Number(item.score).toFixed(1)}</span>` : ''}
+              </div>
             </div>
           `;
             list.appendChild(card);
@@ -297,7 +347,7 @@
 
         // 深度分析
         if (__DAILY_ANALYSIS__) {
-          document.getElementById('analysis-content').textContent = __DAILY_ANALYSIS__;
+          document.getElementById('analysis-content').innerHTML = renderSummary(__DAILY_ANALYSIS__);
           ac.classList.add('visible');
         }
 
