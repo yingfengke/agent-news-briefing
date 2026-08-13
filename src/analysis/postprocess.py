@@ -263,7 +263,6 @@ def _extract_footnote(item: dict) -> None:
             seen.add(n)
             ordered.append(n)
     item["footnote"] = " ".join(ordered)
-    item["summary"] = s
     for pat in _FOOTNOTE_PATTERNS:
         item["summary"] = pat.sub("", item["summary"]).strip()
 
@@ -322,7 +321,9 @@ def _apply_fallback_scores(items: list[dict]) -> None:
         if any(w in link or w in source for w in whitelist_lower):
             score += 1.0
 
-        summary = item.get("summary") or ""
+        # 多源信号：注记已被 _extract_footnote 剥离到 footnote（summary 已干净），
+        # 故拼接 footnote 一起判断，保留「多家来源 +0.5」语义
+        summary = (item.get("summary") or "") + " " + (item.get("footnote") or "")
         if any(kw in summary for kw in ["多家", "N家", "交叉验证", "多家来源", "多家都在报"]):
             score += 0.5
 

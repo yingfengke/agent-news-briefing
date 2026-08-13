@@ -43,7 +43,7 @@ def _render_card_footer(item: dict) -> str:
 
     注记不随摘要正文展示（避免头重脚轻），右对齐放在底行。
     """
-    link = item.get("link") or ""
+    link = html.escape(item.get("link") or "", quote=True)
     foot = html.escape(item.get("footnote") or "")
     link_html = (f'<a href="{link}" style="font-size:12px;font-weight:600;color:#1a1a1a;'
                  f'text-decoration:none;border-bottom:1.5px solid #1a1a1a;padding-bottom:1px;" '
