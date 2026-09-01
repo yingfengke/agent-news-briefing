@@ -312,8 +312,3 @@ def _truncate_context(items_for_ai: list[NewsItem], system_prompt: str,
 
     log.warning("已达最大截断仍超限 (%d > %d)，继续发送", ctx["total_tokens"], token_budget)
     return ctx
-
-
-# ============================================================
-# 分析编排（JSON 解析 / 翻译 / Twitter 精选见对应子模块）
-# ============================================================

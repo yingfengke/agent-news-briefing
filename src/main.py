@@ -21,7 +21,7 @@ generate_briefing.py — AI & Agent 开发者晨报 主流程编排器
 import logging
 
 from src import config
-from src.config import get_random_trivia
+from src.config import get_today_trivia
 from src.core.models import FilterReport, NewsItem
 from src.collect.collector import collect_all
 from src.dedupe import run_pipeline
@@ -96,7 +96,7 @@ def _run_main():
     log.info("  第 3 层：AI 分析与简报生成")
     log.info("%s", "=" * 40)
 
-    trivia = get_random_trivia()
+    trivia = get_today_trivia()
     log.info("  今日彩蛋: %s", trivia)
 
     final_items = []

@@ -3,7 +3,9 @@ import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.core.models import NewsItem
-from src.analysis.postprocess import _build_fallback_items, _fallback_category
+from src.analysis.postprocess import (
+    _build_fallback_items, _fallback_category, _normalize_score,
+)
 
 
 def _mk(title, tags=None, content="摘要内容", source="量子位",
@@ -50,3 +52,29 @@ def test_fallback_category_mapping():
 
 def test_empty_clean_items_returns_empty():
     assert _build_fallback_items([]) == []
+
+
+class TestNormalizeScoreClamp:
+    """_normalize_score 0-5 封顶：AI 偶发超界分必须收敛，不得污染简报（历史实测 8.5 分跑飞）。"""
+
+    def test_normal_in_range_passthrough(self):
+        assert _normalize_score(4.5) == 4.5
+        assert _normalize_score(3) == 3.0
+        assert _normalize_score(0) == 0.0
+
+    def test_over_5_clamped(self):
+        assert _normalize_score(8.5) == 5.0
+        assert _normalize_score(99) == 5.0
+
+    def test_negative_clamped_to_zero(self):
+        assert _normalize_score(-1) == 0.0
+
+    def test_string_forms(self):
+        assert _normalize_score("4.2") == 4.2
+        assert _normalize_score("8.5") == 5.0
+        assert _normalize_score(" -1 ") == 0.0
+
+    def test_none_and_garbage(self):
+        assert _normalize_score(None) == 0
+        assert _normalize_score("abc") == 0
+        assert _normalize_score([]) == 0

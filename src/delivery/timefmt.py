@@ -48,8 +48,3 @@ def _attach_published_at(final_items: list[dict], clean_items: list[NewsItem]) -
         if iso:
             it["published_at"] = iso
             it["published_at_disp"] = _fmt_published(iso)
-
-
-# ============================================================
-# 主流程
-# ============================================================

@@ -30,10 +30,31 @@ def test_get_today_style():
     assert len(prompt) > 100
 
 
-def test_get_random_trivia():
-    trivia = config.get_random_trivia()
+def test_get_today_trivia():
+    trivia = config.get_today_trivia()
     assert len(trivia) > 10
     assert trivia in config.AI_TRIVIA
+
+
+def test_get_today_trivia_deterministic_rotation():
+    """冷知识按日期确定性轮换：40 天全覆盖不重复 + 同日两次调用结果一致。
+
+    替代原 random.choice：CI 每次全新进程无状态，随机会连续多天撞同一条
+    （风格轮换曾踩过同样的坑，2026-08-02~04 连撞三天微博热搜）。
+    """
+    from datetime import datetime, timedelta
+    from unittest.mock import patch
+
+    trivia_list = config.AI_TRIVIA
+    base = datetime(2026, 1, 1, 6, 0, 0)
+    seen = []
+    for i in range(len(trivia_list)):
+        day = base + timedelta(days=i)
+        with patch("src.config.prompts.now_bjt", return_value=day):
+            seen.append(config.get_today_trivia())
+    assert len(set(seen)) == len(trivia_list)  # 40 天全覆盖不重复
+    with patch("src.config.prompts.now_bjt", return_value=base):
+        assert config.get_today_trivia() == seen[0]  # 同日两次一致（确定性）
 
 
 def test_ai_trivia_count():
@@ -91,7 +112,8 @@ if __name__ == "__main__":
     test_rss_sources_count()
     test_system_prompts_count()
     test_get_today_style()
-    test_get_random_trivia()
+    test_get_today_trivia()
+    test_get_today_trivia_deterministic_rotation()
     test_ai_trivia_count()
     test_trending_module_exports()
     test_trending_classify_four_layers()

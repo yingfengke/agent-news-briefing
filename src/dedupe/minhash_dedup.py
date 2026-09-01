@@ -76,8 +76,3 @@ class MinhashDeduper:
     @property
     def count(self) -> int:
         return len(self._kept)
-
-
-# ============================================================
-# 阶段 C: 语义去重（Embedding + Union-Find 聚类）
-# ============================================================

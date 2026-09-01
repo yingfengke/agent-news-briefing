@@ -26,7 +26,7 @@ from src.config.prompts import (
     SYSTEM_PROMPT_MINIMAL, SYSTEM_PROMPT_PRACTICAL, SYSTEM_PROMPT_DEEP,
     SYSTEM_PROMPT_GEEK, SYSTEM_PROMPT_WEIBO, SYSTEM_PROMPT_PM,
     SYSTEM_PROMPTS,
-    get_today_style, get_random_trivia,
+    get_today_style, get_today_trivia,
 )
 from src.config.trending_tags import (
     PROJECT_CATEGORY_ORDER, TOPIC_TO_CATEGORY, KNOWN_REPOS,

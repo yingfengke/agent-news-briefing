@@ -83,18 +83,24 @@ def _extract_link(it: dict, summary: str, title_exact_map: dict, source_title_ma
 
 
 def _normalize_score(raw_score) -> float:
-    """将 AI 返回的 score 规范化，处理字符串/None/数字等异常情况。"""
+    """将 AI 返回的 score 规范化，处理字符串/None/数字等异常情况。
+
+    钳制到 [0, 5]：提示词要求 0-5 分制，AI 偶发输出超界值（历史实测出现过
+    8.5 分跑飞），一律收敛到有效区间，避免渲染层显示离谱分数。
+    """
     if raw_score is None:
         return 0
     if isinstance(raw_score, (int, float)):
-        return float(raw_score)
-    if isinstance(raw_score, str):
+        val = float(raw_score)
+    elif isinstance(raw_score, str):
         raw_score = raw_score.strip()
         try:
-            return float(raw_score)
+            val = float(raw_score)
         except (ValueError, TypeError):
             return 0
-    return 0
+    else:
+        return 0
+    return min(max(val, 0.0), 5.0)
 
 
 def _try_parse_item(it):

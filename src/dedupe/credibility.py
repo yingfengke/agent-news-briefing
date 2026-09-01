@@ -117,8 +117,3 @@ class CredibilityFilter:
 
     def should_filter(self, item: NewsItem) -> bool:
         return self.score(item) < self.threshold
-
-
-# ============================================================
-# 过滤管道：串联 4 个阶段
-# ============================================================
