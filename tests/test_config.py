@@ -24,8 +24,8 @@ def test_system_prompts_count():
     assert len(config.SYSTEM_PROMPTS) == 6
 
 
-def test_get_random_style():
-    name, prompt = config.get_random_style()
+def test_get_today_style():
+    name, prompt = config.get_today_style()
     assert name in [s[0] for s in config.SYSTEM_PROMPTS]
     assert len(prompt) > 100
 
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     test_config_has_required_exports()
     test_rss_sources_count()
     test_system_prompts_count()
-    test_get_random_style()
+    test_get_today_style()
     test_get_random_trivia()
     test_ai_trivia_count()
     test_trending_module_exports()

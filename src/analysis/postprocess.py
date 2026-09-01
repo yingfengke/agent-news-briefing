@@ -286,6 +286,7 @@ def _append_parsed_items(parsed_list: list, final_items: list,
         final_items.append({
             "title": parsed.get("title", ""),
             "summary": summary,
+            "analysis": (parsed.get("analysis") or "").strip(),
             "link": _extract_link(parsed, summary, title_exact_map, source_title_map),
             "source": _resolve_source(parsed, clean_items),
             "score": _normalize_score(parsed.get("score")),

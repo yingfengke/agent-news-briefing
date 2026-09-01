@@ -33,7 +33,6 @@ from src.delivery.html_gen import write_html
 from src.delivery.email_gen import make_email_with_categories
 from src.delivery.rss_gen import generate_rss_feed
 from src.delivery.timefmt import _attach_published_at
-from src.analysis import splitter
 from src.collect.trending_fetcher import fetch_github_trending
 from src.core.logger import get_logger, log_structured
 from src.core.rerun import (
@@ -174,14 +173,6 @@ def _run_main():
 
     # ---- 回填发布时间（采集层 published_at，按 URL / 标题回关联） ----
     _attach_published_at(final_items, clean_items)
-
-    # ---- 段落式风格：免费小模型分割「摘要 + 分析」 ----
-    # 深度解读 / 极客观点的分析与摘要混在同一段、无冒号前缀，正则无法可靠区分；
-    # 由免费模型逐条分割（主模型提示词零改动），失败自动跳过，不阻塞流水线。
-    # not ai_failed 守卫：AI 失败走兜底时 style_name 非空，禁止对兜底原始摘要调分割器。
-    if not ai_failed and style_name in splitter.SPLIT_STYLES and final_items:
-        log.info("  -- 段落式风格 [%s]：分割摘要与分析（%s） --", style_name, splitter._SPLIT_MODEL)
-        splitter.split_items(final_items)
 
     # ---- 统一生成时间戳（北京时间），网页 / 邮件 / RSS 共用同一时刻 ----
     generated_at = config.now_bjt().strftime("%Y-%m-%d %H:%M（北京时间）")
