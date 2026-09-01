@@ -73,7 +73,9 @@
     .news-card .card-title { font-size: 1rem; font-weight: 700; line-height: 1.5; color: #111; margin-bottom: 10px; }
     .news-card .card-summary { font-size: 0.85rem; color: #555; line-height: 1.75; margin-bottom: 14px; }
     .news-card .card-summary .meta-frag { color: #888; font-size: 0.75rem; display: inline-block; margin-top: 2px; }
+    .news-card .card-summary .frag-label { color: #111; font-weight: 700; font-size: 0.75rem; display: inline-block; margin-top: 2px; }
     .news-card .card-analysis { font-size: 0.75rem; color: #888; line-height: 1.75; margin: -2px 0 12px 0; }
+    .news-card .card-analysis .analysis-label { color: #111; font-weight: 700; }
     .news-card .card-link { font-size: 0.8rem; font-weight: 600; color: #1a1a1a; text-decoration: none; border-bottom: 1.5px solid #1a1a1a; padding-bottom: 1px; transition: opacity 0.2s; }
     .news-card .card-link:hover { opacity: 0.5; }
     .news-card .card-bottom { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
@@ -182,19 +184,20 @@
       // 摘要渲染：先 HTML 转义（防 XSS），删冗余注记，再按当日风格分发给专属渲染函数
       // （各风格只处理自己的分析结构，避免统一正则漏词）
       function metaFrag() { return '<br/><span class="meta-frag">'; }
+      function labelFrag() { return '<br/><span class="frag-label">'; }
       function renderDefault(s) {
         return s.replace(/(（[^（）]{0,40}?(?:报道|交叉验证|作者|by)[^（）]{0,40}）)/g, metaFrag() + '$1</span>');
       }
       function renderPM(s) {
-        s = s.replace(/((?:用户价值|商业模式|竞争格局)[：:])/g, metaFrag() + '$1</span>');
+        s = s.replace(/((?:用户价值|商业模式|竞争格局)[：:])/g, labelFrag() + '$1</span>');
         return renderDefault(s);
       }
       function renderWeibo(s) {
-        s = s.replace(/((?:网友[A-Za-z一二三四五六七八九十]{0,2}?)[：:])/g, metaFrag() + '$1</span>');
+        s = s.replace(/((?:网友[A-Za-z一二三四五六七八九十]{0,2}?)[：:])/g, labelFrag() + '$1</span>');
         return renderDefault(s);
       }
       function renderPractical(s) {
-        s = s.replace(/((?:落地要点)[：:])/g, metaFrag() + '$1</span>');
+        s = s.replace(/((?:落地要点)[：:])/g, labelFrag() + '$1</span>');
         return renderDefault(s);
       }
       function renderParagraph(s) {
@@ -219,7 +222,8 @@
         if (!s) return '';
         const esc = (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         const lab = (label || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        return '<div class="card-analysis">' + lab + renderDefault(esc) + '</div>';
+        const labelHtml = lab ? '<span class="analysis-label">' + lab + '</span>' : '';
+        return '<div class="card-analysis">' + labelHtml + renderDefault(esc) + '</div>';
       }
       const ANALYSIS_LABELS = { '深度解读': '解读：', '极客观点': '点评：' };
 

@@ -7,7 +7,7 @@ import re
 from jinja2 import Environment, FileSystemLoader, TemplateError
 
 from src import config
-from src.config.sources import CATEGORY_ORDER
+from src.config.sources import CATEGORY_ORDER, TITLE_CATEGORY_MAP
 from src.core.logger import get_logger
 from src.delivery.html_gen import TIME_DISCLAIMER
 
@@ -66,8 +66,16 @@ _ANALYSIS_LABELS = {
 }
 
 
+def _frag_span(match) -> str:
+    """把匹配到的附加片段前缀（用户价值：/网友A：/落地要点：等）替换为
+    换行 + 深色加粗 span（与 analysis 的解读：/点评：标签视觉一致）。"""
+    return (f'<br/><strong style="color:#1a1a1a;font-size:12px;'
+            f'font-weight:700;line-height:1.7;">'
+            + match.group(1) + '</strong>')
+
+
 def _meta_span(match) -> str:
-    """把匹配到的附加片段前缀/注记替换为 换行 + 灰色小字 span。"""
+    """把匹配到的多源/作者注记（（被 3 家报道）等）替换为 换行 + 灰色小字 span。"""
     return f'<br/><span style="{_FRAG_STYLE}">' + match.group(1) + '</span>'
 
 
@@ -84,7 +92,7 @@ def _render_pm_summary(html_text: str) -> str:
     """产品经理：用户价值/商业模式/竞争格局 三小标题分行（整体判断随竞争格局一段）。"""
     html_text = re.sub(
         r'((?:用户价值|商业模式|竞争格局)[：:])',
-        _meta_span,
+        _frag_span,
         html_text,
     )
     return _render_default_summary(html_text)
@@ -94,7 +102,7 @@ def _render_weibo_summary(html_text: str) -> str:
     """微博热搜：网友A/网友B 评论分行。"""
     html_text = re.sub(
         r'((?:网友[A-Za-z一二三四五六七八九十]{0,2}?)[：:])',
-        _meta_span,
+        _frag_span,
         html_text,
     )
     return _render_default_summary(html_text)
@@ -104,7 +112,7 @@ def _render_practical_summary(html_text: str) -> str:
     """工程实战派：落地要点：分行。"""
     html_text = re.sub(
         r'((?:落地要点)[：:])',
-        _meta_span,
+        _frag_span,
         html_text,
     )
     return _render_default_summary(html_text)
@@ -147,8 +155,10 @@ def _render_analysis_html(analysis: str, label: str = "") -> str:
     if not analysis:
         return ""
     body = _render_summary_html(analysis, "")
+    label_html = (f'<strong style="color:#1a1a1a;font-weight:700;">{html.escape(label)}</strong>'
+                  if label else "")
     return (f'<p style="font-size:12px;color:#888;line-height:1.7;margin:0 0 10px 0;">'
-            f'{html.escape(label)}{body}</p>')
+            f'{label_html}{body}</p>')
 
 
 def _render_summary_html(summary: str, style_name: str = "") -> str:
