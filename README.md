@@ -1,6 +1,6 @@
 # AI & Agent 开发者晨报
 
-每天早 6:00 自动推送 AI/Agent 领域最新技术动态。由 **GitHub Actions** 定时触发。
+每天早 6:30 自动推送 AI/Agent 领域最新技术动态。由 **GitHub Actions** 定时触发。
 
 三层架构：**多模态采集 → 智能去重过滤 → 规则预筛 → AI 分析与简报生成**，全自动 serverless 运行。
 
@@ -77,11 +77,11 @@ GitHub: yingfengke/agent-news-briefing
 | `SMTP_SERVER` | SMTP 服务器 | 默认 `smtp.qq.com` |
 | `SMTP_PORT` | SMTP 端口 | 默认 `465` |
 
-> **注**：步骤③的 Git 提交作者邮箱由 `SENDER_EMAIL` secret 注入（非硬编码，须为 GitHub 账号已验证且用于贡献的邮箱，贡献图绿点才会计入），作者名取 `github.repository_owner`。该步骤显式设置 `TZ: Asia/Shanghai`，使北京时间 06:00 的提交时间戳为 `+0800` 并正确计入当天绿点（否则 Actions 服务器的 UTC 时间会将绿点记到前一天）。`SENDER_EMAIL` 同时仍用于 SMTP 发邮件。
+> **注**：步骤③的 Git 提交作者邮箱由 `SENDER_EMAIL` secret 注入（非硬编码，须为 GitHub 账号已验证且用于贡献的邮箱，贡献图绿点才会计入），作者名取 `github.repository_owner`。该步骤显式设置 `TZ: Asia/Shanghai`，使北京时间 06:30 的提交时间戳为 `+0800` 并正确计入当天绿点（否则 Actions 服务器的 UTC 时间会将绿点记到前一天）。`SENDER_EMAIL` 同时仍用于 SMTP 发邮件。
 
 ### 3. 启用 Actions
 
-进入 **Actions** 标签页，启用工作流。工作流在每天 **北京时间 06:00** 自动运行。
+进入 **Actions** 标签页，启用工作流。工作流在每天 **北京时间 06:30** 自动运行。
 
 ### 4. 本地测试
 
@@ -225,10 +225,10 @@ python -m src.delivery.send_email
 ## 触发机制
 
 ```
-GitHub Actions (schedule 06:00 BJT + 手动触发)
-  ├─ 06:00 步骤①: python -m src.main → 采集 → 过滤 → 规则预筛 → AI分析 → 生成 HTML
-  ├─ 06:00 步骤②: python -m src.delivery.send_email → multipart 邮件
-  ├─ 06:00 步骤③: git push → 提交并推送网页文件（贡献图计数）
+GitHub Actions (schedule 06:30 BJT + 手动触发)
+  ├─ 06:30 步骤①: python -m src.main → 采集 → 过滤 → 规则预筛 → AI分析 → 生成 HTML
+  ├─ 06:30 步骤②: python -m src.delivery.send_email → multipart 邮件
+  ├─ 06:30 步骤③: git push → 提交并推送网页文件（贡献图计数）
   └─ GitHub Pages 自动从 main branch 部署
 ```
 
@@ -247,4 +247,4 @@ GitHub Actions (schedule 06:00 BJT + 手动触发)
 
 ---
 
-*每天早上 6:00，为 AI 开发者精选当天最重要的技术动态*
+*每天早上 6:30，为 AI 开发者精选当天最重要的技术动态*

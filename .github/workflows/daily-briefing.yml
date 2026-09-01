@@ -1,9 +1,12 @@
 name: AI Agent 开发者晨报
 
 on:
-  # 每天早上 6:00 北京时间 (22:00 UTC)
+  # 每天早上 6:30 北京时间 (22:30 UTC)
+  # 注意：GitHub Actions 的 schedule 触发存在不可控延迟（官方已知行为，高负载时段尤甚）。
+  # 实测历史：设定 9:00 时实际下午 13~14 点才运行；设定 6:00 时实际 9~10 点才运行。
+  # 06:30 为测试值，错开整点高负载窗口观察能否提前；若实测比 6:00 更晚，改回 '0 22 * * *'。
   schedule:
-    - cron: '0 22 * * *'
+    - cron: '30 22 * * *'
   # 支持手动触发
   workflow_dispatch:
 
@@ -12,7 +15,7 @@ permissions:
 
 jobs:
   morning-briefing:
-    if: github.event.schedule == '0 22 * * *' || github.event_name == 'workflow_dispatch'
+    if: github.event.schedule == '30 22 * * *' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     # 所有步骤共享的环境变量（来自 GitHub Secrets，无一硬编码）
