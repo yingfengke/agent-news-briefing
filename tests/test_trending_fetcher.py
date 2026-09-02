@@ -218,8 +218,8 @@ def _trending_html_rows(rows):
 def test_fetch_ranks_relevance_before_stars(monkeypatch):
     """领域相关优先：弱相关但日增 5000 的项目，排在强相关但日增 100 的项目之后。
 
-    回归锁死 2026-09-02「领域相关优先」用户拍板的排序语义：
-    强相关(harness/codex/mcp 等信号) > 弱相关(泛 agent/llm) > 热度。
+    回归锁死推荐排序语义：强相关(harness/codex/mcp 等信号) > 弱相关(泛 agent/llm)
+    > 热度。
     """
     import json
     html = _trending_html_rows([
@@ -301,3 +301,50 @@ def test_search_fallback_ranks_relevance_before_stars(monkeypatch):
     assert out, "应返回非空结果"
     # 强相关(1200 星)排到弱相关(9 万星)前面
     assert out[0]["name"] == "deepseek-ai/strong-harness"
+
+
+def test_search_fallback_dynamic_min_stars(monkeypatch):
+    """星数门槛动态化：强相关项目 50 星即可入选，弱相关仍需 300 星。"""
+    import json
+
+    class _FakeResp:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def read(self):
+            payload = {
+                "total_count": 3,
+                "items": [
+                    {
+                        "full_name": "early/strong-harness-tool",   # 强相关但早期
+                        "description": "lightweight agent harness with mcp support",
+                        "stargazers_count": 80,
+                        "topics": ["harness", "mcp"],
+                    },
+                    {
+                        "full_name": "other/weak-medium",            # 弱相关 200 星 → 应滤
+                        "description": "a generic llm chat application",
+                        "stargazers_count": 200,
+                        "topics": ["llm", "agents"],
+                    },
+                    {
+                        "full_name": "other/weak-big",               # 弱相关 9000 星 → 入选
+                        "description": "popular llm multi-agent chat app",
+                        "stargazers_count": 9000,
+                        "topics": ["llm", "multi-agent"],
+                    },
+                ],
+            }
+            return json.dumps(payload).encode("utf-8")
+
+    monkeypatch.setattr("src.collect.trending_fetcher.urlopen",
+                        lambda *a, **k: _FakeResp())
+    out = _search_fallback({})
+    names = [p["name"] for p in out]
+    # 80 星强相关入选（动态门槛 50）；200 星弱相关被滤（固定门槛 300）
+    assert "early/strong-harness-tool" in names
+    assert "other/weak-medium" not in names
+    assert "other/weak-big" in names

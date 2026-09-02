@@ -69,17 +69,22 @@ def test_classify_deepseek_harness_real_topics():
 
 
 def test_relevance_strong_topic_scores_two():
-    # Agent 运行时/编码工具/LLM 工程硬信号 → 强相关(2)
+    # Agent 生态硬信号 → 强相关(2)：运行时/编排/MCP/Skills/浏览器 agent/编码 agent
     for topic in ["harness", "dsh", "dsh-plugin", "coding-agent", "codex",
-                  "mcp", "vllm", "rag", "inference", "fine-tuning"]:
+                  "mcp", "mcp-server", "vllm", "rag", "inference", "fine-tuning",
+                  "agent-orchestration", "agentic-skills", "agent-skills",
+                  "claude-skills", "browser-use", "computer-use", "agent-memory",
+                  "a2a", "openclaw", "superpowers", "swarm", "orchestration",
+                  "function-calling", "skills"]:
         assert tt.relevance_score([topic], "x/y", "") == 2, topic
     # desc 兜底（topics 空时）
     assert tt.relevance_score([], "x/y", "a coding assistant for agents") == 2
+    assert tt.relevance_score([], "x/y", "agent orchestration platform") == 2
 
 
 def test_relevance_weak_topic_scores_one():
     # 泛 AI topic → 弱相关(1)
-    for topic in ["agents", "ai-agents", "llm", "multi-agent", "nlp", "agent-skills"]:
+    for topic in ["agents", "ai-agents", "llm", "multi-agent", "nlp"]:
         assert tt.relevance_score([topic], "x/y", "") == 1, topic
     assert tt.relevance_score([], "x/y", "an llm-powered multi-agent thing") == 1
 

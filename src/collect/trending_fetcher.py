@@ -19,7 +19,6 @@ trending_fetcher.py — GitHub Trending 热门项目抓取
 """
 
 import json
-import logging
 import os
 import re
 import urllib.error
@@ -28,7 +27,6 @@ from urllib.request import Request, urlopen
 
 from bs4 import BeautifulSoup
 
-from src import config
 from src.config import trending_tags as tt
 from src.core.logger import get_logger
 
@@ -37,8 +35,10 @@ log = get_logger("trending")
 # topics 端点需要此 Accept，否则返回空（易踩坑）
 _TOPICS_ACCEPT = "application/vnd.github.mercy-preview+json"
 _API_ACCEPT = "application/vnd.github+json"
-# 只给可能展示的 Top N 拉 topics，控制 API 调用量
-TOPICS_FETCH_LIMIT = 10
+# 拉 topics 的项目数上限：覆盖 Trending 榜(约 25 项)的前 20。
+# 曾为 10——第 11-20 名的强相关项目会被漏拉 topics 而无法参与「领域相关优先」排序，
+# 提至 20 代价是 10 次 core API（无 token 60/h 够用，CI 有 token 5000/h 无忧）。
+TOPICS_FETCH_LIMIT = 20
 # 每榜抓取重试次数（GitHub Trending 响应偶发 IncompleteRead 截断）
 _PAGE_RETRIES = 3
 # 网络超时（秒）：topics 单仓库 / Search API 单查询 / Trending HTML 整页
@@ -230,16 +230,16 @@ def _search_fallback(api_headers):
             seen[fn] = repo
         log.info("  备用 topic:%s → %d 个候选", topic, len(seen))
 
-    # 总星数降序 → 过滤噪声（星数过低 / 非 AI 分类）
+    # 总星数降序 → 过滤噪声（星数过低 / 非 AI 分类）。
+    # 星数门槛动态化：强相关(relevance=2)项目 50 星即可入选（早期优质项目价值高），
+    # 弱相关/泛 AI 仍需 300 星（防噪声）。先算分类与相关度再判断门槛。
     ranked = sorted(seen.values(),
                     key=lambda r: r.get("stargazers_count", 0), reverse=True)
     scored = []
     for repo in ranked:
-        sn = repo.get("stargazers_count", 0)
-        if sn < _FALLBACK_MIN_STARS:
-            continue
         fn = repo.get("full_name", "")
         desc = repo.get("description", "") or ""
+        sn = repo.get("stargazers_count", 0)
         if not fn or len(desc) < 5:
             continue
         # Search API 返回项自带 topics 字段，L1 同样生效
@@ -247,14 +247,18 @@ def _search_fallback(api_headers):
         tag = tt.classify_repo(topics, fn, desc)
         if tag == "其他":
             continue
+        relevance = tt.relevance_score(topics, fn, desc)
+        min_stars = 50 if relevance >= 2 else _FALLBACK_MIN_STARS
+        if sn < min_stars:
+            continue
         scored.append({
             "name": fn,
             "desc": desc[:100],
             "stars": f"star {sn:,}",
             "link": f"https://github.com/{fn}",
             "tag": tag,
-            # 领域相关度（用户关注域优先），仅用于排序
-            "relevance": tt.relevance_score(topics, fn, desc),
+            # 领域相关度（仅用于排序）
+            "relevance": relevance,
             "_stars_n": sn,
         })
     # 领域相关优先：relevance 降序为主、总星数降序为辅
@@ -311,7 +315,7 @@ def fetch_github_trending():
             else:
                 topics = []
             c["tag"] = tt.classify_repo(topics, c["name"], c["desc"])
-            # 领域相关度：先按用户关注域排，热度退居第二（用户 2026-09-02 拍板）
+            # 领域相关度：先按侧重方向排，热度退居第二
             c["relevance"] = tt.relevance_score(topics, c["name"], c["desc"])
 
         # 过滤非 AI 项目（卫星模拟器 / 纯 GIS 工具等不该出现在 AI 简报推荐里），

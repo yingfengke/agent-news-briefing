@@ -27,15 +27,22 @@ PROJECT_CATEGORY_ORDER = [
 
 # L1: GitHub topics -> 分类（键小写；topics 端点返回即为小写）
 TOPIC_TO_CATEGORY = {
-    # Agent 与智能体
+    # Agent 与智能体（含 2026 生态：编排/MCP/Skills/浏览器 agent/记忆/协议）
     "agent": "Agent 与智能体",
     "agents": "Agent 与智能体",
     "ai-agent": "Agent 与智能体",
     "ai-agents": "Agent 与智能体",
     "multi-agent": "Agent 与智能体",
     "autonomous-agent": "Agent 与智能体",
+    "autonomous-agents": "Agent 与智能体",
     "agent-framework": "Agent 与智能体",
+    "agent-orchestration": "Agent 与智能体",
+    "agent-orchestrators": "Agent 与智能体",
+    "agent-workflow": "Agent 与智能体",
+    "agentic-workflow": "Agent 与智能体",
+    "agentic-ai": "Agent 与智能体",
     "agent-skills": "Agent 与智能体",
+    "agentic-skills": "Agent 与智能体",
     "claude-skills": "Agent 与智能体",
     "coding-agents": "Agent 与智能体",
     "agentic": "Agent 与智能体",
@@ -43,7 +50,26 @@ TOPIC_TO_CATEGORY = {
     "dsh": "Agent 与智能体",
     "dsh-plugin": "Agent 与智能体",
     "mcp": "Agent 与智能体",
+    "mcp-server": "Agent 与智能体",
+    "mcp-servers": "Agent 与智能体",
+    "mcp-client": "Agent 与智能体",
     "model-context-protocol": "Agent 与智能体",
+    "browser-use": "Agent 与智能体",
+    "browser-agent": "Agent 与智能体",
+    "browser-automation": "Agent 与智能体",
+    "computer-use": "Agent 与智能体",
+    "web-agent": "Agent 与智能体",
+    "agentic-memory": "Agent 与智能体",
+    "agent-memory": "Agent 与智能体",
+    "a2a": "Agent 与智能体",
+    "agent-protocol": "Agent 与智能体",
+    "agent-to-agent": "Agent 与智能体",
+    "swarm": "Agent 与智能体",
+    "agents-sdk": "Agent 与智能体",
+    "openai-agents": "Agent 与智能体",
+    "agent-evals": "Agent 与智能体",
+    "openclaw": "Agent 与智能体",
+    "superpowers": "Agent 与智能体",
     "tool-use": "Agent 与智能体",
     "function-calling": "Agent 与智能体",
     # 大模型与基础研究
@@ -130,12 +156,23 @@ KNOWN_REPOS = {
     "openai/swarm": "Agent 与智能体",
     "browser-use/browser-use": "Agent 与智能体",
     "deepseek-ai/deepseek-harness": "Agent 与智能体",
+    "openclaw/openclaw": "Agent 与智能体",
+    "obra/superpowers": "Agent 与智能体",
+    "anthropics/skills": "Agent 与智能体",
+    "openai/skills": "Agent 与智能体",
+    "significant-gravitas/autogpt": "Agent 与智能体",
+    "agno-agi/agno": "Agent 与智能体",
+    "huggingface/smolagents": "Agent 与智能体",
+    "ag2ai/ag2": "Agent 与智能体",
+    "composiohq/composio": "Agent 与智能体",
+    "mem0ai/mem0": "Agent 与智能体",
+    "modelcontextprotocol/servers": "Agent 与智能体",
+    "modelcontextprotocol/python-sdk": "Agent 与智能体",
     "anthropics/claude-code": "开发工具与编程",
     "openai/codex": "开发工具与编程",
     "comfyanonymous/comfyui": "多模态",
     "modelscope/ms-swift": "微调与训练",
     "modelscope/modelscope": "大模型与基础研究",
-    "anthropics/claude-code": "开发工具与编程",
     "github/copilot": "开发工具与编程",
 }
 
@@ -236,18 +273,37 @@ def classify_repo(topics, full_name, desc):
 
 
 # ============================================================
-# 领域相关度（2026-09-02 用户拍板「领域相关优先」）
-# 用户背景：AI 编码助手(WaveCode) / 多 Agent 平台(Pupden) / LLM 工程(RAG/推理/微调)
-# 排序时先按 relevance 降序，同分再按热度。想调整推荐口味改这里即可。
+# 领域相关度排序（relevance_score）
+# 推荐按「匹配度优先、热度次之」排序。匹配度三档：
+#   2=强相关（Agent 生态：框架/运行时/编排/MCP/Skills/浏览器 agent/编码 agent 等）
+#   1=弱相关（泛 AI）
+#   0=泛 AI（仅热度补位）
+# 调整推荐口径只需增删下方信号表。
 # ============================================================
-# 强相关 topics：命中即 relevance=2（Agent 运行时/编码工具/LLM 工程硬信号）
+# 强相关 topics：命中即 relevance=2
 INTEREST_STRONG_TOPICS = {
     # Agent 运行时 / 框架 / 平台
     "harness", "dsh", "dsh-plugin", "agent-runtime", "agent-framework",
-    "agent-platform", "agent-sdk", "agentic", "mcp", "model-context-protocol",
+    "agent-platform", "agent-sdk", "agentic", "agentic-ai", "swarm",
+    "agents-sdk", "openai-agents", "autonomous-agents",
+    # Agent 编排 / 工作流
+    "orchestration", "agent-orchestration", "agent-orchestrators",
+    "agent-workflow", "agentic-workflow", "workflow-automation",
+    # MCP 生态
+    "mcp", "model-context-protocol", "mcp-server", "mcp-servers", "mcp-client",
+    # Agent Skills / 能力包
+    "skills", "agent-skills", "claude-skills", "agentic-skills",
+    "skills-as-code", "superpowers",
+    # 浏览器 / 计算机操作 agent
+    "browser-use", "browser-agent", "browser-automation", "computer-use",
+    "web-agent", "web-automation",
+    # Agent 记忆 / 工具 / 协议
+    "agent-memory", "agentic-memory", "a2a", "agent-protocol",
+    "agent-to-agent", "tool-use", "tool-calling", "function-calling",
+    "code-interpreter", "openclaw",
     # AI 编码 / 开发者工具
     "coding-agent", "coding-agents", "coding-assistant", "ai-coding",
-    "code-generation", "code-interpreter", "codex", "claude-code", "copilot",
+    "code-generation", "codex", "claude-code", "copilot",
     "developer-tools", "ide", "lsp",
     # LLM 工程（推理/部署/微调）
     "inference", "inference-engine", "llm-serving", "model-serving",
@@ -256,15 +312,14 @@ INTEREST_STRONG_TOPICS = {
     "rag", "retrieval-augmented-generation", "vector-database", "embedding",
     "retrieval", "semantic-search", "knowledge-graph",
 }
-# 弱相关 topics：命中即 relevance=1（泛 AI，相关但可能偏离硬核工程）
+# 弱相关 topics：命中即 relevance=1（泛 AI，相关但非 Agent 硬核）
 INTEREST_WEAK_TOPICS = {
     "agent", "agents", "ai-agent", "ai-agents", "multi-agent",
-    "autonomous-agent", "agent-skills", "claude-skills",
+    "autonomous-agent", "agent-evals",
     "llm", "llms", "large-language-models", "language-model",
     "foundation-model", "transformer", "nlp",
     "rlhf", "dpo", "distributed-training", "pretraining",
     "onnx", "tensorrt", "trt-llm",
-    "tool-use", "tool-calling", "function-calling",
     "evaluation", "benchmark", "evals", "alignment", "guardrails",
 }
 # desc 关键词兜底（topics 缺失/为空时生效；小写子串匹配）
@@ -272,6 +327,9 @@ INTEREST_DESC_STRONG = (
     "coding assistant", "coding agent", "ai coding", "code assistant",
     "claude code", "agent framework", "agent runtime", "mcp server",
     "llm inference", "vector database", "retrieval-augmented",
+    "agent orchestration", "multi-agent orchestration", "agentic skills",
+    "browser automation", "computer use", "agent memory",
+    "agent workflow", "agent platform", "orchestration framework",
 )
 INTEREST_DESC_WEAK = (
     "multi-agent", "agentic", "llm", "large language model", "rag",
@@ -281,8 +339,8 @@ INTEREST_DESC_WEAK = (
 def relevance_score(topics, full_name, desc) -> int:
     """领域相关度打分：0=泛 AI（热度补位用）/ 1=弱相关 / 2=强相关。
 
-    强相关 > 弱相关 > 泛 AI。只看 topics 与 name/desc 文本，不依赖分类结果
-    （分类是「这是什么」，相关度是「用户是否关心」）。
+    只看 topics 与 name/desc 文本，不依赖分类结果
+    （分类是「这是什么」，相关度是「是否属于简报侧重方向」）。
     """
     tl = [(t or "").lower() for t in (topics or [])]
     if any(t in INTEREST_STRONG_TOPICS for t in tl):
