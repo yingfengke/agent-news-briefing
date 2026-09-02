@@ -14,7 +14,7 @@ python-dotenv==1.2.3
 regex==2026.7.19
 requests==2.34.2
 scikit-learn==1.9.0
-scipy==1.18.0
+scipy==1.18.1
 sgmllib3k==1.0.0
 soupsieve==2.9.2
 threadpoolctl==3.6.0
