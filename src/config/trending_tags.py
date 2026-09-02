@@ -30,9 +30,18 @@ TOPIC_TO_CATEGORY = {
     # Agent 与智能体
     "agent": "Agent 与智能体",
     "agents": "Agent 与智能体",
+    "ai-agent": "Agent 与智能体",
+    "ai-agents": "Agent 与智能体",
     "multi-agent": "Agent 与智能体",
     "autonomous-agent": "Agent 与智能体",
     "agent-framework": "Agent 与智能体",
+    "agent-skills": "Agent 与智能体",
+    "claude-skills": "Agent 与智能体",
+    "coding-agents": "Agent 与智能体",
+    "agentic": "Agent 与智能体",
+    "harness": "Agent 与智能体",
+    "dsh": "Agent 与智能体",
+    "dsh-plugin": "Agent 与智能体",
     "mcp": "Agent 与智能体",
     "model-context-protocol": "Agent 与智能体",
     "tool-use": "Agent 与智能体",
@@ -120,6 +129,9 @@ KNOWN_REPOS = {
     "joaomdmoura/crewai": "Agent 与智能体",
     "openai/swarm": "Agent 与智能体",
     "browser-use/browser-use": "Agent 与智能体",
+    "deepseek-ai/deepseek-harness": "Agent 与智能体",
+    "anthropics/claude-code": "开发工具与编程",
+    "openai/codex": "开发工具与编程",
     "comfyanonymous/comfyui": "多模态",
     "modelscope/ms-swift": "微调与训练",
     "modelscope/modelscope": "大模型与基础研究",
@@ -142,6 +154,9 @@ DESC_KEYWORD_WEIGHTS = {
     "metagpt": ("Agent 与智能体", 5),
     "dify": ("Agent 与智能体", 5),
     "auto-gpt": ("Agent 与智能体", 5),
+    "claude skills": ("Agent 与智能体", 5),
+    "agent skills": ("Agent 与智能体", 5),
+    "everything is a plugin": ("Agent 与智能体", 5),
     "vllm": ("推理与部署", 5),
     "ollama": ("推理与部署", 5),
     "lmdeploy": ("推理与部署", 5),
@@ -218,3 +233,65 @@ def classify_repo(topics, full_name, desc):
 
     # L4
     return "其他"
+
+
+# ============================================================
+# 领域相关度（2026-09-02 用户拍板「领域相关优先」）
+# 用户背景：AI 编码助手(WaveCode) / 多 Agent 平台(Pupden) / LLM 工程(RAG/推理/微调)
+# 排序时先按 relevance 降序，同分再按热度。想调整推荐口味改这里即可。
+# ============================================================
+# 强相关 topics：命中即 relevance=2（Agent 运行时/编码工具/LLM 工程硬信号）
+INTEREST_STRONG_TOPICS = {
+    # Agent 运行时 / 框架 / 平台
+    "harness", "dsh", "dsh-plugin", "agent-runtime", "agent-framework",
+    "agent-platform", "agent-sdk", "agentic", "mcp", "model-context-protocol",
+    # AI 编码 / 开发者工具
+    "coding-agent", "coding-agents", "coding-assistant", "ai-coding",
+    "code-generation", "code-interpreter", "codex", "claude-code", "copilot",
+    "developer-tools", "ide", "lsp",
+    # LLM 工程（推理/部署/微调）
+    "inference", "inference-engine", "llm-serving", "model-serving",
+    "vllm", "quantization", "fine-tuning", "lora", "unsloth",
+    # RAG / 检索 / 向量
+    "rag", "retrieval-augmented-generation", "vector-database", "embedding",
+    "retrieval", "semantic-search", "knowledge-graph",
+}
+# 弱相关 topics：命中即 relevance=1（泛 AI，相关但可能偏离硬核工程）
+INTEREST_WEAK_TOPICS = {
+    "agent", "agents", "ai-agent", "ai-agents", "multi-agent",
+    "autonomous-agent", "agent-skills", "claude-skills",
+    "llm", "llms", "large-language-models", "language-model",
+    "foundation-model", "transformer", "nlp",
+    "rlhf", "dpo", "distributed-training", "pretraining",
+    "onnx", "tensorrt", "trt-llm",
+    "tool-use", "tool-calling", "function-calling",
+    "evaluation", "benchmark", "evals", "alignment", "guardrails",
+}
+# desc 关键词兜底（topics 缺失/为空时生效；小写子串匹配）
+INTEREST_DESC_STRONG = (
+    "coding assistant", "coding agent", "ai coding", "code assistant",
+    "claude code", "agent framework", "agent runtime", "mcp server",
+    "llm inference", "vector database", "retrieval-augmented",
+)
+INTEREST_DESC_WEAK = (
+    "multi-agent", "agentic", "llm", "large language model", "rag",
+)
+
+
+def relevance_score(topics, full_name, desc) -> int:
+    """领域相关度打分：0=泛 AI（热度补位用）/ 1=弱相关 / 2=强相关。
+
+    强相关 > 弱相关 > 泛 AI。只看 topics 与 name/desc 文本，不依赖分类结果
+    （分类是「这是什么」，相关度是「用户是否关心」）。
+    """
+    tl = [(t or "").lower() for t in (topics or [])]
+    if any(t in INTEREST_STRONG_TOPICS for t in tl):
+        return 2
+    low_text = f"{(full_name or '')} {(desc or '')}".lower()
+    if any(kw in low_text for kw in INTEREST_DESC_STRONG):
+        return 2
+    if any(t in INTEREST_WEAK_TOPICS for t in tl):
+        return 1
+    if any(kw in low_text for kw in INTEREST_DESC_WEAK):
+        return 1
+    return 0
