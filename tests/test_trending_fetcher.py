@@ -228,7 +228,7 @@ def test_fetch_ranks_relevance_before_stars(monkeypatch):
     ])
     topics_map = {
         "other/weak-agent": ["agents", "llm"],          # 弱相关
-        "deepseek-ai/strong-harness": ["harness"],       # 强相关
+        "deepseek-ai/strong-harness": ["dsh"],          # 强相关
     }
 
     class _FakeResp:
