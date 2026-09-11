@@ -18,7 +18,10 @@ generate_briefing.py — AI & Agent 开发者晨报 主流程编排器
 分层独立，每层专注一个职责。
 """
 
+import json
 import logging
+import os
+from datetime import datetime
 
 from src import config
 from src.config import get_today_trivia
@@ -34,7 +37,7 @@ from src.delivery.email_gen import make_email_with_categories
 from src.delivery.rss_gen import generate_rss_feed
 from src.delivery.timefmt import _attach_published_at
 from src.collect.trending_fetcher import fetch_github_trending
-from src.core.logger import get_logger, log_structured
+from src.core.logger import get_logger, log_structured, Timeline
 from src.core.rerun import (
     is_rerun, clear_dedup_for_rerun,
     load_cached_clean_items, save_clean_items, _reset_html_news_data,
@@ -42,9 +45,47 @@ from src.core.rerun import (
 
 log = get_logger(__name__)
 
+# 质量异常告警阈值（保守起步，避免误报骚扰）
+MIN_NEWS_ALERT = 5      # 最终新闻数低于该值视为异常
+MIN_INPUT_ALERT = 10    # 进入 AI 分析的条数低于该值视为异常
+
+
+def _collect_quality_issues(final_items, report, ai_failed):
+    """汇总「流程成功但质量异常」的问题列表（无异常返回空列表）。
+
+    只覆盖两类极端情况，避免告警疲劳：AI 降级兜底、内容量过少。
+    Trending 抓空不计入（推荐偶尔为空属正常，已由 timeline 与摘要记录）。
+    """
+    issues = []
+    if ai_failed:
+        issues.append("AI 分析失败，本期已降级为原始数据兜底（无摘要润色与深度分析）")
+    if len(final_items) < MIN_NEWS_ALERT:
+        issues.append(f"最终新闻仅 {len(final_items)} 条（阈值 {MIN_NEWS_ALERT} 条）")
+    total_input = getattr(report, "total_input", 0) or 0
+    if not ai_failed and total_input < MIN_INPUT_ALERT:
+        issues.append(f"进入 AI 分析的新闻仅 {total_input} 条（阈值 {MIN_INPUT_ALERT} 条），"
+                      "采集或过滤可能异常")
+    return issues
+
+
+def _write_daily_summary(timeline_data: dict, **metrics) -> str:
+    """写当日运行摘要 JSON（logs/，已被 .gitignore 忽略），返回文件路径。"""
+    logs_dir = os.path.join(config.BASE_DIR, "logs")
+    os.makedirs(logs_dir, exist_ok=True)
+    path = os.path.join(logs_dir, f"daily-summary-{datetime.now().strftime('%Y-%m-%d')}.json")
+    payload = {
+        "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "timeline": timeline_data,
+        "metrics": metrics,
+    }
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2)
+    return path
+
 
 def _run_main():
     reset_parse_stats()
+    tl = Timeline()
     # 同日重跑检测：有缓存则直接复用去重后原始数据（跳过采集+去重）；
     # 无缓存（如首跑失败、被旧逻辑清空）则清空去重库后正常重抓。
     reused = False
@@ -76,6 +117,8 @@ def _run_main():
         log.info("  第 1 层：多模态数据采集")
         log.info("%s", "=" * 40)
         raw_pool = collect_all()
+        tl.mark("采集", "rss_fetch", "ok" if raw_pool else "failed",
+                f"{len(raw_pool)} 条原始")
 
         log.info("")
         log.info("%s", "=" * 40)
@@ -87,8 +130,13 @@ def _run_main():
             report = FilterReport(total_input=0)
         report.print_report()
         clean_items = report.remaining_items
+        tl.mark("过滤", "dedupe", "ok" if clean_items else "failed",
+                f"{report.total_input} -> {report.total_output}")
         # 落盘去重后原始数据，供本次之后的同日重跑复用
         save_clean_items(clean_items)
+    else:
+        tl.mark("采集", "rss_fetch", "skipped", "复用同日缓存")
+        tl.mark("过滤", "dedupe", "skipped", "复用同日缓存")
 
     # ---- 3. AI 分析层 ----
     log.info("")
@@ -107,6 +155,7 @@ def _run_main():
     if not clean_items:
         log.info("  过滤后无可用数据，发送空报告邮件")
         ai_failed = True
+        tl.mark("分析", "ai_analysis", "skipped", "无可用数据")
     else:
         style_name, ai_result = call_ai_analysis(clean_items)
         if ai_result:
@@ -141,8 +190,10 @@ def _run_main():
                 if items_skip:
                     detail = f" (跳过 {items_skip} 条无法解析)"
                 log.info("  AI 筛选后: %d 条%s", items_ok, detail)
+            tl.mark("分析", "ai_analysis", "ok", f"{len(final_items)} 条")
         else:
             ai_failed = True
+            tl.mark("分析", "ai_analysis", "degraded", "AI 返回空，走降级兜底")
 
     # ---- AI 失败兜底：用原始采集数据直接拼简报，保证有内容 ----
     if ai_failed and not final_items and clean_items:
@@ -156,6 +207,7 @@ def _run_main():
     # ---- 英文标题翻译兜底 ----
     if final_items and not ai_failed:
         final_items = _translate_english_titles(final_items)
+        tl.mark("分析", "translate", "ok", f"{len(final_items)} 条")
 
     # ---- 按评分排序（高到低） ----
     log.info("")
@@ -177,10 +229,18 @@ def _run_main():
     # ---- 统一生成时间戳（北京时间），网页 / 邮件 / RSS 共用同一时刻 ----
     generated_at = config.now_bjt().strftime("%Y-%m-%d %H:%M（北京时间）")
 
-    # ---- GitHub Trending ----
+    # ---- GitHub Trending（独立模块，异常时不影响主流程） ----
     log.info("")
     log.info("  -- 抓取 GitHub Trending 项目 --")
-    trending_projects = fetch_github_trending()
+    try:
+        trending_projects = fetch_github_trending()
+        tl.mark("采集", "trending",
+                "ok" if trending_projects else "skipped",
+                f"{len(trending_projects)} 个")
+    except Exception as e:
+        log.warning("  GitHub Trending 抓取异常，本期跳过项目推荐: %s", e)
+        trending_projects = []
+        tl.mark("采集", "trending", "failed", f"{type(e).__name__}")
     if trending_projects:
         log.info("  本周热门学习项目: %d 个", len(trending_projects))
         for p in trending_projects:
@@ -193,6 +253,7 @@ def _run_main():
     log.info("  -- 写入网页 HTML --")
     write_html(final_items, daily_analysis, trending_projects, generated_at=generated_at,
                style_name=style_name if not ai_failed else "降级")
+    tl.mark("生成", "html_render", "ok", f"{len(final_items)} 条")
 
     # ---- 生成邮件 HTML（分类版） + RSS Feed ----
     log.info("")
@@ -212,6 +273,7 @@ def _run_main():
             trivia=trivia, generated_at=generated_at,
         )
     generate_rss_feed(final_items, daily_analysis, generated_at=generated_at)
+    tl.mark("生成", "email_rss", "ok", f"{len(final_items)} 条")
 
     # ---- 邮件已生成，由 workflow 步骤发送 ----
     log.info("")
@@ -237,6 +299,40 @@ def _run_main():
         ai_failed=ai_failed,
         style=style_name if not ai_failed else "降级",
     )
+
+    # ---- 阶段耗时汇总 ----
+    tl.summary(log)
+
+    # ---- 当日运行摘要（JSON，logs/ 已被 gitignore） ----
+    try:
+        summary_path = _write_daily_summary(
+            tl.to_dict(),
+            news_count=len(final_items),
+            projects_count=len(trending_projects),
+            total_input=report.total_input,
+            total_output=report.total_output,
+            ai_failed=ai_failed,
+            style=style_name if not ai_failed else "降级",
+        )
+        log.info("  运行摘要: %s", summary_path)
+    except Exception as e:
+        log.warning("  运行摘要写入失败: %s", e)
+
+    # ---- 质量异常检查：流程成功但内容可能不合格时主动提醒 ----
+    issues = _collect_quality_issues(final_items, report, ai_failed)
+    if issues:
+        log.warning("  本次运行存在质量异常 %d 项:", len(issues))
+        for it in issues:
+            log.warning("    - %s", it)
+        try:
+            from src.delivery.send_email import send_quality_alert
+            send_quality_alert(
+                issues,
+                summary=(f"指标: 新闻 {len(final_items)} 条 | 项目 {len(trending_projects)} 个 | "
+                         f"过滤输入 {report.total_input} 条 | 风格 {style_name or '降级'}"),
+            )
+        except Exception as e:
+            log.error("  质量异常提醒发送出错: %s", e)
 
 
 def main():

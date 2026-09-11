@@ -17,6 +17,7 @@ logger.py — 集中式日志系统
 import logging
 import os
 import sys
+import time
 from datetime import datetime
 
 # 日志目录
@@ -94,3 +95,71 @@ def log_structured(logger: logging.Logger, level: int, event: str, **kwargs):
     """
     extra = " ".join(f"{k}={v}" for k, v in kwargs.items())
     logger.log(level, "[%s] %s", event, extra)
+
+
+class Timeline:
+    """流水线阶段计时器。
+
+    用法:
+      tl = Timeline()
+      tl.mark("采集", "rss_fetch", "ok", "36源 128条")
+      ...
+      tl.summary(log)          # 打印各阶段耗时汇总
+      data = tl.to_dict()      # 供写入 JSON 摘要
+
+    每两次 mark 之间的间隔即为上一阶段的耗时（首次以构造时刻为起点）。
+    """
+
+    def __init__(self):
+        self._t0 = time.perf_counter()
+        self._marks: list[dict] = []
+
+    def mark(self, stage: str, action: str, status: str = "ok", detail: str = ""):
+        """记录一个阶段完成点。status 约定 ok / skipped / failed / degraded。"""
+        self._marks.append({
+            "stage": stage,
+            "action": action,
+            "status": status,
+            "detail": detail,
+            "at": round(time.perf_counter() - self._t0, 2),
+        })
+
+    def elapsed(self) -> float:
+        """从构造到当前的秒数。"""
+        return round(time.perf_counter() - self._t0, 2)
+
+    def failures(self) -> list[dict]:
+        """返回非 ok 状态的阶段记录（failed / degraded）。"""
+        return [m for m in self._marks if m.get("status") not in ("ok", "skipped")]
+
+    def _rows(self) -> list[dict]:
+        prev, rows = 0.0, []
+        for m in self._marks:
+            rows.append({**m, "cost_s": round(m["at"] - prev, 2)})
+            prev = m["at"]
+        return rows
+
+    def summary(self, logger: logging.Logger | None = None) -> list[dict]:
+        """打印各阶段耗时汇总表，返回带 cost_s 的记录列表。"""
+        rows = self._rows()
+        lines = ["", "=== Pipeline Timeline ==="]
+        for r in rows:
+            detail = f" {r['detail']}" if r["detail"] else ""
+            lines.append("  {stage} | {action} | {status} | {cost}s{detail}".format(
+                stage=r["stage"], action=r["action"],
+                status=r["status"], cost=r["cost_s"], detail=detail,
+            ))
+        failed = len(self.failures())
+        lines.append(f"  总计 {self.elapsed()}s | 异常阶段 {failed} 个")
+        if logger:
+            logger.info("\n".join(lines))
+        return rows
+
+    def to_dict(self) -> dict:
+        """返回可序列化的汇总数据。"""
+        rows = self._rows()
+        return {
+            "total_s": self.elapsed(),
+            "failed_stages": [m["action"] for m in self.failures()],
+            "stages": rows,
+        }

@@ -5,7 +5,9 @@ from unittest.mock import patch, MagicMock
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from src import config
-from src.delivery.send_email import send_failure_alert, _strip_urls
+from src.delivery.send_email import (
+    send_failure_alert, send_quality_alert, _strip_urls,
+)
 
 
 def test_strip_urls_removes_links():
@@ -73,8 +75,65 @@ def test_send_failure_alert_marker_dedup():
     assert calls["n"] == 1  # 仍是 1 次
 
 
+def test_send_quality_alert_no_issues_no_mail():
+    """无异常项时不应发信（避免无意义骚扰）。"""
+    assert send_quality_alert([]) is False
+
+
+def test_send_quality_alert_plain_text_with_issues():
+    """质量提醒为纯文本、列出异常项、标题区别于失败告警。"""
+    from email import message_from_string
+    from email.header import decode_header
+    fake_server = MagicMock()
+    with patch("src.delivery.send_email.smtplib.SMTP_SSL", return_value=fake_server), \
+         patch("src.delivery.send_email.os.path.exists", return_value=False), \
+         patch("src.delivery.send_email.os.makedirs"), \
+         patch("src.delivery.send_email.open", create=True):
+        sent = {}
+        fake_server.__enter__.return_value.sendmail.side_effect = \
+            lambda frm, to, msg_str: sent.update(msg=msg_str)
+        ok = send_quality_alert(["最终新闻仅 2 条", "本期无 GitHub Trending 项目推荐"],
+                                summary="指标: 新闻 2 条")
+        assert ok is True
+        m = message_from_string(sent["msg"])
+        body = m.get_payload(decode=True).decode("utf-8")
+        assert m.get_content_type() == "text/plain"
+        assert "最终新闻仅 2 条" in body
+        assert "Trending" in body
+        assert "指标: 新闻 2 条" in body
+        # 纯文本、无裸链接
+        assert "<html" not in body.lower()
+        assert "https://" not in sent["msg"]
+        # 标题为「提醒」而非「告警」，与失败告警区分
+        subject = str(decode_header(m["Subject"])[0][0], "utf-8") \
+            if isinstance(decode_header(m["Subject"])[0][0], bytes) else m["Subject"]
+        assert "提醒" in subject
+
+
+def test_quality_and_failure_alerts_use_separate_markers(tmp_path):
+    """两类告警各用各的 marker：质量提醒不应被失败告警的 marker 吞掉。"""
+    import glob
+    calls = {"n": 0}
+    fake_server = MagicMock()
+    fake_server.__enter__.return_value.sendmail.side_effect = \
+        lambda *a, **k: calls.update(n=calls["n"] + 1)
+
+    with patch("src.delivery.send_email.smtplib.SMTP_SSL", return_value=fake_server), \
+         patch("src.delivery.send_email.LOGS_DIR", str(tmp_path)), \
+         patch("src.delivery.send_email.os.makedirs"):
+        assert send_failure_alert(RuntimeError("x")) is True
+        assert send_quality_alert(["问题 A"]) is True
+    assert calls["n"] == 2
+    markers = sorted(os.path.basename(p) for p in glob.glob(os.path.join(str(tmp_path), "*.sent")))
+    assert len(markers) == 2
+    assert any(m.startswith("alert-") for m in markers)
+    assert any(m.startswith("quality-") for m in markers)
+
+
 if __name__ == "__main__":
     test_strip_urls_removes_links()
     test_send_failure_alert_plain_text_no_html()
     test_send_failure_alert_marker_dedup()
+    test_send_quality_alert_no_issues_no_mail()
+    test_send_quality_alert_plain_text_with_issues()
     print("All send_email tests passed!")
