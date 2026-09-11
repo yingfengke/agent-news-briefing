@@ -6,12 +6,12 @@ feedparser==6.0.14
 idna==3.19
 jieba==0.42.1
 Jinja2==3.1.6
-joblib==1.5.3
+joblib==1.6.0
 MarkupSafe==3.0.3
 narwhals==2.25.0
 numpy==2.5.2
 python-dotenv==1.2.3
-regex==2026.7.19
+regex==2026.9.3
 requests==2.34.2
 scikit-learn==1.9.0
 scipy==1.18.1
