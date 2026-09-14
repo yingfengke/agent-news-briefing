@@ -8,12 +8,12 @@ jieba==0.42.1
 Jinja2==3.1.6
 joblib==1.6.0
 MarkupSafe==3.0.3
-narwhals==2.25.0
-numpy==2.5.2
+narwhals==2.26.0
+numpy==2.5.3
 python-dotenv==1.2.3
-regex==2026.9.3
+regex==2026.9.10
 requests==2.34.2
-scikit-learn==1.9.0
+scikit-learn==1.9.1
 scipy==1.18.1
 sgmllib3k==1.0.0
 soupsieve==2.9.2
