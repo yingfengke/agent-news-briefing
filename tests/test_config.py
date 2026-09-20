@@ -37,7 +37,7 @@ def test_get_today_trivia():
 
 
 def test_get_today_trivia_deterministic_rotation():
-    """冷知识按日期确定性轮换：40 天全覆盖不重复 + 同日两次调用结果一致。
+    """冷知识按日期确定性轮换：一整轮全覆盖不重复 + 同日两次调用结果一致。
 
     替代原 random.choice：CI 每次全新进程无状态，随机会连续多天撞同一条
     （风格轮换曾踩过同样的坑，2026-08-02~04 连撞三天微博热搜）。
@@ -52,13 +52,26 @@ def test_get_today_trivia_deterministic_rotation():
         day = base + timedelta(days=i)
         with patch("src.config.prompts.now_bjt", return_value=day):
             seen.append(config.get_today_trivia())
-    assert len(set(seen)) == len(trivia_list)  # 40 天全覆盖不重复
+    assert len(set(seen)) == len(trivia_list)  # 一轮内全覆盖不重复
     with patch("src.config.prompts.now_bjt", return_value=base):
         assert config.get_today_trivia() == seen[0]  # 同日两次一致（确定性）
 
 
 def test_ai_trivia_count():
-    assert len(config.AI_TRIVIA) == 40
+    assert len(config.AI_TRIVIA) >= 50, "彩蛋池不足 50 条，一轮轮换还没一个月就播完"
+
+
+def test_ai_trivia_no_relative_time_anchor():
+    """禁掉「今年/去年/上周」这类相对时间锚点。
+
+    旧彩蛋池因为写死了具体型号代际和相对时间，放置两个多月就整批过期，
+    而轮换周期本身就有 40+ 天 —— 一条文案必须能活过一整轮。
+    """
+    import re
+    pattern = re.compile(r"今年|去年|上周|本周|上个月|昨天")
+    stale = [t for t in config.AI_TRIVIA if pattern.search(t)]
+    assert not stale, f"含相对时间锚点，很快会过期: {stale}"
+
 
 
 def test_trending_module_exports():
@@ -115,6 +128,7 @@ if __name__ == "__main__":
     test_get_today_trivia()
     test_get_today_trivia_deterministic_rotation()
     test_ai_trivia_count()
+    test_ai_trivia_no_relative_time_anchor()
     test_trending_module_exports()
     test_trending_classify_four_layers()
     test_base_dir()
