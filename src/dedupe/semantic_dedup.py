@@ -1,6 +1,7 @@
 """semantic_dedup.py - 阶段 C: Embedding 语义去重（Qwen Embedding + Union-Find 聚类）。
 """
 import json
+import os
 import time
 from typing import Optional
 from datetime import datetime
@@ -213,9 +214,9 @@ class SemanticDeduper:
             root = find(i)
             clusters[root].append(valid_indices[i])
 
-        # 每簇保留一条，标注多源报道
+        # 每簇保留一条，标注多源报道（成员名单按各自所属簇记录，避免跨簇串源）
         kept_indices = set()
-        multi_source_map = {}  # kept_index -> cluster count
+        cluster_members: dict[int, list[int]] = {}
 
         for root, members in clusters.items():
             # 选发布时间最早的
@@ -224,7 +225,7 @@ class SemanticDeduper:
             best_item, best_idx = cluster_items[0]
             kept_indices.add(best_idx)
             if len(members) > 1:
-                multi_source_map[best_idx] = len(members)
+                cluster_members[best_idx] = members
 
         # 保留未被 API 处理到的（API 失败的保守保留）
         for i in range(n):
@@ -235,9 +236,10 @@ class SemanticDeduper:
         result = []
         for i, it in enumerate(items):
             if i in kept_indices:
-                if i in multi_source_map:
-                    # 收集簇内所有成员的真实来源名，随数量一起写入 content
-                    member_sources = [items[valid_indices[m]].source for m in members]
+                if i in cluster_members:
+                    # 收集本簇所有成员的真实来源名，随数量一起写入 content
+                    member_sources = [items[valid_indices[m]].source
+                                      for m in cluster_members[i]]
                     it.content = it.content + _build_multi_source_note(member_sources)
                 result.append(it)
 

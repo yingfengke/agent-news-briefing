@@ -30,7 +30,7 @@ class MinhashDeduper:
         # LSH 索引：使用 MinHashLSH（内置 band 划分）
         self._lsh = MinHashLSH(threshold=threshold, num_perm=num_perm)
         self._kept: list[NewsItem] = []
-        self._signature_map: dict[int, tuple] = {}  # id -> minhash bytes
+        self._signatures: list[MinHash] = []  # 与 _kept 一一对应，供候选复核
 
     def _tokenize(self, text: str) -> list[str]:
         """jieba 分词"""
@@ -63,14 +63,19 @@ class MinhashDeduper:
         返回 True = 重复（丢弃）。
         """
         mh = self._build_minhash(item)
-        # LSH 查询：找同桶候选
-        candidates = self._lsh.query(mh)
-        if candidates:
-            return True  # 有相似候补 → 判重
+        # LSH 查询返回的是同桶候选，存在假阳性，须用真实 Jaccard 复核
+        for cand in self._lsh.query(mh):
+            try:
+                idx = int(cand)
+            except (TypeError, ValueError):
+                continue
+            if self._signatures[idx].jaccard(mh) >= self.threshold:
+                return True  # 确认相似 → 判重
 
-        # 无匹配 → 加入索引
-        self._lsh.insert(len(self._kept), mh)
+        # 无真实相似项 → 加入索引
+        self._lsh.insert(str(len(self._kept)), mh)
         self._kept.append(item)
+        self._signatures.append(mh)
         return False
 
     @property

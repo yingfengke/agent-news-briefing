@@ -227,6 +227,34 @@
       }
       const ANALYSIS_LABELS = { '深度解读': '解读：', '极客观点': '点评：' };
 
+      // 新闻字段来自外部 RSS / AI 输出，进入 innerHTML 前必须转义；链接仅放行 http(s)
+      const escH = s => String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      const safeHref = u => /^https?:\/\//i.test(String(u || '').trim()) ? escH(String(u).trim()) : '#';
+
+      function buildNewsCard(item, idx) {
+        const card = document.createElement('div');
+        card.className = 'news-card';
+        card.innerHTML = `
+            <div class="card-meta">
+              <span class="card-index">No.${String(idx).padStart(2, '0')}</span>
+              ${item.source ? `<span class="source-tag">${escH(item.source)}</span>` : ''}${item.published_at_disp ? `<span class="source-tag" style="color:#aaa;background:#f0f0ee;">发布于 ${escH(item.published_at_disp)}</span>` : ''}${item.tags && item.tags.length ? item.tags.filter(t => t !== item.category).map(t => `<span class="tag-tag">${escH(t)}</span>`).join('') : ''}
+            </div>
+            <div class="card-title">${escH(item.title)}</div>
+            <div class="card-summary">${renderSummary(item.summary)}</div>
+            ${item.analysis ? renderAnalysis(item.analysis, ANALYSIS_LABELS[__STYLE_NAME__]) : ''}
+            <div class="card-bottom">
+              <a class="card-link" href="${safeHref(item.link)}" target="_blank" rel="noopener noreferrer">阅读原文</a>
+              <div class="card-right">
+                ${item.footnote ? `<span class="footnote">${escH(item.footnote)}</span>` : ''}
+                ${item.score > 0 ? `<span class="score-badge ${item.score >= 4 ? 'high' : item.score >= 3 ? 'mid' : 'low'}">${Number(item.score).toFixed(1)}</span>` : ''}
+              </div>
+            </div>
+          `;
+        return card;
+      }
+
       btn.disabled = true;
       list.innerHTML = '';
       list.classList.remove('visible');
@@ -271,25 +299,7 @@
           list.appendChild(header);
 
           groups[cat].forEach((item) => {
-            const card = document.createElement('div');
-            card.className = 'news-card';
-            card.innerHTML = `
-            <div class="card-meta">
-              <span class="card-index">No.${String(++globalIndex).padStart(2, '0')}</span>
-              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}${item.published_at_disp ? `<span class="source-tag" style="color:#aaa;background:#f0f0ee;">发布于 ${item.published_at_disp}</span>` : ''}${item.tags && item.tags.length ? item.tags.filter(t => t !== item.category).map(t => `<span class="tag-tag">${t}</span>`).join('') : ''}
-            </div>
-            <div class="card-title">${item.title}</div>
-            <div class="card-summary">${renderSummary(item.summary)}</div>
-            ${item.analysis ? renderAnalysis(item.analysis, ANALYSIS_LABELS[__STYLE_NAME__]) : ''}
-            <div class="card-bottom">
-              <a class="card-link" href="${item.link}" target="_blank">阅读原文</a>
-              <div class="card-right">
-                ${item.footnote ? `<span class="footnote">${item.footnote.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>` : ''}
-                ${item.score > 0 ? `<span class="score-badge ${item.score >= 4 ? 'high' : item.score >= 3 ? 'mid' : 'low'}">${Number(item.score).toFixed(1)}</span>` : ''}
-              </div>
-            </div>
-          `;
-            list.appendChild(card);
+            list.appendChild(buildNewsCard(item, ++globalIndex));
           });
         });
 
@@ -302,25 +312,7 @@
           list.appendChild(header);
 
           groups[cat].forEach((item) => {
-            const card = document.createElement('div');
-            card.className = 'news-card';
-            card.innerHTML = `
-            <div class="card-meta">
-              <span class="card-index">No.${String(++globalIndex).padStart(2, '0')}</span>
-              ${item.source ? `<span class="source-tag">${item.source}</span>` : ''}${item.published_at_disp ? `<span class="source-tag" style="color:#aaa;background:#f0f0ee;">发布于 ${item.published_at_disp}</span>` : ''}${item.tags && item.tags.length ? item.tags.filter(t => t !== item.category).map(t => `<span class="tag-tag">${t}</span>`).join('') : ''}
-            </div>
-            <div class="card-title">${item.title}</div>
-            <div class="card-summary">${renderSummary(item.summary)}</div>
-            ${item.analysis ? renderAnalysis(item.analysis, ANALYSIS_LABELS[__STYLE_NAME__]) : ''}
-            <div class="card-bottom">
-              <a class="card-link" href="${item.link}" target="_blank">阅读原文</a>
-              <div class="card-right">
-                ${item.footnote ? `<span class="footnote">${item.footnote.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span>` : ''}
-                ${item.score > 0 ? `<span class="score-badge ${item.score >= 4 ? 'high' : item.score >= 3 ? 'mid' : 'low'}">${Number(item.score).toFixed(1)}</span>` : ''}
-              </div>
-            </div>
-          `;
-            list.appendChild(card);
+            list.appendChild(buildNewsCard(item, ++globalIndex));
           });
         });
 
@@ -337,11 +329,11 @@
             const pc = document.createElement('div');
             pc.className = 'news-card';
             pc.innerHTML = `
-              <div class="card-title"><a href="${p.link}" target="_blank" style="color:inherit;text-decoration:none;border-bottom:1px solid #1a1a1a;">${p.name}</a></div>
-              <div class="card-summary">${p.desc || ''}</div>
+              <div class="card-title"><a href="${safeHref(p.link)}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;border-bottom:1px solid #1a1a1a;">${escH(p.name)}</a></div>
+              <div class="card-summary">${escH(p.desc || '')}</div>
               <div class="card-meta">
-                ${p.tag ? `<span class="tag-tag">${p.tag}</span>` : ''}
-                ${p.stars ? `<span class="source-tag">${p.stars}</span>` : ''}
+                ${p.tag ? `<span class="tag-tag">${escH(p.tag)}</span>` : ''}
+                ${p.stars ? `<span class="source-tag">${escH(p.stars)}</span>` : ''}
               </div>
             `;
             projCard.appendChild(pc);
