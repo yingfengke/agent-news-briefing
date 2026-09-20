@@ -22,6 +22,11 @@ _tk_encoding = tiktoken.get_encoding("cl100k_base")
 # 导致 JSON 尾部残缺无法解析），放宽到 8192 给足输出空间。
 _MAX_OUTPUT_TOKENS = 8192
 
+# 本地历史排重与送 AI 的【已报道历史】使用同一窗口，避免口径不一致
+HISTORY_DEDUP_WINDOW = 30
+
+
+@lru_cache(maxsize=1)
 def load_history_titles():
     """
     从 tech-briefing.html 中读取已发送标题，
@@ -29,6 +34,8 @@ def load_history_titles():
 
     单次运行内 HTML 文件不会变更，故加 lru_cache 避免
     _filter_history_duplicates 与 _build_context 各自重复读文件。
+    取前 HISTORY_DEDUP_WINDOW 条：历史来自已发布简报（最新在前），
+    过旧标题既无排重价值也徒耗 token。
     """
     titles = []
     try:
@@ -43,7 +50,7 @@ def load_history_titles():
         log.warning("读取历史简报用于排重时出错: %s", e)
         return []
 
-    return titles
+    return titles[:HISTORY_DEDUP_WINDOW]
 
 
 
@@ -131,11 +138,16 @@ def _balance_sources(items: list, max_total: int = 40, min_per_source: int = 2, 
 
     remaining.sort(key=lambda x: len(x.content or ""), reverse=True)
 
-    needed = max_total - len(selected)
-    if needed > 0 and remaining:
+    # needed 可能为负（源数 x min_per_source > max_total），max() 收敛后再补，
+    # 末尾统一硬截断，保证输出绝不超 max_total
+    needed = max(0, max_total - len(selected))
+    if needed and remaining:
         selected.extend(remaining[:needed])
+    selected = selected[:max_total]
 
     source_count = len(set(it.source for it in selected))
+    if source_count < min_sources:
+        log.warning("  -> 配额后仅覆盖 %d 个来源（期望 >= %d）", source_count, min_sources)
     log.info("  -> 配额后: %d 条（覆盖 %d 个来源）", len(selected), source_count)
     return selected
 
@@ -163,6 +175,11 @@ def _estimate_tokens(text: str, safety_buffer: float = 0.9) -> int:
 def _filter_history_duplicates(items: list[NewsItem]) -> list[NewsItem]:
     """
     基于历史简报标题，过滤掉内容高度重复的新闻。
+
+    口径说明：历史标题来自 AI 译后中文，当前项多为英文原标题，
+    跨语言场景本层难命中（交给 prompt 里的【已报道历史】由 AI 判断），
+    因此阈值按【同语言近重复】校准：宁松勿严，避免误杀新报道。
+    窗口与 prompt 侧共用 HISTORY_DEDUP_WINDOW（load_history_titles 已截断）。
     """
     history_titles = load_history_titles()
     if not history_titles:
@@ -175,8 +192,8 @@ def _filter_history_duplicates(items: list[NewsItem]) -> list[NewsItem]:
         parts = re.split(r'[\s：:，,、()（）\[\]【】|/／\-—\'\"「」『』]', title.lower())
         return set(w.strip() for w in parts if len(w.strip()) > 2)
 
-    norm_history = [_normalize(t) for t in history_titles[:30]]
-    kw_history = [_keywords(t) for t in history_titles[:30]]
+    norm_history = [_normalize(t) for t in history_titles]
+    kw_history = [_keywords(t) for t in history_titles]
 
     kept = []
     removed = 0
@@ -188,23 +205,28 @@ def _filter_history_duplicates(items: list[NewsItem]) -> list[NewsItem]:
         for i in range(len(norm_history)):
             if len(norm_history[i]) > 5 and len(norm_current) > 5:
                 ratio = SequenceMatcher(None, norm_history[i], norm_current).ratio()
-                if ratio > 0.50:
+                if ratio > 0.85:
                     is_dup = True
                     break
 
             if kw_history[i] and kw_current:
                 overlap = len(kw_current & kw_history[i])
                 min_size = min(len(kw_current), len(kw_history[i]))
-                if min_size > 0 and overlap / min_size > 0.5:
+                if min_size >= 3 and overlap / min_size > 0.6:
                     is_dup = True
                     break
+                # 互为子串仅限中文长词（ASCII 词如 openai 互相包含≠同一事件）
                 for ck in kw_current:
                     for hk in kw_history[i]:
-                        if len(ck) > 3 and len(hk) > 3 and (ck in hk or hk in ck):
+                        if (len(ck) > 5 and len(hk) > 5
+                                and re.search(r"[\u4e00-\u9fff]", ck + hk)
+                                and (ck in hk or hk in ck)):
                             is_dup = True
                             break
                     if is_dup:
                         break
+            if is_dup:
+                break
 
         if is_dup:
             removed += 1
@@ -278,12 +300,14 @@ def _build_context(items_for_ai: list[NewsItem], system_prompt: str,
 
 
 def _truncate_context(items_for_ai: list[NewsItem], system_prompt: str,
-                      max_context: int = 32000,
+                      max_context: int | None = None,
                       max_output: int = _MAX_OUTPUT_TOKENS,
                       safety_margin: int = 800):
     """
     渐进式截断：先缩每条简介字数，再砍总条数，保证最终一定收敛在预算内。
+    预算默认取 config.MAX_CONTEXT_TOKENS（主/兜底模型共用，取两者较小窗口）。
     """
+    max_context = max_context or config.MAX_CONTEXT_TOKENS
     token_budget = max_context - max_output - safety_margin
 
     content_limit = 80
@@ -291,7 +315,7 @@ def _truncate_context(items_for_ai: list[NewsItem], system_prompt: str,
 
     # 简介字数档位（逐步收紧）
     content_steps = [80, 60, 50, 40, 30]
-    item_floor = 12  # 条数硬下限，避免砍到空
+    item_floor = 12  # 优先保留的条数下限；仍超限时继续砍直到 1 条
 
     for cl in content_steps:
         content_limit = cl
@@ -302,13 +326,18 @@ def _truncate_context(items_for_ai: list[NewsItem], system_prompt: str,
         log.info("  -> 上下文超限 (%d > %d)，content 缩短至 %d 字",
                  ctx["total_tokens"], token_budget, cl)
 
-    # 简介已到下限仍超限：继续砍条数到 item_floor
-    for mi in range(max_items - 1, item_floor - 1, -1):
+    # 简介已到下限仍超限：先砍到优先下限，再一路砍到 1 条（超预算必被 400 拒）
+    ctx = None
+    for mi in range(max_items - 1, 0, -1):
         ctx = _build_context(items_for_ai, system_prompt,
                              content_limit=content_limit, max_items=mi)
         if ctx["total_tokens"] <= token_budget:
-            log.info("  -> 上下文仍超限，总条数缩至 %d", mi)
+            if mi < item_floor:
+                log.warning("  -> 条数已砍至 %d（低于优先下限 %d）才收敛", mi, item_floor)
+            else:
+                log.info("  -> 上下文仍超限，总条数缩至 %d", mi)
             return ctx
 
+    # 仅剩 1 条仍超限：system prompt 本身过大，无可再裁
     log.warning("已达最大截断仍超限 (%d > %d)，继续发送", ctx["total_tokens"], token_budget)
     return ctx

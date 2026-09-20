@@ -17,7 +17,7 @@ import os
 import random
 import re
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from urllib.parse import urljoin, urlparse
 from urllib.request import Request, urlopen
 
@@ -76,18 +76,28 @@ RSS_USER_AGENT = "Mozilla/5.0 (compatible; BriefingBot/2.0)"
 # RSS 源健康跟踪
 # ============================================================
 
-def _load_source_health() -> dict[str, int]:
-    """读取源连续失败次数记录"""
+def _coerce_health(health: dict) -> None:
+    """兼容旧格式：纯 int 条目（连续失败次数）转为 dict 记录。原地修改。"""
+    for name, v in list(health.items()):
+        if isinstance(v, int):
+            health[name] = {"fail": v}
+
+
+def _load_source_health() -> dict[str, dict]:
+    """读取源健康记录 {name: {"fail": 连续失败次数, "skip_until": 封禁到期日}}"""
     if os.path.exists(config.SOURCE_HEALTH_FILE):
         try:
             with open(config.SOURCE_HEALTH_FILE, "r") as f:
-                return json.load(f)
+                health = json.load(f)
+            if isinstance(health, dict):
+                _coerce_health(health)
+                return health
         except (json.JSONDecodeError, OSError):
             pass
     return {}
 
 
-def _save_source_health(health: dict[str, int]) -> None:
+def _save_source_health(health: dict[str, dict]) -> None:
     """保存源连续失败次数记录"""
     try:
         with open(config.SOURCE_HEALTH_FILE, "w") as f:
@@ -96,17 +106,34 @@ def _save_source_health(health: dict[str, int]) -> None:
         pass
 
 
-def _update_source_health(name: str, success: bool) -> dict[str, int]:
+def _is_source_banned(rec: dict, today: str) -> bool:
+    """源是否处于封禁期（skip_until 未到期）。到期后自动恢复采集，一次成败即重写状态。"""
+    if rec.get("fail", 0) < config.SOURCE_HEALTH_MAX_FAILURES:
+        return False
+    until = rec.get("skip_until", "")
+    return bool(until) and today < until
+
+
+def _update_source_health(name: str, success: bool) -> dict[str, dict]:
     """
     更新单个源的连续失败计数并保存。
-    success=True → 重置为 0；success=False → 递增。
+    success=True → 重置为 0；success=False → 递增，达到阈值则封禁
+    SOURCE_HEALTH_COOLDOWN_DAYS 天（到期后复采一次，避免"只罚不赦"的永久封禁）。
     返回更新后的全量健康数据。
     """
     health = _load_source_health()
+    rec = health.get(name) or {"fail": 0}
     if success:
-        health[name] = 0
+        rec = {"fail": 0}
     else:
-        health[name] = health.get(name, 0) + 1
+        rec["fail"] = rec.get("fail", 0) + 1
+        if rec["fail"] >= config.SOURCE_HEALTH_MAX_FAILURES:
+            today = config.now_bjt().date()
+            until = today + timedelta(days=config.SOURCE_HEALTH_COOLDOWN_DAYS)
+            rec["skip_until"] = until.isoformat()
+            log.warning("  源 %s 连续失败 %d 次，封禁至 %s（到期后自动复采）",
+                        name, rec["fail"], rec["skip_until"])
+    health[name] = rec
     _save_source_health(health)
     return health
 
@@ -241,7 +268,8 @@ def _collect_single_source(name: str, url: str, lang: str) -> dict:
 def collect_rss() -> list[NewsItem]:
     """
     并发抓取所有 RSS 源（ThreadPoolExecutor），返回 NewsItem 列表。
-    单个源失败不影响整体。连续失败超过 SOURCE_HEALTH_MAX_FAILURES 次的源自动跳过。
+    单个源失败不影响整体。连续失败超过 SOURCE_HEALTH_MAX_FAILURES 次的源
+    封禁 SOURCE_HEALTH_COOLDOWN_DAYS 天，到期自动放回复采一次（成功即归零）。
     """
     all_items = []
     source_status = {}
@@ -249,17 +277,26 @@ def collect_rss() -> list[NewsItem]:
     log.info("")
     log.info("  RSS 采集 [%d 个源，并发数 %d]", len(config.RSS_SOURCES), CONCURRENT_WORKERS)
 
-    # 读取源健康状态，跳过连续失败过多的源
+    # 读取源健康状态，跳过封禁期内的源；封禁到期的源放回复采
     health = _load_source_health()
-    max_fail = config.SOURCE_HEALTH_MAX_FAILURES
+    today = config.now_bjt().date().isoformat()
     skipped_sources = []
     active_sources = []
+    health_dirty = False
     for name, url, lang in config.RSS_SOURCES:
-        fail_count = health.get(name, 0)
-        if fail_count >= max_fail:
-            skipped_sources.append((name, fail_count))
+        rec = health.get(name) or {"fail": 0}
+        if _is_source_banned(rec, today):
+            skipped_sources.append((name, rec.get("fail", 0)))
         else:
+            if rec.get("skip_until"):
+                log.info("  源 %s 封禁到期（%s），恢复采集验证", name, rec["skip_until"])
+                health[name] = {"fail": 0}
+                health_dirty = True
             active_sources.append((name, url, lang))
+
+    # 到期解禁的源已重置为健康，先落盘（随后逐源更新会覆盖同一条目）
+    if health_dirty:
+        _save_source_health(health)
 
     if skipped_sources:
         log.warning("  跳过 %d 个连续失败源:", len(skipped_sources))

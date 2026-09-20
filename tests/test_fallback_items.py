@@ -8,7 +8,7 @@ from src.analysis.postprocess import (
 )
 
 
-def _mk(title, tags=None, content="摘要内容", source="量子位",
+def _mk(title, tags=None, content="这是一段足够长度的新闻摘要内容", source="量子位",
          url="https://example.com/1", source_type="rss"):
     return NewsItem(
         id="1", title=title, content=content, url=url, source=source,

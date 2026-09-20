@@ -17,13 +17,16 @@ class CredibilityFilter:
       有作者署名     +0.25
       有发布日期     +0.20
       无侵犯隐私     +0.20
-      正文 >200字    +0.10（门槛，不满足直接丢弃）
+      正文 ≥10 字    +0.10（基本门槛：正文 <10 字直接丢弃）
       ─────────────────
       总分           1.00
 
     白名单域名 → 直接 0.92 分
     黑名单域名 → 直接丢弃
     阈值 0.40 → 低于此丢弃
+
+    黑/白名单均为严格域名匹配（注册域本身或其子域），避免子串误伤
+    （如黑名单含 weibo.com 时不误杀 notweibo.com）。
     """
 
     def __init__(self):
@@ -43,7 +46,7 @@ class CredibilityFilter:
 
     def _is_blacklisted(self, domain: str) -> bool:
         for bl in self.blacklist:
-            if bl in domain:
+            if domain == bl or domain.endswith("." + bl):
                 return True
         return False
 

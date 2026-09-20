@@ -19,6 +19,11 @@ from src.analysis.twitter_filter import _filter_twitter_items
 
 log = get_logger("ai")
 
+# 可重试的服务端/限流状态码；其余 4xx（401/403/404 等）重试无意义，直接放弃本模型
+RETRYABLE_STATUS = {408, 409, 425, 429, 500, 502, 503, 504}
+# 429/5xx 可能带 Retry-After；尊重其建议但设上限，防止被一个超长值拖死整个 job
+RETRY_AFTER_CAP = 60
+
 def call_ai_analysis(items: list[NewsItem], max_retries: int = 1):
     """
     将过滤后的干净新闻发给大模型。
@@ -58,7 +63,10 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 1):
 
     items_for_ai = _filter_history_duplicates(items_for_ai)
     if not items_for_ai:
-        log.warning("所有新闻均已被历史报道过滤，将继续使用 AI 判断")
+        # 空输入送 AI = 让模型凭 system prompt 编造整期简报，比降级更危险。
+        # 返回 None 走调用方的原始数据降级兜底。
+        log.warning("所有新闻均已被历史报道过滤，短路 AI 调用改走降级兜底")
+        return (style_name, None)
 
     ctx = _truncate_context(items_for_ai, system_prompt)
     user_content = ctx["user_content"]
@@ -122,7 +130,8 @@ def _try_model(url: str, system_prompt: str, user_content: str,
                 raise ValueError(f"API 返回异常: {str(result)[:200]}")
 
             content = (result["choices"][0]["message"].get("content") or "")
-            log.info("模型返回响应 (%d 字符)", len(content))
+            finish_reason = result["choices"][0].get("finish_reason") or ""
+            log.info("模型返回响应 (%d 字符, finish_reason=%s)", len(content), finish_reason)
 
             # Token 监控：记录实际消耗 vs 预估
             actual_usage = result.get("usage", {})
@@ -136,10 +145,10 @@ def _try_model(url: str, system_prompt: str, user_content: str,
             else:
                 log.info("  Token 监控: API 未返回 usage 数据（截断检测将失效，依赖解析兜底）")
 
-            # 截断检测：输出触顶 max_tokens 说明 JSON 大概率被硬切，尾部残缺
-            if actual_completion >= _MAX_OUTPUT_TOKENS:
-                log.warning("  输出触顶 %d tokens，JSON 可能被截断，将尝试截断抢救",
-                            _MAX_OUTPUT_TOKENS)
+            # 截断检测：usage 可能缺失，finish_reason=="length" 是更可靠的触顶信号
+            if actual_completion >= _MAX_OUTPUT_TOKENS or finish_reason == "length":
+                log.warning("  输出触顶/被截断 (finish_reason=%s, 输出 %d tokens)，JSON 可能被截断，将尝试截断抢救",
+                            finish_reason or "N/A", actual_completion)
 
             # 空响应显式识别：部分模型限流/过载会返回 200 但空 content
             if not content.strip():
@@ -165,8 +174,10 @@ def _try_model(url: str, system_prompt: str, user_content: str,
             return parsed
 
         except Exception as e:
-            # 异常分类：超时/限流/格式错 在日志里一眼区分，不再混为一谈
+            # 异常分类：超时/限流/HTTP错误/格式错 在日志里一眼区分，不再混为一谈
+            status = None
             if isinstance(e, HTTPError):
+                status = e.code
                 exc_kind = f"HTTP错误 {e.code}"
             elif isinstance(e, (URLError, socket.timeout, TimeoutError)):
                 exc_kind = "超时/网络"
@@ -184,9 +195,24 @@ def _try_model(url: str, system_prompt: str, user_content: str,
                 log.error("     尾 80字: %s", tail)
             else:
                 log.error("   失败诊断 [%s]: 无响应内容（请求阶段即失败，非模型输出问题）", exc_kind)
+
+            # 不可重试的 4xx（鉴权/参数错）：重试纯属浪费，直接放弃本模型换兜底
+            if status is not None and status not in RETRYABLE_STATUS:
+                log.error("  %s 不可重试（HTTP %s），放弃模型 %s", exc_kind, status, model_name)
+                return None
+
             if attempt < max_retries:
-                log.warning("第%d次失败 (%s)，5秒后重试...", attempt, str(e)[:60])
-                time.sleep(5)
+                # 限流/过载优先尊重服务端 Retry-After，否则回退固定间隔
+                delay = 5
+                if status in (429, 503):
+                    ra = getattr(e, "headers", {}).get("Retry-After", "")
+                    try:
+                        delay = min(max(int(ra), 1), RETRY_AFTER_CAP)
+                        log.info("  遵循 Retry-After，%d 秒后重试", delay)
+                    except (TypeError, ValueError):
+                        pass
+                log.warning("第%d次失败 (%s)，%d 秒后重试...", attempt, str(e)[:60], delay)
+                time.sleep(delay)
             else:
                 log.error("全部 %d 次重试均失败: %s", max_retries, str(e)[:80])
                 return None

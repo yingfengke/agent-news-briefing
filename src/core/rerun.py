@@ -88,13 +88,59 @@ def _reset_html_news_data() -> None:
                  os.path.basename(config.HTML_FILE))
 
 
+# 重跑清空前的 URL 去重库快照（文件名以 .json 结尾，被 gitignore 覆盖）
+def _dedup_backup_file() -> str:
+    """快照路径跟随 URL_DB_FILE 派生（测试可 monkeypatch 配置）。后缀保持 .json 以命中 gitignore。"""
+    return config.URL_DB_FILE + ".pre-rerun.json"
+
+
+def backup_dedup_state() -> None:
+    """清空前把 URL 去重库快照下来，供重跑失败后恢复。"""
+    bak = _dedup_backup_file()
+    try:
+        if os.path.exists(config.URL_DB_FILE):
+            with open(config.URL_DB_FILE, "r", encoding="utf-8") as f:
+                data = f.read()
+            with open(bak, "w", encoding="utf-8") as f:
+                f.write(data)
+            log.info("  已快照 URL 去重库到 %s（重跑失败可自动恢复）", os.path.basename(bak))
+    except OSError as e:
+        log.warning("  快照 URL 去重库失败（继续）: %s", e)
+
+
+def restore_dedup_backup() -> bool:
+    """
+    去重库缺失时从快照恢复（库缺失正是"上次重跑清空后又失败"的特征）。
+    成功一次运行的 flush() 必然重建该库，故恢复不会与正常流程冲突。
+    """
+    bak = _dedup_backup_file()
+    if os.path.exists(config.URL_DB_FILE) or not os.path.exists(bak):
+        return False
+    try:
+        with open(bak, "r", encoding="utf-8") as f:
+            data = f.read()
+        with open(config.URL_DB_FILE, "w", encoding="utf-8") as f:
+            f.write(data)
+        log.warning("  检测到 URL 去重库缺失，已从上次重跑快照恢复 %s", os.path.basename(bak))
+        return True
+    except OSError as e:
+        log.warning("  从快照恢复 URL 去重库失败: %s", e)
+        return False
+
+
 def clear_dedup_for_rerun() -> None:
     """
     同日重跑「无复用缓存」时的兜底：清空两个去重库，改走正常重新抓取。
     （有缓存时走 load_cached_clean_items 复用路径，不会调用本函数）
       1. .url_dedup_db.json：URL 跨天去重，无逐条时间戳，整体删除
       2. web/tech-briefing.html 的 __NEWS_DATA__：历史标题排重数据源，重置为 []
+
+    破坏性操作前先快照 URL 去重库（见 backup_dedup_state），避免"重跑再失败"
+    导致跨天排重数据双失——下次运行发现库缺失会自动恢复。
+    HTML 本身由 git 版本控制，__NEWS_DATA__ 可从历史提交找回。
     """
+    backup_dedup_state()
+
     # 1) URL 去重库
     if os.path.exists(config.URL_DB_FILE):
         try:

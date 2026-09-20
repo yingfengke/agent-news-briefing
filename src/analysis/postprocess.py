@@ -363,14 +363,29 @@ def _fallback_category(ci: NewsItem) -> str:
         return "行业动态"
     return "其他动态"
 
+_FALLBACK_MAX_ITEMS = 40  # 降级兜底条数上限，与正常路径产出规模对齐
+
 def _build_fallback_items(clean_items: list[NewsItem]) -> list[dict]:
     """
-    AI 分析失败时的降级兜底：直接用原始采集数据构造 final_items，
+    AI 分析失败时的降级兜底：用规则预筛后的原始采集数据构造 final_items，
     保证简报至少有内容（未经 AI 润色、无深度分析、无英文翻译）。
     字段结构与正常路径一致，score 留 0 以触发 _apply_fallback_scores 规则补分。
+
+    降级路径同样必须过规则预筛（prompt 注入过滤 + 过短内容过滤），
+    否则会把疑似注入内容原文发布；并对条数封顶，避免产出规模远超正常路径。
     """
+    # 与正常 AI 路径一致：过滤疑似提示词注入 / 正文过短的内容（零成本）
+    from src.analysis.context import _prescreen_items
+    screened = _prescreen_items(clean_items)
+    skipped = len(clean_items) - len(screened)
+    if skipped:
+        log.warning("  降级兜底: 预筛剔除 %d 条（疑似注入/过短），保留 %d 条", skipped, len(screened))
+    if len(screened) > _FALLBACK_MAX_ITEMS:
+        log.warning("  降级兜底: %d 条超上限，截断至 %d 条", len(screened), _FALLBACK_MAX_ITEMS)
+        screened = screened[:_FALLBACK_MAX_ITEMS]
+
     items = []
-    for ci in clean_items:
+    for ci in screened:
         content = ci.content or ""
         if len(content) > 200:
             content = content[:200].rstrip() + "…"

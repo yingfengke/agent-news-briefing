@@ -18,6 +18,10 @@ MODEL_NAME = os.getenv("MODEL_NAME", "deepseek-ai/DeepSeek-V4-Flash")
 FALLBACK_MODEL_NAME = os.getenv("FALLBACK_MODEL_NAME", "Pro/zai-org/GLM-5.1")
 EMBEDDING_MODEL = "Qwen/Qwen3-Embedding-4B"  # 语义去重，1024维，中英双语优化
 
+# 送 AI 的上下文 token 预算（输入侧）。主模型与兜底模型共用，
+# 应取两者中较小的输入窗口；换供应商时改这里或环境变量即可，避免超窗口被 400 拒。
+MAX_CONTEXT_TOKENS = int(os.getenv("MAX_CONTEXT_TOKENS", "32000"))
+
 # 邮件配置
 SENDER_EMAIL = os.getenv("SENDER_EMAIL", "")
 AUTH_CODE = os.getenv("AUTH_CODE", "")
@@ -42,6 +46,9 @@ SUMMARY_MAX_LENGTH = 500  # content 字段最大长度（字符）
 # RSS 源健康跟踪
 SOURCE_HEALTH_FILE = os.path.join(BASE_DIR, ".source_health.json")
 SOURCE_HEALTH_MAX_FAILURES = 7  # 连续失败超过此次数则自动跳过
+# 跳过满 N 天后强制复采一次（成功即归零、失败则再封禁 N 天），
+# 否则被跳过的源不再进入采集循环、计数永不归零，会跨天永久封禁
+SOURCE_HEALTH_COOLDOWN_DAYS = 7
 
 # 过滤层阈值
 DEDUP_MINHASH_THRESHOLD = 0.8       # MinHash Jaccard 相似度阈值

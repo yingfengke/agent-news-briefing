@@ -160,7 +160,7 @@ class _FakeResp:
 
 def _mk_items(n=2):
     return [
-        NewsItem(id=f"i{i}", title=f"新闻{i} 发布", content="摘要内容",
+        NewsItem(id=f"i{i}", title=f"新闻{i} 发布", content="这是一条足够长的新闻摘要内容",
                   url=f"https://e.com/{i}", source="量子位", lang="zh",
                   source_type="rss", crawled_at="2026-07-13T00:00:00Z")
         for i in range(n)

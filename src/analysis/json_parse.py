@@ -43,6 +43,7 @@ def _salvage_truncated_json(text: str) -> dict:
             return {}
 
     objects = []
+    dropped = 0
     i = arr_start
     n = len(text)
     while i < n:
@@ -80,17 +81,57 @@ def _salvage_truncated_json(text: str) -> dict:
                         try:
                             objects.append(json.loads(candidate))
                         except json.JSONDecodeError:
-                            pass
+                            dropped += 1
                         i += 1
                         break
             i += 1
         else:
             # 扫到结尾仍未闭合 → 末尾残缺对象，丢弃
+            dropped += 1
             break
 
+    if dropped:
+        log.warning("  JSON 抢救: %d 个对象无法解析/残缺被丢弃", dropped)
+
+    result = {}
     if objects:
-        return {"news": objects}
-    return {}
+        result["news"] = objects
+    # daily_analysis 常在 JSON 尾部，截断时多已丢失；能抢救则一并抢救回键
+    analysis = _extract_string_field(text, "daily_analysis")
+    if analysis:
+        result["daily_analysis"] = analysis
+    return result if objects else {}
+
+
+def _extract_string_field(text: str, key: str):
+    """从（可能残缺的）JSON 文本中抽取指定字符串键的值，取不到返回 None。"""
+    m = re.search(r'"' + re.escape(key) + r'"\s*:\s*"', text)
+    if not m:
+        return None
+    i = m.end()
+    out = []
+    esc = False
+    n = len(text)
+    while i < n:
+        ch = text[i]
+        if esc:
+            # 保持转义原样，交给 json.loads 还原
+            out.append("\\" + ch)
+            esc = False
+        elif ch == "\\":
+            esc = True
+        elif ch == '"':
+            break
+        else:
+            out.append(ch)
+        i += 1
+    else:
+        # 值未闭合（被截断）→ 视为不可靠，放弃
+        return None
+    try:
+        return json.loads('"' + "".join(out) + '"')
+    except json.JSONDecodeError:
+        return None
 
 
 def _safe_parse_json(text: str) -> dict:

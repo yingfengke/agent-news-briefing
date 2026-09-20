@@ -28,10 +28,11 @@ def run_pipeline(items: list[NewsItem]) -> FilterReport:
 
     # ---- A: URL 去重 ----
     # 跨天持久化策略：
-    #   1. 从已有 DB 加载历史 URL 哈希（跨天去重）
-    #   2. 清空当前 DB 文件（避免重试时被第一轮的哈希污染）
-    #   3. 创建 UrlDeduper 时带上跨天哈希
-    #   4. 运行结束后，flush() 写入新 DB，由 github_api_push.py 提交到 repo
+    #   1. 从已有 DB 加载历史 URL 哈希（跨天去重），作为 UrlDeduper 的 initial_set
+    #   2. 运行中新增哈希并入内存 _seen（跨天 + 当日）
+    #   3. flush() 通过 mkstemp+os.replace 原子覆盖整个 DB
+    #   不再在此处 os.remove 清空 DB 文件：那既不能防重跑污染（内存 _seen 已含历史哈希），
+    #   又会留下"删除后到 flush 前"的崩溃窗口导致跨天库丢失。重跑清空由 rerun.py 负责。
     cross_day_hashes: set[str] = set()
     try:
         if os.path.exists(config.URL_DB_FILE):
@@ -41,13 +42,6 @@ def run_pipeline(items: list[NewsItem]) -> FilterReport:
             log.info("  -> 加载跨天 URL 去重库: %d 条历史哈希", len(cross_day_hashes))
     except Exception as e:
         log.warning("加载跨天 URL 去重库失败: %s", e)
-
-    # 清空 session DB（避免重试污染）
-    try:
-        if os.path.exists(config.URL_DB_FILE):
-            os.remove(config.URL_DB_FILE)
-    except Exception:
-        pass
 
     log.info("")
     log.info("  -- A. URL 去重 --")

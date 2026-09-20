@@ -39,7 +39,7 @@ from src.delivery.timefmt import _attach_published_at
 from src.collect.trending_fetcher import fetch_github_trending
 from src.core.logger import get_logger, log_structured, Timeline
 from src.core.rerun import (
-    is_rerun, clear_dedup_for_rerun,
+    is_rerun, clear_dedup_for_rerun, restore_dedup_backup,
     load_cached_clean_items, save_clean_items, _reset_html_news_data,
 )
 
@@ -86,6 +86,8 @@ def _write_daily_summary(timeline_data: dict, **metrics) -> str:
 def _run_main():
     reset_parse_stats()
     tl = Timeline()
+    # 上次重跑可能清空过 URL 去重库却再次失败：库缺失时先从快照恢复，避免跨天排重数据双失
+    restore_dedup_backup()
     # 同日重跑检测：有缓存则直接复用去重后原始数据（跳过采集+去重）；
     # 无缓存（如首跑失败、被旧逻辑清空）则清空去重库后正常重抓。
     reused = False
