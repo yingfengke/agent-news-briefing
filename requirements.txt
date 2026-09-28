@@ -16,7 +16,7 @@ requests==2.34.2
 scikit-learn==1.9.1
 scipy==1.18.1
 sgmllib3k==1.0.0
-soupsieve==2.9.2
+soupsieve==2.10
 threadpoolctl==3.7.0
 tiktoken==0.14.0
 typing_extensions==4.16.0
