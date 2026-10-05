@@ -1,6 +1,6 @@
 beautifulsoup4==4.15.0
 certifi==2026.7.22
-charset-normalizer==3.5.1
+charset-normalizer==3.5.2
 datasketch==2.0.0
 feedparser==6.0.14
 idna==3.20
@@ -10,8 +10,8 @@ joblib==1.6.0
 MarkupSafe==3.0.3
 narwhals==2.26.0
 numpy==2.5.3
-python-dotenv==1.2.3
-regex==2026.9.10
+python-dotenv==1.2.4
+regex==2026.9.29
 requests==2.34.2
 scikit-learn==1.9.1
 scipy==1.18.1
