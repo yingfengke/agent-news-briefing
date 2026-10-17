@@ -12,6 +12,7 @@ import tiktoken
 from src import config
 from src.core.models import NewsItem
 from src.core.logger import get_logger
+from src.core.history_titles import load_recent_titles
 
 log = get_logger("ai")
 
@@ -22,35 +23,44 @@ _tk_encoding = tiktoken.get_encoding("cl100k_base")
 # 导致 JSON 尾部残缺无法解析），放宽到 8192 给足输出空间。
 _MAX_OUTPUT_TOKENS = 8192
 
-# 本地历史排重与送 AI 的【已报道历史】使用同一窗口，避免口径不一致
+# 送 AI 的【已报道历史】标题条数上限（控制 token）；
+# 本地跨天排重不受此限，见 load_history_titles。
 HISTORY_DEDUP_WINDOW = 30
 
 
 @lru_cache(maxsize=1)
 def load_history_titles():
     """
-    从 tech-briefing.html 中读取已发送标题，
-    用于 AI 排重（避免每日重复报道相似内容）。
+    读取已推标题，供跨天排重使用。
 
-    单次运行内 HTML 文件不会变更，故加 lru_cache 避免
-    _filter_history_duplicates 与 _build_context 各自重复读文件。
-    取前 HISTORY_DEDUP_WINDOW 条：历史来自已发布简报（最新在前），
-    过旧标题既无排重价值也徒耗 token。
+    两个来源合并：
+      1. tech-briefing.html 的当期标题（上一期，页面每天被覆盖）；
+      2. web/.recent_titles.json 的近期标题库（近 N 天，跨天去重的主力）。
+
+    单次运行内文件不变，故加 lru_cache 避免本地排重与 prompt 构造重复读盘。
+    返回顺序：当期标题在前、历史库在后，整体去重保序。
     """
     titles = []
     try:
         with open(config.HTML_FILE, "r", encoding="utf-8") as f:
             content = f.read()
         m = re.search(r'const\s+__NEWS_DATA__\s*=\s*(\[[\s\S]*?\])\s*;', content)
-        if not m:
-            return []
-        data = json.loads(m.group(1))
-        titles = [item.get("title", "") for item in data if item.get("title")]
+        if m:
+            data = json.loads(m.group(1))
+            titles = [item.get("title", "") for item in data if item.get("title")]
     except Exception as e:
         log.warning("读取历史简报用于排重时出错: %s", e)
-        return []
 
-    return titles[:HISTORY_DEDUP_WINDOW]
+    titles.extend(load_recent_titles())
+
+    seen = set()
+    merged = []
+    for t in titles:
+        key = (t or "").strip()
+        if key and key not in seen:
+            seen.add(key)
+            merged.append(key)
+    return merged
 
 
 
@@ -172,14 +182,41 @@ def _estimate_tokens(text: str, safety_buffer: float = 0.9) -> int:
 
 
 
+# 产品/型号实体：带连字符或数字的复合词（GLM-Legal、Llama-4、GPT-5O、d1-ultra）
+_ENTITY_RE = re.compile(r"[A-Za-z][A-Za-z0-9]*(?:[-._][A-Za-z0-9]+)+|[A-Za-z]*\d[A-Za-z0-9]*")
+# 高频厂商/通用词不参与实体判定：每天都有不同事件，共享名称不代表同一事件
+_GENERIC_ENTITIES = {
+    "openai", "google", "meta", "microsoft", "anthropic", "nvidia", "deepseek",
+    "gpt", "llm", "api", "ai", "gemini", "claude", "llama", "qwen", "chatgpt",
+    "1", "2", "3", "4", "5", "10", "20", "2024", "2025", "2026",
+}
+
+
+def _extract_entities(title: str) -> set:
+    """提取标题中的稀有产品/型号实体（小写），用于跨源同事件判定。"""
+    found = set()
+    for token in _ENTITY_RE.findall(title or ""):
+        key = token.strip().lower().strip("-._")
+        if len(key) < 6 or key in _GENERIC_ENTITIES:
+            continue
+        found.add(key)
+    return found
+
+
 def _filter_history_duplicates(items: list[NewsItem]) -> list[NewsItem]:
     """
     基于历史简报标题，过滤掉内容高度重复的新闻。
 
-    口径说明：历史标题来自 AI 译后中文，当前项多为英文原标题，
-    跨语言场景本层难命中（交给 prompt 里的【已报道历史】由 AI 判断），
-    因此阈值按【同语言近重复】校准：宁松勿严，避免误杀新报道。
-    窗口与 prompt 侧共用 HISTORY_DEDUP_WINDOW（load_history_titles 已截断）。
+    判定三条路径（命中任一即视为已报道）：
+      1. 整句字符相似度 > 0.85（同语言近重复）；
+      2. 关键词重叠占较小集合的比例 > 0.6；
+      3. 稀有产品/型号实体命中（如 GLM-Legal、Llama-4）——不同源、不同措辞
+         报道同一产品时，整句与关键词路径都难命中，但实体名是共享的。
+
+    口径说明：历史标题来自 AI 译后中文，当前项多为英文原标题，跨语言场景
+    本层难命中（交给 prompt 里的【已报道历史】由 AI 判断），故路径 1/2 按
+    【同语言近重复】校准，宁松勿严；路径 3 只认带连字符/数字的复合实体，
+    并排除高频厂商名，避免「OpenAI 有新闻」被当成同一事件。
     """
     history_titles = load_history_titles()
     if not history_titles:
@@ -194,15 +231,22 @@ def _filter_history_duplicates(items: list[NewsItem]) -> list[NewsItem]:
 
     norm_history = [_normalize(t) for t in history_titles]
     kw_history = [_keywords(t) for t in history_titles]
+    ent_history = [_extract_entities(t) for t in history_titles]
 
     kept = []
     removed = 0
     for it in items:
         norm_current = _normalize(it.title)
         kw_current = _keywords(it.title)
+        ent_current = _extract_entities(it.title)
 
         is_dup = False
         for i in range(len(norm_history)):
+            # 路径 3：稀有实体命中（不同源、不同措辞报道同一产品）
+            if ent_current and ent_history[i] and (ent_current & ent_history[i]):
+                is_dup = True
+                break
+
             if len(norm_history[i]) > 5 and len(norm_current) > 5:
                 ratio = SequenceMatcher(None, norm_history[i], norm_current).ratio()
                 if ratio > 0.85:
@@ -277,7 +321,7 @@ def _build_context(items_for_ai: list[NewsItem], system_prompt: str,
     items_tokens = _estimate_tokens(items_text)
     actual_items = min(max_items, len(items_for_ai))
 
-    history_titles = load_history_titles()
+    history_titles = load_history_titles()[:HISTORY_DEDUP_WINDOW]
     history_text = ""
     if history_titles:
         history_text = ("\n---\n【已报道历史】过去几天已推送过的新闻标题"

@@ -38,6 +38,7 @@ from src.delivery.rss_gen import generate_rss_feed
 from src.delivery.timefmt import _attach_published_at
 from src.collect.trending_fetcher import fetch_github_trending
 from src.core.logger import get_logger, log_structured, Timeline
+from src.core.history_titles import record_titles, clear_today_titles
 from src.core.rerun import (
     is_rerun, clear_dedup_for_rerun, restore_dedup_backup,
     load_cached_clean_items, save_clean_items, _reset_html_news_data,
@@ -102,6 +103,7 @@ def _run_main():
                 remaining_items=clean_items,
             )
             _reset_html_news_data()  # 复用时不让历史标题去重吃掉同日数据
+            clear_today_titles()     # 同理清理近 N 天标题库里的当日记录
             log.info("  同日重跑：复用已缓存原始数据 %d 条（跳过采集与去重）",
                      len(clean_items))
         else:
@@ -222,6 +224,7 @@ def _run_main():
         _apply_fallback_scores(final_items)
 
     final_items.sort(key=lambda x: x.get("score", 0) or 0, reverse=True)
+
     scored = sum(1 for it in final_items if it.get("score", 0) > 0)
     log.info("  评分分布: %d/%d 条有评分", scored, len(final_items))
 
@@ -276,6 +279,9 @@ def _run_main():
         )
     generate_rss_feed(final_items, daily_analysis, generated_at=generated_at)
     tl.mark("生成", "email_rss", "ok", f"{len(final_items)} 条")
+
+    # 记录当期标题，供后续几天跨源同事件去重
+    record_titles(final_items)
 
     # ---- 邮件已生成，由 workflow 步骤发送 ----
     log.info("")

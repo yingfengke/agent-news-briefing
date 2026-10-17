@@ -68,6 +68,16 @@ jobs:
           restore-keys: |
             raw-cache-
 
+      # 恢复近期已推标题库（跨天同事件去重的历史依据，不入库）
+      - name: 恢复历史标题缓存
+        uses: actions/cache@v6
+        id: title-cache
+        with:
+          path: web/.recent_titles.json
+          key: recent-titles-${{ github.run_id }}
+          restore-keys: |
+            recent-titles-
+
       # ============================================================
       # 以下关键步骤使用 retry 机制：
       #   失败后重试，覆盖网络超时、API 限流、SMTP 临时故障等场景
@@ -118,3 +128,10 @@ jobs:
         with:
           path: web/.raw_pool_cache.json
           key: raw-cache-${{ github.run_id }}
+
+      # 保存历史标题缓存供次日跨天去重
+      - name: 保存历史标题缓存
+        uses: actions/cache/save@v6
+        with:
+          path: web/.recent_titles.json
+          key: recent-titles-${{ github.run_id }}

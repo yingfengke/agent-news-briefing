@@ -7,6 +7,7 @@ from src import config
 from src.core.models import NewsItem, FilterReport
 from src.core.logger import get_logger
 from src.dedupe.url_dedup import UrlDeduper
+from src.dedupe.freshness import filter_stale
 from src.dedupe.minhash_dedup import MinhashDeduper
 from src.dedupe.semantic_dedup import SemanticDeduper
 from src.dedupe.credibility import CredibilityFilter
@@ -25,6 +26,13 @@ def run_pipeline(items: list[NewsItem]) -> FilterReport:
     report = FilterReport(total_input=len(items))
     if not items:
         return report
+
+    log.info("")
+    log.info("  -- A0. 时效过滤 --")
+    fresh_items = filter_stale(items)
+    report.stale_removed = len(items) - len(fresh_items)
+    if len(fresh_items) == len(items):
+        log.info("  %d 条均在时效窗口内", len(items))
 
     # ---- A: URL 去重 ----
     # 跨天持久化策略：
@@ -47,13 +55,13 @@ def run_pipeline(items: list[NewsItem]) -> FilterReport:
     log.info("  -- A. URL 去重 --")
     url_deduper = UrlDeduper(initial_set=cross_day_hashes)
     after_a = []
-    for it in items:
+    for it in fresh_items:
         if not url_deduper.is_duplicate(it):
             after_a.append(it)
         else:
             report.url_removed += 1
     url_deduper.flush()
-    log.info("  %d -> %d (去重 %d 条)", len(items), len(after_a), report.url_removed)
+    log.info("  %d -> %d (去重 %d 条)", len(fresh_items), len(after_a), report.url_removed)
 
     # B/C/D 阶段用 guard 包裹：某阶段结果为空时不提前返回，
     # 始终走到函数末尾统一填充 report 并返回（避免提前 return 跳过后续统计）。

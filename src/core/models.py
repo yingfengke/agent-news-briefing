@@ -47,6 +47,7 @@ class FilterReport:
     过滤层执行报告，记录各阶段去重数量。
     """
     total_input: int = 0
+    stale_removed: int = 0
     url_removed: int = 0
     minhash_removed: int = 0
     semantic_removed: int = 0
@@ -56,11 +57,13 @@ class FilterReport:
 
     @property
     def total_removed(self) -> int:
-        return self.url_removed + self.minhash_removed + self.semantic_removed + self.credibility_removed
+        return (self.stale_removed + self.url_removed + self.minhash_removed
+                + self.semantic_removed + self.credibility_removed)
 
     def print_report(self) -> None:
         print(f"\n  ── 过滤报告 ──")
         print(f"  输入: {self.total_input} 条")
+        print(f"  ├─ 时效过滤:   -{self.stale_removed} 条")
         print(f"  ├─ URL去重:    -{self.url_removed} 条")
         print(f"  ├─ MinHash去重: -{self.minhash_removed} 条")
         print(f"  ├─ 语义去重:   -{self.semantic_removed} 条")
@@ -78,6 +81,10 @@ class FilterReport:
               <tr>
                 <td style="padding:2px 0;">采集</td>
                 <td style="text-align:right;font-weight:600;color:#333;">{self.total_input} 条</td>
+              </tr>
+              <tr>
+                <td style="padding:2px 0;">时效过滤</td>
+                <td style="text-align:right;color:#c0392b;">-{self.stale_removed} 条</td>
               </tr>
               <tr>
                 <td style="padding:2px 0;">URL去重</td>

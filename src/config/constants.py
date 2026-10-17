@@ -65,6 +65,16 @@ RAW_CACHE_FILE = os.path.join(BASE_DIR, "web", ".raw_pool_cache.json")
 # 可信度过滤
 CREDIBILITY_SCORE_THRESHOLD = 0.40  # 低于此阈值直接丢弃
 
+# 新闻时效窗口（小时）：发布时间早于「当前时刻 - 该时长」的条目视为旧闻丢弃。
+# 用于阻断跨天重复推送（某事件发布数日后被另一源转载又进新一期）。
+NEWS_MAX_AGE_HOURS = 72
+# 内容不足时的放宽底线：过滤后少于该条数则放宽时效窗口重试
+MIN_NEWS_ITEMS = 12
+
+# 跨天历史标题库：记录近 N 天已推标题，供次日标题级去重使用
+RECENT_TITLES_FILE = os.path.join(BASE_DIR, "web", ".recent_titles.json")
+RECENT_TITLES_DAYS = 7
+
 # 时区：北京时间（UTC+8）。统一用此函数取"当前时间"，
 # 避免 GitHub Actions runner（默认 UTC）上 datetime.now() 导致日期偏移一天。
 def now_bjt():

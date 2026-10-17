@@ -196,3 +196,38 @@ def test_call_ai_both_fail_returns_none():
          patch.object(config, "FALLBACK_MODEL_NAME", "fallback/ok"):
         style, parsed = call_ai_analysis(_mk_items(), max_retries=1)
     assert parsed is None
+
+
+def test_filter_history_duplicates_catches_same_product_entity():
+    """跨源报道同一产品：措辞与关键词都不同，靠稀有实体命中判定为已报道。"""
+    items = [
+        NewsItem(id="1", title="Z.ai 发布 GLM-Legal 法律模型，在 Harvey LAB 上超越 Claude",
+                 content="", url="https://a.example/1", source="MarkTechPost",
+                 lang="zh", source_type="rss", crawled_at=""),
+    ]
+    history = ["智谱 AI 推出 GLM-Legal：面向合同审查与合规的专用法律模型"]
+    with patch("src.analysis.context.load_history_titles", return_value=history):
+        result = _filter_history_duplicates(items)
+    assert result == []
+
+
+def test_filter_history_duplicates_keeps_different_event_of_same_vendor():
+    """同一厂商的不同事件不算重复（共享厂商名不放行）。"""
+    items = [
+        NewsItem(id="1", title="OpenAI 调整 API 定价，企业版下调 20%",
+                 content="", url="https://a.example/1", source="SrcA",
+                 lang="zh", source_type="rss", crawled_at=""),
+    ]
+    history = ["OpenAI 发布新版语音模型，延迟降低一半"]
+    with patch("src.analysis.context.load_history_titles", return_value=history):
+        result = _filter_history_duplicates(items)
+    assert len(result) == 1
+
+
+def test_extract_entities_filters_generic_tokens():
+    from src.analysis.context import _extract_entities
+    assert "glm-legal" in _extract_entities("智谱推出 GLM-Legal 法律模型")
+    assert "llama-4" in _extract_entities("Llama-4 用 MoE 架构降本")
+    # 厂商名与短数字不参与
+    assert _extract_entities("OpenAI 与 Google 合作") == set()
+    assert _extract_entities("GPT-5") == set()
