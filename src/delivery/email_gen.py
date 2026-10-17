@@ -98,6 +98,22 @@ def _render_pm_summary(html_text: str) -> str:
     return _render_default_summary(html_text)
 
 
+# 微博热搜风格的热度标记 → 带 emoji 版本
+_WEIBO_HEAT_MARKS = {"爆": "🔥爆", "沸": "🔥沸", "热": "📈热"}
+
+
+def _decorate_weibo_title(title: str) -> str:
+    """为微博热搜风格标题补热度 emoji。
+
+    提示词已要求模型直接输出「🔥爆/🔥沸/📈热」，但模型偶有漏加；
+    渲染层兜底补一次，已带 emoji 的标题原样返回，不会重复。
+    """
+    if not title:
+        return title
+    mark = _WEIBO_HEAT_MARKS.get(title[0])
+    return mark + title[1:] if mark else title
+
+
 def _render_weibo_summary(html_text: str) -> str:
     """微博热搜：网友A/网友B 评论分行。"""
     html_text = re.sub(
@@ -332,7 +348,7 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
                 <span style="font-size:11px;font-weight:700;color:#ccc;letter-spacing:1px;">No.{i:02d}</span>
                 {' ' + source_tag if source_tag else ''}{pub_tag}{tag_html}{score_html}
               </div>
-              <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 8px 0;line-height:1.5;">{item["title"]}</h2>
+              <h2 style="font-size:15px;font-weight:700;color:#111;margin:0 0 8px 0;line-height:1.5;">{_decorate_weibo_title(item["title"]) if style_name == "微博热搜" else item["title"]}</h2>
               <p style="font-size:13px;color:#555;margin:0 0 10px 0;line-height:1.7;">{_render_summary_html(item["summary"], style_name)}</p>
               {_render_analysis_html(item.get("analysis") or "", _ANALYSIS_LABELS.get(style_name, ""))}
               {_render_card_footer(item)}
@@ -410,7 +426,7 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
         projects_section = f"""
         <tr>
           <td style="padding-top:24px;border-top:2px dashed #ddd;">
-            <div style="font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:14px;">本周热门学习项目</div>
+            <div style="font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:14px;">🚀 本周热门学习项目</div>
             {''.join(proj_cards)}
           </td>
         </tr>"""

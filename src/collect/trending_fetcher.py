@@ -180,7 +180,7 @@ def _parse_trending_html(html):
             "name": full_name,
             "desc": desc[:100],
             "stars_n": stars_n,
-            "stars": f"star+{stars_n} today" if stars_n else "star N/A",
+            "stars": f"⭐+{stars_n} today" if stars_n else "⭐N/A",
             "link": f"https://github.com/{full_name}",
         })
 
@@ -254,7 +254,7 @@ def _search_fallback(api_headers):
         scored.append({
             "name": fn,
             "desc": desc[:100],
-            "stars": f"star {sn:,}",
+            "stars": f"⭐{sn:,}",
             "link": f"https://github.com/{fn}",
             "tag": tag,
             # 领域相关度（仅用于排序）

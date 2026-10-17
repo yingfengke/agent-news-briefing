@@ -196,6 +196,13 @@
         s = s.replace(/((?:网友[A-Za-z一二三四五六七八九十]{0,2}?)[：:])/g, labelFrag() + '$1</span>');
         return renderDefault(s);
       }
+      // 微博热度标记补 emoji：提示词已要求模型直接输出，模型漏加时渲染层兜底补齐
+      const WEIBO_HEAT_MARKS = { '爆': '🔥爆', '沸': '🔥沸', '热': '📈热' };
+      function decorateTitle(t) {
+        if (__STYLE_NAME__ !== '微博热搜') return t;
+        const s = String(t || '');
+        return WEIBO_HEAT_MARKS[s[0]] ? WEIBO_HEAT_MARKS[s[0]] + s.slice(1) : s;
+      }
       function renderPractical(s) {
         s = s.replace(/((?:落地要点)[：:])/g, labelFrag() + '$1</span>');
         return renderDefault(s);
@@ -241,7 +248,7 @@
               <span class="card-index">No.${String(idx).padStart(2, '0')}</span>
               ${item.source ? `<span class="source-tag">${escH(item.source)}</span>` : ''}${item.published_at_disp ? `<span class="source-tag" style="color:#aaa;background:#f0f0ee;">发布于 ${escH(item.published_at_disp)}</span>` : ''}${item.tags && item.tags.length ? item.tags.filter(t => t !== item.category).map(t => `<span class="tag-tag">${escH(t)}</span>`).join('') : ''}
             </div>
-            <div class="card-title">${escH(item.title)}</div>
+            <div class="card-title">${escH(decorateTitle(item.title))}</div>
             <div class="card-summary">${renderSummary(item.summary)}</div>
             ${item.analysis ? renderAnalysis(item.analysis, ANALYSIS_LABELS[__STYLE_NAME__]) : ''}
             <div class="card-bottom">
@@ -323,7 +330,7 @@
         if (projCard && __PROJECTS__ && __PROJECTS__.length) {
           const pHeader = document.createElement('div');
           pHeader.className = 'category-header';
-          pHeader.textContent = `本周热门学习项目（${__PROJECTS__.length}条）`;
+          pHeader.textContent = `🚀 本周热门学习项目（${__PROJECTS__.length}条）`;
           projCard.appendChild(pHeader);
           __PROJECTS__.forEach(p => {
             const pc = document.createElement('div');
