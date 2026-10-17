@@ -4,6 +4,8 @@ import html
 import os
 import re
 
+from html import escape as _escape
+
 from jinja2 import Environment, FileSystemLoader, TemplateError
 
 from src import config
@@ -288,12 +290,14 @@ def _group_by_category(items: list) -> dict[str, list]:
 
 def make_email_with_categories(news_items, daily_analysis="", projects=None,
                                 filter_report=None, style_name="", trivia="",
-                                generated_at=None):
+                                generated_at=None, briefs=None):
     """
     生成带分类分组的邮件 HTML（新闻按板块渲染）。
     """
     if not projects:
         projects = []
+    if not briefs:
+        briefs = []
     if not os.path.exists(config.EMAIL_TEMPLATE):
         log.warning("邮件模板不存在: %s", config.EMAIL_TEMPLATE)
         return False
@@ -442,6 +446,33 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
     if filter_report:
         filter_report_section = filter_report.to_email_html()
 
+    briefs_section = ""
+    if briefs:
+        brief_rows = []
+        for b in briefs:
+            title = _escape(b.get("title", "") or "")
+            brief_text = _escape(b.get("brief", "") or "")
+            link = b.get("link", "") or ""
+            title_html = (f'<a href="{link}" target="_blank" '
+                          f'style="color:#1a1a1a;text-decoration:none;'
+                          f'border-bottom:1px solid #ddd;">{title}</a>') if link else title
+            brief_rows.append(f"""
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff;border:1px solid #e5e5e5;border-radius:10px;margin-bottom:8px;">
+              <tr>
+                <td style="padding:12px 16px;">
+                  <div style="font-size:13px;font-weight:600;color:#1a1a1a;line-height:1.5;">{title_html}</div>
+                  <div style="font-size:12px;color:#777;line-height:1.7;margin-top:4px;">{brief_text}</div>
+                </td>
+              </tr>
+            </table>""")
+        briefs_section = f"""
+        <tr>
+          <td style="padding-top:24px;border-top:2px dashed #ddd;">
+            <div style="font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:12px;">📌 更多要闻（{len(briefs)}条）</div>
+            {''.join(brief_rows)}
+          </td>
+        </tr>"""
+
     trivia_section = ""
     if trivia:
         trivia_section = f"""
@@ -464,6 +495,7 @@ def make_email_with_categories(news_items, daily_analysis="", projects=None,
         "news_items": news_sections,
         "daily_analysis_section": analysis_section,
         "projects_section": projects_section,
+        "briefs_section": briefs_section,
         "filter_report_section": filter_report_section,
         "trivia_section": trivia_section,
         "style_tag": style_tag,

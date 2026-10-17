@@ -194,18 +194,21 @@ def test_run_main_quality_check_survives_alert_failure(monkeypatch, tmp_path):
     M._run_main()  # 不抛异常即通过
 
 
-def test_cap_news_items_truncates_to_limit():
-    """条数硬上限：超出 18 条时截断，保留已排序的前段。"""
-    items = [{"title": f"n{i}", "score": 5.0 - i * 0.1} for i in range(27)]
-    capped = M._cap_news_items(items)
-    assert len(capped) == M.config.MAX_NEWS_ITEMS == 18
-    assert capped[0]["title"] == "n0"
-    assert capped[-1]["title"] == "n17"
+def test_split_display_items_limits_body():
+    """正文按上限拆分，超出部分进入简讯而非丢弃。"""
+    from src.analysis.summarize import split_display_items
+    items = [{"title": f"n{i}", "score": 5.0 - i * 0.1, "category": "行业动态"} for i in range(27)]
+    display, rest = split_display_items(items)
+    assert len(display) == M.config.MAX_NEWS_ITEMS == 18
+    assert len(rest) == 9
+    assert display[0]["title"] == "n0"
 
 
-def test_cap_news_items_keeps_short_list():
-    items = [{"title": "a"}, {"title": "b"}]
-    assert M._cap_news_items(items) == items
+def test_split_display_items_keeps_short_list():
+    from src.analysis.summarize import split_display_items
+    items = [{"title": "a", "category": "行业动态"}, {"title": "b", "category": "行业动态"}]
+    display, rest = split_display_items(items)
+    assert display == items and rest == []
 
 
 def test_max_news_items_matches_prompt_upper_bound():

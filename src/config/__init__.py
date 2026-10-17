@@ -18,6 +18,7 @@ from src.config.constants import (
     CREDIBILITY_SCORE_THRESHOLD,
     MAX_NEWS_ITEMS, MIN_NEWS_ITEMS, NEWS_MAX_AGE_HOURS,
     RECENT_TITLES_FILE, RECENT_TITLES_DAYS,
+    BRIEF_MAX_ITEMS, SUMMARY_MODEL_NAME, SUMMARY_TIMEOUT,
     now_bjt,
 )
 from src.config.sources import (

@@ -52,9 +52,12 @@ def _render_index_redirect() -> str:
 
 
 
-def write_html(news_items, daily_analysis="", projects=None, generated_at=None, style_name=""):
+def write_html(news_items, daily_analysis="", projects=None, generated_at=None,
+               style_name="", briefs=None):
     if not projects:
         projects = []
+    if not briefs:
+        briefs = []
     if not os.path.exists(config.HTML_TEMPLATE):
         log.error("网页模板不存在: %s", config.HTML_TEMPLATE)
         return False
@@ -76,6 +79,7 @@ def write_html(news_items, daily_analysis="", projects=None, generated_at=None, 
         "news_data_json": _json_to_js(news_items),
         "daily_analysis_json": _json_to_js(daily_analysis),
         "projects_json": _json_to_js(projects),
+        "briefs_json": _json_to_js(briefs),
         "generated_at": generated_at,
         "briefing_date": briefing_date,
         "time_disclaimer": TIME_DISCLAIMER,

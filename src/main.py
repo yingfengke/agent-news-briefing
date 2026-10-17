@@ -29,6 +29,7 @@ from src.core.models import FilterReport, NewsItem
 from src.collect.collector import collect_all
 from src.dedupe import run_pipeline
 from src.analysis import call_ai_analysis, reset_parse_stats, _translate_english_titles
+from src.analysis.summarize import split_display_items, build_briefs
 from src.analysis.postprocess import (
     _append_parsed_items, _build_fallback_items, _apply_fallback_scores,
 )
@@ -82,19 +83,6 @@ def _write_daily_summary(timeline_data: dict, **metrics) -> str:
     with open(path, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
     return path
-
-
-def _cap_news_items(items: list) -> list:
-    """按条数硬上限截断（调用前已按评分降序排好，保留高分条目）。
-
-    提示词里的「输出 12-18 条」只是给模型的软约束，实际会超量输出
-    （历史出现过 21/25/27 条），此处做代码级兜底。
-    """
-    limit = config.MAX_NEWS_ITEMS
-    if len(items) > limit:
-        log.info("  条数超上限 %d，截断至 %d 条（保留高分）", len(items), limit)
-        return items[:limit]
-    return items
 
 
 def _run_main():
@@ -237,13 +225,22 @@ def _run_main():
         _apply_fallback_scores(final_items)
 
     final_items.sort(key=lambda x: x.get("score", 0) or 0, reverse=True)
-    final_items = _cap_news_items(final_items)
 
     scored = sum(1 for it in final_items if it.get("score", 0) > 0)
     log.info("  评分分布: %d/%d 条有评分", scored, len(final_items))
 
+    # ---- 拆分正文与简讯（超出正文上限的条目不丢弃，压缩后单独展示） ----
+    display_items, brief_items = split_display_items(final_items)
+    if brief_items:
+        log.info("  AI 输出 %d 条 -> 正文 %d 条 + 简讯 %d 条",
+                 len(final_items), len(display_items), len(brief_items))
+        briefs = build_briefs(brief_items)
+        tl.mark("生成", "briefs", "ok", f"{len(briefs)} 条")
+    else:
+        briefs = []
+
     # ---- 回填发布时间（采集层 published_at，按 URL / 标题回关联） ----
-    _attach_published_at(final_items, clean_items)
+    _attach_published_at(display_items, clean_items)
 
     # ---- 统一生成时间戳（北京时间），网页 / 邮件 / RSS 共用同一时刻 ----
     generated_at = config.now_bjt().strftime("%Y-%m-%d %H:%M（北京时间）")
@@ -270,9 +267,10 @@ def _run_main():
     # ---- 写入网页 HTML ----
     log.info("")
     log.info("  -- 写入网页 HTML --")
-    write_html(final_items, daily_analysis, trending_projects, generated_at=generated_at,
-               style_name=style_name if not ai_failed else "降级")
-    tl.mark("生成", "html_render", "ok", f"{len(final_items)} 条")
+    write_html(display_items, daily_analysis, trending_projects, generated_at=generated_at,
+               style_name=style_name if not ai_failed else "降级", briefs=briefs)
+    tl.mark("生成", "html_render", "ok",
+            f"{len(display_items)} 条" + (f" + 简讯 {len(briefs)}" if briefs else ""))
 
     # ---- 生成邮件 HTML（分类版） + RSS Feed ----
     log.info("")
@@ -286,15 +284,15 @@ def _run_main():
         )
     else:
         make_email_with_categories(
-            final_items, daily_analysis, trending_projects,
+            display_items, daily_analysis, trending_projects,
             filter_report=report,
             style_name=style_name if not ai_failed else "降级",
-            trivia=trivia, generated_at=generated_at,
+            trivia=trivia, generated_at=generated_at, briefs=briefs,
         )
     generate_rss_feed(final_items, daily_analysis, generated_at=generated_at)
     tl.mark("生成", "email_rss", "ok", f"{len(final_items)} 条")
 
-    # 记录当期标题，供后续几天跨源同事件去重
+    # 记录当期全部推送内容（正文 + 简讯），供后续几天跨源同事件去重
     record_titles(final_items)
 
     # ---- 邮件已生成，由 workflow 步骤发送 ----

@@ -23,6 +23,7 @@ jobs:
       API_BASE_URL: ${{ secrets.API_BASE_URL }}
       API_KEY: ${{ secrets.API_KEY }}
       MODEL_NAME: ${{ secrets.MODEL_NAME }}
+      SUMMARY_MODEL_NAME: ${{ secrets.SUMMARY_MODEL_NAME }}
       SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
       AUTH_CODE: ${{ secrets.AUTH_CODE }}
       RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}

@@ -91,6 +91,16 @@
     }
     .category-header:first-of-type { margin-top: 0; }
 
+    /* 更多要闻简讯 */
+    .brief-row {
+      background: #fff; border: 1px solid #e5e5e5; border-radius: 10px;
+      padding: 14px 18px;
+    }
+    .brief-row .brief-title { font-size: 0.86rem; font-weight: 600; color: #1a1a1a; line-height: 1.5; }
+    .brief-row .brief-title a { color: inherit; text-decoration: none; border-bottom: 1px solid #ddd; }
+    .brief-row .brief-title a:hover { border-bottom-color: #1a1a1a; }
+    .brief-row .brief-text { font-size: 0.78rem; color: #777; line-height: 1.7; margin-top: 4px; }
+
     /* 深度分析卡片 */
     .analysis-card {
       background: #1a1a1a; color: #e8e8e8; border-radius: 14px;
@@ -136,12 +146,14 @@
   <div class="empty-state" id="empty-state">
     <div class="icon-big">📭</div>
     <p>今日晨报尚未生成</p>
-    <p class="hint">每天早上 9:00 自动抓取 AI 领域最新动态<br>届时刷新页面即可查看</p>
+    <p class="hint">每天早上 6:30 自动抓取 AI 领域最新动态<br>届时刷新页面即可查看</p>
   </div>
 
   <div class="news-list" id="news-list"></div>
 
   <div class="news-list" id="projects-card"></div>
+
+  <div class="news-list" id="briefs-card"></div>
 
   <div class="analysis-card" id="analysis-card">
     <div class="label">📊 今日深度分析</div>
@@ -169,6 +181,12 @@
     // 项目推荐 — 由 generate_briefing.py 自动替换
     // ========================================================
     const __PROJECTS__ = {{ projects_json | safe }};;
+
+    // ========================================================
+    // 更多要闻简讯 — 未进正文的条目压缩后展示
+    // [{title, brief, link}]
+    // ========================================================
+    const __BRIEFS__ = {{ briefs_json | safe }};;
 
     // 当日风格名（由 generate_briefing.py 注入，用于按风格渲染摘要）
     const __STYLE_NAME__ = {{ style_name | tojson }};
@@ -346,6 +364,26 @@
             projCard.appendChild(pc);
           });
           projCard.classList.add('visible');
+        }
+
+        // 更多要闻（未进正文的条目，压缩为简讯）
+        const briefCard = document.getElementById('briefs-card');
+        if (briefCard && __BRIEFS__ && __BRIEFS__.length) {
+          const bHeader = document.createElement('div');
+          bHeader.className = 'category-header';
+          bHeader.textContent = `📌 更多要闻（${__BRIEFS__.length}条）`;
+          briefCard.appendChild(bHeader);
+          __BRIEFS__.forEach(b => {
+            const row = document.createElement('div');
+            row.className = 'brief-row';
+            const titleHtml = b.link
+              ? `<a href="${safeHref(b.link)}" target="_blank" rel="noopener noreferrer">${escH(b.title)}</a>`
+              : escH(b.title);
+            row.innerHTML = `<div class="brief-title">${titleHtml}</div>` +
+                            `<div class="brief-text">${escH(b.brief || '')}</div>`;
+            briefCard.appendChild(row);
+          });
+          briefCard.classList.add('visible');
         }
 
         // 深度分析

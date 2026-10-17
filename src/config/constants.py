@@ -80,6 +80,13 @@ NEWS_MAX_AGE_HOURS = 72
 RECENT_TITLES_FILE = os.path.join(BASE_DIR, "web", ".recent_titles.json")
 RECENT_TITLES_DAYS = 14
 
+# 正文条数上限：超出部分不丢弃，压缩为简讯后单独展示
+BRIEF_MAX_ITEMS = 24
+# 简讯压缩用的轻量模型（与主模型分开计费，失败时本地截断兜底）
+# 用 or 而非 getenv 默认值：Secrets 未配置时环境变量为空串，需回落到默认模型
+SUMMARY_MODEL_NAME = os.getenv("SUMMARY_MODEL_NAME") or "Qwen/Qwen3.5-4B"
+SUMMARY_TIMEOUT = 90
+
 # 时区：北京时间（UTC+8）。统一用此函数取"当前时间"，
 # 避免 GitHub Actions runner（默认 UTC）上 datetime.now() 导致日期偏移一天。
 def now_bjt():
