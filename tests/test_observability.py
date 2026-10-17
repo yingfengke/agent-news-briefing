@@ -192,3 +192,23 @@ def test_run_main_quality_check_survives_alert_failure(monkeypatch, tmp_path):
     _stub_pipeline(monkeypatch, tmp_path, _boom)
     monkeypatch.setattr("src.delivery.send_email.send_quality_alert", _alert_boom)
     M._run_main()  # 不抛异常即通过
+
+
+def test_cap_news_items_truncates_to_limit():
+    """条数硬上限：超出 18 条时截断，保留已排序的前段。"""
+    items = [{"title": f"n{i}", "score": 5.0 - i * 0.1} for i in range(27)]
+    capped = M._cap_news_items(items)
+    assert len(capped) == M.config.MAX_NEWS_ITEMS == 18
+    assert capped[0]["title"] == "n0"
+    assert capped[-1]["title"] == "n17"
+
+
+def test_cap_news_items_keeps_short_list():
+    items = [{"title": "a"}, {"title": "b"}]
+    assert M._cap_news_items(items) == items
+
+
+def test_max_news_items_matches_prompt_upper_bound():
+    """代码上限须与提示词约定的 12-18 条一致，避免两处口径打架。"""
+    assert M.config.MAX_NEWS_ITEMS == 18
+    assert M.config.MIN_NEWS_ITEMS <= M.config.MAX_NEWS_ITEMS

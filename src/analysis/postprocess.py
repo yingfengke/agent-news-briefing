@@ -4,6 +4,7 @@ import json
 import re
 from urllib.parse import urlparse
 
+from src import config
 from src.config.sources import CATEGORY_ORDER, CREDIBILITY_WHITELIST, TITLE_CATEGORY_MAP
 from src.core.models import NewsItem
 from src.core.logger import get_logger
@@ -363,7 +364,7 @@ def _fallback_category(ci: NewsItem) -> str:
         return "行业动态"
     return "其他动态"
 
-_FALLBACK_MAX_ITEMS = 40  # 降级兜底条数上限，与正常路径产出规模对齐
+_FALLBACK_MAX_ITEMS = config.MAX_NEWS_ITEMS  # 降级兜底条数上限，与正常路径上限一致
 
 def _build_fallback_items(clean_items: list[NewsItem]) -> list[dict]:
     """

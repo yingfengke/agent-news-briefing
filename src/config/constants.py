@@ -65,11 +65,15 @@ RAW_CACHE_FILE = os.path.join(BASE_DIR, "web", ".raw_pool_cache.json")
 # 可信度过滤
 CREDIBILITY_SCORE_THRESHOLD = 0.40  # 低于此阈值直接丢弃
 
+# 简报条数硬上限。提示词里的「输出 12-18 条」是给模型的软约束，
+# 实际会超出（历史出现过 21/25/27 条），此处做代码级兜底截断。
+MAX_NEWS_ITEMS = 18
+# 内容不足时的放宽底线：过滤后少于该条数则放宽时效窗口重试
+MIN_NEWS_ITEMS = 12
+
 # 新闻时效窗口（小时）：发布时间早于「当前时刻 - 该时长」的条目视为旧闻丢弃。
 # 用于阻断跨天重复推送（某事件发布数日后被另一源转载又进新一期）。
 NEWS_MAX_AGE_HOURS = 72
-# 内容不足时的放宽底线：过滤后少于该条数则放宽时效窗口重试
-MIN_NEWS_ITEMS = 12
 
 # 跨天历史标题库：记录近 N 天已推标题，供次日标题级去重使用
 RECENT_TITLES_FILE = os.path.join(BASE_DIR, "web", ".recent_titles.json")

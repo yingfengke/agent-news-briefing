@@ -84,6 +84,19 @@ def _write_daily_summary(timeline_data: dict, **metrics) -> str:
     return path
 
 
+def _cap_news_items(items: list) -> list:
+    """按条数硬上限截断（调用前已按评分降序排好，保留高分条目）。
+
+    提示词里的「输出 12-18 条」只是给模型的软约束，实际会超量输出
+    （历史出现过 21/25/27 条），此处做代码级兜底。
+    """
+    limit = config.MAX_NEWS_ITEMS
+    if len(items) > limit:
+        log.info("  条数超上限 %d，截断至 %d 条（保留高分）", len(items), limit)
+        return items[:limit]
+    return items
+
+
 def _run_main():
     reset_parse_stats()
     tl = Timeline()
@@ -224,6 +237,7 @@ def _run_main():
         _apply_fallback_scores(final_items)
 
     final_items.sort(key=lambda x: x.get("score", 0) or 0, reverse=True)
+    final_items = _cap_news_items(final_items)
 
     scored = sum(1 for it in final_items if it.get("score", 0) > 0)
     log.info("  评分分布: %d/%d 条有评分", scored, len(final_items))
