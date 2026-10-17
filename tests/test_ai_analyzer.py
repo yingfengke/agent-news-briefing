@@ -206,7 +206,8 @@ def test_filter_history_duplicates_catches_same_product_entity():
                  lang="zh", source_type="rss", crawled_at=""),
     ]
     history = ["智谱 AI 推出 GLM-Legal：面向合同审查与合规的专用法律模型"]
-    with patch("src.analysis.context.load_history_titles", return_value=history):
+    records = tuple((t, "") for t in history)
+    with patch("src.analysis.context.load_history_records", return_value=records):
         result = _filter_history_duplicates(items)
     assert result == []
 
@@ -219,7 +220,8 @@ def test_filter_history_duplicates_keeps_different_event_of_same_vendor():
                  lang="zh", source_type="rss", crawled_at=""),
     ]
     history = ["OpenAI 发布新版语音模型，延迟降低一半"]
-    with patch("src.analysis.context.load_history_titles", return_value=history):
+    records = tuple((t, "") for t in history)
+    with patch("src.analysis.context.load_history_records", return_value=records):
         result = _filter_history_duplicates(items)
     assert len(result) == 1
 
@@ -231,3 +233,46 @@ def test_extract_entities_filters_generic_tokens():
     # 厂商名与短数字不参与
     assert _extract_entities("OpenAI 与 Google 合作") == set()
     assert _extract_entities("GPT-5") == set()
+
+
+def test_filter_history_duplicates_catches_content_level_duplicate():
+    """无可识别产品名时，靠摘要内容重合兜住跨源改写报道的同一事件。"""
+    items = [
+        NewsItem(id="1", title="AI 模型上线须先完成备案",
+                 content="监管要求大模型上线前完成备案，涉及训练数据来源、内容安全评估与算法说明等材料",
+                 url="https://a.example/2", source="SrcB", lang="zh",
+                 source_type="rss", crawled_at=""),
+    ]
+    records = ((
+        "某地发布大模型备案新规",
+        "监管要求所有大模型上线前完成备案，涉及训练数据来源、内容安全评估与算法说明",
+    ),)
+    with patch("src.analysis.context.load_history_records", return_value=records):
+        result = _filter_history_duplicates(items)
+    assert result == []
+
+
+def test_filter_history_duplicates_keeps_unrelated_content():
+    """内容不重合的条目即使同为主题也不误杀。"""
+    items = [
+        NewsItem(id="1", title="OpenAI 发布新语音模型",
+                 content="延迟降低一半，支持多语种实时转写，定价同步下调",
+                 url="https://a.example/3", source="SrcA", lang="zh",
+                 source_type="rss", crawled_at=""),
+    ]
+    records = ((
+        "某地发布大模型备案新规",
+        "监管要求所有大模型上线前完成备案，涉及训练数据来源、内容安全评估与算法说明",
+    ),)
+    with patch("src.analysis.context.load_history_records", return_value=records):
+        result = _filter_history_duplicates(items)
+    assert len(result) == 1
+
+
+def test_content_token_similarity_requires_enough_shared_tokens():
+    from src.analysis.context import _content_tokens, _content_duplicate
+    a = _content_tokens("监管要求大模型上线前完成备案，涉及训练数据来源与内容安全评估")
+    b = _content_tokens("大模型上线前须完成备案，训练数据来源和内容安全评估必不可少")
+    c = _content_tokens("半导体设备出货量同比增长，带动上游材料涨价")
+    assert _content_duplicate(a, b) is True
+    assert _content_duplicate(a, c) is False

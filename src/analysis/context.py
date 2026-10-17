@@ -12,7 +12,7 @@ import tiktoken
 from src import config
 from src.core.models import NewsItem
 from src.core.logger import get_logger
-from src.core.history_titles import load_recent_titles
+from src.core.history_titles import load_recent_items
 
 log = get_logger("ai")
 
@@ -29,38 +29,45 @@ HISTORY_DEDUP_WINDOW = 30
 
 
 @lru_cache(maxsize=1)
-def load_history_titles():
+def load_history_records() -> tuple:
     """
-    读取已推标题，供跨天排重使用。
+    读取已推内容（标题 + 摘要），供跨天事件级排重使用。
 
     两个来源合并：
-      1. tech-briefing.html 的当期标题（上一期，页面每天被覆盖）；
-      2. web/.recent_titles.json 的近期标题库（近 N 天，跨天去重的主力）。
+      1. tech-briefing.html 的当期内容（上一期，页面每天被覆盖）；
+      2. web/.recent_titles.json 的近期内容库（近 N 天，跨天去重的主力）。
 
     单次运行内文件不变，故加 lru_cache 避免本地排重与 prompt 构造重复读盘。
-    返回顺序：当期标题在前、历史库在后，整体去重保序。
+    返回顺序：当期内容在前、历史库在后，按标题去重保序。
+    返回 tuple 以便 lru_cache 缓存（元素为 (title, summary) 元组）。
     """
-    titles = []
+    records = []
     try:
         with open(config.HTML_FILE, "r", encoding="utf-8") as f:
             content = f.read()
         m = re.search(r'const\s+__NEWS_DATA__\s*=\s*(\[[\s\S]*?\])\s*;', content)
         if m:
             data = json.loads(m.group(1))
-            titles = [item.get("title", "") for item in data if item.get("title")]
+            records = [(item.get("title", ""), item.get("summary", "") or "")
+                       for item in data if item.get("title")]
     except Exception as e:
         log.warning("读取历史简报用于排重时出错: %s", e)
 
-    titles.extend(load_recent_titles())
+    records.extend((it["t"], it.get("s", "")) for it in load_recent_items())
 
     seen = set()
     merged = []
-    for t in titles:
-        key = (t or "").strip()
+    for title, summary in records:
+        key = (title or "").strip()
         if key and key not in seen:
             seen.add(key)
-            merged.append(key)
-    return merged
+            merged.append((key, (summary or "").strip()))
+    return tuple(merged)
+
+
+def load_history_titles() -> list[str]:
+    """读取已推标题（跨天排重用）。"""
+    return [title for title, _ in load_history_records()]
 
 
 
@@ -203,23 +210,65 @@ def _extract_entities(title: str) -> set:
     return found
 
 
+# 内容级比对：中文按二元组、英文按单词切分，剔除高噪词后取交集比例。
+# 阈值由 10-14 / 10-16 两期真实数据标定：同一事件交集 13 个（比例 0.21），
+# 其余最高 9 个（比例 0.14 且多为不同事件）——故要求「交集数够多」为主、
+# 比例达标为辅。只按比例会把描述泛化的无关条目误杀（实测误杀 4 条）。
+CONTENT_DUP_RATIO = 0.15
+CONTENT_DUP_MIN_SHARED = 10
+# 参与内容级比对的摘要长度上限：过长会让交集比例被稀释，且无助于判定
+CONTENT_DUP_SUMMARY_CHARS = 200
+
+_TOKEN_STOP = {
+    "the", "and", "for", "with", "that", "this", "from", "are", "was", "has",
+    "its", "new", "ai", "api", "you", "can", "not", "但", "和", "与", "及", "或",
+    "的", "了", "在", "是", "为", "将", "把", "对", "有", "也", "都", "就", "而",
+    "一个", "我们", "他们", "可以", "已经", "通过", "目前", "今日", "表示", "进行",
+}
+
+
+def _content_tokens(text: str) -> set:
+    """切分为比对用的 token 集合：英文单词 + 中文二元组。"""
+    lowered = (text or "").lower()
+    tokens = {w for w in re.findall(r"[a-z][a-z0-9.\-]{2,}", lowered)
+              if w not in _TOKEN_STOP}
+    for seg in re.split(r"[^\u4e00-\u9fff]+", lowered):
+        for i in range(len(seg) - 1):
+            bigram = seg[i:i + 2]
+            if bigram not in _TOKEN_STOP:
+                tokens.add(bigram)
+    return tokens
+
+
+def _content_duplicate(tokens_a: set, tokens_b: set) -> bool:
+    """内容级判重：交集占较小集合的比例达标，且交集 token 数足够多。"""
+    if not tokens_a or not tokens_b:
+        return False
+    shared = len(tokens_a & tokens_b)
+    if shared < CONTENT_DUP_MIN_SHARED:
+        return False
+    return shared / min(len(tokens_a), len(tokens_b)) >= CONTENT_DUP_RATIO
+
+
 def _filter_history_duplicates(items: list[NewsItem]) -> list[NewsItem]:
     """
     基于历史简报标题，过滤掉内容高度重复的新闻。
 
-    判定三条路径（命中任一即视为已报道）：
+    判定四条路径（命中任一即视为已报道）：
       1. 整句字符相似度 > 0.85（同语言近重复）；
       2. 关键词重叠占较小集合的比例 > 0.6；
       3. 稀有产品/型号实体命中（如 GLM-Legal、Llama-4）——不同源、不同措辞
-         报道同一产品时，整句与关键词路径都难命中，但实体名是共享的。
+         报道同一产品时，整句与关键词路径都难命中，但实体名是共享的；
+      4. 内容级 token 重合（标题 + 摘要）——事件没有可识别产品名时，
+         靠摘要里的场景词重合兜住（如「某地发布 AI 监管新规」被两家改写报道）。
 
     口径说明：历史标题来自 AI 译后中文，当前项多为英文原标题，跨语言场景
     本层难命中（交给 prompt 里的【已报道历史】由 AI 判断），故路径 1/2 按
     【同语言近重复】校准，宁松勿严；路径 3 只认带连字符/数字的复合实体，
     并排除高频厂商名，避免「OpenAI 有新闻」被当成同一事件。
     """
-    history_titles = load_history_titles()
-    if not history_titles:
+    history_records = load_history_records()
+    if not history_records:
         return items
 
     def _normalize(title: str) -> str:
@@ -229,9 +278,13 @@ def _filter_history_duplicates(items: list[NewsItem]) -> list[NewsItem]:
         parts = re.split(r'[\s：:，,、()（）\[\]【】|/／\-—\'\"「」『』]', title.lower())
         return set(w.strip() for w in parts if len(w.strip()) > 2)
 
+    history_titles = [title for title, _ in history_records]
     norm_history = [_normalize(t) for t in history_titles]
     kw_history = [_keywords(t) for t in history_titles]
     ent_history = [_extract_entities(t) for t in history_titles]
+    # 内容级比对用「标题 + 摘要」，摘要缺失时退化为标题
+    content_history = [_content_tokens(f"{t} {s[:CONTENT_DUP_SUMMARY_CHARS]}")
+                       for t, s in history_records]
 
     kept = []
     removed = 0
@@ -239,6 +292,8 @@ def _filter_history_duplicates(items: list[NewsItem]) -> list[NewsItem]:
         norm_current = _normalize(it.title)
         kw_current = _keywords(it.title)
         ent_current = _extract_entities(it.title)
+        content_current = _content_tokens(
+            f"{it.title} {(it.content or '')[:CONTENT_DUP_SUMMARY_CHARS]}")
 
         is_dup = False
         for i in range(len(norm_history)):
@@ -269,6 +324,10 @@ def _filter_history_duplicates(items: list[NewsItem]) -> list[NewsItem]:
                             break
                     if is_dup:
                         break
+            # 路径 4：内容级 token 重合（标题 + 摘要）
+            if _content_duplicate(content_current, content_history[i]):
+                is_dup = True
+                break
             if is_dup:
                 break
 

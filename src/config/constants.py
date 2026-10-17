@@ -75,9 +75,10 @@ MIN_NEWS_ITEMS = 12
 # 用于阻断跨天重复推送（某事件发布数日后被另一源转载又进新一期）。
 NEWS_MAX_AGE_HOURS = 72
 
-# 跨天历史标题库：记录近 N 天已推标题，供次日标题级去重使用
+# 跨天历史标题库：记录近 N 天的标题与摘要，供次日事件级去重使用。
+# 保留 14 天：窗口过短挡不住慢热话题，过长会让状态文件持续膨胀。
 RECENT_TITLES_FILE = os.path.join(BASE_DIR, "web", ".recent_titles.json")
-RECENT_TITLES_DAYS = 7
+RECENT_TITLES_DAYS = 14
 
 # 时区：北京时间（UTC+8）。统一用此函数取"当前时间"，
 # 避免 GitHub Actions runner（默认 UTC）上 datetime.now() 导致日期偏移一天。
