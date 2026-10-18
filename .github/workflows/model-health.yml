@@ -1,0 +1,41 @@
+name: 模型健康检查
+
+# 手动触发，用于定位「模型调用失败」的具体原因（模型下线 / 免费额度受限 / key 失效 / 限流）。
+# 只发最小请求，不产生实质费用，也不影响每日简报。
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      # 敏感项
+      API_KEY: ${{ secrets.API_KEY }}
+      MODEL_API_KEY: ${{ secrets.MODEL_API_KEY }}
+      # 非敏感项（未配置为空串，代码回落默认值）
+      API_BASE_URL: ${{ vars.API_BASE_URL }}
+      MODEL_NAME: ${{ vars.MODEL_NAME }}
+      MODEL_BASE_URL: ${{ vars.MODEL_BASE_URL }}
+      FALLBACK_MODEL_NAME: ${{ vars.FALLBACK_MODEL_NAME }}
+      SUMMARY_MODEL_NAME: ${{ vars.SUMMARY_MODEL_NAME }}
+      TWITTER_FILTER_MODEL_NAME: ${{ vars.TWITTER_FILTER_MODEL_NAME }}
+      EMBEDDING_MODEL: ${{ vars.EMBEDDING_MODEL }}
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Python 环境
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: 安装依赖
+        run: |
+          pip install -r requirements.txt
+          pip check
+
+      - name: 探测各模型可用性
+        run: python -m src.tools.check_models

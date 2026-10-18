@@ -56,6 +56,45 @@ def test_build_briefs_falls_back_when_model_fails():
     assert briefs[0]["link"] == "https://e.com/甲"
 
 
+def test_build_briefs_falls_back_to_main_model():
+    """轻量模型不可用时改用主模型，避免整批退化成 60 字截断。"""
+    items = [_item("甲", 1.0)]
+    calls = []
+
+    def _fake(prompt, model):
+        calls.append(model)
+        if model == config.MODEL_NAME:
+            return ["主模型简讯"]
+        raise TimeoutError("free model down")
+
+    with patch.object(S, "_call_model", side_effect=_fake):
+        briefs = S.build_briefs(items, model="free-model")
+    assert calls == ["free-model", config.MODEL_NAME]
+    assert briefs[0]["brief"] == "主模型简讯"
+
+
+def test_build_briefs_uses_local_fallback_when_all_models_fail():
+    items = [_item("甲", 1.0)]
+    with patch.object(S, "_call_model", side_effect=TimeoutError("down")):
+        briefs = S.build_briefs(items, model="free-model")
+    assert briefs[0]["brief"].startswith("甲的摘要内容")
+
+
+def test_build_briefs_treats_empty_output_as_failure():
+    """模型返回空字符串同样视为失败，继续下一档模型。"""
+    items = [_item("甲", 1.0)]
+    calls = []
+
+    def _fake(prompt, model):
+        calls.append(model)
+        return [""] if model != config.MODEL_NAME else ["兜底简讯"]
+
+    with patch.object(S, "_call_model", side_effect=_fake):
+        briefs = S.build_briefs(items, model="free-model")
+    assert calls == ["free-model", config.MODEL_NAME]
+    assert briefs[0]["brief"] == "兜底简讯"
+
+
 def test_build_briefs_uses_model_output():
     items = [_item("甲", 1.0)]
     with patch.object(S, "_call_model", return_value=["一句话简讯"]):

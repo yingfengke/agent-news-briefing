@@ -17,6 +17,7 @@ from urllib.request import Request, urlopen
 
 from src import config
 from src.core.logger import get_logger
+from src.core.http_utils import http_error_detail
 
 log = get_logger("analysis.summarize")
 
@@ -128,34 +129,62 @@ def _call_model(prompt: str, model: str) -> list[str]:
     return briefs
 
 
+def _try_compress(prompt: str, model: str, expected: int) -> list[str] | None:
+    """尝试用一个模型压缩简讯；失败返回 None，由调用方决定下一档。"""
+    try:
+        briefs = _call_model(prompt, model)[:expected]
+        filled = sum(1 for b in briefs if b)
+        if filled == 0:
+            log.warning("  %s 未返回有效简讯", model)
+            return None
+        log.info("  简讯压缩: %d 条 -> %d 条成功 (%s)", expected, filled, model)
+        return briefs
+    except (HTTPError, URLError, socket.timeout, TimeoutError, ValueError,
+            KeyError, json.JSONDecodeError) as e:
+        log.warning("  简讯压缩失败 (%s) [%s]", http_error_detail(e), model)
+    except Exception as e:
+        log.warning("  简讯压缩异常 (%s) [%s]", http_error_detail(e), model)
+    return None
+
+
 def build_briefs(items: list[dict], model: str | None = None,
                  max_items: int | None = None) -> list[dict]:
     """把未进正文的条目压缩为简讯列表。
 
     返回 [{"title", "brief", "link"}]；任何一步失败都退回本地截断摘要，
     保证调用方拿到的永远是可用数据。
+
+    压缩模型按顺序尝试：配置的轻量模型 → 主模型。轻量模型多为免费额度，
+    受限时整批会失败；此时用主模型兜一层，避免全部退化成 60 字截断。
     """
     if not items:
         return []
 
     cap = config.BRIEF_MAX_ITEMS if max_items is None else max_items
     selected = items[:cap]
-    briefs = [""] * len(selected)
+    briefs: list[str] = []
 
     model_name = model or config.SUMMARY_MODEL_NAME
-    if config.API_KEY and model_name:
-        try:
-            briefs = _call_model(_build_prompt(selected), model_name)[:len(selected)]
-            filled = sum(1 for b in briefs if b)
-            log.info("  简讯压缩: %d 条 -> %d 条成功 (%s)", len(selected), filled, model_name)
-        except (HTTPError, URLError, socket.timeout, TimeoutError, ValueError,
-                KeyError, json.JSONDecodeError) as e:
-            log.warning("  简讯压缩失败 (%s: %s)，改用本地摘要截断",
-                        type(e).__name__, str(e)[:80])
-        except Exception as e:
-            log.warning("  简讯压缩异常 (%s)，改用本地摘要截断", str(e)[:80])
+    if not config.API_KEY:
+        log.warning("  未配置 API_KEY，%d 条简讯无法压缩（未发起模型调用），改用本地截断",
+                    len(selected))
+    elif not model_name:
+        log.warning("  未配置简讯模型，%d 条简讯改用本地截断（未发起模型调用）", len(selected))
     else:
-        log.info("  未配置简讯模型，直接使用本地摘要截断")
+        prompt = _build_prompt(selected)
+        candidates = [model_name, config.MODEL_NAME]
+        tried = []
+        log.info("  简讯压缩开始：%d 条 → 模型 %s", len(selected), model_name)
+        for candidate in candidates:
+            if not candidate or candidate in tried:
+                continue
+            tried.append(candidate)
+            result = _try_compress(prompt, candidate, len(selected))
+            if result is not None:
+                briefs = result
+                break
+        if not briefs:
+            log.warning("  简讯压缩全部失败，%d 条改用本地摘要截断", len(selected))
 
     result = []
     for i, it in enumerate(selected):
