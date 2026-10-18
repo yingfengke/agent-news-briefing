@@ -18,11 +18,14 @@ from urllib.request import Request, urlopen
 from src import config
 from src.core.logger import get_logger
 from src.core.http_utils import http_error_detail
+from src.core.entities import primary_key
 
 log = get_logger("analysis.summarize")
 
 OTHER_CATEGORY = "其他动态"
 _BRIEF_MAX_CHARS = 40
+# 同一产品/型号在正文最多保留条数；超出部分转入简讯（不删除）
+SAME_EVENT_MAX_IN_BODY = 2
 
 
 def _score(item) -> float:
@@ -64,6 +67,51 @@ def split_display_items(items: list[dict], limit: int | None = None):
     display.sort(key=_score, reverse=True)
     rest.sort(key=_score, reverse=True)
     return display, rest
+
+
+def apply_entity_quota(display: list[dict], rest: list[dict],
+                       limit: int = SAME_EVENT_MAX_IN_BODY):
+    """同一产品/型号在正文最多保留 limit 条，其余下移到简讯。
+
+    提示词只能降低同事件重复的概率，这里做代码级兜底：
+    标题里能提取出同一型号（V4.1-Flash-1017 与 V4.1 Flash 1017 归一化后相同）
+    的条目，超出配额的按原顺序移出正文，空出的名额从待展示区补入其他条目，
+    尽量保持正文条数不变。只调整展示位置，不删除任何内容。
+    """
+    if len(display) <= limit:
+        return display, rest
+
+    counts: dict[str, int] = {}
+    kept: list[dict] = []
+    overflow: list[dict] = []
+
+    for item in display:
+        key = primary_key(item.get("title") or "")
+        if key and counts.get(key, 0) >= limit:
+            overflow.append(item)
+            continue
+        if key:
+            counts[key] = counts.get(key, 0) + 1
+        kept.append(item)
+
+    if not overflow:
+        return display, rest
+
+    target = len(display)
+    remaining: list[dict] = []
+    for item in rest:
+        key = primary_key(item.get("title") or "")
+        if len(kept) < target and not (key and counts.get(key, 0) >= limit):
+            kept.append(item)
+            if key:
+                counts[key] = counts.get(key, 0) + 1
+        else:
+            remaining.append(item)
+
+    kept.sort(key=_score, reverse=True)
+    overflow.extend(remaining)
+    overflow.sort(key=_score, reverse=True)
+    return kept, overflow
 
 
 def _fallback_brief(item: dict) -> str:

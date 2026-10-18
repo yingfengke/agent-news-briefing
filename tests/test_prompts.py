@@ -166,3 +166,18 @@ class TestGetTodayStyle:
         monkeypatch.setattr(prompts, "SYSTEM_PROMPTS", [])
         with pytest.raises(AssertionError):
             get_today_style()
+
+
+def test_summary_quality_bans_cross_item_contamination():
+    """摘要不得混入其他条目的信息：否则会造出"看起来重复"的假象。"""
+    assert "禁止跨条目串味" in SUMMARY_QUALITY_RULE
+    for name, prompt in SYSTEM_PROMPTS:
+        assert "禁止跨条目串味" in prompt, f"{name} 缺跨条目约束"
+
+
+def test_summary_quality_defines_same_event_by_new_facts():
+    """同一事件的判定按信息增量，而非标题相似度。"""
+    assert "同一事件的判定" in SUMMARY_QUALITY_RULE
+    assert "有没有带来新事实" in SUMMARY_QUALITY_RULE
+    for name, prompt in SYSTEM_PROMPTS:
+        assert "同一事件的判定" in prompt, f"{name} 缺事件判定规则"
