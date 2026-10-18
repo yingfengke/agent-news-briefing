@@ -288,6 +288,7 @@ def _filter_history_duplicates(items: list[NewsItem]) -> list[NewsItem]:
 
     kept = []
     removed = 0
+    dropped_titles = []
     for it in items:
         norm_current = _normalize(it.title)
         kw_current = _keywords(it.title)
@@ -333,11 +334,15 @@ def _filter_history_duplicates(items: list[NewsItem]) -> list[NewsItem]:
 
         if is_dup:
             removed += 1
+            dropped_titles.append(it.title or "")
         else:
             kept.append(it)
 
     if removed:
         log.info("  -> 历史排重: 过滤 %d 条已报道过的新闻", removed)
+        # 打出被判重的条目，便于核对是否误杀（新闻量骤降时先看这里）
+        for title in dropped_titles[:10]:
+            log.info("       已报道: %s", title[:50])
     return kept
 
 

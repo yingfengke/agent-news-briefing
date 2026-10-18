@@ -55,21 +55,41 @@ class SemanticDeduper:
         }
 
     def _load_cache(self):
-        """加载 Embedding 缓存"""
+        """加载 Embedding 缓存。
+
+        缓存按模型隔离：不同模型的向量处在不同语义空间，混用会算出无意义的
+        相似度。旧版缓存是扁平 {标题: 向量}，没有模型标识，一律丢弃。
+        """
         try:
-            with open(self._cache_file, "r") as f:
-                self._cache = json.load(f)
-            # 检查是否是今天的缓存（按文件修改时间）
-            mtime = os.path.getmtime(self._cache_file)
-            if datetime.fromtimestamp(mtime).date() < datetime.now().date():
-                self._cache = {}  # 过期，清空
-        except (FileNotFoundError, json.JSONDecodeError):
+            with open(self._cache_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError, UnicodeDecodeError):
             self._cache = {}
+            return
+
+        if not isinstance(data, dict) or "vectors" not in data:
+            self._cache = {}
+            return
+        if data.get("model") != config.EMBEDDING_MODEL:
+            log.info("  [语义去重] 缓存模型 %s 与当前 %s 不一致，丢弃缓存",
+                     data.get("model"), config.EMBEDDING_MODEL)
+            self._cache = {}
+            return
+
+        # 检查是否是今天的缓存（按文件修改时间）
+        try:
+            if datetime.fromtimestamp(os.path.getmtime(self._cache_file)).date() < datetime.now().date():
+                self._cache = {}
+                return
+        except OSError:
+            pass
+        self._cache = data.get("vectors") or {}
 
     def _save_cache(self):
-        """持久化缓存"""
-        with open(self._cache_file, "w") as f:
-            json.dump(self._cache, f, ensure_ascii=False)
+        """持久化缓存（带模型标识，供下次启动校验）"""
+        with open(self._cache_file, "w", encoding="utf-8") as f:
+            json.dump({"model": config.EMBEDDING_MODEL, "vectors": self._cache},
+                      f, ensure_ascii=False)
 
     def _cache_key(self, item: NewsItem) -> str:
         """缓存键：标题前 50 字"""
@@ -167,6 +187,8 @@ class SemanticDeduper:
         valid_vecs = [vectors[i] for i in valid_indices]
 
         if len(valid_indices) < 2:
+            log.warning("  [语义去重] 仅 %d/%d 条取得向量，本层跳过（条目全部保留）",
+                        len(valid_indices), n)
             self._save_cache()
             return items
 
@@ -197,16 +219,29 @@ class SemanticDeduper:
             parent[ry] = rx
             cluster_sizes[rx] += cluster_sizes[ry]
 
-        # 遍历上三角矩阵，合并相似项
+        # 遍历上三角矩阵，合并相似项；同时保留全部分数用于观察分布
         comparisons = 0
+        scored_pairs: list[tuple[float, int, int]] = []
         for i in range(m):
             for j in range(i + 1, m):
-                if sim_matrix[i][j] > self.threshold:
+                sim = float(sim_matrix[i][j])
+                scored_pairs.append((sim, i, j))
+                if sim > self.threshold:
                     union(i, j)
                 comparisons += 1
 
         log.info("  [语义去重] %d 条 -> 矩阵 %dx%d = %d 对 -> %d 簇",
                   n, m, m, comparisons, len(set(find(i) for i in range(m))))
+
+        # 相似度分布：换模型或调阈值时靠这几行判断，不要凭感觉改阈值
+        if scored_pairs:
+            scored_pairs.sort(reverse=True)
+            log.info("  [语义去重] 最相似对 top%d（当前阈值 %.2f）:",
+                     min(8, len(scored_pairs)), self.threshold)
+            for sim, i, j in scored_pairs[:8]:
+                log.info("    %.3f | %s <-> %s", sim,
+                         items[valid_indices[i]].title[:30],
+                         items[valid_indices[j]].title[:30])
 
         # 按簇分组
         clusters: dict[int, list[int]] = defaultdict(list)
