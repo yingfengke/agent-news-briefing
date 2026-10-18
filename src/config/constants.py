@@ -9,25 +9,35 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 # API 配置
-API_BASE_URL = os.getenv("API_BASE_URL", "https://api.siliconflow.cn")
+# 统一用 `os.getenv(X) or 默认值`：workflow 里未配置的变量会以空串传入，
+# 而 getenv 的第二个参数只在变量「不存在」时生效，空串会直接把配置置空。
+API_BASE_URL = os.getenv("API_BASE_URL") or "https://api.siliconflow.cn"
 API_KEY = os.getenv("API_KEY", "")
-MODEL_NAME = os.getenv("MODEL_NAME", "deepseek-ai/DeepSeek-V4-Flash")
-# 兜底模型：主模型（DeepSeek-V4-Flash）全部超时/失败时启用，避免单模型过载导致整期 0 新闻。
-# 选用 Pro/zai-org/GLM-5.1 替代原 LongCat-2.0 — LongCat 输出质量差（max_output 受限，
-# 3.67K token 仅出 4 条新闻）；GLM-5.1 Pro 版配额充足、输出完整。可在 Secrets 用 FALLBACK_MODEL_NAME 覆盖。
-FALLBACK_MODEL_NAME = os.getenv("FALLBACK_MODEL_NAME", "Pro/zai-org/GLM-5.1")
-EMBEDDING_MODEL = "Qwen/Qwen3-Embedding-4B"  # 语义去重，1024维，中英双语优化
+# 主模型：DeepSeek 官方 API。模型名 deepseek-flash 当前指向 DeepSeek-V4.1-Flash-1017
+# （2026-10-17 快照）；旧名 deepseek-v4-flash 仍可调用，会被路由到同一模型。
+MODEL_NAME = os.getenv("MODEL_NAME") or "deepseek-flash"
+MODEL_BASE_URL = os.getenv("MODEL_BASE_URL") or "https://api.deepseek.com"
+# 主模型专用密钥。为空时回落到通用 API_KEY（聚合网关），保证旧部署仍可运行。
+MODEL_API_KEY = os.getenv("MODEL_API_KEY") or ""
+# 兜底模型：默认关闭（2026-10-18 移除 Pro/zai-org/GLM-5.1）。
+# 该模型依赖硅基付费额度，赠金到期后不再续费，故不再设置默认兜底。
+# 如需恢复，用环境变量 FALLBACK_MODEL_NAME 配置即可，调用逻辑仍然保留。
+FALLBACK_MODEL_NAME = os.getenv("FALLBACK_MODEL_NAME") or ""
+# 语义去重向量模型。bge-m3 在硅基流动免费、1024 维，实测响应 0.4s；
+# 原 Qwen3-Embedding-4B 为付费且实际输出 2560 维（不是注释曾写的 1024）。
+# 换模型后相似度分布会平移，阈值必须靠日志重新标定，不能沿用旧值。
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL") or "BAAI/bge-m3"
 
 # 送 AI 的上下文 token 预算（输入侧）。主模型与兜底模型共用，
 # 应取两者中较小的输入窗口；换供应商时改这里或环境变量即可，避免超窗口被 400 拒。
-MAX_CONTEXT_TOKENS = int(os.getenv("MAX_CONTEXT_TOKENS", "32000"))
+MAX_CONTEXT_TOKENS = int(os.getenv("MAX_CONTEXT_TOKENS") or "32000")
 
 # 邮件配置
 SENDER_EMAIL = os.getenv("SENDER_EMAIL", "")
 AUTH_CODE = os.getenv("AUTH_CODE", "")
 RECEIVER_EMAIL = os.getenv("RECEIVER_EMAIL", "")
-SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.qq.com")
-SMTP_PORT = int(os.getenv("SMTP_PORT", "465"))
+SMTP_SERVER = os.getenv("SMTP_SERVER") or "smtp.qq.com"
+SMTP_PORT = int(os.getenv("SMTP_PORT") or "465")
 
 # 文件路径
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -83,9 +93,15 @@ RECENT_TITLES_DAYS = 14
 # 正文条数上限：超出部分不丢弃，压缩为简讯后单独展示
 BRIEF_MAX_ITEMS = 24
 # 简讯压缩用的轻量模型（与主模型分开计费，失败时本地截断兜底）
-# 用 or 而非 getenv 默认值：Secrets 未配置时环境变量为空串，需回落到默认模型
-SUMMARY_MODEL_NAME = os.getenv("SUMMARY_MODEL_NAME") or "Qwen/Qwen3.5-4B"
+# 用 or 而非 getenv 默认值：Secrets 未配置时环境变量为空串，需回落到默认模型。
+# 必须选非推理模型：Qwen3.5-4B 这类会先输出大段思考（实测 40s / 2100 token），
+# 把 max_tokens 吃光后 JSON 为空，简讯整批退化成 60 字截断。
+SUMMARY_MODEL_NAME = os.getenv("SUMMARY_MODEL_NAME") or "THUDM/GLM-4-9B-0414"
 SUMMARY_TIMEOUT = 90
+# Twitter 精选用的轻量模型。同样避开推理模型：Z1 系列思考会占满 max_tokens=128，
+# 拿不到编号只能回退前 3 条。
+TWITTER_FILTER_MODEL_NAME = (os.getenv("TWITTER_FILTER_MODEL_NAME")
+                             or "THUDM/GLM-4-9B-0414")
 
 # 时区：北京时间（UTC+8）。统一用此函数取"当前时间"，
 # 避免 GitHub Actions runner（默认 UTC）上 datetime.now() 导致日期偏移一天。

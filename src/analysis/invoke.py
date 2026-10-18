@@ -56,10 +56,13 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 1):
     twitter_items = [it for it in items_for_ai if "twitter" in it.source.lower()]
     non_twitter_items = [it for it in items_for_ai if "twitter" not in it.source.lower()]
     if twitter_items:
+        log.info("  -> Twitter 待精选 %d 条，准备调用精选模型", len(twitter_items))
         twitter_items = _filter_twitter_items(twitter_items)
         items_for_ai = non_twitter_items + twitter_items
         log.info("  -> 合并后: %d 条（非Twitter %d + Twitter精选 %d）",
                  len(items_for_ai), len(non_twitter_items), len(twitter_items))
+    else:
+        log.info("  -> 预筛后无 Twitter 条目，跳过 Twitter 精选（未发起模型调用）")
 
     items_for_ai = _filter_history_duplicates(items_for_ai)
     if not items_for_ai:
@@ -73,12 +76,15 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 1):
     log.info("  -> 最终输入: %d字摘要 x %d条 (预估 %d tokens, 系统 %d tokens)",
              ctx["content_limit"], ctx["item_count"], ctx["total_tokens"], ctx["system_tokens"])
 
-    url = f"{config.API_BASE_URL.rstrip('/')}/v1/chat/completions"
+    main_url, main_key, main_extra = _endpoint_for(config.MODEL_NAME)
+    log.info("  -> 主模型接入: %s (%s)", config.MODEL_NAME,
+             "DeepSeek 官方" if config.MODEL_API_KEY else "通用网关")
     est_tokens = ctx["total_tokens"]
 
     # 主模型：连续重试
-    parsed = _try_model(url, system_prompt, user_content,
-                        config.MODEL_NAME, max_retries, est_tokens)
+    parsed = _try_model(main_url, system_prompt, user_content,
+                        config.MODEL_NAME, max_retries, est_tokens,
+                        main_key, main_extra)
     if parsed is not None:
         return (style_name, parsed)
 
@@ -86,8 +92,10 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 1):
     fb = getattr(config, "FALLBACK_MODEL_NAME", "")
     if fb and fb != config.MODEL_NAME:
         log.warning("  主模型 %s 全部失败，改用兜底模型 %s", config.MODEL_NAME, fb)
-        parsed = _try_model(url, system_prompt, user_content,
-                            fb, max(1, max_retries - 1), est_tokens)
+        fb_url, fb_key, fb_extra = _endpoint_for(fb)
+        parsed = _try_model(fb_url, system_prompt, user_content,
+                            fb, max(1, max_retries - 1), est_tokens,
+                            fb_key, fb_extra)
         if parsed is not None:
             return (style_name, parsed)
 
@@ -95,17 +103,35 @@ def call_ai_analysis(items: list[NewsItem], max_retries: int = 1):
 
 
 
+def _endpoint_for(model_name: str):
+    """返回 (请求地址, 密钥, 附加请求参数)。
+
+    主模型走 DeepSeek 官方（模型 ID 与聚合网关不同），兜底/轻量模型仍走通用网关。
+    未配置 MODEL_API_KEY 时整体回落到通用网关，避免旧部署直接失效。
+    主模型显式关闭 thinking：本期任务是结构化摘要 + JSON 输出，思维链只会
+    抬高延迟与输出 token 成本（DeepSeek 默认开启）。
+    """
+    if model_name == config.MODEL_NAME and config.MODEL_API_KEY:
+        return (f"{config.MODEL_BASE_URL.rstrip('/')}/chat/completions",
+                config.MODEL_API_KEY,
+                {"thinking": {"type": "disabled"}})
+    return (f"{config.API_BASE_URL.rstrip('/')}/v1/chat/completions",
+            config.API_KEY, {})
+
+
 def _try_model(url: str, system_prompt: str, user_content: str,
-               model_name: str, max_retries: int, est_tokens: int):
+               model_name: str, max_retries: int, est_tokens: int,
+               api_key: str | None = None, extra_payload: dict | None = None):
     """
     对单个模型发起最多 max_retries 次对话调用。
     成功返回解析后的 dict，全部失败返回 None。
     """
+    api_key = config.API_KEY if api_key is None else api_key
     for attempt in range(1, max_retries + 1):
         log.info("")
         log.info("  -> 调用 AI 分析 (%s) 第 %d/%d 次 ...", model_name, attempt, max_retries)
 
-        payload = json.dumps({
+        body = {
             "model": model_name,
             "messages": [
                 {"role": "system", "content": system_prompt},
@@ -113,10 +139,13 @@ def _try_model(url: str, system_prompt: str, user_content: str,
             ],
             "temperature": 0.3,
             "max_tokens": _MAX_OUTPUT_TOKENS,
-        }).encode("utf-8")
+        }
+        if extra_payload:
+            body.update(extra_payload)
+        payload = json.dumps(body).encode("utf-8")
 
         req = Request(url, data=payload, headers={
-            "Authorization": f"Bearer {config.API_KEY}",
+            "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
             "User-Agent": "Mozilla/5.0 (compatible; BriefingBot/2.0)",
         })
@@ -131,7 +160,11 @@ def _try_model(url: str, system_prompt: str, user_content: str,
 
             content = (result["choices"][0]["message"].get("content") or "")
             finish_reason = result["choices"][0].get("finish_reason") or ""
-            log.info("模型返回响应 (%d 字符, finish_reason=%s)", len(content), finish_reason)
+            # V4.1-Flash 默认开启 thinking，思考内容在 reasoning_content；记长度便于判断
+            # 「输出为空/触顶」是模型没答完还是思考吃满了预算
+            reasoning = (result["choices"][0]["message"].get("reasoning_content") or "")
+            log.info("模型返回响应 (%d 字符, finish_reason=%s, 思考 %d 字符)",
+                     len(content), finish_reason, len(reasoning))
 
             # Token 监控：记录实际消耗 vs 预估
             actual_usage = result.get("usage", {})

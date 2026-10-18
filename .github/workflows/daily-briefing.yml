@@ -18,17 +18,26 @@ jobs:
     if: github.event.schedule == '30 22 * * *' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
-    # 所有步骤共享的环境变量（来自 GitHub Secrets，无一硬编码）
+    # 敏感项走 Secrets；非敏感项走 Variables（Settings -> Secrets and variables -> Actions）。
+    # Variables 未配置时为空串，代码用 `os.getenv(X) or 默认值` 回落，不会把配置置空。
     env:
-      API_BASE_URL: ${{ secrets.API_BASE_URL }}
+      # ---- 密钥与个人信息（Secret） ----
       API_KEY: ${{ secrets.API_KEY }}
-      MODEL_NAME: ${{ secrets.MODEL_NAME }}
-      SUMMARY_MODEL_NAME: ${{ secrets.SUMMARY_MODEL_NAME }}
-      SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+      MODEL_API_KEY: ${{ secrets.MODEL_API_KEY }}
       AUTH_CODE: ${{ secrets.AUTH_CODE }}
+      SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
       RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
-      SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
-      SMTP_PORT: ${{ secrets.SMTP_PORT }}
+      # ---- 非敏感配置（Variable） ----
+      API_BASE_URL: ${{ vars.API_BASE_URL }}
+      MODEL_NAME: ${{ vars.MODEL_NAME }}
+      MODEL_BASE_URL: ${{ vars.MODEL_BASE_URL }}
+      FALLBACK_MODEL_NAME: ${{ vars.FALLBACK_MODEL_NAME }}
+      SUMMARY_MODEL_NAME: ${{ vars.SUMMARY_MODEL_NAME }}
+      TWITTER_FILTER_MODEL_NAME: ${{ vars.TWITTER_FILTER_MODEL_NAME }}
+      EMBEDDING_MODEL: ${{ vars.EMBEDDING_MODEL }}
+      SMTP_SERVER: ${{ vars.SMTP_SERVER }}
+      SMTP_PORT: ${{ vars.SMTP_PORT }}
+      MAX_CONTEXT_TOKENS: ${{ vars.MAX_CONTEXT_TOKENS }}
 
     steps:
       - name: 检出代码
