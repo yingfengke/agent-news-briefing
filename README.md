@@ -26,12 +26,13 @@
 AI 分析层 (src/analysis/)
   ├─ Twitter 专用精选：轻量模型 GLM-4-9B（失败改用主模型）
   ├─ 跨天事件排重（近 14 天标题+摘要，整句/关键词/稀有实体/内容重合四条路径）
+  ├─ 跨天续报标注（语义筛候选 + 重排模型判同事件，命中则标题加「进展：」）
   ├─ 精确 tiktoken 估算 + 安全系数（防 400 错误）
   ├─ 六套语气按日期轮换（相邻两天不重复）：极简资讯 / 工程实战派 / 深度解读 / 极客观点 / 微博热搜 / 产品经理
   ├─ 主模型 deepseek-flash（DeepSeek 官方 API，显式关闭 thinking）
   ├─ 评分按三步决策树：定基础档 → 升降档 → 档内微调（0-5 分）
   └─ 生成 HTML + 分类邮件 + RSS Feed
-       ↓ 正文 18 条 + 简讯（超出部分由轻量模型压成一句话；同型号正文最多 2 条）
+       ↓ 正文 18 条 + 简讯（超出部分由轻量模型压成一句话；同一事件正文最多 2 条）
 GitHub Pages 自动部署（从 main branch 构建）
 ```
 
@@ -193,6 +194,7 @@ python -m src.delivery.send_email
 │   │   ├── invoke.py       # 模型调用与重试（按接入点分发）
 │   │   ├── postprocess.py  # AI 输出后处理 + 降级兜底
 │   │   ├── summarize.py    # 正文/简讯拆分、简讯压缩、同事件配额
+│   │   ├── event_cluster.py # 事件级判定：跨天续报标注 + 簇配额
 │   │   ├── json_parse.py   # JSON 解析（5 层兜底 + 截断抢救）
 │   │   ├── twitter_filter.py # Twitter 精选（GLM-4-9B，失败转主模型）
 │   │   └── translate.py    # 英文标题翻译兜底
@@ -238,6 +240,7 @@ python -m src.delivery.send_email
 | Embedding 模型 | BAAI/bge-m3（1024 维） |
 | MinHash 阈值 | 0.8（128 perm，jieba 分词 + 词级 3-gram） |
 | 语义去重阈值 | 0.92（余弦相似度） |
+| 事件判定 | embedding 筛候选（≥0.65）+ 重排模型双向判同一事件（≥0.45） |
 | 可信度阈值 | 0.40（信号评分制） |
 | 时效窗口 | 72 小时（过滤后不足 12 条时窗口翻倍重试） |
 | 跨天内容库 | 近 14 天（标题 + 摘要） |
@@ -271,6 +274,7 @@ GitHub Actions (schedule 设定 06:30 BJT；实际 08-09 点居多，偶有 10-1
 | 跨天内容保留期 | `src/config/constants.py` → `RECENT_TITLES_DAYS` |
 | 正文条数与简讯上限 | `src/config/constants.py` → `MAX_NEWS_ITEMS` / `BRIEF_MAX_ITEMS` |
 | 同事件正文配额 | `src/analysis/summarize.py` → `SAME_EVENT_MAX_IN_BODY` |
+| 事件判定阈值 | `src/analysis/event_cluster.py` → `EMBED_CANDIDATE_THRESHOLD` / `SAME_EVENT_THRESHOLD` |
 | 模型接入点 | `src/config/constants.py` → `MODEL_*` / `API_*` |
 | 白/黑名单 | `src/config/sources.py` → `CREDIBILITY_*` |
 | 新闻分类配置 | `src/config/sources.py` → `CATEGORY_ORDER` / `TITLE_CATEGORY_MAP` |

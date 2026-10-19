@@ -30,6 +30,8 @@ from src.collect.collector import collect_all
 from src.dedupe import run_pipeline
 from src.analysis import call_ai_analysis, reset_parse_stats, _translate_english_titles
 from src.analysis.summarize import split_display_items, build_briefs, apply_entity_quota
+from src.analysis.event_cluster import annotate_progress, apply_event_quota
+from src.analysis.context import load_history_records
 from src.analysis.postprocess import (
     _append_parsed_items, _build_fallback_items, _apply_fallback_scores,
 )
@@ -226,6 +228,12 @@ def _run_main():
 
     final_items.sort(key=lambda x: x.get("score", 0) or 0, reverse=True)
 
+    # ---- 跨天续报标注：同一事件且本期有新事实，标题前加「进展：」 ----
+    try:
+        final_items = annotate_progress(final_items, load_history_records())
+    except Exception as e:
+        log.warning("  续报标注跳过: %s", e)
+
     scored = sum(1 for it in final_items if it.get("score", 0) > 0)
     log.info("  评分分布: %d/%d 条有评分", scored, len(final_items))
 
@@ -233,6 +241,7 @@ def _run_main():
     display_items, brief_items = split_display_items(final_items)
     brief_before = len(brief_items)
     display_items, brief_items = apply_entity_quota(display_items, brief_items)
+    display_items, brief_items = apply_event_quota(display_items, brief_items)
     if len(brief_items) > brief_before:
         log.info("  同事件配额: %d 条同型号新闻转入简讯", len(brief_items) - brief_before)
     if brief_items:
