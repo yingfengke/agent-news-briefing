@@ -15,8 +15,7 @@ RSS_SOURCES = [
     # 新增中文源：极客公园、爱范儿（弥补阿里云/腾讯云删除后的空缺）
     # ("极客公园",     "https://www.geekpark.net/rss",                        "zh"),  # 2026-06 临时不可用，保留备用
     # ("爱范儿",       "https://www.ifanr.com/feed",                          "zh"),  # 内容偏消费电子，保留备用
-    # 新增中文源：36氪（AI 创业报道，与量子位技术向互补）
-    ("36氪",         "https://36kr.com/feed",                               "zh"),
+    # 36氪 /feed 已改为返回反爬 HTML 页（非 RSS），长期零产出，2026-10-21 移除
 
     # ==================== 前沿论文与代码 ====================
     # HuggingFace论文 — 需付费 API Key (401)，改用 HuggingFace Blog
@@ -64,7 +63,7 @@ RSS_SOURCES = [
     ("The Verge AI",    "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml", "en"),
 
     # ==================== 全球社区 ====================
-    ("HackerNews AI", "https://hnrss.org/frontpage?q=ai+OR+agent+OR+llm", "en"),
+    ("HackerNews AI", "https://hnrss.org/newest?q=AI&points=50", "en"),
     ("Reddit ML",     "https://www.reddit.com/r/MachineLearning/.rss",     "en"),
     ("DEV.to AI",     "https://dev.to/feed/tag/ai",                        "en"),
     ("Product Hunt",  "https://www.producthunt.com/feed",                  "en"),
@@ -108,7 +107,7 @@ MAX_PER_SOURCE = {
     "DEV.to AI": 3,
     "Product Hunt": 3, "TechCrunch AI": 3,
     # 新增源
-    "36氪": 3, "MIT Tech Review": 3, "The Verge AI": 3,
+    "MIT Tech Review": 3, "The Verge AI": 3,
 }
 
 # RSS 备用 URL（当主 RSS 源失败时自动切换，降低单点故障）
@@ -119,7 +118,7 @@ RSS_FALLBACKS = {
 # 中文来源名称集合（用于 AI 喂入前的分桶）
 CHINESE_SOURCE_NAMES = {
     "量子位", "InfoQ中文",
-    "极客公园", "爱范儿", "36氪",
+    "极客公园", "爱范儿",
     # 爬虫来源
     "量子位爬虫", "魔搭社区爬虫", "腾讯云开发者爬虫",
     # 旧版降级回退
@@ -143,7 +142,7 @@ CREDIBILITY_WHITELIST = [
     "openai.com", "anthropic.com", "ai.meta.com",
     "blog.google", "blog.langchain.dev", "llamaindex.ai",
     "github.blog", "pytorch.org", "dev.to",
-    "36kr.com", "ifanr.com", "geekpark.net",
+    "ifanr.com", "geekpark.net",
     "solidot.org", "ithome.com", "oschina.net", "modelscope.cn",
     "cloud.tencent.com", "developer.aliyun.com",
     "github.com", "techcrunch.com", "venturebeat.com",

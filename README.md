@@ -10,7 +10,7 @@
 
 ```
 多模态数据采集层 (src/collect/collector.py)
-  └─ RSS 源 41 个（并发 8 线程 + 指数退避重试）
+  └─ RSS 源 40 个（并发 8 线程 + 指数退避重试）
        ↓ 原始数据池
 时效与去重过滤层 (src/dedupe/)
   ├─ 时效过滤（发布时间超过 72 小时丢弃；过滤后不足 12 条时窗口翻倍重试）
@@ -109,12 +109,11 @@ python -m src.delivery.send_email
 
 ## 数据源阵容
 
-### 中文媒体（3 个）
+### 中文媒体（2 个）
 | 源 | RSS |
 |:---|:---|
 | 量子位 | qbitai.com/feed |
 | InfoQ 中文 | infoq.cn/feed |
-| **36氪** | 36kr.com/feed |
 
 ### 前沿论文与 AI 媒体（16 个）
 | 源 | RSS |
@@ -151,7 +150,7 @@ python -m src.delivery.send_email
 ### Twitter 大佬 & 全球社区（11 个）
 | 源 | RSS |
 |:---|:---|
-| HackerNews AI | hnrss.org/frontpage?q=ai+OR+agent |
+| HackerNews AI | hnrss.org/newest?q=AI&points=50 |
 | Reddit ML | reddit.com/r/MachineLearning/.rss |
 | DEV.to AI | dev.to/feed/tag/ai |
 | Product Hunt | producthunt.com/feed |
