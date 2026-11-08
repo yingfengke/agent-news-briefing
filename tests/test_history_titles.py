@@ -19,15 +19,20 @@ def _write(path, entries):
     path.write_text(json.dumps({"entries": entries}, ensure_ascii=False), encoding="utf-8")
 
 
+def _days_ago(n):
+    """相对今天的日期，避免写死日期后随窗口过滤一起过期。"""
+    return (datetime.now() - timedelta(days=n)).strftime("%Y-%m-%d")
+
+
 def test_record_and_load_roundtrip(store):
-    assert ht.record_titles([{"title": "新闻A"}, {"title": "新闻B"}], "2026-10-15")
+    assert ht.record_titles([{"title": "新闻A"}, {"title": "新闻B"}], _days_ago(1))
     titles = ht.load_recent_titles(days=7)
     assert titles == ["新闻A", "新闻B"]
 
 
 def test_record_overwrites_same_date(store):
-    ht.record_titles([{"title": "旧标题"}], "2026-10-15")
-    ht.record_titles([{"title": "新标题"}], "2026-10-15")
+    ht.record_titles([{"title": "旧标题"}], _days_ago(1))
+    ht.record_titles([{"title": "新标题"}], _days_ago(1))
     assert ht.load_recent_titles(days=7) == ["新标题"]
 
 
@@ -75,7 +80,7 @@ def test_record_ignores_empty_titles(store):
 
 def test_record_stores_summary(store):
     """库里同时保存摘要，供内容级跨天比对使用。"""
-    ht.record_titles([{"title": "标题A", "summary": "这是摘要内容"}], "2026-10-16")
+    ht.record_titles([{"title": "标题A", "summary": "这是摘要内容"}], _days_ago(1))
     items = ht.load_recent_items(days=7)
     assert items[0]["t"] == "标题A"
     assert items[0]["s"] == "这是摘要内容"
