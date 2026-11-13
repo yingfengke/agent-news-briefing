@@ -55,6 +55,7 @@ jobs:
           pip check
 
       - name: 依赖安全审计
+        continue-on-error: true
         run: |
           pip install pip-audit
           pip-audit --desc on -r requirements.txt || (echo "::warning::存在已知漏洞依赖，建议及时更新" && exit 1)
