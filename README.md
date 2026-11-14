@@ -27,6 +27,7 @@ AI 分析层 (src/analysis/)
   ├─ Twitter 专用精选：轻量模型 GLM-4-9B（失败改用主模型）
   ├─ 跨天事件排重（近 14 天标题+摘要，整句/关键词/稀有实体/内容重合四条路径）
   ├─ 跨天续报标注（语义筛候选 + 重排模型判同事件，命中则标题加「进展：」）
+  ├─ 跨期事件冷却（跨天续报标注或近 7 天同事件键 → 转简讯；官方一手来源或 ≥3 源例外）
   ├─ 精确 tiktoken 估算 + 安全系数（防 400 错误）
   ├─ 六套语气按日期轮换（相邻两天不重复）：极简资讯 / 工程实战派 / 深度解读 / 极客观点 / 微博热搜 / 产品经理
   ├─ 主模型 deepseek-flash（DeepSeek 官方 API，显式关闭 thinking）
@@ -194,6 +195,7 @@ python -m src.delivery.send_email
 │   │   ├── postprocess.py  # AI 输出后处理 + 降级兜底
 │   │   ├── summarize.py    # 正文/简讯拆分、简讯压缩、同事件配额
 │   │   ├── event_cluster.py # 事件级判定：跨天续报标注 + 簇配额
+│   │   ├── event_cooldown.py # 跨期事件冷却：命中转简讯 + 补位
 │   │   ├── json_parse.py   # JSON 解析（5 层兜底 + 截断抢救）
 │   │   ├── twitter_filter.py # Twitter 精选（GLM-4-9B，失败转主模型）
 │   │   └── translate.py    # 英文标题翻译兜底
@@ -243,6 +245,7 @@ python -m src.delivery.send_email
 | 可信度阈值 | 0.40（信号评分制） |
 | 时效窗口 | 72 小时（过滤后不足 12 条时窗口翻倍重试） |
 | 跨天内容库 | 近 14 天（标题 + 摘要） |
+| 跨期事件冷却 | 续报标注命中即转简讯；型号键窗口 7 天；官方源或 ≥3 家来源报道时放行 |
 | 白名单域名 | 50 个 |
 | 黑名单域名 | 7 个 |
 | 正文条数 | 18 条（同一型号最多 2 条，超出转入简讯） |
@@ -251,7 +254,7 @@ python -m src.delivery.send_email
 | 彩蛋库 | AI 冷知识 / 编程笑话，按日期确定性轮换，当前 80 条（数量以 `src/config/trivia.json` 为准） |
 | 采集配额 | 中文媒体3条 / 论文3条 / AI媒体3条 / 大厂博客2条 / Twitter大佬4条 / 社区3条 |
 | 送审配额 | 来源平衡制：每源保底2条，最多送审40条 |
-| 自动化测试 | 236 个 |
+| 自动化测试 | 262 个 |
 
 ## 触发机制
 
@@ -271,6 +274,7 @@ GitHub Actions (schedule 设定 06:30 BJT；实际 08-09 点居多，偶有 10-1
 | 去重阈值 | `src/config/constants.py` → `DEDUP_*` |
 | 时效窗口 | `src/config/constants.py` → `NEWS_MAX_AGE_HOURS` |
 | 跨天内容保留期 | `src/config/constants.py` → `RECENT_TITLES_DAYS` |
+| 跨期事件冷却 | `src/config/constants.py` → `EVENT_COOLDOWN_DAYS` / `EVENT_PROGRESS_MIN_SOURCES` |
 | 正文条数与简讯上限 | `src/config/constants.py` → `MAX_NEWS_ITEMS` / `BRIEF_MAX_ITEMS` |
 | 同事件正文配额 | `src/analysis/summarize.py` → `SAME_EVENT_MAX_IN_BODY` |
 | 事件判定阈值 | `src/analysis/event_cluster.py` → `EMBED_CANDIDATE_THRESHOLD` / `SAME_EVENT_THRESHOLD` |

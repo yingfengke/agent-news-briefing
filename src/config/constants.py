@@ -90,6 +90,11 @@ NEWS_MAX_AGE_HOURS = 72
 RECENT_TITLES_FILE = os.path.join(BASE_DIR, "web", ".recent_titles.json")
 RECENT_TITLES_DAYS = 14
 
+# 跨期事件冷却：同一事件键近 N 天已报道过，后续条目默认转入简讯。
+EVENT_COOLDOWN_DAYS = 7
+# 冷却例外：该条被至少 N 个不同来源报道时，视为信息增量足够，允许留在正文。
+EVENT_PROGRESS_MIN_SOURCES = 3
+
 # 正文条数上限：超出部分不丢弃，压缩为简讯后单独展示
 BRIEF_MAX_ITEMS = 24
 # 简讯压缩用的轻量模型（与主模型分开计费，失败时本地截断兜底）

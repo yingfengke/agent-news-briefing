@@ -31,6 +31,7 @@ from src.dedupe import run_pipeline
 from src.analysis import call_ai_analysis, reset_parse_stats, _translate_english_titles
 from src.analysis.summarize import split_display_items, build_briefs, apply_entity_quota
 from src.analysis.event_cluster import annotate_progress, apply_event_quota
+from src.analysis.event_cooldown import apply_event_cooldown
 from src.analysis.context import load_history_records
 from src.analysis.postprocess import (
     _append_parsed_items, _build_fallback_items, _apply_fallback_scores,
@@ -239,6 +240,10 @@ def _run_main():
 
     # ---- 拆分正文与简讯（超出正文上限的条目不丢弃，压缩后单独展示） ----
     display_items, brief_items = split_display_items(final_items)
+    try:
+        display_items, brief_items = apply_event_cooldown(display_items, brief_items)
+    except Exception as e:
+        log.warning("  事件冷却跳过: %s", e)
     brief_before = len(brief_items)
     display_items, brief_items = apply_entity_quota(display_items, brief_items)
     display_items, brief_items = apply_event_quota(display_items, brief_items)
