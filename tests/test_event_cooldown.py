@@ -21,7 +21,7 @@ CURRENT = "DeepSeek V4.1 Flash 1017 成本大幅下降"
 
 def test_config_exports():
     assert config.EVENT_COOLDOWN_DAYS == 7
-    assert config.EVENT_PROGRESS_MIN_SOURCES == 3
+    assert config.EVENT_PROGRESS_MIN_SOURCES == 4
 
 
 def test_seen_event_demoted_to_briefs():
@@ -61,7 +61,7 @@ def test_official_source_is_exempt():
 
 
 def test_multi_source_name_list_is_exempt():
-    summary = "成本下降三成（该消息被 3 家来源报道：量子位、InfoQ、The Verge）"
+    summary = "成本下降三成（该消息被 4 家来源报道：量子位、InfoQ、The Verge、VentureBeat）"
     display = [_item(CURRENT, summary=summary)]
     kept, briefs = EC.apply_event_cooldown(display, [], _hist(SEEN))
     assert kept == display
@@ -129,7 +129,7 @@ def test_progress_prefix_official_source_is_exempt():
 
 
 def test_progress_prefix_multi_source_is_exempt():
-    summary = "该消息被 3 家来源报道：量子位、InfoQ、The Verge"
+    summary = "该消息被 4 家来源报道：量子位、InfoQ、The Verge、VentureBeat"
     display = [_item("进展：" + CURRENT, summary=summary)]
     kept, briefs = EC.apply_event_cooldown(display, [], history_items=[])
     assert kept == display
@@ -160,6 +160,67 @@ def test_progress_prefix_backfills_from_rest():
     assert len(kept) == 2
     assert all(not x["title"].startswith("进展：") for x in kept)
     assert len(briefs) == 1
+
+
+def test_official_sources_all_exist_in_rss():
+    from src.config.sources import OFFICIAL_SOURCE_NAMES, RSS_SOURCES
+    names = {n for n, _, _ in RSS_SOURCES}
+    assert OFFICIAL_SOURCE_NAMES <= names
+
+
+def test_official_source_commentary_not_exempt():
+    """官方源发的教程/观点不算当事方新动作。"""
+    display = [_item("进展：AWS 发布教程：用 Bedrock 构建 Agent", source="AWS ML Blog")]
+    kept, briefs = EC.apply_event_cooldown(display, [], history_items=[])
+    assert kept == []
+    assert len(briefs) == 1
+
+
+def test_structured_source_count_exempts():
+    """去重阶段的真实来源数优先于文本标注。"""
+    display = [_item("进展：" + CURRENT, link="https://e.com/a")]
+    kept, briefs = EC.apply_event_cooldown(
+        display, [], history_items=[], source_counts={"https://e.com/a": 4})
+    assert kept == display
+    assert briefs == []
+
+
+def test_three_sources_below_threshold():
+    display = [_item("进展：" + CURRENT, summary="该消息被 3 家来源报道")]
+    kept, briefs = EC.apply_event_cooldown(display, [], history_items=[])
+    assert kept == []
+    assert len(briefs) == 1
+
+
+def test_footnote_is_parsed():
+    assert EC._source_count({"footnote": "（该消息被 5 家来源报道：甲、乙、丙、丁、戊）"}) >= 4
+
+
+def test_build_source_counts_index():
+    class _Stub:
+        def __init__(self, url, title, n):
+            self.url, self.title, self.source_count = url, title, n
+    idx = EC.build_source_counts([_Stub("https://e.com/a", "标题A", 5)])
+    assert idx["https://e.com/a"] == 5
+    assert idx["标题a"] == 5
+
+
+def test_build_source_counts_handles_legacy_items():
+    class _Legacy:
+        url, title = "https://e.com/b", "标题B"
+    idx = EC.build_source_counts([_Legacy()])
+    assert idx["https://e.com/b"] == 1
+
+
+def test_newsitem_source_count_and_old_cache_compat():
+    """同日重跑用 NewsItem(**旧缓存)，新增字段必须有默认值。"""
+    from src.core.models import NewsItem
+    base = dict(id="x", title="标题", content="正文", url="https://e.com/c",
+                source="量子位", lang="zh", source_type="rss", crawled_at="")
+    assert NewsItem(**base).source_count == 1
+    item = NewsItem(**{**base, "source_count": 6})
+    assert EC.build_source_counts([item])["https://e.com/c"] == 6
+    assert NewsItem(**vars(item)).source_count == 6
 
 
 def test_days_window_forwarded(monkeypatch):
