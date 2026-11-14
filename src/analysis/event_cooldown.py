@@ -12,26 +12,25 @@
 失败面只有历史库读取，读不到时仍可按路径 1 判定。
 
 两个例外允许留在正文：
-  1. 来源属于厂商/平台一手博客，视为当事方自己有新动作；
-  2. 该条被至少 3 个不同来源报道，视为有足够信息增量。
+  1. 来源属于厂商/平台一手博客，且该条不是教程/观点类（视为当事方新动作）；
+  2. 该条被至少 4 个不同来源报道，视为有足够信息增量。
+
+来源数由调用方传入去重阶段的真实统计；查不到时才退回文本标注解析。
 """
 import re
 
 from src import config
 from src.analysis.event_cluster import PROGRESS_PREFIX
+from src.config.sources import OFFICIAL_SOURCE_NAMES
 from src.core.entities import primary_key
 from src.core.history_titles import load_recent_items
 from src.core.logger import get_logger
 
 log = get_logger("analysis.cooldown")
 
-# 与 sources.py 的「核心框架与开发者博客」分组对应。
-_OFFICIAL_SOURCES = frozenset({
-    "OpenAI", "Google AI", "Google DeepMind", "Anthropic News",
-    "AI at Meta", "AWS ML Blog", "GitHub Blog", "Vercel News",
-    "Hugging Face", "DeepSeek", "NVIDIA", "Microsoft AI",
-})
-
+# 只用于收窄「官方一手来源」这个放行例外，不删除任何内容。
+_COMMENTARY_RE = re.compile(
+    r"教程|指南|如何|上手|入门|点评|观点|解读|实测|评测|分析|访谈|看法|盘点|综述|最佳实践")
 _MULTI_SOURCE_COUNT_RE = re.compile(r"被\s*(\d+)\s*家(?:来源)?(?:报道|转载)")
 _MULTI_SOURCE_LIST_RE = re.compile(r"来源报道[：:]\s*([^）)\]]+)")
 _LOG_LIMIT = 10
@@ -44,18 +43,33 @@ def _score(item: dict) -> float:
         return 0.0
 
 
-def _source_count(item: dict) -> int:
-    """解析摘要里的多源标注，返回来源数量；无标注返回 0。"""
-    text = " ".join(str(item.get(k) or "") for k in ("title", "summary", "content"))
-    count = 0
+def _source_count(item: dict, source_counts: dict | None = None) -> int:
+    """优先取去重阶段的真实来源数；查不到时解析文本标注。"""
+    structured = 0
+    if source_counts:
+        link = (item.get("link") or "").strip()
+        title_key = (item.get("title") or "").strip()[:50].lower()
+        try:
+            structured = int(source_counts.get(link) or source_counts.get(title_key) or 0)
+        except (TypeError, ValueError):
+            structured = 0
+
+    # 注记可能被后处理剥离到 footnote，四个字段一起看
+    text = " ".join(str(item.get(k) or "")
+                    for k in ("title", "summary", "content", "footnote"))
+    parsed = 0
     m = _MULTI_SOURCE_COUNT_RE.search(text)
     if m:
-        count = int(m.group(1))
+        parsed = int(m.group(1))
     m = _MULTI_SOURCE_LIST_RE.search(text)
     if m:
         names = [x.strip() for x in re.split(r"[、,，;；]", m.group(1)) if x.strip()]
-        count = max(count, len(names))
-    return count
+        parsed = max(parsed, len(names))
+    return max(structured, parsed)
+
+
+def _is_commentary(title: str) -> bool:
+    return bool(_COMMENTARY_RE.search(title or ""))
 
 
 def _is_progress(item: dict) -> bool:
@@ -63,11 +77,12 @@ def _is_progress(item: dict) -> bool:
     return (item.get("title") or "").startswith(PROGRESS_PREFIX)
 
 
-def _is_exempt(item: dict) -> bool:
-    """两个例外：官方一手来源，或被多家来源报道。"""
-    if (item.get("source") or "").strip() in _OFFICIAL_SOURCES:
+def _is_exempt(item: dict, source_counts: dict | None = None) -> bool:
+    """两个例外：当事方一手新动作，或被多家来源报道。"""
+    if ((item.get("source") or "").strip() in OFFICIAL_SOURCE_NAMES
+            and not _is_commentary(item.get("title") or "")):
         return True
-    return _source_count(item) >= config.EVENT_PROGRESS_MIN_SOURCES
+    return _source_count(item, source_counts) >= config.EVENT_PROGRESS_MIN_SOURCES
 
 
 def _history_keys(history_items) -> set[str]:
@@ -79,8 +94,29 @@ def _history_keys(history_items) -> set[str]:
     return keys
 
 
+def build_source_counts(clean_items) -> dict:
+    """按链接与标题建立去重阶段统计的来源数索引，避免污染最终条目字段。"""
+    index: dict[str, int] = {}
+    for ci in clean_items or []:
+        try:
+            n = int(getattr(ci, "source_count", 1) or 1)
+        except (TypeError, ValueError):
+            n = 1
+        keys = []
+        url = (getattr(ci, "url", "") or "").strip()
+        if url:
+            keys.append(url)
+        title = (getattr(ci, "title", "") or "").strip()[:50].lower()
+        if title:
+            keys.append(title)
+        for k in keys:
+            index[k] = max(index.get(k, 1), n)
+    return index
+
+
 def apply_event_cooldown(display: list[dict], rest: list[dict],
-                         history_items=None, days: int | None = None):
+                         history_items=None, days: int | None = None,
+                         source_counts: dict | None = None):
     """近 N 天报过的事件键默认转入简讯，空出名额由待展示区补入。
 
     返回 (display, rest)。只调整展示位置，不删除任何条目。
@@ -99,7 +135,7 @@ def apply_event_cooldown(display: list[dict], rest: list[dict],
         return display, rest
 
     def cooled(item: dict) -> bool:
-        if _is_exempt(item):
+        if _is_exempt(item, source_counts):
             return False
         if _is_progress(item):
             return True

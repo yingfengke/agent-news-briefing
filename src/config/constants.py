@@ -62,7 +62,13 @@ SOURCE_HEALTH_COOLDOWN_DAYS = 7
 
 # 过滤层阈值
 DEDUP_MINHASH_THRESHOLD = 0.8       # MinHash Jaccard 相似度阈值
-DEDUP_SEMANTIC_THRESHOLD = 0.92     # 语义余弦相似度阈值
+# 语义层召回门槛：只用来捞候选对，不再直接决定合并。bge-m3 上同事件与
+# 「同主题不同事件」的余弦分数大面积重叠（实测 0.639~0.847），单一阈值无法区分；
+# 候选对须再经重排模型精判（event_cluster.SAME_EVENT_THRESHOLD）才合并。
+# 旧值 0.92 标定于 Qwen3-Embedding-4B（2560 维），换 bge-m3 后连续 4 期零命中。
+DEDUP_SEMANTIC_THRESHOLD = 0.65
+# 单次最多精判的候选对数，按相似度降序取，控制耗时与免费接口调用量。
+DEDUP_RERANK_MAX_PAIRS = 24
 DEDUP_EMBEDDING_BATCH = 10          # 批量 Embedding 大小
 
 # 文件路径（去重相关）
@@ -93,7 +99,8 @@ RECENT_TITLES_DAYS = 14
 # 跨期事件冷却：同一事件键近 N 天已报道过，后续条目默认转入简讯。
 EVENT_COOLDOWN_DAYS = 7
 # 冷却例外：该条被至少 N 个不同来源报道时，视为信息增量足够，允许留在正文。
-EVENT_PROGRESS_MIN_SOURCES = 3
+# 数量来自语义去重阶段合并簇的真实来源数，不从 AI 摘要文本反推。
+EVENT_PROGRESS_MIN_SOURCES = 4
 
 # 正文条数上限：超出部分不丢弃，压缩为简讯后单独展示
 BRIEF_MAX_ITEMS = 24

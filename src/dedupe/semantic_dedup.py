@@ -1,4 +1,4 @@
-"""semantic_dedup.py - 阶段 C: Embedding 语义去重（Qwen Embedding + Union-Find 聚类）。
+"""semantic_dedup.py - 阶段 C: Embedding 语义去重（召回候选 + 重排精判 + Union-Find 聚类）。
 """
 import json
 import os
@@ -11,10 +11,16 @@ from collections import defaultdict
 import numpy as np
 
 from src import config
+from src.analysis.event_cluster import SAME_EVENT_THRESHOLD, rerank_pair
+from src.core.http_utils import http_error_detail
 from src.core.models import NewsItem
 from src.core.logger import get_logger
 
 log = get_logger("dedup.semantic")
+
+
+def _distinct_sources(sources: list[str]) -> list[str]:
+    return sorted({s.strip() for s in sources if s and s.strip()})
 
 
 def _build_multi_source_note(sources: list[str]) -> str:
@@ -22,7 +28,7 @@ def _build_multi_source_note(sources: list[str]) -> str:
     [该消息被 2 家来源报道：36氪、量子位]
     来源全部为空时退化为仅数量（"多家"），不编造名单。
     """
-    names = sorted({s.strip() for s in sources if s and s.strip()})
+    names = _distinct_sources(sources)
     if not names:
         return " [该消息被多家来源报道]"
     return f" [该消息被 {len(names)} 家来源报道：{'、'.join(names)}]"
@@ -32,11 +38,16 @@ class SemanticDeduper:
     """
     语义去重：
 
-    1. 调用硅基流动 Qwen/Qwen3-Embedding-4B Embedding API
+    1. 调用 Embedding API 取全量向量（title + content[:512]）
     2. 用 title[:50] 作为缓存键，避免重复调用
-    3. 用 Union-Find 做聚类，相似度 > 0.92 的合为一簇
-    4. 每簇保留发布时间最早的那条
-    5. 标注 "该消息被 N 家来源报道"
+    3. 余弦相似度只用来召回候选对（门槛见 DEDUP_SEMANTIC_THRESHOLD）
+    4. 候选对由重排模型按【标题】双向精判，确属同一事件才合为一簇
+    5. 每簇保留发布时间最早的那条，标注 "该消息被 N 家来源报道"
+       并写入 source_count，供下游跨期冷却判断信息增量
+
+    只用标题做精判：拼上摘要会让重排模型退化成主题相关性检测器，
+    把「同厂商的不同事件」判成同一件（实测 0.999 vs 纯标题 0.006）。
+    精判不可用时本层零合并，保持条目原样，不阻断主流程。
 
     Embedding 缓存持久化到 .embedding_cache.json，每天清一次。
     """
@@ -219,25 +230,63 @@ class SemanticDeduper:
             parent[ry] = rx
             cluster_sizes[rx] += cluster_sizes[ry]
 
-        # 遍历上三角矩阵，合并相似项；同时保留全部分数用于观察分布
-        comparisons = 0
+        # 遍历上三角矩阵，保留全部分数用于观察分布
         scored_pairs: list[tuple[float, int, int]] = []
         for i in range(m):
             for j in range(i + 1, m):
-                sim = float(sim_matrix[i][j])
-                scored_pairs.append((sim, i, j))
-                if sim > self.threshold:
-                    union(i, j)
-                comparisons += 1
+                scored_pairs.append((float(sim_matrix[i][j]), i, j))
+        scored_pairs.sort(reverse=True)
+        comparisons = len(scored_pairs)
+
+        # 余弦分数只负责召回，是否同一事件交给重排模型按【标题】精判。
+        # 实测 bge-m3 上同事件（0.656~0.847）与同主题不同事件（0.639~0.760）
+        # 大面积重叠，任何单一阈值都会同时漏判与误合并。
+        candidates = [p for p in scored_pairs if p[0] >= self.threshold]
+        pending: list[tuple[int, int]] = []
+        linked = list(range(m))
+
+        def linked_find(x):
+            while linked[x] != x:
+                linked[x] = linked[linked[x]]
+                x = linked[x]
+            return x
+
+        judged = 0
+        for sim, i, j in candidates[:config.DEDUP_RERANK_MAX_PAIRS]:
+            if linked_find(i) == linked_find(j):
+                continue
+            ta = items[valid_indices[i]].title or ""
+            tb = items[valid_indices[j]].title or ""
+            try:
+                score = rerank_pair(ta, tb)
+            except Exception as e:
+                log.warning("  [语义去重] 重排判定不可用 (%s)，本层保持不合并",
+                            http_error_detail(e))
+                pending = []
+                break
+            judged += 1
+            hit = score >= SAME_EVENT_THRESHOLD
+            log.info("  [语义去重] 精判 emb=%.3f rerank=%.3f %s | %s <-> %s",
+                     sim, score, "合并" if hit else "保留", ta[:26], tb[:26])
+            if hit:
+                pending.append((i, j))
+                ri, rj = linked_find(i), linked_find(j)
+                linked[rj] = ri
+
+        # 判定全部成功后一次性合并：中途失败则零合并，避免留下半截簇
+        for i, j in pending:
+            union(i, j)
+        if judged:
+            log.info("  [语义去重] 重排精判 %d 对 -> 合并 %d 对",
+                     judged, len(pending))
 
         log.info("  [语义去重] %d 条 -> 矩阵 %dx%d = %d 对 -> %d 簇",
                   n, m, m, comparisons, len(set(find(i) for i in range(m))))
 
         # 相似度分布：换模型或调阈值时靠这几行判断，不要凭感觉改阈值
         if scored_pairs:
-            scored_pairs.sort(reverse=True)
-            log.info("  [语义去重] 最相似对 top%d（当前阈值 %.2f）:",
-                     min(8, len(scored_pairs)), self.threshold)
+            log.info("  [语义去重] 最相似对 top%d（召回门槛 %.2f / 精判门槛 %.2f）:",
+                     min(8, len(scored_pairs)), self.threshold, SAME_EVENT_THRESHOLD)
             for sim, i, j in scored_pairs[:8]:
                 log.info("    %.3f | %s <-> %s", sim,
                          items[valid_indices[i]].title[:30],
@@ -276,6 +325,7 @@ class SemanticDeduper:
                     member_sources = [items[valid_indices[m]].source
                                       for m in cluster_members[i]]
                     it.content = it.content + _build_multi_source_note(member_sources)
+                    it.source_count = max(1, len(_distinct_sources(member_sources)))
                 result.append(it)
 
         self._save_cache()

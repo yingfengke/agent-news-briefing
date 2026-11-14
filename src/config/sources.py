@@ -126,6 +126,13 @@ CHINESE_SOURCE_NAMES = {
     # V2EX AI 已于 2026-06 确认不可用，已移除
 }
 
+# 厂商/平台一手来源。只列 RSS_SOURCES 中真实存在的名字，
+# 供编排阶段判断「当事方自己有新动作」；不得写入未接入的源名。
+OFFICIAL_SOURCE_NAMES = frozenset({
+    "OpenAI", "Google AI", "Google DeepMind", "Anthropic News",
+    "AI at Meta", "AWS ML Blog", "GitHub Blog", "Vercel News",
+})
+
 # 中文来源 -> 爬虫来源名映射（用于 System Prompt 分组规则）
 CHINESE_CRAWLER_SOURCE_MAP = {
     "量子位": "量子位爬虫",

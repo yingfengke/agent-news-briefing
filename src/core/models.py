@@ -27,6 +27,7 @@ class NewsItem:
       published_at— 发布时间 ISO 格式（可选）
       tags        — 技术方向标签，如 ["Agent", "LangChain"]（可选）
       summary     — AI 生成的摘要，由 AI 分析阶段填充
+      source_count— 语义去重合并的来源数（未合并为 1），供编排阶段判断信息增量
     """
     id: str
     title: str
@@ -39,6 +40,7 @@ class NewsItem:
     published_at: str = ""
     tags: list[str] = field(default_factory=list)
     summary: str = ""
+    source_count: int = 1
 
 
 @dataclass
