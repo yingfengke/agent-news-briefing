@@ -16,7 +16,7 @@
   ├─ 时效过滤（发布时间超过 72 小时丢弃；过滤后不足 12 条时窗口翻倍重试）
   ├─ URL 去重（SHA256 跨天库 + 当日去重）
   ├─ 内容指纹去重（datasketch MinHash+LSH + jieba 分词，阈值 0.8）
-  ├─ 语义去重（BAAI/bge-m3 向量 + numpy 矩阵批量计算，阈值 0.92）
+  ├─ 语义去重（bge-m3 向量召回候选 ≥0.65 → 重排模型按标题精判 ≥0.45 才合并，簇内写入真实来源数）
   └─ 来源可信度过滤（白名单 50 个域名 + 信号评分，阈值 0.40）
        ↓ 干净数据
 规则预筛层 (src/analysis/context.py)
@@ -27,7 +27,7 @@ AI 分析层 (src/analysis/)
   ├─ Twitter 专用精选：轻量模型 GLM-4-9B（失败改用主模型）
   ├─ 跨天事件排重（近 14 天标题+摘要，整句/关键词/稀有实体/内容重合四条路径）
   ├─ 跨天续报标注（语义筛候选 + 重排模型判同事件，命中则标题加「进展：」）
-  ├─ 跨期事件冷却（跨天续报标注或近 7 天同事件键 → 转简讯；官方一手来源或 ≥3 源例外）
+  ├─ 跨期事件冷却（跨天续报标注或近 7 天同事件键 → 转简讯；官方一手新动作或 ≥4 源例外）
   ├─ 精确 tiktoken 估算 + 安全系数（防 400 错误）
   ├─ 六套语气按日期轮换（相邻两天不重复）：极简资讯 / 工程实战派 / 深度解读 / 极客观点 / 微博热搜 / 产品经理
   ├─ 主模型 deepseek-flash（DeepSeek 官方 API，显式关闭 thinking）
@@ -186,7 +186,7 @@ python -m src.delivery.send_email
 │   │   ├── freshness.py    # 阶段 A0：时效过滤（72 小时窗口）
 │   │   ├── url_dedup.py   # 阶段 A：URL 去重（SHA256 跨天库）
 │   │   ├── minhash_dedup.py # 阶段 B：MinHash+LSH 内容指纹
-│   │   ├── semantic_dedup.py # 阶段 C：Embedding 语义去重
+│   │   ├── semantic_dedup.py # 阶段 C：向量召回 + 重排精判 + 聚类
 │   │   └── credibility.py  # 阶段 D：来源可信度过滤
 │   ├── analysis/           # AI 分析域包
 │   │   ├── orchestrator.py # 编排 facade（重导出公共 API）
@@ -240,12 +240,12 @@ python -m src.delivery.send_email
 | 轻量模型 | THUDM/GLM-4-9B-0414（简讯压缩 / Twitter 精选） |
 | Embedding 模型 | BAAI/bge-m3（1024 维） |
 | MinHash 阈值 | 0.8（128 perm，jieba 分词 + 词级 3-gram） |
-| 语义去重阈值 | 0.92（余弦相似度） |
+| 语义去重 | 候选召回 ≥0.65（bge-m3 余弦）+ 重排精判 ≥0.45；旧判定阈值 0.92 换模型后连续 4 期零命中，已改为召回门槛 |
 | 事件判定 | embedding 筛候选（≥0.65）+ 重排模型双向判同一事件（≥0.45） |
 | 可信度阈值 | 0.40（信号评分制） |
 | 时效窗口 | 72 小时（过滤后不足 12 条时窗口翻倍重试） |
 | 跨天内容库 | 近 14 天（标题 + 摘要） |
-| 跨期事件冷却 | 续报标注命中即转简讯；型号键窗口 7 天；官方源或 ≥3 家来源报道时放行 |
+| 跨期事件冷却 | 续报标注命中即转简讯；型号键窗口 7 天；官方一手新动作（教程/观点类不算）或 ≥4 家来源报道时放行，来源数取自语义去重合并簇的真实统计 |
 | 白名单域名 | 50 个 |
 | 黑名单域名 | 7 个 |
 | 正文条数 | 18 条（同一型号最多 2 条，超出转入简讯） |
@@ -254,7 +254,7 @@ python -m src.delivery.send_email
 | 彩蛋库 | AI 冷知识 / 编程笑话，按日期确定性轮换，当前 80 条（数量以 `src/config/trivia.json` 为准） |
 | 采集配额 | 中文媒体3条 / 论文3条 / AI媒体3条 / 大厂博客2条 / Twitter大佬4条 / 社区3条 |
 | 送审配额 | 来源平衡制：每源保底2条，最多送审40条 |
-| 自动化测试 | 262 个 |
+| 自动化测试 | 278 个 |
 
 ## 触发机制
 
@@ -271,7 +271,7 @@ GitHub Actions (schedule 设定 06:30 BJT；实际 08-09 点居多，偶有 10-1
 | 配置项 | 位置 |
 |:---|:---|
 | RSS 源列表 | `src/config/sources.py` → `RSS_SOURCES` |
-| 去重阈值 | `src/config/constants.py` → `DEDUP_*` |
+| 去重阈值与精判上限 | `src/config/constants.py` → `DEDUP_SEMANTIC_THRESHOLD` / `DEDUP_RERANK_MAX_PAIRS` |
 | 时效窗口 | `src/config/constants.py` → `NEWS_MAX_AGE_HOURS` |
 | 跨天内容保留期 | `src/config/constants.py` → `RECENT_TITLES_DAYS` |
 | 跨期事件冷却 | `src/config/constants.py` → `EVENT_COOLDOWN_DAYS` / `EVENT_PROGRESS_MIN_SOURCES` |
